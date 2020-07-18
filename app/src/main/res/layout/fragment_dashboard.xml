@@ -35,7 +35,7 @@
                 android:ems="10"
                 android:gravity="center"
                 android:inputType="textMultiLine"
-                android:lines="26" />
+                android:lines="24" />
         </ScrollView>
 
     </androidx.cardview.widget.CardView>
