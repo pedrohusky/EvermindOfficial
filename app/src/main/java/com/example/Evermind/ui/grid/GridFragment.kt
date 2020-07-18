@@ -33,11 +33,6 @@ class GridFragment : Fragment() {
         val add_button = root.findViewById(R.id.button) as Button
 
         add_button.setOnClickListener{
-            val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
-            with (sharedPref.edit()) {
-                putLong(getString(R.string.NotesWrote), )
-                commit()
-            }
 
             val myIntent = Intent(activity, NoteActivity::class.java)
             startActivity(myIntent)
