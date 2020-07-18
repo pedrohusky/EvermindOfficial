@@ -26,7 +26,7 @@
         android:id="@+id/nav_grid"
         android:name="com.example.Evermind.ui.grid.grid.GridFragment"
         android:label="Grid"
-        tools:layout="@layout/fragment_item_list" />
+        tools:layout="@layout/fragment_item_list" >
         <action
             android:id="@+id/action_nav_grid_to_nav_note"
             app:destination="@id/nav_note"
@@ -54,4 +54,6 @@
         android:name="com.example.Evermind.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    </fragment>
 </navigation>

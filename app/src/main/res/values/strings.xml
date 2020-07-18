@@ -11,4 +11,10 @@
     <string name="menu_home">@string/app_name</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="title_activity_note">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="NotesDescription">Notifications</string>
+    <string name="NotesWrote">xupakuuuu</string>
 </resources>
