@@ -54,4 +54,11 @@
         android:name="com.example.Evermind.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_save"
+        android:name="com.example.Evermind.ui.home.HomeFragment"
+        android:label="Save"
+        tools:layout="@layout/fragment_item_list" />
+
 </navigation>

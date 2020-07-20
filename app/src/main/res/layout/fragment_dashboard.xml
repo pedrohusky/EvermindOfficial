@@ -23,20 +23,39 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleX="1.165"
+            android:scaleY="1.15"
+            android:src="@drawable/note_background" />
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="17dp">
+            android:layout_marginTop="10dp">
 
             <EditText
-                android:id="@+id/editTextTextMultiLine"
+                android:id="@+id/ToSaveNoteText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@null"
                 android:ems="10"
                 android:gravity="center"
                 android:inputType="textMultiLine"
                 android:lines="24" />
         </ScrollView>
 
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="150dp"
+            android:layout_marginTop="500dp"
+            android:onClick="onSave"
+            android:text="Button" />
+
     </androidx.cardview.widget.CardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
