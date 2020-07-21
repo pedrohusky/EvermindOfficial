@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,7 +21,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     private ItemClickListener mClickListener;
 
     // data is passed into the constructor
-    RecyclerGridAdapter(Context context, String[] data) {
+    public RecyclerGridAdapter(Context context, String[] data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
     }
@@ -45,6 +46,9 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
         return mData.length;
     }
 
+    public void setClickListener(AdapterView.OnItemClickListener onItemClickListener) {
+    }
+
 
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -64,13 +68,16 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     }
 
     // convenience method for getting data at click position
-    String getItem(int id) {
+    public String getItem(int id) {
         return mData[id];
     }
 
     // allows clicks events to be caught
     void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
+    }
+
+    void setOnLongClickListener(AdapterView.OnItemLongClickListener onItemLongClickListener) {
     }
 
     // parent activity will implement this method to respond to click events

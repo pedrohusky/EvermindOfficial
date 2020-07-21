@@ -7,10 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.Evermind.NoteActivity
 import com.example.Evermind.R
+import com.example.Evermind.RecyclerGridAdapter
 import com.example.Evermind.Test
+import com.example.Evermind.ui.home.HomeFragment
 import com.example.Evermind.ui.slideshow.GridViewModel
+import java.util.*
 
 
 class GridFragment : Fragment() {
@@ -23,11 +28,14 @@ class GridFragment : Fragment() {
         savedInstanceState: Bundle?
 
     ): View? {
-        gridViewModel =
-            ViewModelProviders.of(this).get(GridViewModel::class.java)
 
         val root = inflater.inflate(R.layout.fragment_item_listbkup, container, false)
-        val add_button = root.findViewById(R.id.button) as Button
+
+
+        //val add_button = root.findViewById(R.id.button) as Button
+        val myIntent = Intent(activity, Test::class.java)
+
+        startActivity(myIntent)
 
         //val path = this.context?.getFilesDir()
         //val notedirectory = File(path, "Notes")
@@ -35,13 +43,14 @@ class GridFragment : Fragment() {
         //val inputAsString = FileInputStream(file).bufferedReader().use { it.readText() }
         //Toast.makeText(this.context, inputAsString, Toast.LENGTH_SHORT).show()
 
-        add_button.setOnClickListener{
+        //add_button.setOnClickListener{
 
 
-            val myIntent = Intent(activity, Test::class.java)
-            startActivity(myIntent)
+            //val myIntent = Intent(activity, Test::class.java)
+          //  startActivity(myIntent)
 
-        }
+
         return root
     }
-}
+    }
+
