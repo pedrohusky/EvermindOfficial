@@ -48,16 +48,20 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
         if (holder.myTitleView.length() > 1) {
             holder.myTitleView.setTextSize(17);
+            holder.myTitleView.setTranslationY(-10);
             holder.myTextView.setTextSize(16);
-            holder.myTitleView.setPadding(8, 8, 8, 25);
-            holder.myTextView.setPadding(8, 20, 8, 12);
+            holder.myTitleView.setPadding(15, 10, 15, 22);
+            holder.myTextView.setPadding(13, 20, 13, 20);
         }
 
 
         if (holder.myTitleView.length() < 1) {
-            holder.myTextView.setPadding(8, 5, 8, 50);
-            holder.myTitleView.setPadding(0, 0, 0, 0);
+
             holder.myTextView.setTextSize(25);
+            holder.myTextView.setPadding(15, 5, 15, 50);
+            holder.myTitleView.setPadding(0, 0, 0, 0);
+            holder.myTitleView.setTranslationY(5);
+
         }
 
     }

@@ -34,7 +34,7 @@
         android:id="@+id/nav_note"
         android:name="com.example.Evermind.ui.dashboard.NoteEditorFragment"
         android:label="Note"
-        tools:layout="@layout/fragment_dashboard" >
+        tools:layout="@layout/fragment_note_creator" >
         <action
             android:id="@+id/action_nav_note_to_nav_home"
             app:destination="@id/nav_home"

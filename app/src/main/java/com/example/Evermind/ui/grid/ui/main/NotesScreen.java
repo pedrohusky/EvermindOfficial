@@ -12,6 +12,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,12 +34,16 @@ import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapter;
 import com.example.Evermind.Test;
 import com.example.Evermind.ui.dashboard.NoteEditorFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemClickListener, AdapterView.OnItemLongClickListener {
 
@@ -110,9 +115,11 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     @Override
     public void onItemClick(View view, int position) {
 
+
         String title_content = titles.get(position);
         Integer id = ids.get(position);
         String waswrote = notes.get(position);
+
 
         Bundle newBundle = new Bundle();
         newBundle.putString("Content", waswrote);
@@ -121,13 +128,25 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         newBundle.putBoolean("addnote", true);
         Fragment fragment = new NoteEditorFragment();
         fragment.setArguments(newBundle);
+
+
         EditText editText = this.getActivity().findViewById(R.id.myEditText);
         editText.setVisibility(View.VISIBLE);
+        BottomNavigationView bottomNavigationView = this.getActivity().findViewById(R.id.navigation_note);
+        bottomNavigationView.setVisibility(View.VISIBLE);
 
 
 
+        //Handles ID to delete note //
+        SharedPreferences preferences= getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        SharedPreferences.Editor editor=preferences.edit();
+        editor.putInt("noteId", id);
+        editor.commit();
 
-        // TODO/// NavController method inside fragment //
+        Toast.makeText(getActivity(), id.toString(), Toast.LENGTH_SHORT).show();
+
+
+
         NavController navController = Navigation.findNavController(view);
         navController.navigate(R.id.action_nav_home_to_nav_note, newBundle);
 
@@ -140,13 +159,13 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     public void onClick(View view) {
 
         //Toast.makeText(this, "aaa", Toast.LENGTH_SHORT).show();
-        String waswrote = "";
-        Intent intent = new Intent(getActivity(), NoteEditorActivity.class);
-        int itemCount = adapter.getItemCount(); //MAYBE /// adapter.getItemCount() + 1 //// IS RIGHT
-        intent.putExtra("noteId", itemCount);
-        intent.putExtra("addnote", true);
-        intent.putExtra("WhatWasWrote", waswrote);
-        startActivity(intent);
+       // String waswrote = "";
+     //   Intent intent = new Intent(getActivity(), NoteEditorActivity.class);
+     //   int itemCount = adapter.getItemCount(); //MAYBE /// adapter.getItemCount() + 1 //// IS RIGHT
+      //  intent.putExtra("noteId", itemCount);
+      //  intent.putExtra("addnote", true);
+      //  intent.putExtra("WhatWasWrote", waswrote);
+      //  startActivity(intent);
 
     }
 
@@ -165,7 +184,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
                                 //notes.remove(noteToDelete);
                                 adapter.notifyDataSetChanged();
 
-                                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("com.example.Evermind", Context.MODE_PRIVATE);
+                                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("com.example.Evermind", MODE_PRIVATE);
                                 HashSet<String> set = new HashSet(Test.notes);
                                 sharedPreferences.edit().putStringSet("notes", set).apply();
 

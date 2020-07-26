@@ -16,7 +16,7 @@
             android:label="NoteView" />
         <activity
             android:name=".StartupActivity"
-            android:label="StartUp"
+            android:label="Evermind"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -14,7 +14,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.Evermind.ui.grid.ui.main.NotesScreen
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.android.synthetic.main.fragment_dashboard.*
+import kotlinx.android.synthetic.main.fragment_note_creator.*
 
 
 class NoteEditorActivity : AppCompatActivity() {

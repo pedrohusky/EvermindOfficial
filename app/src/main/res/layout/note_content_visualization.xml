@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
@@ -7,7 +8,7 @@
     <TextView
         android:id="@+id/info_title"
         android:layout_width="wrap_content"
-        android:layout_height="31dp"
+        android:layout_height="30dp"
         android:layout_marginStart="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="14dp"
@@ -15,17 +16,21 @@
         android:layout_marginRight="10dp"
         android:layout_marginBottom="12dp"
         android:background="@drawable/title_note_rectangle"
-        android:backgroundTint="@color/White"
+        android:backgroundTint="#00BCD4"
         android:elevation="7dp"
-        android:gravity="center|top"
+        android:gravity="bottom|center"
         android:includeFontPadding="false"
         android:maxLength="200"
-        android:padding="4dp"
-        android:text="olar"
+        android:outlineProvider="none"
+        android:padding="3dp"
+        android:singleLine="true"
         android:textColor="@color/Black"
         android:textSize="15dp"
         android:textStyle="bold"
-        android:visibility="visible" />
+        android:visibility="visible"
+        app:autoSizeMaxTextSize="18dp"
+        app:autoSizeMinTextSize="14dp"
+        app:autoSizeTextType="uniform" />
 
     <TextView
         android:id="@+id/info_text"
@@ -46,5 +51,8 @@
         android:paddingTop="5dp"
         android:paddingBottom="12dp"
         android:text="olar"
-        android:textColor="#050505" />
+        android:textColor="#050505"
+        app:autoSizeMaxTextSize="20dp"
+        app:autoSizeMinTextSize="14.3dp"
+        app:autoSizeTextType="uniform" />
 </RelativeLayout>

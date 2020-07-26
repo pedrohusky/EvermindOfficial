@@ -9,7 +9,7 @@
         android:id="@+id/navigation_dashboard"
         android:name="com.example.Evermind.ui.dashboard.NoteEditorFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_note_creator" />
 
     <action
         android:id="@+id/action_nav_grid_to_nav_note"

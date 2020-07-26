@@ -153,9 +153,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return arrayListContent;
     }
 
-    public boolean deleteNote(Note_Model note_model) {
+    public boolean deleteNote(Integer id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "DELETE FROM " + TABLE_NOTES + "WHERE " + NOTE_ID + " = " + note_model.getId();
+        String query = "DELETE FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + id + "'";
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
             return true;

@@ -23,7 +23,7 @@ class NoteEditorFragment : Fragment() {
     ): View? {
         dashboardViewModel =
             ViewModelProviders.of(this).get(DashboardViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
+        val root = inflater.inflate(R.layout.fragment_note_creator, container, false)
 
         return root
     }
@@ -34,8 +34,6 @@ class NoteEditorFragment : Fragment() {
 
         if (arguments != null) {
             val text = requireArguments().getString("Content")
-            val newnote = requireArguments().getBoolean("addnote")
-            val noteId = requireArguments().getInt("noteId")
             val title_text = requireArguments().getString("title")
 
             val texto = requireView().findViewById(R.id.ToSaveNoteText) as EditText
@@ -62,29 +60,31 @@ class NoteEditorFragment : Fragment() {
 
 
                 dbhelper.editNote(noteId.toString(), title_content, content.text.toString())
+            }
+
+            title.doAfterTextChanged {
 
                 if (title_text.equals(title_text) != true) {
-                    title.doAfterTextChanged {
 
-                        val dbhelper: DataBaseHelper
-                        dbhelper = DataBaseHelper(activity)
+                    val dbhelper: DataBaseHelper
+                    dbhelper = DataBaseHelper(activity)
 
-                        val noteId = requireArguments().getInt("noteId")
-                        val content = requireView().findViewById(R.id.ToSaveNoteText) as EditText
-                        val title_content = title.text.toString()
+                    val noteId = requireArguments().getInt("noteId")
+                    val content = requireView().findViewById(R.id.ToSaveNoteText) as EditText
+                    val title_content = title.text.toString()
 
-                        if (title_content.equals("Create a new title")) {
-                            title.setText("")
-                        }
-
-
-                        dbhelper.editNote(noteId.toString(), title_content, content.text.toString())
+                    if (title_content.equals("Create a new title")) {
+                        title.setText("")
                     }
+
+                    dbhelper.editNote(noteId.toString(), title_content, content.text.toString())
+
                 }
             }
         }
     }
 }
+    
 
 
 
