@@ -2,33 +2,21 @@ package com.example.Evermind;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.Evermind.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import org.w3c.dom.Text;
-
-import java.sql.Array;
-import java.sql.Struct;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 
@@ -45,17 +33,33 @@ public class Test extends AppCompatActivity implements RecyclerGridAdapter.ItemC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_item_list);
+        setContentView(R.layout.grid_notes_home_screen);
 
 
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("com.example.Evermind", Context.MODE_PRIVATE);
 
         HashSet<String> set = (HashSet<String>) sharedPreferences.getStringSet("notes", null);
 
-       if (set == null) {
-           notes.add("Create a new note"); }
-       else {
-           notes = new ArrayList<>(set); }
+        Intent intent = getIntent();
+
+        int noteid = intent.getIntExtra("noteId", -1);
+        String savednote = intent.getStringExtra("notes");
+
+        if (set == null) {
+            if (notes.contains("Create a new note") != true) {
+                notes.add("Create a new note");
+            }
+        } else {
+
+            notes = new ArrayList(set);
+            Collections.sort(notes, new Comparator<String>() {
+                @Override
+                public int compare(String s, String t1) {
+                    return s.compareTo(t1);
+                }
+            });
+
+        }
 
 
         //Intent intent = getIntent();
@@ -66,34 +70,28 @@ public class Test extends AppCompatActivity implements RecyclerGridAdapter.ItemC
 
         // data to populate the RecyclerView with
         String[] data = notes.toArray(new String[0]);
+        String[] titles = notes.toArray(new String[0]);
+        String[] dates = notes.toArray(new String[0]);
 
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 
         // set up the RecyclerView
         RecyclerView recyclerView = findViewById(R.id.rvNumbers);
-        int numberOfColumns = 2;
-        recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
-
-        //int mNoOfColumns = Utility.calculateNoOfColumns(this, 2);
-
-        //GridLayoutManager = new GridLayoutManager(this, mNoOfColumns);
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
 
 
-        adapter = new RecyclerGridAdapter(this, data);
+        adapter = new RecyclerGridAdapter(this, data, titles, dates);
         //adapter.setClickListener();
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
         adapter.setOnLongClickListener(this);
-
-        //HashSet<String> sett = new HashSet(Test.notes);
-        //sharedPreferences.edit().putStringSet("notes", sett).apply();
     }
-
 
     @Override
     public void onItemClick(View view, int position) {
         Log.i("TAG", "You clicked number " + adapter.getItem(position) + ", which is at cell position " + position);
         String waswrote = adapter.getItem(position);
-        Intent intent = new Intent(getApplicationContext(), NoteActivity.class);
+        Intent intent = new Intent(getApplicationContext(), NoteEditorActivity.class);
         intent.putExtra("noteId", position);
         intent.putExtra("WhatWasWrote", waswrote);
         startActivity(intent);
@@ -104,7 +102,7 @@ public class Test extends AppCompatActivity implements RecyclerGridAdapter.ItemC
 
         //Toast.makeText(this, "aaa", Toast.LENGTH_SHORT).show();
         String waswrote = "";
-        Intent intent = new Intent(getApplicationContext(), NoteActivity.class);
+        Intent intent = new Intent(getApplicationContext(), NoteEditorActivity.class);
         int itemCount = adapter.getItemCount(); //MAYBE /// adapter.getItemCount() + 1 //// IS RIGHT
         intent.putExtra("noteId", itemCount);
         intent.putExtra("addnote", true);
@@ -115,7 +113,7 @@ public class Test extends AppCompatActivity implements RecyclerGridAdapter.ItemC
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-        final int noteToDelete = i;
+       // final int noteToDelete = i;
         Toast.makeText(this, "uuuuuu", Toast.LENGTH_SHORT).show();
 
         new AlertDialog.Builder(getApplicationContext())
@@ -125,7 +123,7 @@ public class Test extends AppCompatActivity implements RecyclerGridAdapter.ItemC
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                notes.remove(noteToDelete);
+                                //notes.remove(noteToDelete);
                                 adapter.notifyDataSetChanged();
 
                                 SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("com.example.Evermind", Context.MODE_PRIVATE);

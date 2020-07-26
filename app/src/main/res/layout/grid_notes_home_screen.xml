@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvNumbers"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="30dp"
+        android:layoutAnimation="@anim/grid_appear_layout_animation"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <Button
+        android:id="@+id/decoy_button"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@drawable/note_plus_button_rectangle"
+        android:clickable="true"
+        android:elevation="10dp"
+        android:onClick="onClick"
+        android:visibility="visible"
+        app:backgroundTint="@color/White" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginStart="72dp"
+        android:clickable="true"
+        android:onClick="onClick"
+        android:translationX="110dp"
+        android:translationY="-5dp"
+        app:backgroundTint="@color/White"
+        app:elevation="2dp"
+        app:fabSize="mini"
+        app:maxImageSize="35dp"
+        app:srcCompat="@drawable/ic_baseline_add_24" />
+
+</RelativeLayout>

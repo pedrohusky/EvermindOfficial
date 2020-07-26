@@ -4,20 +4,20 @@
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_home_black_24dp"
-        android:title="@string/title_home" />
+        android:title="Color" />
 
     <item
         android:id="@+id/navigation_dashboard"
         android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="@string/title_dashboard" />
+        android:title="Italic" />
 
     <item
         android:id="@+id/navigation_notifications"
         android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="@string/title_notifications" />
+        android:title="Underline" />
     <item
         android:id="@+id/navigation_save"
-        android:icon="@drawable/ic_baseline_save_24"
-        android:title="Save" />
+        android:icon="@drawable/ic_baseline_delete_forever_24"
+        android:title="Delete" />
 
 </menu>

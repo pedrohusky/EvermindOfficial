@@ -8,11 +8,14 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.startup_activity.*
+import java.util.*
+import kotlin.concurrent.schedule
 
 
 class StartupActivity : AppCompatActivity() {
@@ -84,36 +87,23 @@ class StartupActivity : AppCompatActivity() {
         startButton.setOnClickListener {
             startButton.startAnimation(button_Anim)
             EvermindBlack.startAnimation(fade)
-            circle1.visibility=View.VISIBLE
-            circle2.visibility=View.VISIBLE
-            circle3.visibility=View.VISIBLE
-            circle4.visibility=View.VISIBLE
-            circle5.visibility=View.VISIBLE
+            circle1.visibility = View.VISIBLE
+            circle2.visibility = View.VISIBLE
+            circle3.visibility = View.VISIBLE
+            circle4.visibility = View.VISIBLE
+            circle5.visibility = View.VISIBLE
             circle1.startAnimation(scaleup)
             circle2.startAnimation(scaleup2)
             circle3.startAnimation(scaleup3)
             circle4.startAnimation(scaleup4)
             circle5.startAnimation(scaleup5)
             startButton.startAnimation(fadebutton)
+            Timer("SettingUp", false).schedule(1500) {
+                val intent = Intent(applicationContext, MainActivity::class.java)
+                startActivity(intent)
+            }
 
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            //overridePendingTransition(R.anim.fade_title, R.anim.fade_in);
         }
-
-        //fun longclick() {
-        //startButton.startAnimation(focusedButton)
-        //EvermindBlack.startAnimation(button_Anim)
-        //}
-
-        //fun dispathAnEventOnLongClick(startButton: Button): Boolean {
-        //longclick()
-        //return true;
-        //}
-
-        //startButton.setOnLongClickListener {
-        //dispathAnEventOnLongClick(startButton);
-        //}
         startButton.setOnTouchListener { v, event ->
             when (event?.action) {
                 MotionEvent.ACTION_DOWN -> startButton.startAnimation(focusedButton)//Do Something

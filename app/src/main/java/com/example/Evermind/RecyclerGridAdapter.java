@@ -1,43 +1,65 @@
 package com.example.Evermind;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.Evermind.R;
+import java.util.Arrays;
 
 public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapter.ViewHolder> {
 
     private String[] mData;
+    private String[] mTitle;
+    private String[] mDate;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
 
     // data is passed into the constructor
-    public RecyclerGridAdapter(Context context, String[] data) {
+    public RecyclerGridAdapter(Context context, String[] data, String[] title, String[] date) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
+        this.mTitle = title;
+        this.mDate = date;
     }
+
+
 
     // inflates the cell layout from xml when needed
     @Override
     @NonNull
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.nilu, parent, false);
+        View view = mInflater.inflate(R.layout.note_content_visualization, parent, false);
         return new ViewHolder(view);
     }
 
     // binds the data to the TextView in each cell
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerGridAdapter.ViewHolder holder, int position) {
+
+
         holder.myTextView.setText(mData[position]);
+        holder.myTitleView.setText(mTitle[position]);
+
+        if (holder.myTitleView.length() > 1) {
+            holder.myTitleView.setTextSize(17);
+            holder.myTextView.setTextSize(16);
+            holder.myTitleView.setPadding(8, 8, 8, 25);
+            holder.myTextView.setPadding(8, 20, 8, 12);
+        }
+
+
+        if (holder.myTitleView.length() < 1) {
+            holder.myTextView.setPadding(8, 5, 8, 50);
+            holder.myTitleView.setPadding(0, 0, 0, 0);
+            holder.myTextView.setTextSize(25);
+        }
+
     }
 
     // total number of cells
@@ -46,6 +68,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
         return mData.length;
     }
 
+
     public void setClickListener(AdapterView.OnItemClickListener onItemClickListener) {
     }
 
@@ -53,10 +76,12 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView myTextView;
+        TextView myTitleView;
 
         ViewHolder(View itemView) {
             super(itemView);
             myTextView = itemView.findViewById(R.id.info_text);
+            myTitleView = itemView.findViewById(R.id.info_title);
             itemView.setOnClickListener(this);
         }
 
@@ -73,7 +98,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     }
 
     // allows clicks events to be caught
-    void setClickListener(ItemClickListener itemClickListener) {
+    public void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
@@ -86,4 +111,8 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
         void onClick(View view);
     }
+
+   //public RecyclerGridAdapter(GetOnClickListenerInterface listener){
+       // this.mClickListener = (ItemClickListener) listener;
+  // }
 }
