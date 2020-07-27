@@ -80,7 +80,7 @@ public class Test extends AppCompatActivity implements RecyclerGridAdapter.ItemC
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
 
 
-        adapter = new RecyclerGridAdapter(this, data, titles, dates);
+        //adapter = new RecyclerGridAdapter(this, data, titles, dates);
         //adapter.setClickListener();
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);

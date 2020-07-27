@@ -49,7 +49,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
 
     public static RecyclerGridAdapter adapter;
-    DataBaseHelper databaseHelper;
+    public static DataBaseHelper databaseHelper;
 
     //Notes Array \/
     public static ArrayList<String> notes = new ArrayList<>();
@@ -57,6 +57,16 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     public static ArrayList<String> titles = new ArrayList<>();
     public static ArrayList<String> dates = new ArrayList<>();
     public static ArrayList<Integer> ids = new ArrayList<>();
+
+    public static ArrayList<Integer> text_colors = new ArrayList<>();
+    public static ArrayList<String> text_colors_texts = new ArrayList<>();
+    public static ArrayList<Integer> background_colors = new ArrayList<>();
+    public static ArrayList<String> background_colors_texts = new ArrayList<>();
+    public static ArrayList<String> striketroughs = new ArrayList<>();
+    public static ArrayList<String> underlines = new ArrayList<>();
+    public static ArrayList<String> set_subscripts = new ArrayList<>();
+    public static ArrayList<String> clickable_texts = new ArrayList<>();
+    public static ArrayList<Integer> clickable_texts_colors = new ArrayList<>();
 
     private MainViewModel mViewModel;
 
@@ -80,6 +90,15 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
             titles = databaseHelper.getTitlesFromDatabase();
             dates = databaseHelper.getDateFromDatabase();
             ids = databaseHelper.getIDFromDatabase();
+            text_colors = databaseHelper.getTextColorFromDatabase();
+            text_colors_texts = databaseHelper.getTextColorTextFromDatabase();
+            background_colors = databaseHelper.getBackgroundColorFromDatabase();
+            background_colors_texts = databaseHelper.getBackgroundColorTextFromDatabase();
+            striketroughs = databaseHelper.getStriketroughFromDatabase();
+            underlines = databaseHelper.getUnderlineFromDatabase();
+            set_subscripts = databaseHelper.getSetSubscriptFromDatabase();
+            clickable_texts = databaseHelper.getClickableTextFromDatabase();
+            clickable_texts_colors = databaseHelper.getClickableTextColorFromDatabase();
 
             //titles = new ArrayList(title_content_from_device);
            // Collections.sort(notes, new Comparator<String>() { // Sort alphabetically TODO
@@ -99,6 +118,15 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         String[] title = titles.toArray(new String[0]);
         String[] date = dates.toArray(new String[0]);
         Integer[] id = ids.toArray(new Integer[0]);
+        Integer[] text_color = text_colors.toArray(new Integer[0]);
+        String[] text_color_text = text_colors_texts.toArray(new String[0]);
+        Integer[] background_color = background_colors.toArray(new Integer[0]);
+        String[] background_color_text = background_colors_texts.toArray(new String[0]);
+        String[] striketrough = striketroughs.toArray(new String[0]);
+        String[] underline = underlines.toArray(new String[0]);
+        String[] set_subscript = set_subscripts.toArray(new String[0]);
+        String[] clickable_text = clickable_texts.toArray(new String[0]);
+        Integer[] clickable_text_color = clickable_texts_colors.toArray(new Integer[0]);
 
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 
@@ -106,7 +134,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         RecyclerView recyclerView = getActivity().findViewById(R.id.rvNumbers);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
 /// TODO \/
-        adapter = new RecyclerGridAdapter(this.getActivity(), data, title, date); //requireContext() works too
+        adapter = new RecyclerGridAdapter(this.getActivity(), data, title, date, text_color, text_color_text, background_color, background_color_text, striketrough, underline, set_subscript, clickable_text, clickable_text_color); //requireContext() works too
         recyclerView.setAdapter(adapter);
  ///       TODO /\
         adapter.setClickListener(this);
@@ -142,8 +170,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         SharedPreferences.Editor editor=preferences.edit();
         editor.putInt("noteId", id);
         editor.commit();
-
-        Toast.makeText(getActivity(), id.toString(), Toast.LENGTH_SHORT).show();
 
 
 

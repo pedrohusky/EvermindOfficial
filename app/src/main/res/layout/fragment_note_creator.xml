@@ -37,12 +37,14 @@
                     android:background="@null"
                     android:ems="10"
                     android:gravity="start"
+                    android:hint="Create something"
                     android:includeFontPadding="false"
                     android:inputType="textMultiLine"
                     android:maxLines="200"
                     android:minLines="22"
                     android:paddingHorizontal="15dp"
                     android:paddingVertical="6dp"
+                    android:textIsSelectable="true"
                     android:textSize="21dp" />
             </LinearLayout>
 

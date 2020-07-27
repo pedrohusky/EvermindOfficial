@@ -24,6 +24,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/White"
+                android:hint="Create a new Title"
+                android:inputType="text"
                 android:visibility="gone" />
         </androidx.appcompat.widget.Toolbar>
 

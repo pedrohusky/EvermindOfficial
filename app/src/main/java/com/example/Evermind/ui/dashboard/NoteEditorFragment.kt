@@ -54,10 +54,6 @@ class NoteEditorFragment : Fragment() {
                 val noteId = requireArguments().getInt("noteId")
                 val title_content = title.text.toString()
 
-                if (title_content.equals("Create a new title")) {
-                    title.setText("")
-                }
-
 
                 dbhelper.editNote(noteId.toString(), title_content, content.text.toString())
             }
@@ -73,9 +69,6 @@ class NoteEditorFragment : Fragment() {
                     val content = requireView().findViewById(R.id.ToSaveNoteText) as EditText
                     val title_content = title.text.toString()
 
-                    if (title_content.equals("Create a new title")) {
-                        title.setText("")
-                    }
 
                     dbhelper.editNote(noteId.toString(), title_content, content.text.toString())
 

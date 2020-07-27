@@ -6,7 +6,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.style.StyleSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +38,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import static com.example.Evermind.ui.grid.ui.main.NotesScreen.ids;
@@ -43,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     DataBaseHelper mDatabaseHelper;
     RecyclerGridAdapter adapter;
+    Integer ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +65,22 @@ public class MainActivity extends AppCompatActivity {
                 int id = item.getItemId();
 
                 switch (id) {
-                    case R.id.nav_home:
+                    case R.id.navigation_home:
                         Toast.makeText(MainActivity.this, "1", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case R.id.navigation_dashboard:
+
+                        EditText editText = findViewById(R.id.ToSaveNoteText);
+                        int selectionStart = editText.getSelectionStart();
+                        int selectionEnd = editText.getSelectionEnd();
+
+                        SpannableStringBuilder stringBuilder = (SpannableStringBuilder) editText.getText();
+                        stringBuilder.setSpan(new StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, 0);
+
+                        Toast.makeText(MainActivity.this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
+
+
                         break;
 
                     case R.id.navigation_save:
@@ -178,36 +198,66 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View v) {
 
-        Integer itemcount = NotesScreen.adapter.getItemCount();
+
+        AddContent("", "", 000000, "", 000000, "", "", "", "", "", 000000);
+
+       ArrayList<Integer> arrayList = NotesScreen.databaseHelper.getIDFromDatabase();
+
+       if (arrayList.isEmpty() != true) {
+
+           ID = arrayList.get(arrayList.size()-1);
+
+           String waswrote = "";
+           Fragment fragment = new NoteEditorFragment();
+           Bundle bundle = new Bundle();
+           bundle.putInt("noteId", ID);
+           bundle.putString("Content", waswrote);
+           bundle.putBoolean("addnote", true);
+           bundle.putString("title", "");
+           fragment.setArguments(bundle);
+
+           NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+           navController.navigate(R.id.action_nav_home_to_nav_note, bundle);
+
+
+       } else {
+
         String waswrote = "";
+
+           NotesScreen.adapter.notifyDataSetChanged();
+
+           ID = NotesScreen.adapter.getItemCount();
 
         Fragment fragment = new NoteEditorFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt("noteId", itemcount);
+        bundle.putInt("noteId", ID);
         bundle.putString("Content", waswrote);
         bundle.putBoolean("addnote", true);
-        bundle.putString("title", "Create a new Title");
+        bundle.putString("title", "");
         fragment.setArguments(bundle);
+
+           NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+           navController.navigate(R.id.action_nav_home_to_nav_note, bundle);
+
+
+       }
+
 
         EditText editText = findViewById(R.id.myEditText);
         editText.setVisibility(View.VISIBLE);
+
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
         bottomNavigationView.setVisibility(View.VISIBLE);
 
-        Toast.makeText(this, itemcount.toString(), Toast.LENGTH_SHORT).show();
 
-        //AddContent("Create a new title", "Override this");
-
-
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        navController.navigate(R.id.action_nav_home_to_nav_note, bundle);
     }
 
 
 
-    public void AddContent(String title, String content) {
+    public void AddContent(String title, String content, Integer text_color, String text_color_text, Integer backgrond_color, String background_color_text, String striketrough, String underline, String set_subscript, String clickable_text, Integer clickable_text_color) {
 
-        boolean insertData = mDatabaseHelper.AddNoteContent(title, content);
+        boolean insertData = mDatabaseHelper.AddNoteContent(title, content, text_color, text_color_text, backgrond_color, background_color_text, striketrough, underline, set_subscript, clickable_text, clickable_text_color);
         toastMessage(content);
         if (insertData) {
             toastMessage("Data successfully inserted");

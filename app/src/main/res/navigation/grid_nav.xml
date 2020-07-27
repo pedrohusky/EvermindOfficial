@@ -29,6 +29,7 @@
         android:label="Save"
         tools:layout="@layout/fragment_notifications" />
 
+
     <fragment
         android:id="@+id/nav_grid"
         android:name="com.example.Evermind.ui.grid.ui.main.NotesScreen"
