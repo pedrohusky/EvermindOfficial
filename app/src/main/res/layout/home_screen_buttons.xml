@@ -53,4 +53,82 @@
         app:itemTextColor="@color/Black"
         app:menu="@menu/note_bottom_options" />
 
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:columnCount="2"
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="5dp"
+        android:rotation="90"
+        android:translationY="-65dp">
+
+        <ImageView
+            android:id="@+id/imageView21"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="TODO"
+            android:padding="5dp"
+            android:tint="@color/Black"
+            app:srcCompat="@drawable/circle_colors" />
+
+        <ImageView
+            android:id="@+id/imageView22"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:tint="@color/White"
+            app:srcCompat="@drawable/circle_colors" />
+
+        <ImageView
+            android:id="@+id/imageView23"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:tint="@color/Magenta"
+            app:srcCompat="@drawable/circle_colors" />
+
+        <ImageView
+            android:id="@+id/imageView24"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:tint="@color/Pink"
+            app:srcCompat="@drawable/circle_colors" />
+
+        <ImageView
+            android:id="@+id/imageView19"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:tint="@color/Orange"
+            app:srcCompat="@drawable/circle_colors" />
+
+        <ImageView
+            android:id="@+id/imageView20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:tint="@color/SkyBlue"
+            app:srcCompat="@drawable/circle_colors" />
+
+        <ImageView
+            android:id="@+id/imageView18"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:tint="@color/YellowSun"
+            app:srcCompat="@drawable/circle_colors" />
+
+        <ImageView
+            android:id="@+id/imageView17"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:tint="@color/GrassGreen"
+            app:srcCompat="@drawable/circle_colors" />
+    </GridLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
