@@ -148,15 +148,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     //This start NoteEditor and send Array to
     public void onClick(View view) {
 
-        //Toast.makeText(this, "aaa", Toast.LENGTH_SHORT).show();
-       // String waswrote = "";
-     //   Intent intent = new Intent(getActivity(), NoteEditorActivity.class);
-     //   int itemCount = adapter.getItemCount(); //MAYBE /// adapter.getItemCount() + 1 //// IS RIGHT
-      //  intent.putExtra("noteId", itemCount);
-      //  intent.putExtra("addnote", true);
-      //  intent.putExtra("WhatWasWrote", waswrote);
-      //  startActivity(intent);
-
     }
 
     @Override

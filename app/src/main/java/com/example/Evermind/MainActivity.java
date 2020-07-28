@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     public static DataBaseHelper mDatabaseHelper;
     RecyclerGridAdapter adapter;
     Integer ID;
+    public Boolean AntiGoBack = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +162,11 @@ public class MainActivity extends AppCompatActivity {
         EditText editText = findViewById(R.id.myEditText);
         editText.setVisibility(View.GONE);
 
+        //ArrayList<Integer> array = databaseHelper.getIDFromDatabase();
+       // Integer id = array;
+       // if (databaseHelper.getIDFromDatabase()
+
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
         bottomNavigationView.setVisibility(View.GONE);
 
@@ -172,6 +178,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
+
+
+       if (AntiGoBack == true) {
+
+           return super.onOptionsItemSelected(item);
+
+       } else {
+
         if (item.getItemId() == android.R.id.home) {
 
                 EditText editText = findViewById(R.id.myEditText);
@@ -180,12 +194,12 @@ public class MainActivity extends AppCompatActivity {
             BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
             bottomNavigationView.setVisibility(View.GONE);
 
-                Bundle bundle = new Bundle();
-                bundle.putBoolean("AntiGoBack", true);
+
+                AntiGoBack = false;
 
                 NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-                navController.navigate(R.id.action_nav_note_to_nav_home, bundle);
-                return true; }
+                navController.navigate(R.id.action_nav_note_to_nav_home);
+                return true; } }
 
         return super.onOptionsItemSelected(item); }
 
@@ -194,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
         AddContent("", "");
 
-       ArrayList<Integer> arrayList = NotesScreen.databaseHelper.getIDFromDatabase();
+       ArrayList<Integer> arrayList = databaseHelper.getIDFromDatabase();
 
        if (arrayList.isEmpty() != true) {
 
@@ -245,6 +259,11 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
         bottomNavigationView.setVisibility(View.VISIBLE);
 
+        SharedPreferences preferences= this.getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        SharedPreferences.Editor editor=preferences.edit();
+        editor.putInt("noteId", ID);
+        editor.commit();
+
 
     }
 
@@ -253,6 +272,7 @@ public class MainActivity extends AppCompatActivity {
     public void AddContent(String title, String content) {
 
         boolean insertData = mDatabaseHelper.AddNoteContent(title, content);
+
         toastMessage(content);
         if (insertData) {
             toastMessage("Data successfully inserted");
