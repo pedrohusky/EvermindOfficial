@@ -4,20 +4,18 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:padding="8dp"
     tools:context="com.example.Evermind.ui.notifications.NotificationsFragment">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="5dp"
-        android:paddingTop="5dp"
-        android:paddingRight="5dp"
         android:paddingBottom="5dp"
         app:cardBackgroundColor="#EAEAEA"
         app:cardCornerRadius="30dp"
         app:cardElevation="8dp"
-        app:contentPadding="5dp">
+        app:contentPadding="8dp">
 
         <GridLayout
             android:layout_width="match_parent"
@@ -32,66 +30,66 @@
                 android:id="@+id/imageView21"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="TODO"
                 android:padding="5dp"
-                app:srcCompat="@drawable/circle_colors"
                 android:tint="@color/Black"
-                android:contentDescription="TODO" />
+                app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
                 android:id="@+id/imageView22"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:srcCompat="@drawable/circle_colors"
-                android:tint="@color/White" />
+                android:tint="@color/White"
+                app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
                 android:id="@+id/imageView23"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:srcCompat="@drawable/circle_colors"
-                android:tint="#EDF52E66" />
+                android:tint="@color/Magenta"
+                app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
                 android:id="@+id/imageView24"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:srcCompat="@drawable/circle_colors"
-                android:tint="#c371f9" />
+                android:tint="@color/Pink"
+                app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
                 android:id="@+id/imageView19"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:srcCompat="@drawable/circle_colors"
-                android:tint="#F9A75D" />
+                android:tint="@color/Orange"
+                app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
                 android:id="@+id/imageView20"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:srcCompat="@drawable/circle_colors"
-                android:tint="#6CCAEF" />
+                android:tint="@color/SkyBlue"
+                app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
                 android:id="@+id/imageView18"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:srcCompat="@drawable/circle_colors"
-                android:tint="#FAF075" />
+                android:tint="@color/YellowSun"
+                app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
                 android:id="@+id/imageView17"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:srcCompat="@drawable/circle_colors"
-                android:tint="#8de791" />
+                android:tint="@color/GrassGreen"
+                app:srcCompat="@drawable/circle_colors" />
         </GridLayout>
     </androidx.cardview.widget.CardView>
 

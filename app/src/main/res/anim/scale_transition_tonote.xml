@@ -12,7 +12,7 @@
     android:toYScale="1"
     android:toXScale="1"
     android:duration="800"
-    android:pivotY="100"
-    android:pivotX="530"/>
+    android:pivotY="50"
+    android:pivotX="545"/>
 </set>
 

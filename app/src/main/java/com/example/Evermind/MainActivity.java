@@ -1,52 +1,43 @@
 package com.example.Evermind;
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.SpannableStringBuilder;
-import android.text.style.StyleSpan;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.Evermind.R;
-import com.example.Evermind.ui.dashboard.NoteEditorFragment;
+import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
 import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.resources.TextAppearance;
 import com.google.android.material.snackbar.Snackbar;
-
+import com.tuyenmonkey.textdecorator.TextDecorator;
 import java.util.ArrayList;
-import java.util.HashSet;
-
-import static com.example.Evermind.ui.grid.ui.main.NotesScreen.ids;
+import static com.example.Evermind.ui.grid.ui.main.NotesScreen.databaseHelper;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    DataBaseHelper mDatabaseHelper;
+    public static DataBaseHelper mDatabaseHelper;
     RecyclerGridAdapter adapter;
     Integer ID;
 
@@ -57,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
+
 
         BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
         bottomNavigationView1.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -75,11 +67,10 @@ public class MainActivity extends AppCompatActivity {
                         int selectionStart = editText.getSelectionStart();
                         int selectionEnd = editText.getSelectionEnd();
 
-                        SpannableStringBuilder stringBuilder = (SpannableStringBuilder) editText.getText();
-                        stringBuilder.setSpan(new StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, 0);
 
-                        Toast.makeText(MainActivity.this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
-
+                        SpannableString spannableString = new SpannableString(editText.getText());
+                        spannableString.setSpan(new ForegroundColorSpan(Color.MAGENTA), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        editText.setText(spannableString, TextView.BufferType.SPANNABLE);
 
                         break;
 
@@ -93,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
 
-                                                SharedPreferences preferences=getSharedPreferences("DeleteNoteID",MODE_PRIVATE);
+                                                SharedPreferences preferences = getSharedPreferences("DeleteNoteID",MODE_PRIVATE);
                                                 int id = preferences.getInt("noteId", -1);
 
                                                 Toast.makeText(MainActivity.this, Integer.toString(id), Toast.LENGTH_SHORT).show();
@@ -176,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -199,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClick(View v) {
 
 
-        AddContent("", "", 000000, "", 000000, "", "", "", "", "", 000000);
+        AddContent("", "");
 
        ArrayList<Integer> arrayList = NotesScreen.databaseHelper.getIDFromDatabase();
 
@@ -208,12 +201,13 @@ public class MainActivity extends AppCompatActivity {
            ID = arrayList.get(arrayList.size()-1);
 
            String waswrote = "";
-           Fragment fragment = new NoteEditorFragment();
+           Fragment fragment = new NoteEditorFragmentJavaFragment();
            Bundle bundle = new Bundle();
            bundle.putInt("noteId", ID);
            bundle.putString("Content", waswrote);
            bundle.putBoolean("addnote", true);
            bundle.putString("title", "");
+
            fragment.setArguments(bundle);
 
            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -228,12 +222,13 @@ public class MainActivity extends AppCompatActivity {
 
            ID = NotesScreen.adapter.getItemCount();
 
-        Fragment fragment = new NoteEditorFragment();
+        Fragment fragment = new NoteEditorFragmentJavaFragment();
         Bundle bundle = new Bundle();
         bundle.putInt("noteId", ID);
         bundle.putString("Content", waswrote);
         bundle.putBoolean("addnote", true);
         bundle.putString("title", "");
+
         fragment.setArguments(bundle);
 
            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -255,9 +250,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public void AddContent(String title, String content, Integer text_color, String text_color_text, Integer backgrond_color, String background_color_text, String striketrough, String underline, String set_subscript, String clickable_text, Integer clickable_text_color) {
+    public void AddContent(String title, String content) {
 
-        boolean insertData = mDatabaseHelper.AddNoteContent(title, content, text_color, text_color_text, backgrond_color, background_color_text, striketrough, underline, set_subscript, clickable_text, clickable_text_color);
+        boolean insertData = mDatabaseHelper.AddNoteContent(title, content);
         toastMessage(content);
         if (insertData) {
             toastMessage("Data successfully inserted");

@@ -33,7 +33,7 @@ public class Test extends AppCompatActivity implements RecyclerGridAdapter.ItemC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.grid_notes_home_screen);
+        setContentView(R.layout.home_screen_notes);
 
 
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("com.example.Evermind", Context.MODE_PRIVATE);

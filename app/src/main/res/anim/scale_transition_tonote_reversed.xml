@@ -13,6 +13,6 @@
     android:toXScale="0"
     android:duration="800"
     android:pivotY="100"
-    android:pivotX="530"/>
+    android:pivotX="545"/>
 </set>
 

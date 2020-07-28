@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.example.Evermind.ui.dashboard.NoteEditorFragment"
+        android:name="com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_note_creator" />
 
@@ -34,7 +34,7 @@
         android:id="@+id/nav_grid"
         android:name="com.example.Evermind.ui.grid.ui.main.NotesScreen"
         android:label="Grid"
-        tools:layout="@layout/grid_notes_home_screen" />
+        tools:layout="@layout/home_screen_notes" />
     <action
         android:id="@+id/action_nav_grid_to_nav_note"
         app:destination="@id/nav_note"

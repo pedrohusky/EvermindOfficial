@@ -1,7 +1,10 @@
 package com.example.Evermind;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,41 +20,24 @@ import com.tuyenmonkey.textdecorator.callback.OnTextClickListener;
 
 import java.util.Arrays;
 
+import static com.tuyenmonkey.textdecorator.TextDecorator.decorate;
+
 public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapter.ViewHolder> {
 
     private String[] mData;
     private String[] mTitle;
     private String[] mDate;
-    private Integer[] mTextColor;
-    private String[] mTextColorText;
-    private Integer[] mBackgroundColor;
-    private String[] mBackgroundColorText;
-    private String[] mStriketrough;
-    private String[] mUnderline;
-    private String[] mSetSubscript;
-    private String[] mClickableText;
-    private Integer[] mClickableTextColor;
 
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
 
     // data is passed into the constructor
-    public RecyclerGridAdapter(Context context, String[] data, String[] title, String[] date, Integer[] text_color, String[] text_color_text, Integer[] background_color, String[] background_color_text, String[] striketrough, String[] underline, String[] set_subscript, String[] clickable_text, Integer[] clickable_text_color) {
+    public RecyclerGridAdapter(Context context, String[] data, String[] title, String[] date) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
         this.mTitle = title;
         this.mDate = date;
-        this.mTextColor = text_color;
-        this.mTextColorText = text_color_text;
-        this.mBackgroundColor = background_color;
-        this.mBackgroundColorText = background_color_text;
-        this.mStriketrough = striketrough;
-        this.mUnderline = underline;
-        this.mSetSubscript = set_subscript;
-        this.mClickableText = clickable_text;
-        this.mClickableTextColor = clickable_text_color;
     }
-
 
 
     // inflates the cell layout from xml when needed
@@ -59,39 +45,29 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     @NonNull
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.note_content_visualization, parent, false);
+
+
         return new ViewHolder(view);
     }
 
     // binds the data to the TextView in each cell
     @Override
-    public void onBindViewHolder(RecyclerGridAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
 
 
-        //holder.myTextView.setText(mData[position]);
-        holder.myTitleView.setText(mTitle[position]);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            holder.myTitleView.setText(Html.fromHtml(mTitle[position], Html.FROM_HTML_MODE_COMPACT));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            holder.myTextView.setText(Html.fromHtml(mData[position], Html.FROM_HTML_MODE_COMPACT));
+        }
 
-        if (mTextColor != null) {
-        TextDecorator
-                .decorate(holder.myTextView, mData[position])
-                .setTextColor(R.color.Grey, mTextColorText[position])
-                .setBackgroundColor(R.color.White, mBackgroundColorText[position])
-             // TODO   .setTextStyle(Typeface.BOLD | Typeface.ITALIC, 27, 40)
-                .strikethrough(mStriketrough[position])
-                .underline(mUnderline[position])
-                .setSubscript(mSetSubscript[position])
-              //  .makeTextClickable(new OnTextClickListener() {
-             //       @Override public void onClick(View view, String text) {
-
-               //     }
-               // }, false, mClickableText[position])
-                .setTextColor(R.color.Black, mClickableText[position])
-                .build(); }
 
         if (holder.myTitleView.length() > 1) {
             holder.myTitleView.setTextSize(17);
             holder.myTitleView.setTranslationY(-10);
             holder.myTextView.setTextSize(16);
-            holder.myTitleView.setPadding(15, 10, 15, 22);
+            holder.myTitleView.setPadding(15, 10, 15,   22);
             holder.myTextView.setPadding(13, 20, 13, 20);
         }
 
@@ -99,7 +75,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
         if (holder.myTitleView.length() < 1) {
 
             holder.myTextView.setTextSize(25);
-            holder.myTextView.setPadding(15, 5, 15, 50);
+            holder.myTextView.setPadding(15, 5, 15, 5);
             holder.myTitleView.setPadding(0, 0, 0, 0);
             holder.myTitleView.setTranslationY(5);
 
@@ -108,11 +84,11 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     }
 
 
-
     // total number of cells
     @Override
     public int getItemCount() {
         return mData.length;
+
     }
 
 
@@ -159,7 +135,4 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
         void onClick(View view);
     }
 
-   //public RecyclerGridAdapter(GetOnClickListenerInterface listener){
-       // this.mClickListener = (ItemClickListener) listener;
-  // }
 }

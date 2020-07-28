@@ -4,4 +4,10 @@
     <color name="White">#FFFFFF</color>
     <color name="Grey">#888888</color>
     <color name="Transparent">#00FFFFFF</color>
+    <color name="Magenta">#EDF52E66</color>
+    <color name="Pink">#c371f9</color>
+    <color name="Orange">#F9A75D</color>
+    <color name="SkyBlue">#6CCAEF</color>
+    <color name="YellowSun">#FAF075</color>
+    <color name="GrassGreen">#8de791</color>
 </resources>
