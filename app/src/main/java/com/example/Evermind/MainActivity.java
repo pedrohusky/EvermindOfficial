@@ -2,20 +2,30 @@ package com.example.Evermind;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -31,7 +41,15 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.resources.TextAppearance;
 import com.google.android.material.snackbar.Snackbar;
 import com.tuyenmonkey.textdecorator.TextDecorator;
+
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import kotlinx.coroutines.Delay;
+
 import static com.example.Evermind.ui.grid.ui.main.NotesScreen.databaseHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,7 +58,13 @@ public class MainActivity extends AppCompatActivity {
     public static DataBaseHelper mDatabaseHelper;
     RecyclerGridAdapter adapter;
     Integer ID;
-    public Boolean AntiGoBack = true;
+    public Boolean CloseFormatter = false;
+    public Boolean CloseColorSelector = false;
+    public Boolean Bold = false;
+    public Boolean Italic = false;
+    public Boolean Underline = false;
+    public Boolean Strikethrough = false;
+    public Integer TextSize = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,22 +80,35 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
+                Animation fadein  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_button_colors);
+                Animation fadeout  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
+                CardView format_text = findViewById(R.id.format_selector);
+                CardView cardView = findViewById(R.id.color_selector);
 
                 switch (id) {
                     case R.id.navigation_home:
-                        Toast.makeText(MainActivity.this, "1", Toast.LENGTH_SHORT).show();
+
+                        //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
+
+                        if(CloseFormatter) {
+                            format_text.setVisibility(View.GONE);
+
+                            format_text.startAnimation(fadeout);
+                        } else {
+                            format_text.setVisibility(View.VISIBLE);
+
+                            format_text.startAnimation(fadein);
+                        }
+                        CloseFormatter = !CloseFormatter;
+
+                        //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
+
                         break;
 
                     case R.id.navigation_dashboard:
 
-                        EditText editText = findViewById(R.id.ToSaveNoteText);
-                        int selectionStart = editText.getSelectionStart();
-                        int selectionEnd = editText.getSelectionEnd();
+                      //  TODO
 
-
-                        SpannableString spannableString = new SpannableString(editText.getText());
-                        spannableString.setSpan(new ForegroundColorSpan(Color.MAGENTA), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        editText.setText(spannableString, TextView.BufferType.SPANNABLE);
 
                         break;
 
@@ -140,6 +177,162 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT \/
+
+        CardView cardView = findViewById(R.id.color_selector);
+        cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        CardView format_text = findViewById(R.id.format_selector);
+        format_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT /\
+
+        ImageButton black = findViewById(R.id.Black);
+        ImageButton blue = findViewById(R.id.Blue);
+        ImageButton purple = findViewById(R.id.Purple);
+        ImageButton magenta = findViewById(R.id.Magenta);
+        ImageButton orange = findViewById(R.id.Orange);
+        ImageButton yellow = findViewById(R.id.Yellow);
+        ImageButton green = findViewById(R.id.Green);
+        ImageButton white = findViewById(R.id.White);
+
+        black.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ColorClickedSwitcher("Black");
+            }
+        });
+
+        blue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ColorClickedSwitcher("Blue");
+            }
+        });
+
+        purple.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ColorClickedSwitcher("Purple");
+            }
+        });
+
+        magenta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ColorClickedSwitcher("Magenta");
+            }
+        });
+
+        orange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ColorClickedSwitcher("Orange");
+            }
+        });
+
+        yellow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ColorClickedSwitcher("Yellow");
+            }
+        });
+
+        green.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ColorClickedSwitcher("Green");
+            }
+        });
+
+        white.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ColorClickedSwitcher("White");
+            }
+        });
+
+        ImageButton bold = findViewById(R.id.Bold);
+        ImageButton italic = findViewById(R.id.Italic);
+        ImageButton underline = findViewById(R.id.Underline);
+        ImageButton strikethrough = findViewById(R.id.Striketrough);
+        ImageButton change_color = findViewById(R.id.ChangeColor);
+        ImageButton text_size = findViewById(R.id.TextSize);
+        ImageButton highlight_text = findViewById(R.id.HighlightText);
+
+
+        bold.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                FormatTextSwitcher("Bold");
+
+            }
+        });
+
+        italic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                FormatTextSwitcher("Italic");
+
+            }
+        });
+
+        underline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                FormatTextSwitcher("Underline");
+
+            }
+        });
+
+        strikethrough.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                FormatTextSwitcher("Striketrough");
+            }
+        });
+
+        change_color.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                FormatTextSwitcher("ChangeColor");
+
+            }
+        });
+
+        text_size.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                FormatTextSwitcher("TextSize");
+
+            }
+        });
+
+        highlight_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                FormatTextSwitcher("HighlightText");
+
+            }
+        });
     }
 
     @Override
@@ -178,28 +371,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
+   //     if (item.getItemId() == android.R.id.home) {
+
+     //           EditText editText = findViewById(R.id.myEditText);
+    //            editText.setVisibility(View.GONE);
+
+     //       BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
+    //        bottomNavigationView.setVisibility(View.GONE);
 
 
-       if (AntiGoBack == true) {
-
-           return super.onOptionsItemSelected(item);
-
-       } else {
-
-        if (item.getItemId() == android.R.id.home) {
-
-                EditText editText = findViewById(R.id.myEditText);
-                editText.setVisibility(View.GONE);
-
-            BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
-            bottomNavigationView.setVisibility(View.GONE);
-
-
-                AntiGoBack = false;
-
-                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-                navController.navigate(R.id.action_nav_note_to_nav_home);
-                return true; } }
+      //          NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+     //           navController.navigate(R.id.action_nav_note_to_nav_home);
+     //           return true; }
 
         return super.onOptionsItemSelected(item); }
 
@@ -285,5 +468,301 @@ public class MainActivity extends AppCompatActivity {
     public void toastMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         //Note_Model note_model = (Note_Model) getParent().getI
+    }
+    
+    public void ColorClickedSwitcher (String color) {
+
+        EditText editText = findViewById(R.id.ToSaveNoteText);
+        int selectionStart = editText.getSelectionStart();
+        int selectionEnd = editText.getSelectionEnd();
+        SpannableString spannableString = new SpannableString(editText.getText());
+        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        SharedPreferences.Editor editor=preferences.edit();
+
+        Animation fadeout  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
+        CardView cardView = findViewById(R.id.color_selector);
+
+        switch (color) {
+
+            case "Black":
+
+
+                editor.putString("color", "#000000");
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#000000")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                cardView.startAnimation(fadeout);
+
+
+            break;
+
+            case "Blue":
+
+
+                editor.putString("color", "#6CCAEF");
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#6CCAEF")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                cardView.startAnimation(fadeout);
+
+
+
+                break;
+
+            case "Purple":
+
+
+                editor.putString("color", "#c371f9");
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#c371f9")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                cardView.startAnimation(fadeout);
+
+
+
+                break;
+
+            case "Magenta":
+
+                editor.putString("color", "#EDF52E66");
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#EDF52E66")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                cardView.startAnimation(fadeout);
+
+
+
+                break;
+
+            case "Orange":
+
+
+                editor.putString("color", "#F9A75D");
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#F9A75D")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                cardView.startAnimation(fadeout);
+
+
+
+                break;
+
+            case "Yellow":
+
+
+                editor.putString("color", "#FAF075");
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FAF075")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                cardView.startAnimation(fadeout);
+
+
+
+                break;
+
+            case "Green":
+
+
+                editor.putString("color", "#8de791");
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#8de791")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                cardView.startAnimation(fadeout);
+
+
+
+                break;
+
+            case "White":
+
+
+                editor.putString("color","#FFFFFF");
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FFFFFF")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                cardView.startAnimation(fadeout);
+
+
+
+                break;
+
+            default:
+                break;
+        }
+    }
+    public void FormatTextSwitcher (String functionName) {
+
+        EditText editText = findViewById(R.id.ToSaveNoteText);
+        int selectionStart = editText.getSelectionStart();
+        int selectionEnd = editText.getSelectionEnd();
+        SpannableString spannableString = new SpannableString(editText.getText());
+        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        Animation fadein  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_button_colors);
+        Animation fadeout  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
+        CardView format_text = findViewById(R.id.format_selector);
+        CardView cardView = findViewById(R.id.color_selector);
+
+        switch (functionName) {
+
+            case "Bold":
+
+                editor.putInt("format", Typeface.BOLD);
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                break;
+
+            case "Italic":
+
+                editor.putInt("format", Typeface.ITALIC);
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new StyleSpan(Typeface.ITALIC), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                break;
+
+            case "Underline":
+
+                editor.putBoolean("Underline", true);
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new UnderlineSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                break;
+
+            case "Striketrough":
+
+                editor.putBoolean("Striketrough", true);
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new UnderlineSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                break;
+
+            case "TextSize":
+
+
+                if(TextSize == 0) {
+                    editor.putInt("TextSize", 1);
+                    editor.commit();
+
+                    if (selectionStart + selectionEnd != 0) {
+
+                        spannableString.setSpan(new RelativeSizeSpan(1), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                }
+
+                if  (TextSize == 1) {
+                editor.putInt("TextSize", 1);
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new RelativeSizeSpan(1), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                }
+                if (TextSize == 2) {
+                    editor.putInt("TextSize", 1);
+                    editor.commit();
+
+                    if (selectionStart + selectionEnd != 0) {
+
+                        spannableString.setSpan(new RelativeSizeSpan(1), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    TextSize = 0;
+                }
+
+                TextSize = TextSize ++;
+
+
+
+                editor.putInt("TextSize", 5);
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new RelativeSizeSpan(5), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                break;
+
+            case "ChangeColor":
+
+
+                if(CloseColorSelector) {
+                    cardView.setVisibility(View.GONE);
+
+                    cardView.startAnimation(fadeout);
+                } else {
+                    cardView.setVisibility(View.VISIBLE);
+
+                    cardView.startAnimation(fadein);
+                }
+                CloseColorSelector = !CloseColorSelector;
+
+                break;
+
+            case "HighlightText":
+
+                editor.putString("format", "BackgroundColorSpan");
+                editor.commit();
+
+                if (selectionStart + selectionEnd != 0) {
+
+                    spannableString.setSpan(new BackgroundColorSpan(Color.MAGENTA), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+
+                break;
+
+            default:
+                break;
+        }
     }
 }

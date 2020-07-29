@@ -130,7 +130,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
 
         //Handles ID to delete note //
-        SharedPreferences preferences= getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
         SharedPreferences.Editor editor=preferences.edit();
         editor.putInt("noteId", id);
         editor.commit();

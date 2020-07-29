@@ -53,82 +53,222 @@
         app:itemTextColor="@color/Black"
         app:menu="@menu/note_bottom_options" />
 
-    <GridLayout
+    <androidx.cardview.widget.CardView
+        android:id="@+id/color_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:columnCount="2"
-        android:paddingLeft="10dp"
-        android:paddingTop="5dp"
-        android:paddingRight="10dp"
+        android:layout_gravity="bottom|center_horizontal"
         android:paddingBottom="5dp"
-        android:rotation="90"
-        android:translationY="-65dp">
+        android:translationY="-120dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="#F3F3F3"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="9dp"
+        app:contentPadding="8dp">
 
-        <ImageView
-            android:id="@+id/imageView21"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingTop="5dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp">
+
+            <ImageButton
+                android:id="@+id/Black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:padding="5dp"
+                android:tint="@color/Black"
+                app:srcCompat="@drawable/circle_colors_border" />
+
+            <ImageButton
+                android:id="@+id/Blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:padding="5dp"
+                android:tint="@color/SkyBlue"
+                app:srcCompat="@drawable/circle_colors_border" />
+
+            <ImageButton
+                android:id="@+id/Purple"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:padding="5dp"
+                android:tint="@color/Pink"
+                app:srcCompat="@drawable/circle_colors_border" />
+
+            <ImageButton
+                android:id="@+id/Magenta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:padding="5dp"
+                android:tint="@color/Magenta"
+                app:srcCompat="@drawable/circle_colors_border" />
+
+            <ImageButton
+                android:id="@+id/Orange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:padding="5dp"
+                android:tint="@color/Orange"
+                app:srcCompat="@drawable/circle_colors_border" />
+
+            <ImageButton
+                android:id="@+id/Yellow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:padding="5dp"
+                android:tint="@color/YellowSun"
+                app:srcCompat="@drawable/circle_colors_border" />
+
+            <ImageButton
+                android:id="@+id/Green"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:padding="5dp"
+                android:tint="@color/GrassGreen"
+                app:srcCompat="@drawable/circle_colors_border" />
+
+            <ImageButton
+                android:id="@+id/White"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:padding="5dp"
+                android:tint="@color/White"
+                app:srcCompat="@drawable/circle_colors_border" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/format_selector"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:paddingBottom="5dp"
+        android:translationY="-70dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/White"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="9dp"
+        app:contentPadding="5dp">
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="TODO"
-            android:padding="5dp"
-            android:tint="@color/Black"
-            app:srcCompat="@drawable/circle_colors" />
+            android:gravity="bottom|center_horizontal"
+            android:paddingLeft="0dp"
+            android:paddingTop="0dp"
+            android:paddingRight="0dp"
+            android:paddingBottom="0dp">
 
-        <ImageView
-            android:id="@+id/imageView22"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:tint="@color/White"
-            app:srcCompat="@drawable/circle_colors" />
+            <ImageButton
+                android:id="@+id/TextSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:paddingLeft="13dp"
+                android:paddingTop="5dp"
+                android:paddingRight="13dp"
+                android:paddingBottom="5dp"
+                android:scaleX="1.35"
+                android:scaleY="1.35"
+                android:tint="@color/Black"
+                app:srcCompat="@drawable/text_size_icon" />
 
-        <ImageView
-            android:id="@+id/imageView23"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:tint="@color/Magenta"
-            app:srcCompat="@drawable/circle_colors" />
+            <ImageButton
+                android:id="@+id/ChangeColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:paddingLeft="13dp"
+                android:paddingTop="5dp"
+                android:paddingRight="13dp"
+                android:paddingBottom="5dp"
+                android:scaleX="1.35"
+                android:scaleY="1.35"
+                android:tint="@color/Black"
+                app:srcCompat="@drawable/color_selector_icon" />
 
-        <ImageView
-            android:id="@+id/imageView24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:tint="@color/Pink"
-            app:srcCompat="@drawable/circle_colors" />
+            <ImageButton
+                android:id="@+id/Bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:paddingLeft="13dp"
+                android:paddingTop="5dp"
+                android:paddingRight="13dp"
+                android:paddingBottom="5dp"
+                android:scaleX="1.35"
+                android:scaleY="1.35"
+                android:tint="@color/Black"
+                app:srcCompat="@drawable/bold_icon" />
 
-        <ImageView
-            android:id="@+id/imageView19"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:tint="@color/Orange"
-            app:srcCompat="@drawable/circle_colors" />
+            <ImageButton
+                android:id="@+id/Italic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:paddingLeft="13dp"
+                android:paddingTop="5dp"
+                android:paddingRight="13dp"
+                android:paddingBottom="5dp"
+                android:scaleX="1.35"
+                android:scaleY="1.35"
+                android:tint="@color/Black"
+                app:srcCompat="@drawable/italic_icon" />
 
-        <ImageView
-            android:id="@+id/imageView20"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:tint="@color/SkyBlue"
-            app:srcCompat="@drawable/circle_colors" />
+            <ImageButton
+                android:id="@+id/Underline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:paddingLeft="13dp"
+                android:paddingTop="5dp"
+                android:paddingRight="13dp"
+                android:paddingBottom="5dp"
+                android:scaleX="1.35"
+                android:scaleY="1.35"
+                android:tint="@color/Black"
+                app:srcCompat="@drawable/underline_icon" />
 
-        <ImageView
-            android:id="@+id/imageView18"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:tint="@color/YellowSun"
-            app:srcCompat="@drawable/circle_colors" />
+            <ImageButton
+                android:id="@+id/Striketrough"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:paddingLeft="13dp"
+                android:paddingTop="5dp"
+                android:paddingRight="13dp"
+                android:paddingBottom="5dp"
+                android:scaleX="1.35"
+                android:scaleY="1.35"
+                android:tint="@color/Black"
+                app:srcCompat="@drawable/striketrough_icon" />
 
-        <ImageView
-            android:id="@+id/imageView17"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:tint="@color/GrassGreen"
-            app:srcCompat="@drawable/circle_colors" />
-    </GridLayout>
+            <ImageButton
+                android:id="@+id/HighlightText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:paddingLeft="13dp"
+                android:paddingTop="5dp"
+                android:paddingRight="13dp"
+                android:paddingBottom="5dp"
+                android:scaleX="1.35"
+                android:scaleY="1.35"
+                android:tint="@color/Black"
+                app:srcCompat="@drawable/highlight_text_icon" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -8,7 +8,7 @@
     tools:context="com.example.Evermind.ui.notifications.NotificationsFragment">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/color"
+        android:id="@+id/color_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="5dp"
@@ -27,7 +27,7 @@
             android:paddingBottom="5dp">
 
             <ImageView
-                android:id="@+id/imageView21"
+                android:id="@+id/Black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="TODO"
@@ -36,7 +36,7 @@
                 app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
-                android:id="@+id/imageView22"
+                android:id="@+id/Blue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -44,7 +44,7 @@
                 app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
-                android:id="@+id/imageView23"
+                android:id="@+id/Purple"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -52,7 +52,7 @@
                 app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
-                android:id="@+id/imageView24"
+                android:id="@+id/Magenta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -60,7 +60,7 @@
                 app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
-                android:id="@+id/imageView19"
+                android:id="@+id/Orange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -68,7 +68,7 @@
                 app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
-                android:id="@+id/imageView20"
+                android:id="@+id/Yellow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -76,7 +76,7 @@
                 app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
-                android:id="@+id/imageView18"
+                android:id="@+id/Green"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -84,7 +84,7 @@
                 app:srcCompat="@drawable/circle_colors" />
 
             <ImageView
-                android:id="@+id/imageView17"
+                android:id="@+id/White"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
