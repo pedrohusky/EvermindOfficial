@@ -17,13 +17,16 @@ import android.text.style.UnderlineSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -34,10 +37,9 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
+
 import static com.example.Evermind.ui.grid.ui.main.NotesScreen.databaseHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = findViewById(R.id.fab);
+
+
 
 
         BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
@@ -132,8 +135,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         mDatabaseHelper = new DataBaseHelper(this);
-
-        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show());
 
 
       //  DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -681,39 +682,69 @@ public class MainActivity extends AppCompatActivity {
                     new Handler(Looper.getMainLooper()).post(() -> {
 
                         if (CloseColorSelector) {
-                            cardView.setVisibility(View.GONE);
+                          // cardView.setVisibility(View.GONE);
 
-                            cardView.startAnimation(fadeout);
+                           // cardView.startAnimation(fadeout);
                         } else {
-                            cardView.setVisibility(View.VISIBLE);
+                           // cardView.setVisibility(View.VISIBLE);
 
-                            final Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // Do something after 5s = 5000ms
+                            final Handler handlerblack = new Handler();
+                            handlerblack.postDelayed(() -> {
+                                // Do something after 5s = 5000ms
+                                Black.setVisibility(View.VISIBLE);
+                                Black.startAnimation(format_in_color);
+                            }, 60);
+                           //Black.setVisibility(View.VISIBLE);
+                            final Handler handlerblue = new Handler();
+                            handlerblue.postDelayed(() -> {
+                                // Do something after 5s = 5000ms
+                                Blue.setVisibility(View.VISIBLE);
+                                Blue.startAnimation(format_in_color);
+                            }, 120);
 
-                                }
-                            }, 5000);
-                            Black.setVisibility(View.VISIBLE);
-                                    Blue.setVisibility(View.VISIBLE);
-                            Purple.setVisibility(View.VISIBLE);
-                                    Magenta.setVisibility(View.VISIBLE);
-                            Yellow.setVisibility(View.VISIBLE);
-                                    Green.setVisibility(View.VISIBLE);
-                            White.setVisibility(View.VISIBLE);
-                                    Orange.setVisibility(View.VISIBLE);
+                            final Handler handlerpurple = new Handler();
+                            handlerpurple.postDelayed(() -> {
+                                // Do something after 5s = 5000ms
+                                Purple.setVisibility(View.VISIBLE);
+                                Purple.startAnimation(format_in_color);
+                            }, 180);
 
-                            Black.startAnimation(format_in_color);
-                            Blue.startAnimation(format_in_color);
-                            Purple.startAnimation(format_in_color);
-                            Magenta.startAnimation(format_in_color);
-                            Yellow.startAnimation(format_in_color);
-                            Green.startAnimation(format_in_color);
-                            White.startAnimation(format_in_color);
-                            Orange.startAnimation(format_in_color);
+                            final Handler handlermagenta = new Handler();
+                            handlermagenta.postDelayed(() -> {
+                                // Do something after 5s = 5000ms
+                                Magenta.setVisibility(View.VISIBLE);
+                                Magenta.startAnimation(format_in_color);
+                            }, 240);
 
-                            cardView.startAnimation(fadein);
+                            final Handler handlerorange = new Handler();
+                            handlerorange.postDelayed(() -> {
+                                // Do something after 5s = 5000ms
+                                Orange.setVisibility(View.VISIBLE);
+                                Orange.startAnimation(format_in_color);
+                            }, 300);
+
+                            final Handler handleryellow = new Handler();
+                            handleryellow.postDelayed(() -> {
+                                // Do something after 5s = 5000ms
+                                Yellow.setVisibility(View.VISIBLE);
+                                Yellow.startAnimation(format_in_color);
+                            }, 360);
+
+                            final Handler handlergreen = new Handler();
+                            handlergreen.postDelayed(() -> {
+                                // Do something after 5s = 5000ms
+                                Green.setVisibility(View.VISIBLE);
+                                Green.startAnimation(format_in_color);
+                            }, 420);
+
+                            final Handler handlerwhite = new Handler();
+                            handlerwhite.postDelayed(() -> {
+                                // Do something after 5s = 5000ms
+                                White.setVisibility(View.VISIBLE);
+                                White.startAnimation(format_in_color);
+                            }, 480);
+
+                           // cardView.startAnimation(fadein);
                         }
                         CloseColorSelector = !CloseColorSelector;
                     });
@@ -743,5 +774,11 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }).start();
+    }
+    private void addItem(View view, ScrollView scrollView, int index) {
+     ViewGroup containerView = scrollView;
+     ImageButton teste = findViewById(R.id.Magenta);
+
+     scrollView.addView(teste, index);
     }
 }

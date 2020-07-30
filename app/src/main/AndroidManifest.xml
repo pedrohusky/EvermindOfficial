@@ -13,9 +13,6 @@
             android:name=".NoteEditorActivity"
             android:label="NoteActivity" />
         <activity
-            android:name=".Test"
-            android:label="NoteView" />
-        <activity
             android:name=".StartupActivity"
             android:label="Evermind"
             android:theme="@style/AppTheme.NoActionBar">

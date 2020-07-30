@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/transitionlist"
-    tools:context="com.example.Evermind.com.example.Evermind.MainActivity"
+    tools:context=".StartupActivity"
     android:fitsSystemWindows="true">
 
     <ImageView
