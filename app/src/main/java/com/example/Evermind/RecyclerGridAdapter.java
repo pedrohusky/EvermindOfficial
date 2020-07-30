@@ -55,11 +55,13 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     public void onBindViewHolder(ViewHolder holder, int position) {
 
 
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            holder.myTitleView.setText(Html.fromHtml(mTitle[position], Html.FROM_HTML_MODE_COMPACT));
+            holder.myTitleView.setText(Html.fromHtml(mTitle[position], Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH));
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            holder.myTextView.setText(Html.fromHtml(mData[position], Html.FROM_HTML_MODE_COMPACT));
+            holder.myTextView.setText(Html.fromHtml(mData[position], Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH));
         }
 
 

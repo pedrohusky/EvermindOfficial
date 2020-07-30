@@ -1,15 +1,17 @@
 package com.example.Evermind;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.view.Menu;
@@ -18,52 +20,33 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
-import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
 import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.resources.TextAppearance;
 import com.google.android.material.snackbar.Snackbar;
-import com.tuyenmonkey.textdecorator.TextDecorator;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import kotlinx.coroutines.Delay;
-
 import static com.example.Evermind.ui.grid.ui.main.NotesScreen.databaseHelper;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     public static DataBaseHelper mDatabaseHelper;
-    RecyclerGridAdapter adapter;
     Integer ID;
     public Boolean CloseFormatter = false;
     public Boolean CloseColorSelector = false;
-    public Boolean Bold = false;
-    public Boolean Italic = false;
-    public Boolean Underline = false;
-    public Boolean Strikethrough = false;
     public Integer TextSize = 0;
 
     @Override
@@ -76,102 +59,92 @@ public class MainActivity extends AppCompatActivity {
 
 
         BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
-        bottomNavigationView1.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int id = item.getItemId();
-                Animation fadein  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_button_colors);
-                Animation fadeout  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
-                CardView format_text = findViewById(R.id.format_selector);
-                CardView cardView = findViewById(R.id.color_selector);
+        bottomNavigationView1.setOnNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            Animation fadein  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_button_colors);
+            Animation fadeout  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
+            CardView format_text = findViewById(R.id.format_selector);
+           // CardView cardView = findViewById(R.id.color_selector);
 
-                switch (id) {
-                    case R.id.navigation_home:
+            switch (id) {
+                case R.id.navigation_home:
 
-                        //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
+                    //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
 
-                        if(CloseFormatter) {
-                            format_text.setVisibility(View.GONE);
+                    if(CloseFormatter) {
+                        format_text.setVisibility(View.GONE);
 
-                            format_text.startAnimation(fadeout);
-                        } else {
-                            format_text.setVisibility(View.VISIBLE);
+                        format_text.startAnimation(fadeout);
+                    } else {
+                        format_text.setVisibility(View.VISIBLE);
 
-                            format_text.startAnimation(fadein);
-                        }
-                        CloseFormatter = !CloseFormatter;
+                        format_text.startAnimation(fadein);
+                    }
+                    CloseFormatter = !CloseFormatter;
 
-                        //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
+                    //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
 
-                        break;
+                    break;
 
-                    case R.id.navigation_dashboard:
+                case R.id.navigation_dashboard:
 
-                      //  TODO
+                  //  TODO
 
 
-                        break;
+                    break;
 
-                    case R.id.navigation_save:
+                case R.id.navigation_save:
 
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .setTitle("Are you sure?")
-                                .setMessage("Do you want to delete this note?")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, int i) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setTitle("Are you sure?")
+                            .setMessage("Do you want to delete this note?")
+                            .setPositiveButton("Yes", (dialogInterface, i) -> {
 
-                                                SharedPreferences preferences = getSharedPreferences("DeleteNoteID",MODE_PRIVATE);
-                                                int id = preferences.getInt("noteId", -1);
+                                SharedPreferences preferences = getSharedPreferences("DeleteNoteID",MODE_PRIVATE);
+                                int id1 = preferences.getInt("noteId", -1);
 
-                                                Toast.makeText(MainActivity.this, Integer.toString(id), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, Integer.toString(id1), Toast.LENGTH_SHORT).show();
 
 
-                                                mDatabaseHelper.deleteNote(id);
+                                mDatabaseHelper.deleteNote(id1);
 
-                                                NavController navController = Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment);
-                                                navController.navigate(R.id.action_nav_note_to_nav_home);
-                                            }
-                                        }
-                                )
-                                .setNegativeButton("No", null)
-                                .show();
+                                NavController navController = Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment);
+                                navController.navigate(R.id.action_nav_note_to_nav_home);
+                            }
+                            )
+                            .setNegativeButton("No", null)
+                            .show();
 
-                        break;
+                    break;
 
-                    case R.id.navigation_notifications:
+                case R.id.navigation_notifications:
 
-                        Toast.makeText(MainActivity.this, "3", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "3", Toast.LENGTH_SHORT).show();
 
-                        break;
+                    break;
 
 
-                    default:
-                        return true;
-                }
-            return true; }
-        });
+                default:
+                    return true;
+            }
+        return true; });
 
 
         mDatabaseHelper = new DataBaseHelper(this);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) { Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show(); }
-        });
+        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show());
 
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+      //  DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
-        BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
-                .setDrawerLayout(drawer)
+               // .setDrawerLayout(drawer)
                 .build();
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -181,19 +154,13 @@ public class MainActivity extends AppCompatActivity {
         //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT \/
 
         CardView cardView = findViewById(R.id.color_selector);
-        cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        cardView.setOnClickListener(view -> {
 
-            }
         });
 
-        CardView format_text = findViewById(R.id.format_selector);
-        format_text.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        HorizontalScrollView format_text = findViewById(R.id.scroll);
+        format_text.setOnClickListener(view -> {
 
-            }
         });
 
         //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT /\
@@ -206,62 +173,53 @@ public class MainActivity extends AppCompatActivity {
         ImageButton yellow = findViewById(R.id.Yellow);
         ImageButton green = findViewById(R.id.Green);
         ImageButton white = findViewById(R.id.White);
+////////////////////////////////////////////////////
+        ImageButton Black = findViewById(R.id.black);
+        ImageButton Blue = findViewById(R.id.blue);
+        ImageButton Purple = findViewById(R.id.purple);
+        ImageButton Magenta = findViewById(R.id.magenta);
+        ImageButton Orange = findViewById(R.id.orange);
+        ImageButton Yellow = findViewById(R.id.yellow);
+        ImageButton Green = findViewById(R.id.green);
+        ImageButton White = findViewById(R.id.white);
+/////////////////////////////////////////////////////
+        black.setOnClickListener(view -> black.post(() -> ColorClickedSwitcher("Black")));
 
-        black.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ColorClickedSwitcher("Black");
-            }
-        });
+        blue.setOnClickListener(view -> blue.post(() -> ColorClickedSwitcher("Blue")));
 
-        blue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ColorClickedSwitcher("Blue");
-            }
-        });
+        purple.setOnClickListener(view -> purple.post(() -> ColorClickedSwitcher("Purple")));
 
-        purple.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ColorClickedSwitcher("Purple");
-            }
-        });
+        magenta.setOnClickListener(view -> magenta.post(() -> ColorClickedSwitcher("Blue")));
 
-        magenta.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ColorClickedSwitcher("Magenta");
-            }
-        });
+        orange.setOnClickListener(view -> orange.post(() -> ColorClickedSwitcher("Orange")));
 
-        orange.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ColorClickedSwitcher("Orange");
-            }
-        });
+        yellow.setOnClickListener(view -> yellow.post(() -> ColorClickedSwitcher("Yellow")));
 
-        yellow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ColorClickedSwitcher("Yellow");
-            }
-        });
+        green.setOnClickListener(view -> green.post(() -> ColorClickedSwitcher("Green")));
 
-        green.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ColorClickedSwitcher("Green");
-            }
-        });
+        white.setOnClickListener(view -> white.post(() -> ColorClickedSwitcher("White")));
 
-        white.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ColorClickedSwitcher("White");
-            }
-        });
+        /////////////////////////////////////////////////////
+
+
+        Black.setOnClickListener(view -> black.post(() -> ColorClickedSwitcher("Black")));
+
+        Blue.setOnClickListener(view -> blue.post(() -> ColorClickedSwitcher("Blue")));
+
+        Purple.setOnClickListener(view -> purple.post(() -> ColorClickedSwitcher("Purple")));
+
+        Magenta.setOnClickListener(view -> magenta.post(() -> ColorClickedSwitcher("Blue")));
+
+        Orange.setOnClickListener(view -> orange.post(() -> ColorClickedSwitcher("Orange")));
+
+        Yellow.setOnClickListener(view -> yellow.post(() -> ColorClickedSwitcher("Yellow")));
+
+        Green.setOnClickListener(view -> green.post(() -> ColorClickedSwitcher("Green")));
+
+        White.setOnClickListener(view -> white.post(() -> ColorClickedSwitcher("White")));
+
+
+        ///////////////////////////////////////
 
         ImageButton bold = findViewById(R.id.Bold);
         ImageButton italic = findViewById(R.id.Italic);
@@ -272,67 +230,19 @@ public class MainActivity extends AppCompatActivity {
         ImageButton highlight_text = findViewById(R.id.HighlightText);
 
 
-        bold.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        bold.setOnClickListener(view -> FormatTextSwitcher("Bold"));
 
-                FormatTextSwitcher("Bold");
+        italic.setOnClickListener(view -> FormatTextSwitcher("Italic"));
 
-            }
-        });
+        underline.setOnClickListener(view -> FormatTextSwitcher("Underline"));
 
-        italic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        strikethrough.setOnClickListener(view -> FormatTextSwitcher("Striketrough"));
 
-                FormatTextSwitcher("Italic");
+        change_color.setOnClickListener(view -> FormatTextSwitcher("ChangeColor"));
 
-            }
-        });
+        text_size.setOnClickListener(view -> FormatTextSwitcher("TextSize"));
 
-        underline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                FormatTextSwitcher("Underline");
-
-            }
-        });
-
-        strikethrough.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                FormatTextSwitcher("Striketrough");
-            }
-        });
-
-        change_color.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                FormatTextSwitcher("ChangeColor");
-
-            }
-        });
-
-        text_size.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                FormatTextSwitcher("TextSize");
-
-            }
-        });
-
-        highlight_text.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                FormatTextSwitcher("HighlightText");
-
-            }
-        });
+        highlight_text.setOnClickListener(view -> FormatTextSwitcher("HighlightText"));
     }
 
     @Override
@@ -353,15 +263,21 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         EditText editText = findViewById(R.id.myEditText);
-        editText.setVisibility(View.GONE);
 
-        //ArrayList<Integer> array = databaseHelper.getIDFromDatabase();
-       // Integer id = array;
-       // if (databaseHelper.getIDFromDatabase()
+        editText.post(() -> {
+
+            editText.setVisibility(View.GONE);
 
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
-        bottomNavigationView.setVisibility(View.GONE);
+
+            BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
+            bottomNavigationView.setVisibility(View.GONE);
+
+            SharedPreferences preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("athome", true);
+            editor.apply();
+        });
 
         super.onBackPressed();
     }
@@ -370,399 +286,462 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        boolean athome = preferences.getBoolean("athome", true);
+        SharedPreferences.Editor editor = preferences.edit();
 
-   //     if (item.getItemId() == android.R.id.home) {
+        if (athome) {
+            return super.onOptionsItemSelected(item); }
+        else {
 
-     //           EditText editText = findViewById(R.id.myEditText);
-    //            editText.setVisibility(View.GONE);
+            new Thread(() -> {
+                // a potentially time consuming task
 
-     //       BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
-    //        bottomNavigationView.setVisibility(View.GONE);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    EditText editText = findViewById(R.id.myEditText);
+                    editText.setVisibility(View.GONE);
+
+                    BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
+                    bottomNavigationView.setVisibility(View.GONE);
+
+                });
+
+                editor.putBoolean("athome", true);
+                editor.apply();
+
+            }).start();
+
+            NavController navController = Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment);
+            navController.navigate(R.id.action_nav_note_to_nav_home);
 
 
-      //          NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-     //           navController.navigate(R.id.action_nav_note_to_nav_home);
-     //           return true; }
+            return true; }
 
-        return super.onOptionsItemSelected(item); }
+        }
 
     public void onClick(View v) {
 
 
-        AddContent("", "");
+        new Thread(() -> {
+            // a potentially time consuming task
+            mDatabaseHelper.AddNoteContent("", "");
+        }).start();
 
-       ArrayList<Integer> arrayList = databaseHelper.getIDFromDatabase();
+        ArrayList<Integer> arrayList = databaseHelper.getIDFromDatabase();
 
-       if (arrayList.isEmpty() != true) {
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
-           ID = arrayList.get(arrayList.size()-1);
+        SharedPreferences.Editor editor = preferences.edit();
 
-           String waswrote = "";
-           Fragment fragment = new NoteEditorFragmentJavaFragment();
-           Bundle bundle = new Bundle();
-           bundle.putInt("noteId", ID);
-           bundle.putString("Content", waswrote);
-           bundle.putBoolean("addnote", true);
-           bundle.putString("title", "");
+        if (!arrayList.isEmpty()) {
 
-           fragment.setArguments(bundle);
+            ID = arrayList.get(arrayList.size() - 1);
 
-           NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-           navController.navigate(R.id.action_nav_home_to_nav_note, bundle);
+            editor.putInt("noteId", ID);
 
-
-       } else {
-
-        String waswrote = "";
-
-           NotesScreen.adapter.notifyDataSetChanged();
-
-           ID = NotesScreen.adapter.getItemCount();
-
-        Fragment fragment = new NoteEditorFragmentJavaFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt("noteId", ID);
-        bundle.putString("Content", waswrote);
-        bundle.putBoolean("addnote", true);
-        bundle.putString("title", "");
-
-        fragment.setArguments(bundle);
-
-           NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-           navController.navigate(R.id.action_nav_home_to_nav_note, bundle);
+            EditText editText = findViewById(R.id.myEditText);
+            editText.setVisibility(View.VISIBLE);
 
 
-       }
+            BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
+            bottomNavigationView.setVisibility(View.VISIBLE);
 
 
-        EditText editText = findViewById(R.id.myEditText);
-        editText.setVisibility(View.VISIBLE);
-
-
-        BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
-        bottomNavigationView.setVisibility(View.VISIBLE);
-
-        SharedPreferences preferences= this.getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-        SharedPreferences.Editor editor=preferences.edit();
-        editor.putInt("noteId", ID);
-        editor.commit();
-
-
-    }
-
-
-
-    public void AddContent(String title, String content) {
-
-        boolean insertData = mDatabaseHelper.AddNoteContent(title, content);
-
-        toastMessage(content);
-        if (insertData) {
-            toastMessage("Data successfully inserted");
         } else {
-            toastMessage("Error: Data not inserted");
+
+
+            // NotesScreen.adapter.notifyDataSetChanged();
+
+            ID = NotesScreen.adapter.getItemCount();
+
+            editor.putInt("noteId", ID);
         }
 
-    }
+        editor.putString("title", "");
+        editor.putString("content", "");
+        editor.putBoolean("athome", false);
+        editor.apply();
 
-    public void toastMessage(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        //Note_Model note_model = (Note_Model) getParent().getI
+        NavController navController = Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment);
+        navController.navigate(R.id.action_nav_home_to_nav_note);
+
     }
     
     public void ColorClickedSwitcher (String color) {
 
-        EditText editText = findViewById(R.id.ToSaveNoteText);
-        int selectionStart = editText.getSelectionStart();
-        int selectionEnd = editText.getSelectionEnd();
-        SpannableString spannableString = new SpannableString(editText.getText());
-        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-        SharedPreferences.Editor editor=preferences.edit();
+        new Thread(() -> {
+            // a potentially time consuming task
 
-        Animation fadeout  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
-        CardView cardView = findViewById(R.id.color_selector);
+            EditText editText = findViewById(R.id.ToSaveNoteText);
+            int selectionStart = editText.getSelectionStart();
+            int selectionEnd = editText.getSelectionEnd();
+            SpannableStringBuilder spannableString = new SpannableStringBuilder(editText.getEditableText());
+            SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+            SharedPreferences.Editor editor=preferences.edit();
 
-        switch (color) {
+            Animation fadeout  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
+            Animation format_out_color  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.format_color_selector_anim);
+            CardView cardView = findViewById(R.id.color_selector);
 
-            case "Black":
+            CloseColorSelector = false;
 
+            switch (color) {
 
-                editor.putString("color", "#000000");
-                editor.commit();
+                case "Black":
 
-                if (selectionStart + selectionEnd != 0) {
 
-                spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#000000")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    editor.putString("color", "#000000");
+                    editor.apply();
 
-                cardView.startAnimation(fadeout);
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
+                            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#000000")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString); }
+                    });
 
-            break;
+                    cardView.startAnimation(fadeout);
 
-            case "Blue":
 
+                    break;
 
-                editor.putString("color", "#6CCAEF");
-                editor.commit();
+                case "Blue":
 
-                if (selectionStart + selectionEnd != 0) {
 
-                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#6CCAEF")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    editor.putString("color", "#6CCAEF");
+                    editor.apply();
 
-                cardView.startAnimation(fadeout);
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
+                            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#6CCAEF")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString); }
+                    });
 
+                    cardView.startAnimation(fadeout);
 
-                break;
 
-            case "Purple":
 
+                    break;
 
-                editor.putString("color", "#c371f9");
-                editor.commit();
+                case "Purple":
 
-                if (selectionStart + selectionEnd != 0) {
+                    editor.putString("color", "#c371f9");
+                    editor.apply();
 
-                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#c371f9")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
 
-                cardView.startAnimation(fadeout);
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
+                            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#c371f9")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString); }
+                    });
 
+                    cardView.startAnimation(fadeout);
 
-                break;
 
-            case "Magenta":
 
-                editor.putString("color", "#EDF52E66");
-                editor.commit();
+                    break;
 
-                if (selectionStart + selectionEnd != 0) {
+                case "Magenta":
 
-                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#EDF52E66")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    editor.putString("color", "#EDF52E66");
+                    editor.apply();
 
-                cardView.startAnimation(fadeout);
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
+                            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#EDF52E66")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString); }
+                    });
 
+                    cardView.startAnimation(fadeout);
 
-                break;
 
-            case "Orange":
 
+                    break;
 
-                editor.putString("color", "#F9A75D");
-                editor.commit();
+                case "Orange":
 
-                if (selectionStart + selectionEnd != 0) {
 
-                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#F9A75D")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    editor.putString("color", "#F9A75D");
+                    editor.apply();
 
-                cardView.startAnimation(fadeout);
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
+                            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#F9A75D")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString); }
+                    });
 
+                    cardView.startAnimation(fadeout);
 
-                break;
 
-            case "Yellow":
 
+                    break;
 
-                editor.putString("color", "#FAF075");
-                editor.commit();
+                case "Yellow":
 
-                if (selectionStart + selectionEnd != 0) {
 
-                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FAF075")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    editor.putString("color", "#FAF075");
+                    editor.apply();
 
-                cardView.startAnimation(fadeout);
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
+                            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FAF075")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString); }
+                    });
 
+                    cardView.startAnimation(fadeout);
 
-                break;
 
-            case "Green":
 
+                    break;
 
-                editor.putString("color", "#8de791");
-                editor.commit();
+                case "Green":
 
-                if (selectionStart + selectionEnd != 0) {
 
-                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#8de791")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    editor.putString("color", "#8de791");
+                    editor.apply();
 
-                cardView.startAnimation(fadeout);
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
+                            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#8de791")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString); }
+                    });
 
+                    cardView.startAnimation(fadeout);
 
-                break;
 
-            case "White":
 
+                    break;
 
-                editor.putString("color","#FFFFFF");
-                editor.commit();
+                case "White":
 
-                if (selectionStart + selectionEnd != 0) {
 
-                    spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FFFFFF")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    editor.putString("color","#FFFFFF");
+                    editor.apply();
 
-                cardView.startAnimation(fadeout);
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
+                            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FFFFFF")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString); }
+                    });
 
+                    cardView.startAnimation(fadeout);
 
-                break;
 
-            default:
-                break;
-        }
+                    break;
+
+                default:
+
+
+                    break;
+            }
+        }).start();
     }
     public void FormatTextSwitcher (String functionName) {
 
-        EditText editText = findViewById(R.id.ToSaveNoteText);
-        int selectionStart = editText.getSelectionStart();
-        int selectionEnd = editText.getSelectionEnd();
-        SpannableString spannableString = new SpannableString(editText.getText());
-        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
+        new Thread(() -> {
+            // a potentially time consuming task
 
-        Animation fadein  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_button_colors);
-        Animation fadeout  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
-        CardView format_text = findViewById(R.id.format_selector);
-        CardView cardView = findViewById(R.id.color_selector);
+            EditText editText = findViewById(R.id.ToSaveNoteText);
+            int selectionStart = editText.getSelectionStart();
+            int selectionEnd = editText.getSelectionEnd();
+            SpannableString spannableString = new SpannableString(editText.getText());
+            SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
 
-        switch (functionName) {
+            Animation fadein = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_button_colors);
+            Animation fadeout = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
+            Animation format_in_color  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.format_color_selector_anim);
+            CardView cardView = findViewById(R.id.color_selector);
 
-            case "Bold":
+            ImageButton Black = findViewById(R.id.black);
+            ImageButton Blue = findViewById(R.id.blue);
+            ImageButton Purple = findViewById(R.id.purple);
+            ImageButton Magenta = findViewById(R.id.magenta);
+            ImageButton Orange = findViewById(R.id.orange);
+            ImageButton Yellow = findViewById(R.id.yellow);
+            ImageButton Green = findViewById(R.id.green);
+            ImageButton White = findViewById(R.id.white);
 
-                editor.putInt("format", Typeface.BOLD);
-                editor.commit();
+            switch (functionName) {
 
-                if (selectionStart + selectionEnd != 0) {
+                case "Bold":
 
-                    spannableString.setSpan(new StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    editor.putBoolean("Bold", true);
+                    editor.apply();
 
-                break;
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
-            case "Italic":
+                            spannableString.setSpan(new StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString);
+                        }
+                    });
 
-                editor.putInt("format", Typeface.ITALIC);
-                editor.commit();
+                    break;
 
-                if (selectionStart + selectionEnd != 0) {
+                case "Italic":
 
-                    spannableString.setSpan(new StyleSpan(Typeface.ITALIC), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    editor.putBoolean("Italic", true);
+                    editor.apply();
 
-                break;
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
-            case "Underline":
+                            spannableString.setSpan(new StyleSpan(Typeface.ITALIC), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString);
+                        }
+                    });
 
-                editor.putBoolean("Underline", true);
-                editor.commit();
+                    break;
 
-                if (selectionStart + selectionEnd != 0) {
+                case "Underline":
 
-                    spannableString.setSpan(new UnderlineSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                    editor.putBoolean("Underline", true);
+                    editor.apply();
 
-                break;
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
 
-            case "Striketrough":
+                            spannableString.setSpan(new UnderlineSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString);
+                        }
 
-                editor.putBoolean("Striketrough", true);
-                editor.commit();
+                    });
 
-                if (selectionStart + selectionEnd != 0) {
+                    break;
 
-                    spannableString.setSpan(new UnderlineSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
+                case "Striketrough":
 
-                break;
+                    editor.putBoolean("Striketrough", true);
+                    editor.apply();
 
-            case "TextSize":
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (selectionStart + selectionEnd != 0) {
+
+                            spannableString.setSpan(new StrikethroughSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString);
+                        }
+
+                    });
+
+                    break;
+
+                case "TextSize":
+
+                    new Handler(Looper.getMainLooper()).post(() -> {
+
+                        if (TextSize == 0) {
+                            editor.putInt("TextSize", 1);
+                            editor.apply();
+
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannableString.setSpan(new RelativeSizeSpan(1), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannableString);
+                            }
+                        }
+
+                        if (TextSize == 1) {
+                            editor.putInt("TextSize", 2);
+                            editor.apply();
+
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannableString.setSpan(new RelativeSizeSpan(2), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannableString);
+                            }
+                        }
+                        if (TextSize == 2) {
+                            editor.putInt("TextSize", 3);
+                            editor.apply();
+
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannableString.setSpan(new RelativeSizeSpan(3), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannableString);
+                            }
+                            TextSize = 0;
+                        }
+
+                        TextSize = TextSize++;
+
+                    });
+
+                    break;
+
+                case "ChangeColor":
+
+                    new Handler(Looper.getMainLooper()).post(() -> {
+
+                        if (CloseColorSelector) {
+                            cardView.setVisibility(View.GONE);
+
+                            cardView.startAnimation(fadeout);
+                        } else {
+                            cardView.setVisibility(View.VISIBLE);
+
+                            final Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Do something after 5s = 5000ms
+
+                                }
+                            }, 5000);
+                            Black.setVisibility(View.VISIBLE);
+                                    Blue.setVisibility(View.VISIBLE);
+                            Purple.setVisibility(View.VISIBLE);
+                                    Magenta.setVisibility(View.VISIBLE);
+                            Yellow.setVisibility(View.VISIBLE);
+                                    Green.setVisibility(View.VISIBLE);
+                            White.setVisibility(View.VISIBLE);
+                                    Orange.setVisibility(View.VISIBLE);
+
+                            Black.startAnimation(format_in_color);
+                            Blue.startAnimation(format_in_color);
+                            Purple.startAnimation(format_in_color);
+                            Magenta.startAnimation(format_in_color);
+                            Yellow.startAnimation(format_in_color);
+                            Green.startAnimation(format_in_color);
+                            White.startAnimation(format_in_color);
+                            Orange.startAnimation(format_in_color);
+
+                            cardView.startAnimation(fadein);
+                        }
+                        CloseColorSelector = !CloseColorSelector;
+                    });
 
 
-                if(TextSize == 0) {
-                    editor.putInt("TextSize", 1);
-                    editor.commit();
+                    break;
 
-                    if (selectionStart + selectionEnd != 0) {
+                case "HighlightText":
 
-                        spannableString.setSpan(new RelativeSizeSpan(1), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
-                }
+                    new Handler(Looper.getMainLooper()).post(() -> {
 
-                if  (TextSize == 1) {
-                editor.putInt("TextSize", 1);
-                editor.commit();
+                        editor.putBoolean("format", true);
+                        editor.apply();
+                        String color = preferences.getString("color", "#000000");
 
-                if (selectionStart + selectionEnd != 0) {
+                        if (selectionStart + selectionEnd != 0) {
 
-                    spannableString.setSpan(new RelativeSizeSpan(1), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
-                }
-                if (TextSize == 2) {
-                    editor.putInt("TextSize", 1);
-                    editor.commit();
+                            spannableString.setSpan(new BackgroundColorSpan(Color.parseColor(color)), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            editText.setText(spannableString);
+                        }
 
-                    if (selectionStart + selectionEnd != 0) {
+                    });
 
-                        spannableString.setSpan(new RelativeSizeSpan(1), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
-                    TextSize = 0;
-                }
+                    break;
 
-                TextSize = TextSize ++;
-
-
-
-                editor.putInt("TextSize", 5);
-                editor.commit();
-
-                if (selectionStart + selectionEnd != 0) {
-
-                    spannableString.setSpan(new RelativeSizeSpan(5), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
-
-                break;
-
-            case "ChangeColor":
-
-
-                if(CloseColorSelector) {
-                    cardView.setVisibility(View.GONE);
-
-                    cardView.startAnimation(fadeout);
-                } else {
-                    cardView.setVisibility(View.VISIBLE);
-
-                    cardView.startAnimation(fadein);
-                }
-                CloseColorSelector = !CloseColorSelector;
-
-                break;
-
-            case "HighlightText":
-
-                editor.putString("format", "BackgroundColorSpan");
-                editor.commit();
-
-                if (selectionStart + selectionEnd != 0) {
-
-                    spannableString.setSpan(new BackgroundColorSpan(Color.MAGENTA), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    editText.setText(spannableString, TextView.BufferType.SPANNABLE); }
-
-                break;
-
-            default:
-                break;
-        }
+                default:
+                    break;
+            }
+        }).start();
     }
 }

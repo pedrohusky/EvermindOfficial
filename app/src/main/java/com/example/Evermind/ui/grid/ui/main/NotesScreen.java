@@ -111,15 +111,15 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         String waswrote = notes.get(position);
 
 
-        Bundle newBundle = new Bundle();
-        newBundle.putString("Content", waswrote);
-        newBundle.putString("title", title_content);
-        newBundle.putInt("noteId", id);
-        newBundle.putBoolean("addnote", true);
+        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
+        SharedPreferences.Editor editor = preferences.edit();
 
-        Fragment fragment = new NoteEditorFragmentJavaFragment();
-        fragment.setArguments(newBundle);
+        editor.putInt("noteId", id);
+        editor.putString("title", title_content);
+        editor.putString("content", waswrote);
+        editor.putBoolean("athome", false);
+        editor.apply();
 
 
         EditText editText = this.getActivity().findViewById(R.id.myEditText);
@@ -127,18 +127,8 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         BottomNavigationView bottomNavigationView = this.getActivity().findViewById(R.id.navigation_note);
         bottomNavigationView.setVisibility(View.VISIBLE);
 
-
-
-        //Handles ID to delete note //
-        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-        SharedPreferences.Editor editor=preferences.edit();
-        editor.putInt("noteId", id);
-        editor.commit();
-
-
-
         NavController navController = Navigation.findNavController(view);
-        navController.navigate(R.id.action_nav_home_to_nav_note, newBundle);
+        navController.navigate(R.id.action_nav_home_to_nav_note);
 
 
 

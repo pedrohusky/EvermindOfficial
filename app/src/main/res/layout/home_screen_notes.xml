@@ -8,7 +8,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvNumbers"
         android:layout_width="match_parent"
-        android:layout_height="585dp"
+        android:layout_height="match_parent"
         android:background="@color/Transparent"
         android:layoutAnimation="@anim/grid_appear_layout_animation"
         android:translationY="15dp"

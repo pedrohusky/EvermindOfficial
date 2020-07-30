@@ -85,6 +85,8 @@ class StartupActivity : AppCompatActivity() {
         val scaleup5 = AnimationUtils.loadAnimation(this, R.anim.scaleup5)
 
         startButton.setOnClickListener {
+
+
             startButton.startAnimation(button_Anim)
             EvermindBlack.startAnimation(fade)
             circle1.visibility = View.VISIBLE

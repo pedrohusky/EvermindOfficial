@@ -177,12 +177,25 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean editNote(String id, String title, String content) {
+    public boolean editTitle(String id, String title) {
+
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(NOTE_TITLE, title);
+        Date currentTime = Calendar.getInstance().getTime();
+        contentValues.put(NOTE_DATE, currentTime.toString());
+
+        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[] { id });
+        sqLiteDatabase.close();
+        return true;
+
+    }
+
+    public boolean editContent(String id, String content) {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(NOTE_CONTENT, content);
-        contentValues.put(NOTE_TITLE, title);
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
