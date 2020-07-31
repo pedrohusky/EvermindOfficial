@@ -80,7 +80,6 @@ class NoteEditorActivity : AppCompatActivity() {
             val boolean: Boolean = intent.getBooleanExtra("addnote", false)
 
 
-
             if (boolean == true) {
 
                 val intent = Intent(this, MainActivity::class.java)

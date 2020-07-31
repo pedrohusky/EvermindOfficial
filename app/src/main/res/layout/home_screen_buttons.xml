@@ -17,7 +17,9 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:theme="@style/ToolbarColoredBackArrow" >
+            app:theme="@style/ToolbarColoredBackArrow"
+            android:animateLayoutChanges="true"
+           >
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/myEditText"
@@ -30,11 +32,12 @@
                 android:autofillHints="" />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
                 android:layout_gravity="center"
                 app:srcCompat="@drawable/evermindblack_cropped"
-                android:scaleType="centerInside"/>
+                android:paddingRight="18dp"
+                android:scaleType="fitCenter"/>
 
         </androidx.appcompat.widget.Toolbar>
 
@@ -54,103 +57,8 @@
         app:menu="@menu/note_bottom_options" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/color_selector"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:paddingBottom="5dp"
-        android:translationY="-120dp"
-        android:visibility="gone"
-        app:cardBackgroundColor="#F3F3F3"
-        app:cardCornerRadius="30dp"
-        app:cardElevation="9dp"
-        app:contentPadding="8dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingLeft="10dp"
-            android:paddingTop="5dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="5dp">
-
-            <ImageButton
-                android:id="@+id/Black"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/Transparent"
-                android:padding="5dp"
-                android:tint="@color/Black"
-                app:srcCompat="@drawable/circle_colors_border" />
-
-            <ImageButton
-                android:id="@+id/Blue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/Transparent"
-                android:padding="5dp"
-                android:tint="@color/SkyBlue"
-                app:srcCompat="@drawable/circle_colors_border" />
-
-            <ImageButton
-                android:id="@+id/Purple"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/Transparent"
-                android:padding="5dp"
-                android:tint="@color/Pink"
-                app:srcCompat="@drawable/circle_colors_border" />
-
-            <ImageButton
-                android:id="@+id/Magenta"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/Transparent"
-                android:padding="5dp"
-                android:tint="@color/Magenta"
-                app:srcCompat="@drawable/circle_colors_border" />
-
-            <ImageButton
-                android:id="@+id/Orange"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/Transparent"
-                android:padding="5dp"
-                android:tint="@color/Orange"
-                app:srcCompat="@drawable/circle_colors_border" />
-
-            <ImageButton
-                android:id="@+id/Yellow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/Transparent"
-                android:padding="5dp"
-                android:tint="@color/YellowSun"
-                app:srcCompat="@drawable/circle_colors_border" />
-
-            <ImageButton
-                android:id="@+id/Green"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/Transparent"
-                android:padding="5dp"
-                android:tint="@color/GrassGreen"
-                app:srcCompat="@drawable/circle_colors_border" />
-
-            <ImageButton
-                android:id="@+id/White"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/Transparent"
-                android:padding="5dp"
-                android:tint="@color/White"
-                app:srcCompat="@drawable/circle_colors_border" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
         android:id="@+id/format_selector"
-        android:layout_width="360dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:paddingBottom="5dp"
@@ -163,15 +71,15 @@
 
         <HorizontalScrollView
             android:id="@+id/scroll"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
                 android:gravity="bottom|center_horizontal"
-                android:layoutAnimation="@anim/grid_appear_layout_animation"
                 android:paddingLeft="0dp"
                 android:paddingTop="0dp"
                 android:paddingRight="0dp"
@@ -181,39 +89,39 @@
                     android:id="@+id/TextSize"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="13dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="13dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:layout_marginHorizontal="5dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.35"
                     android:scaleY="1.35"
                     android:tint="@color/Black"
+                    android:visibility="gone"
                     app:srcCompat="@drawable/text_size_icon" />
 
                 <ImageButton
                     android:id="@+id/ChangeColor"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="13dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="13dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.35"
                     android:scaleY="1.35"
                     android:tint="@color/Black"
+                    android:visibility="gone"
                     app:srcCompat="@drawable/color_selector_icon" />
 
                 <ImageButton
                     android:id="@+id/black"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Black"
@@ -224,11 +132,10 @@
                     android:id="@+id/blue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/SkyBlue"
@@ -239,11 +146,10 @@
                     android:id="@+id/purple"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Pink"
@@ -254,11 +160,10 @@
                     android:id="@+id/magenta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Magenta"
@@ -269,11 +174,10 @@
                     android:id="@+id/orange"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Orange"
@@ -284,11 +188,10 @@
                     android:id="@+id/yellow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/YellowSun"
@@ -299,11 +202,10 @@
                     android:id="@+id/green"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/GrassGreen"
@@ -311,88 +213,73 @@
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/white"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="5dp"
-                    android:scaleX="1.15"
-                    android:scaleY="1.15"
-                    android:tint="@color/White"
-                    android:visibility="gone"
-                    app:srcCompat="@drawable/circle_colors_border" />
-
-                <ImageButton
                     android:id="@+id/Bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="13dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="13dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.35"
                     android:scaleY="1.35"
                     android:tint="@color/Black"
+                    android:visibility="gone"
                     app:srcCompat="@drawable/bold_icon" />
 
                 <ImageButton
                     android:id="@+id/Italic"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="13dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="13dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.35"
                     android:scaleY="1.35"
                     android:tint="@color/Black"
+                    android:visibility="gone"
                     app:srcCompat="@drawable/italic_icon" />
 
                 <ImageButton
                     android:id="@+id/Underline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="13dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="13dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.35"
                     android:scaleY="1.35"
                     android:tint="@color/Black"
+                    android:visibility="gone"
                     app:srcCompat="@drawable/underline_icon" />
 
                 <ImageButton
                     android:id="@+id/Striketrough"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="13dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="13dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.35"
                     android:scaleY="1.35"
                     android:tint="@color/Black"
+                    android:visibility="gone"
                     app:srcCompat="@drawable/striketrough_icon" />
 
                 <ImageButton
                     android:id="@+id/HighlightText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:paddingLeft="13dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="13dp"
-                    android:paddingBottom="5dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/formatter_icon_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
                     android:scaleX="1.35"
                     android:scaleY="1.35"
                     android:tint="@color/Black"
+                    android:visibility="gone"
                     app:srcCompat="@drawable/highlight_text_icon" />
 
             </LinearLayout>

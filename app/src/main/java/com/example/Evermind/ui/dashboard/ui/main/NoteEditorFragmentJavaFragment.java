@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -34,25 +36,21 @@ import android.widget.Toast;
 
 import com.example.Evermind.DataBaseHelper;
 import com.example.Evermind.R;
-import com.tuyenmonkey.textdecorator.TextDecorator;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.lang.reflect.Type;
+import java.util.ArrayList;
 
-import static android.content.Context.MODE_APPEND;
 import static android.content.Context.MODE_PRIVATE;
 import static android.text.Spanned.SPAN_COMPOSING;
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
-import static android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
+import static android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE;
+import static com.example.Evermind.ui.grid.ui.main.NotesScreen.databaseHelper;
 
 public class NoteEditorFragmentJavaFragment extends Fragment {
 
     private NoteEditorFragmentMainViewModel mViewModel;
 
-    private SpannableStringBuilder mSpannableStringBuilder;
-
     private DataBaseHelper dataBaseHelper;
-
-    private int flag = SPAN_COMPOSING;
 
     private int start;
     private int finish;
@@ -75,7 +73,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
     private SubscriptSpan subscriptspan;
 
     private Editable text;
-    private SpannableString spannable;
+
+    //Notes Array \/
+    public static ArrayList<String> notes = new ArrayList<>();
+    //Notes Array /\
+    public static ArrayList<String> titles = new ArrayList<>();
 
     public static NoteEditorFragmentJavaFragment newInstance() {
         return new NoteEditorFragmentJavaFragment();
@@ -91,160 +93,228 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(NoteEditorFragmentMainViewModel.class);
 
-        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID",MODE_PRIVATE);
-        String content = preferences.getString("content", "");
-        String title = preferences.getString("title", "");
-        Integer id = preferences.getInt("noteId", -1);
+        //new Thread(() -> {
 
-        dataBaseHelper = new DataBaseHelper(getActivity());
-
+        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        int id = preferences.getInt("noteId", -1) - 1;
 
         EditText content_editText = getActivity().findViewById(R.id.ToSaveNoteText);
 
         EditText title_editText = getActivity().findViewById(R.id.myEditText);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            title_editText.setText(Html.fromHtml(title, Html.FROM_HTML_MODE_COMPACT));
-        }
+        dataBaseHelper = new DataBaseHelper(getActivity());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            content_editText.setText(Html.fromHtml(content, Html.FROM_HTML_MODE_COMPACT));
-        }
 
-        content_editText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        notes = databaseHelper.getContentsFromDatabase();
+        titles = databaseHelper.getTitlesFromDatabase();
 
-                SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID",MODE_PRIVATE);
-                color = preferences.getString("color", "#000000");
-                Bold = preferences.getBoolean("Bold", false);
-                Italic = preferences.getBoolean("Italic", false);
-                Underline = preferences.getBoolean("Underline", false);
-                Striketrough = preferences.getBoolean("Striketrough", false);
-                TexTSize = preferences.getInt("TextSize", 1);
-                HighlightText = preferences.getBoolean("HighlightText", false);
-                SeT_subscript = preferences.getBoolean("Subscript", false);
 
-                fcs = new ForegroundColorSpan(Color.parseColor(color));
-                  if (Underline) {
-                      under = new UnderlineSpan();
-                  }
 
-                if (Bold) {
-                    bold = new StyleSpan(Typeface.BOLD);
-                }
+        String title_text = titles.get(id);
+        String content_text = notes.get(id);
 
-                if (Italic) {
-                    italic = new StyleSpan(Typeface.ITALIC);
-                }
+        mViewModel = ViewModelProviders.of(this).get(NoteEditorFragmentMainViewModel.class);
 
-                if (Striketrough) {
-                    strike = new StrikethroughSpan();
-                }
 
-                if (TexTSize > 1) {
-                    textsiz = new RelativeSizeSpan(TexTSize);
-                }
+        new Handler(Looper.getMainLooper()).post(() -> {
 
-                if (HighlightText) {
-                    background = new BackgroundColorSpan(Color.parseColor(color));
-                }
 
-                if (SeT_subscript) {
-                    subscriptspan = new SubscriptSpan();
-                }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                title_editText.setText(Html.fromHtml(title_text, Html.FROM_HTML_MODE_COMPACT));
             }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        });
 
+        new Handler(Looper.getMainLooper()).post(() -> {
 
-                if (content_editText.length() != 0) {
-                    start = content_editText.length() - 1;
-                } else {
-                    start = 0;
-                }
-
-                finish = content_editText.length();
-
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                content_editText.setText(Html.fromHtml(content_text, Html.FROM_HTML_MODE_COMPACT));
             }
 
-            @Override
-            public void afterTextChanged(Editable editable) {
+        });
 
+            content_editText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                text = content_editText.getEditableText();
+                        SharedPreferences preferences1 = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+                        color = preferences1.getString("color", "#000000");
+                        Bold = preferences1.getBoolean("Bold", false);
+                        Italic = preferences1.getBoolean("Italic", false);
+                        Underline = preferences1.getBoolean("Underline", false);
+                        Striketrough = preferences1.getBoolean("Striketrough", false);
+                        TexTSize = preferences1.getInt("TextSize", 1);
+                        HighlightText = preferences1.getBoolean("HighlightText", false);
+                        SeT_subscript = preferences1.getBoolean("Subscript", false);
 
-
-                editable.setSpan(fcs, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
-                editable.setSpan(under, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
-                editable.setSpan(bold, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
-                editable.setSpan(italic, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
-                editable.setSpan(under, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
-                editable.setSpan(strike, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
-                editable.setSpan(subscriptspan, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
-                editable.setSpan(textsiz, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
-                editable.setSpan(background, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
-                editable.setSpan(subscriptspan, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
-
-
-                content_editText.setSelection(finish); //this is to move the cursor position
-
-                content_editText.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-
-                            dataBaseHelper.editContent(id.toString(), Html.toHtml(text, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+                        fcs = new ForegroundColorSpan(Color.parseColor(color));
+                        if (Underline) {
+                            under = new UnderlineSpan();
                         }
+
+                        if (Bold) {
+                            bold = new StyleSpan(Typeface.BOLD);
+                        }
+
+                        if (Italic) {
+                            italic = new StyleSpan(Typeface.ITALIC);
+                        }
+
+                        if (Striketrough) {
+                            strike = new StrikethroughSpan();
+                        }
+
+                        if (TexTSize > 1) {
+                            textsiz = new RelativeSizeSpan(TexTSize);
+                        }
+
+                        if (HighlightText) {
+                            background = new BackgroundColorSpan(Color.parseColor(color));
+                        }
+
+                        if (SeT_subscript) {
+                            subscriptspan = new SubscriptSpan();
+                        }
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+
+                    if (content_editText.length() != 0) {
+                        start = content_editText.length() - 1;
+                    } else {
+                        start = 0;
                     }
-                });
 
-                fcs = null;
-                under = null;
-                bold = null;
-                italic = null;
-                strike = null;
-                textsiz = null;
-                background = null;
-                subscriptspan = null;
-            }
-
-        });
-
-        title_editText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                String title_text = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    title_text = Html.toHtml(title_editText.getEditableText(), Html.FROM_HTML_MODE_COMPACT);
-                }
-
-                if (title_text.equals(title_text)) {
-
-                } else {
-
-                    dataBaseHelper.editTitle(id.toString(), title_text);
+                    finish = content_editText.length();
 
                 }
 
-            }
-        });
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                    SpannableStringBuilder spannable = new SpannableStringBuilder(editable);
 
 
+
+                    spannable.setSpan(fcs, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+
+
+                    if (Underline) {
+
+
+                        spannable.setSpan(under, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+                    }
+
+                    if (Bold) {
+
+
+                        spannable.setSpan(bold, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+                    }
+
+                    if (Italic) {
+
+
+                        spannable.setSpan(italic, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+                    }
+
+                    if (Striketrough) {
+
+
+                        spannable.setSpan(strike, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+                    }
+
+                    if (TexTSize > 1) {
+
+
+                        spannable.setSpan(textsiz, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+                    }
+
+                    if (HighlightText) {
+
+
+                        spannable.setSpan(background, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+                    }
+
+                    if (SeT_subscript) {
+
+
+                        spannable.setSpan(subscriptspan, start, finish, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+                    }
+
+
+                    content_editText.setSelection(finish); //this is to move the cursor position
+
+
+                    new Thread(() -> {
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            text = content_editText.getEditableText();
+
+                           dataBaseHelper.editContent(Integer.toString(id+1), Html.toHtml(text, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+                        }
+
+                        fcs = null;
+                        under = null;
+                        bold = null;
+                        italic = null;
+                        strike = null;
+                        textsiz = null;
+                        background = null;
+                        subscriptspan = null;
+
+                    }).start();
+                }
+            });
+
+            title_editText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                    String title_text1 = null;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        title_text1 = Html.toHtml(title_editText.getEditableText(), Html.FROM_HTML_MODE_COMPACT);
+                    }
+
+                    if (title_text1.equals(title_text1)) {
+
+                    } else {
+
+                        dataBaseHelper.editTitle(Integer.toString(id), title_text1);
+
+                    }
+
+                }
+            });
+
+       // }).start();
     }
-
 }

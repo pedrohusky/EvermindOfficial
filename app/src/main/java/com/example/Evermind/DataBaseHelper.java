@@ -205,9 +205,4 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public String MakeToast(Context context, String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-        return message;
-    }
-
     }

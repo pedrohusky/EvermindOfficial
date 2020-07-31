@@ -17,16 +17,13 @@ import android.text.style.UnderlineSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
-import android.widget.ScrollView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -49,201 +46,221 @@ public class MainActivity extends AppCompatActivity {
     Integer ID;
     public Boolean CloseFormatter = false;
     public Boolean CloseColorSelector = false;
+    public Boolean bolder = false;
+    public Boolean italicer = false;
+    public Boolean underliner = false;
+    public Boolean striker = false;
+    public Boolean highlighter = false;
     public Integer TextSize = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
+        new Thread(() -> {
+            // a potentially time consuming task
 
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
 
-
-        BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
-        bottomNavigationView1.setOnNavigationItemSelectedListener(item -> {
-            int id = item.getItemId();
             Animation fadein  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_button_colors);
             Animation fadeout  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
             CardView format_text = findViewById(R.id.format_selector);
-           // CardView cardView = findViewById(R.id.color_selector);
 
-            switch (id) {
-                case R.id.navigation_home:
+            ImageButton Textsize = findViewById(R.id.TextSize);
+            ImageButton ChangeColor = findViewById(R.id.ChangeColor);
+            ImageButton Bold = findViewById(R.id.Bold);
+            ImageButton Italic = findViewById(R.id.Italic);
+            ImageButton Underline = findViewById(R.id.Underline);
+            ImageButton Striketrough = findViewById(R.id.Striketrough);
+            //ImageButton Subscript = findViewById(R.id.Subscript);
+            ImageButton HighlightText = findViewById(R.id.HighlightText);
 
-                    //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
+            ImageButton Black = findViewById(R.id.black);
+            ImageButton Blue = findViewById(R.id.blue);
+            ImageButton Purple = findViewById(R.id.purple);
+            ImageButton Magenta = findViewById(R.id.magenta);
+            ImageButton Orange = findViewById(R.id.orange);
+            ImageButton Yellow = findViewById(R.id.yellow);
+            ImageButton Green = findViewById(R.id.green);
 
-                    if(CloseFormatter) {
-                        format_text.setVisibility(View.GONE);
+            new Handler(Looper.getMainLooper()).post(() -> {
 
-                        format_text.startAnimation(fadeout);
-                    } else {
-                        format_text.setVisibility(View.VISIBLE);
-
-                        format_text.startAnimation(fadein);
-                    }
-                    CloseFormatter = !CloseFormatter;
-
-                    //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
-
-                    break;
-
-                case R.id.navigation_dashboard:
-
-                  //  TODO
+                bottomNavigationView1.setOnNavigationItemSelectedListener(item -> {
+                    int id = item.getItemId();
 
 
-                    break;
+                    switch (id) {
+                        case R.id.navigation_home:
 
-                case R.id.navigation_save:
-
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setTitle("Are you sure?")
-                            .setMessage("Do you want to delete this note?")
-                            .setPositiveButton("Yes", (dialogInterface, i) -> {
-
-                                SharedPreferences preferences = getSharedPreferences("DeleteNoteID",MODE_PRIVATE);
-                                int id1 = preferences.getInt("noteId", -1);
-
-                                Toast.makeText(MainActivity.this, Integer.toString(id1), Toast.LENGTH_SHORT).show();
+                            //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
 
 
-                                mDatabaseHelper.deleteNote(id1);
 
-                                NavController navController = Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment);
-                                navController.navigate(R.id.action_nav_note_to_nav_home);
+                            if(CloseFormatter) {
+
+                                format_text.setVisibility(View.GONE);
+
+                                format_text.startAnimation(fadeout);
+
+                                new Handler(Looper.getMainLooper()).post(() -> {
+
+                                    Textsize.setVisibility(View.GONE);
+                                    ChangeColor.setVisibility(View.GONE);
+                                    Bold.setVisibility(View.GONE);
+                                    Italic.setVisibility(View.GONE);
+                                    Bold.setVisibility(View.GONE);
+                                    Underline.setVisibility(View.GONE);
+                                    Striketrough.setVisibility(View.GONE);
+                                    HighlightText.setVisibility(View.GONE);
+
+                                    Black.setVisibility(View.GONE);
+                                    Blue.setVisibility(View.GONE);
+                                    Purple.setVisibility(View.GONE);
+                                    Magenta.setVisibility(View.GONE);
+                                    Orange.setVisibility(View.GONE);
+                                    Yellow.setVisibility(View.GONE);
+                                    Green.setVisibility(View.GONE);
+
+                                });
+
+                            } else {
+
+                                format_text.setVisibility(View.VISIBLE);
+
+                                format_text.startAnimation(fadein);
+
+                                new Handler(Looper.getMainLooper()).post(() -> {
+
+                                    Textsize.setVisibility(View.VISIBLE);
+                                    ChangeColor.setVisibility(View.VISIBLE);
+                                    Bold.setVisibility(View.VISIBLE);
+                                    Italic.setVisibility(View.VISIBLE);
+                                    Bold.setVisibility(View.VISIBLE);
+                                    Underline.setVisibility(View.VISIBLE);
+                                    Striketrough.setVisibility(View.VISIBLE);
+                                    HighlightText.setVisibility(View.VISIBLE);
+
+                                });
+
                             }
-                            )
-                            .setNegativeButton("No", null)
-                            .show();
+                            CloseFormatter = !CloseFormatter;
 
-                    break;
+                            //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
 
-                case R.id.navigation_notifications:
+                            break;
 
-                    Toast.makeText(MainActivity.this, "3", Toast.LENGTH_SHORT).show();
+                        case R.id.navigation_dashboard:
 
-                    break;
+                            //  TODO
 
 
-                default:
-                    return true;
-            }
-        return true; });
+                            break;
+
+                        case R.id.navigation_save:
+
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .setTitle("Are you sure?")
+                                    .setMessage("Do you want to delete this note?")
+                                    .setPositiveButton("Yes", (dialogInterface, i) -> {
+
+                                                SharedPreferences preferences = getSharedPreferences("DeleteNoteID",MODE_PRIVATE);
+                                                int id1 = preferences.getInt("noteId", -1);
+
+                                                Toast.makeText(MainActivity.this, Integer.toString(id1), Toast.LENGTH_SHORT).show();
 
 
-        mDatabaseHelper = new DataBaseHelper(this);
+                                                mDatabaseHelper.deleteNote(id1);
+
+                                                NavController navController = Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment);
+                                                navController.navigate(R.id.action_nav_note_to_nav_home);
+                                            }
+                                    )
+                                    .setNegativeButton("No", null)
+                                    .show();
+
+                            break;
+
+                        case R.id.navigation_notifications:
+
+                            Toast.makeText(MainActivity.this, "3", Toast.LENGTH_SHORT).show();
+
+                            break;
 
 
-      //  DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+                        default:
+                            return true;
+                    }
+                    return true; });
 
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+            });
 
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
-               // .setDrawerLayout(drawer)
-                .build();
-
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
-
-        //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT \/
-
-        CardView cardView = findViewById(R.id.color_selector);
-        cardView.setOnClickListener(view -> {
-
-        });
-
-        HorizontalScrollView format_text = findViewById(R.id.scroll);
-        format_text.setOnClickListener(view -> {
-
-        });
-
-        //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT /\
-
-        ImageButton black = findViewById(R.id.Black);
-        ImageButton blue = findViewById(R.id.Blue);
-        ImageButton purple = findViewById(R.id.Purple);
-        ImageButton magenta = findViewById(R.id.Magenta);
-        ImageButton orange = findViewById(R.id.Orange);
-        ImageButton yellow = findViewById(R.id.Yellow);
-        ImageButton green = findViewById(R.id.Green);
-        ImageButton white = findViewById(R.id.White);
-////////////////////////////////////////////////////
-        ImageButton Black = findViewById(R.id.black);
-        ImageButton Blue = findViewById(R.id.blue);
-        ImageButton Purple = findViewById(R.id.purple);
-        ImageButton Magenta = findViewById(R.id.magenta);
-        ImageButton Orange = findViewById(R.id.orange);
-        ImageButton Yellow = findViewById(R.id.yellow);
-        ImageButton Green = findViewById(R.id.green);
-        ImageButton White = findViewById(R.id.white);
-/////////////////////////////////////////////////////
-        black.setOnClickListener(view -> black.post(() -> ColorClickedSwitcher("Black")));
-
-        blue.setOnClickListener(view -> blue.post(() -> ColorClickedSwitcher("Blue")));
-
-        purple.setOnClickListener(view -> purple.post(() -> ColorClickedSwitcher("Purple")));
-
-        magenta.setOnClickListener(view -> magenta.post(() -> ColorClickedSwitcher("Blue")));
-
-        orange.setOnClickListener(view -> orange.post(() -> ColorClickedSwitcher("Orange")));
-
-        yellow.setOnClickListener(view -> yellow.post(() -> ColorClickedSwitcher("Yellow")));
-
-        green.setOnClickListener(view -> green.post(() -> ColorClickedSwitcher("Green")));
-
-        white.setOnClickListener(view -> white.post(() -> ColorClickedSwitcher("White")));
-
-        /////////////////////////////////////////////////////
+            mDatabaseHelper = new DataBaseHelper(this);
 
 
-        Black.setOnClickListener(view -> black.post(() -> ColorClickedSwitcher("Black")));
+            //  DrawerLayout drawer = findViewById(R.id.drawer_layout);
+            NavigationView navigationView = findViewById(R.id.nav_view);
 
-        Blue.setOnClickListener(view -> blue.post(() -> ColorClickedSwitcher("Blue")));
+            // Passing each menu ID as a set of Ids because each
+            // menu should be considered as top level destinations.
 
-        Purple.setOnClickListener(view -> purple.post(() -> ColorClickedSwitcher("Purple")));
+            mAppBarConfiguration = new AppBarConfiguration.Builder(
+                    R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                    // .setDrawerLayout(drawer)
+                    .build();
 
-        Magenta.setOnClickListener(view -> magenta.post(() -> ColorClickedSwitcher("Blue")));
-
-        Orange.setOnClickListener(view -> orange.post(() -> ColorClickedSwitcher("Orange")));
-
-        Yellow.setOnClickListener(view -> yellow.post(() -> ColorClickedSwitcher("Yellow")));
-
-        Green.setOnClickListener(view -> green.post(() -> ColorClickedSwitcher("Green")));
-
-        White.setOnClickListener(view -> white.post(() -> ColorClickedSwitcher("White")));
-
-
-        ///////////////////////////////////////
-
-        ImageButton bold = findViewById(R.id.Bold);
-        ImageButton italic = findViewById(R.id.Italic);
-        ImageButton underline = findViewById(R.id.Underline);
-        ImageButton strikethrough = findViewById(R.id.Striketrough);
-        ImageButton change_color = findViewById(R.id.ChangeColor);
-        ImageButton text_size = findViewById(R.id.TextSize);
-        ImageButton highlight_text = findViewById(R.id.HighlightText);
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+            NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+            NavigationUI.setupWithNavController(navigationView, navController);
 
 
-        bold.setOnClickListener(view -> FormatTextSwitcher("Bold"));
+            //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT \/
 
-        italic.setOnClickListener(view -> FormatTextSwitcher("Italic"));
 
-        underline.setOnClickListener(view -> FormatTextSwitcher("Underline"));
+            format_text.setOnClickListener(view -> {
 
-        strikethrough.setOnClickListener(view -> FormatTextSwitcher("Striketrough"));
+            });
 
-        change_color.setOnClickListener(view -> FormatTextSwitcher("ChangeColor"));
+            //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT /\
 
-        text_size.setOnClickListener(view -> FormatTextSwitcher("TextSize"));
 
-        highlight_text.setOnClickListener(view -> FormatTextSwitcher("HighlightText"));
+            Black.setOnClickListener(view -> Black.post(() -> ColorClickedSwitcher("Black")));
+
+            Blue.setOnClickListener(view -> Blue.post(() -> ColorClickedSwitcher("Blue")));
+
+            Purple.setOnClickListener(view -> Purple.post(() -> ColorClickedSwitcher("Purple")));
+
+            Magenta.setOnClickListener(view -> Magenta.post(() -> ColorClickedSwitcher("Magenta")));
+
+            Orange.setOnClickListener(view -> Orange.post(() -> ColorClickedSwitcher("Orange")));
+
+            Yellow.setOnClickListener(view -> Yellow.post(() -> ColorClickedSwitcher("Yellow")));
+
+            Green.setOnClickListener(view -> Green.post(() -> ColorClickedSwitcher("Green")));
+
+
+            ///////////////////////////////////////
+
+
+            Bold.setOnClickListener(view -> FormatTextSwitcher("Bold"));
+
+            Italic.setOnClickListener(view -> FormatTextSwitcher("Italic"));
+
+            Underline.setOnClickListener(view -> FormatTextSwitcher("Underline"));
+
+            Striketrough.setOnClickListener(view -> FormatTextSwitcher("Striketrough"));
+
+            ChangeColor.setOnClickListener(view -> FormatTextSwitcher("ChangeColor"));
+
+            Textsize.setOnClickListener(view -> FormatTextSwitcher("TextSize"));
+
+            HighlightText.setOnClickListener(view -> FormatTextSwitcher("HighlightText"));
+
+        }).start();
+
     }
 
     @Override
@@ -322,50 +339,57 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View v) {
 
-
-        new Thread(() -> {
-            // a potentially time consuming task
-            mDatabaseHelper.AddNoteContent("", "");
-        }).start();
-
-        ArrayList<Integer> arrayList = databaseHelper.getIDFromDatabase();
-
         SharedPreferences preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
         SharedPreferences.Editor editor = preferences.edit();
 
-        if (!arrayList.isEmpty()) {
 
-            ID = arrayList.get(arrayList.size() - 1);
+        new Thread(() -> {
+            // a potentially time consuming task
 
-            editor.putInt("noteId", ID);
+            mDatabaseHelper.AddNoteContent("", "");
 
-            EditText editText = findViewById(R.id.myEditText);
-            editText.setVisibility(View.VISIBLE);
+            new Handler(Looper.getMainLooper()).post(() -> {
+
+                ArrayList<Integer> arrayList = databaseHelper.getIDFromDatabase();
+
+                if (!arrayList.isEmpty()) {
+
+                    ID = arrayList.get(arrayList.size() - 1);
+
+                    editor.putInt("noteId", ID);
+                    editor.putBoolean("athome", false);
+                    editor.apply();
+
+                    EditText editText = findViewById(R.id.myEditText);
+                    editText.setVisibility(View.VISIBLE);
+
+                    BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
+                    bottomNavigationView.setVisibility(View.VISIBLE);
 
 
-            BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
-            bottomNavigationView.setVisibility(View.VISIBLE);
+                } else {
+
+                 //   ID = NotesScreen.adapter.getItemCount();
 
 
-        } else {
+                    editor.putInt("noteId", 1);
+                    editor.putBoolean("athome", false);
+                    editor.apply();
 
+                    EditText editText = findViewById(R.id.myEditText);
+                    editText.setVisibility(View.VISIBLE);
 
-            // NotesScreen.adapter.notifyDataSetChanged();
+                    BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
+                    bottomNavigationView.setVisibility(View.VISIBLE);
+                }
 
-            ID = NotesScreen.adapter.getItemCount();
+                NavController navController = Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment);
+                navController.navigate(R.id.action_nav_home_to_nav_note);
 
-            editor.putInt("noteId", ID);
-        }
+            });
 
-        editor.putString("title", "");
-        editor.putString("content", "");
-        editor.putBoolean("athome", false);
-        editor.apply();
-
-        NavController navController = Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment);
-        navController.navigate(R.id.action_nav_home_to_nav_note);
-
+        }).start();
     }
     
     public void ColorClickedSwitcher (String color) {
@@ -380,10 +404,6 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
             SharedPreferences.Editor editor=preferences.edit();
 
-            Animation fadeout  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
-            Animation format_out_color  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.format_color_selector_anim);
-            CardView cardView = findViewById(R.id.color_selector);
-
             CloseColorSelector = false;
 
             switch (color) {
@@ -394,14 +414,17 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("color", "#000000");
                     editor.apply();
 
+                    CloseOpenedColors();
+
                     new Handler(Looper.getMainLooper()).post(() -> {
                         if (selectionStart + selectionEnd != 0) {
 
                             spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#000000")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             editText.setText(spannableString); }
-                    });
 
-                    cardView.startAnimation(fadeout);
+                       // cardView.startAnimation(fadeout);
+
+                    });
 
 
                     break;
@@ -412,14 +435,17 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("color", "#6CCAEF");
                     editor.apply();
 
+                    CloseOpenedColors();
+
                     new Handler(Looper.getMainLooper()).post(() -> {
                         if (selectionStart + selectionEnd != 0) {
 
                             spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#6CCAEF")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             editText.setText(spannableString); }
-                    });
 
-                    cardView.startAnimation(fadeout);
+                       // cardView.startAnimation(fadeout);
+
+                    });
 
 
 
@@ -430,15 +456,18 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("color", "#c371f9");
                     editor.apply();
 
+                    CloseOpenedColors();
+
 
                     new Handler(Looper.getMainLooper()).post(() -> {
                         if (selectionStart + selectionEnd != 0) {
 
                             spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#c371f9")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             editText.setText(spannableString); }
-                    });
 
-                    cardView.startAnimation(fadeout);
+                       // cardView.startAnimation(fadeout);
+
+                    });
 
 
 
@@ -449,15 +478,17 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("color", "#EDF52E66");
                     editor.apply();
 
+                    CloseOpenedColors();
+
+
                     new Handler(Looper.getMainLooper()).post(() -> {
                         if (selectionStart + selectionEnd != 0) {
 
                             spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#EDF52E66")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             editText.setText(spannableString); }
+
+                       // cardView.startAnimation(fadeout);
                     });
-
-                    cardView.startAnimation(fadeout);
-
 
 
                     break;
@@ -468,14 +499,17 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("color", "#F9A75D");
                     editor.apply();
 
+                    CloseOpenedColors();
+
                     new Handler(Looper.getMainLooper()).post(() -> {
                         if (selectionStart + selectionEnd != 0) {
 
                             spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#F9A75D")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             editText.setText(spannableString); }
-                    });
 
-                    cardView.startAnimation(fadeout);
+                      //  cardView.startAnimation(fadeout);
+
+                    });
 
 
 
@@ -487,14 +521,17 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("color", "#FAF075");
                     editor.apply();
 
+                    CloseOpenedColors();
+
                     new Handler(Looper.getMainLooper()).post(() -> {
                         if (selectionStart + selectionEnd != 0) {
 
                             spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FAF075")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             editText.setText(spannableString); }
-                    });
 
-                    cardView.startAnimation(fadeout);
+                      //  cardView.startAnimation(fadeout);
+
+                    });
 
 
 
@@ -506,33 +543,17 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("color", "#8de791");
                     editor.apply();
 
+                    CloseOpenedColors();
+
                     new Handler(Looper.getMainLooper()).post(() -> {
                         if (selectionStart + selectionEnd != 0) {
 
                             spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#8de791")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             editText.setText(spannableString); }
+
+                     //   cardView.startAnimation(fadeout);
+
                     });
-
-                    cardView.startAnimation(fadeout);
-
-
-
-                    break;
-
-                case "White":
-
-
-                    editor.putString("color","#FFFFFF");
-                    editor.apply();
-
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        if (selectionStart + selectionEnd != 0) {
-
-                            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FFFFFF")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            editText.setText(spannableString); }
-                    });
-
-                    cardView.startAnimation(fadeout);
 
 
                     break;
@@ -546,20 +567,17 @@ public class MainActivity extends AppCompatActivity {
     }
     public void FormatTextSwitcher (String functionName) {
 
+        EditText editText = findViewById(R.id.ToSaveNoteText);
+        SpannableStringBuilder spannable = new SpannableStringBuilder(editText.getText());
+
         new Thread(() -> {
             // a potentially time consuming task
 
-            EditText editText = findViewById(R.id.ToSaveNoteText);
             int selectionStart = editText.getSelectionStart();
             int selectionEnd = editText.getSelectionEnd();
-            SpannableString spannableString = new SpannableString(editText.getText());
+
             SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
-
-            Animation fadein = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_button_colors);
-            Animation fadeout = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
-            Animation format_in_color  = AnimationUtils.loadAnimation(MainActivity.this, R.anim.format_color_selector_anim);
-            CardView cardView = findViewById(R.id.color_selector);
 
             ImageButton Black = findViewById(R.id.black);
             ImageButton Blue = findViewById(R.id.blue);
@@ -568,7 +586,15 @@ public class MainActivity extends AppCompatActivity {
             ImageButton Orange = findViewById(R.id.orange);
             ImageButton Yellow = findViewById(R.id.yellow);
             ImageButton Green = findViewById(R.id.green);
-            ImageButton White = findViewById(R.id.white);
+
+            ImageButton Textsize = findViewById(R.id.TextSize);
+            ImageButton ChangeColor = findViewById(R.id.ChangeColor);
+            ImageButton Bold = findViewById(R.id.Bold);
+            ImageButton Italic = findViewById(R.id.Italic);
+            ImageButton Underline = findViewById(R.id.Underline);
+            ImageButton Striketrough = findViewById(R.id.Striketrough);
+            //ImageButton Subscript = findViewById(R.id.Subscript);
+            ImageButton HighlightText = findViewById(R.id.HighlightText);
 
             switch (functionName) {
 
@@ -578,10 +604,39 @@ public class MainActivity extends AppCompatActivity {
                     editor.apply();
 
                     new Handler(Looper.getMainLooper()).post(() -> {
-                        if (selectionStart + selectionEnd != 0) {
 
-                            spannableString.setSpan(new StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            editText.setText(spannableString);
+                            if(bolder) {
+
+                                if (selectionStart + selectionEnd != 0) {
+
+                                    spannable.setSpan(new StyleSpan(Typeface.NORMAL), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    editText.setText(spannable);
+                                    editText.setSelection(0);
+                                } else {
+
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                    Bold.setSelected(false);
+
+                                }, 50); }
+
+
+                            } else {
+
+                                if (selectionStart + selectionEnd != 0) {
+
+                                    spannable.setSpan(new StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    editText.setText(spannable);
+                                    editText.setSelection(0);
+                                } else {
+
+                                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                        Bold.setSelected(true);
+
+                                    }, 50); }
+
+                            bolder = !bolder;
                         }
                     });
 
@@ -593,11 +648,38 @@ public class MainActivity extends AppCompatActivity {
                     editor.apply();
 
                     new Handler(Looper.getMainLooper()).post(() -> {
-                        if (selectionStart + selectionEnd != 0) {
 
-                            spannableString.setSpan(new StyleSpan(Typeface.ITALIC), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            editText.setText(spannableString);
+
+                        if(italicer) {
+
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannable.setSpan(new StyleSpan(Typeface.NORMAL), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
+                                editText.setSelection(0);
+                            } else {
+
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                Italic.setSelected(false);
+
+                            }, 50); }
+
+                        } else {
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannable.setSpan(new StyleSpan(Typeface.ITALIC), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
+                                editText.setSelection(0);
+                            } else {
+
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                    Italic.setSelected(true);
+
+                                }, 50); }
                         }
+                        italicer = !italicer;
                     });
 
                     break;
@@ -608,11 +690,37 @@ public class MainActivity extends AppCompatActivity {
                     editor.apply();
 
                     new Handler(Looper.getMainLooper()).post(() -> {
-                        if (selectionStart + selectionEnd != 0) {
 
-                            spannableString.setSpan(new UnderlineSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            editText.setText(spannableString);
+                        if(underliner) {
+
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannable.setSpan(new StyleSpan(Typeface.NORMAL), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
+                                editText.setSelection(0);
+                            } else {
+
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                Underline.setSelected(false);
+
+                            }, 50); }
+
+                        } else {
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannable.setSpan(new UnderlineSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
+                                editText.setSelection(0);
+                            } else {
+
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                    Underline.setSelected(true);
+
+                                }, 50); }
                         }
+                        underliner = !underliner;
 
                     });
 
@@ -624,11 +732,37 @@ public class MainActivity extends AppCompatActivity {
                     editor.apply();
 
                     new Handler(Looper.getMainLooper()).post(() -> {
-                        if (selectionStart + selectionEnd != 0) {
 
-                            spannableString.setSpan(new StrikethroughSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            editText.setText(spannableString);
+                        if(striker) {
+
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannable.setSpan(new  StyleSpan(Typeface.NORMAL), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
+                                editText.setSelection(0);
+                            } else {
+
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                Striketrough.setSelected(false);
+
+                            }, 50); }
+
+                        } else {
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannable.setSpan(new StrikethroughSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
+                                editText.setSelection(0);
+                            } else {
+
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                    Striketrough.setSelected(true);
+
+                                }, 50); }
                         }
+                        striker = !striker;
 
                     });
 
@@ -644,8 +778,8 @@ public class MainActivity extends AppCompatActivity {
 
                             if (selectionStart + selectionEnd != 0) {
 
-                                spannableString.setSpan(new RelativeSizeSpan(1), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                editText.setText(spannableString);
+                                spannable.setSpan(new RelativeSizeSpan(1), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
                             }
                         }
 
@@ -655,8 +789,8 @@ public class MainActivity extends AppCompatActivity {
 
                             if (selectionStart + selectionEnd != 0) {
 
-                                spannableString.setSpan(new RelativeSizeSpan(2), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                editText.setText(spannableString);
+                                spannable.setSpan(new RelativeSizeSpan(2), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
                             }
                         }
                         if (TextSize == 2) {
@@ -665,8 +799,8 @@ public class MainActivity extends AppCompatActivity {
 
                             if (selectionStart + selectionEnd != 0) {
 
-                                spannableString.setSpan(new RelativeSizeSpan(3), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                editText.setText(spannableString);
+                                spannable.setSpan(new RelativeSizeSpan(3), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
                             }
                             TextSize = 0;
                         }
@@ -681,72 +815,28 @@ public class MainActivity extends AppCompatActivity {
 
                     new Handler(Looper.getMainLooper()).post(() -> {
 
-                        if (CloseColorSelector) {
-                          // cardView.setVisibility(View.GONE);
+                        Textsize.setVisibility(View.GONE);
+                        Bold.setVisibility(View.GONE);
+                        Italic.setVisibility(View.GONE);
+                        Bold.setVisibility(View.GONE);
+                        Underline.setVisibility(View.GONE);
+                        Striketrough.setVisibility(View.GONE);
+                        HighlightText.setVisibility(View.GONE);
 
-                           // cardView.startAnimation(fadeout);
-                        } else {
-                           // cardView.setVisibility(View.VISIBLE);
 
-                            final Handler handlerblack = new Handler();
-                            handlerblack.postDelayed(() -> {
-                                // Do something after 5s = 5000ms
-                                Black.setVisibility(View.VISIBLE);
-                                Black.startAnimation(format_in_color);
-                            }, 60);
-                           //Black.setVisibility(View.VISIBLE);
-                            final Handler handlerblue = new Handler();
-                            handlerblue.postDelayed(() -> {
-                                // Do something after 5s = 5000ms
-                                Blue.setVisibility(View.VISIBLE);
-                                Blue.startAnimation(format_in_color);
-                            }, 120);
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            Textsize.setVisibility(View.GONE);
+                           // ChangeColor.setVisibility(View.GONE);
 
-                            final Handler handlerpurple = new Handler();
-                            handlerpurple.postDelayed(() -> {
-                                // Do something after 5s = 5000ms
-                                Purple.setVisibility(View.VISIBLE);
-                                Purple.startAnimation(format_in_color);
-                            }, 180);
+                            Black.setVisibility(View.VISIBLE);
+                            Blue.setVisibility(View.VISIBLE);
+                            Purple.setVisibility(View.VISIBLE);
+                            Magenta.setVisibility(View.VISIBLE);
+                            Orange.setVisibility(View.VISIBLE);
+                            Yellow.setVisibility(View.VISIBLE);
+                            Green.setVisibility(View.VISIBLE);
+                        }, 250);
 
-                            final Handler handlermagenta = new Handler();
-                            handlermagenta.postDelayed(() -> {
-                                // Do something after 5s = 5000ms
-                                Magenta.setVisibility(View.VISIBLE);
-                                Magenta.startAnimation(format_in_color);
-                            }, 240);
-
-                            final Handler handlerorange = new Handler();
-                            handlerorange.postDelayed(() -> {
-                                // Do something after 5s = 5000ms
-                                Orange.setVisibility(View.VISIBLE);
-                                Orange.startAnimation(format_in_color);
-                            }, 300);
-
-                            final Handler handleryellow = new Handler();
-                            handleryellow.postDelayed(() -> {
-                                // Do something after 5s = 5000ms
-                                Yellow.setVisibility(View.VISIBLE);
-                                Yellow.startAnimation(format_in_color);
-                            }, 360);
-
-                            final Handler handlergreen = new Handler();
-                            handlergreen.postDelayed(() -> {
-                                // Do something after 5s = 5000ms
-                                Green.setVisibility(View.VISIBLE);
-                                Green.startAnimation(format_in_color);
-                            }, 420);
-
-                            final Handler handlerwhite = new Handler();
-                            handlerwhite.postDelayed(() -> {
-                                // Do something after 5s = 5000ms
-                                White.setVisibility(View.VISIBLE);
-                                White.startAnimation(format_in_color);
-                            }, 480);
-
-                           // cardView.startAnimation(fadein);
-                        }
-                        CloseColorSelector = !CloseColorSelector;
                     });
 
 
@@ -754,17 +844,48 @@ public class MainActivity extends AppCompatActivity {
 
                 case "HighlightText":
 
+                    editor.putBoolean("HighlightText", true);
+                    editor.apply();
+                    String color = preferences.getString("color", "#000000");
+
                     new Handler(Looper.getMainLooper()).post(() -> {
 
-                        editor.putBoolean("format", true);
-                        editor.apply();
-                        String color = preferences.getString("color", "#000000");
 
-                        if (selectionStart + selectionEnd != 0) {
+                        if(highlighter) {
 
-                            spannableString.setSpan(new BackgroundColorSpan(Color.parseColor(color)), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            editText.setText(spannableString);
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannable.setSpan(new BackgroundColorSpan(Color.parseColor("#000000")), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
+                                editText.setSelection(0);
+                            } else {
+
+                                editor.putBoolean("HighlightText", false);
+                                editor.apply();
+
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                HighlightText.setSelected(false);
+
+                            }, 50); }
+
+
+                        } else {
+                            if (selectionStart + selectionEnd != 0) {
+
+                                spannable.setSpan(new BackgroundColorSpan(Color.parseColor(color)), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                editText.setText(spannable);
+                                editText.setSelection(0);
+                            } else {
+                                editor.putBoolean("HighlightText", true);
+                                editor.apply();
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                    HighlightText.setSelected(true);
+
+                                }, 50); }
                         }
+                        highlighter = !highlighter;
 
                     });
 
@@ -775,10 +896,51 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
     }
-    private void addItem(View view, ScrollView scrollView, int index) {
-     ViewGroup containerView = scrollView;
-     ImageButton teste = findViewById(R.id.Magenta);
 
-     scrollView.addView(teste, index);
+    private void CloseOpenedColors() {
+
+        new Thread(() -> {
+
+            ImageButton Black = findViewById(R.id.black);
+            ImageButton Blue = findViewById(R.id.blue);
+            ImageButton Purple = findViewById(R.id.purple);
+            ImageButton Magenta = findViewById(R.id.magenta);
+            ImageButton Orange = findViewById(R.id.orange);
+            ImageButton Yellow = findViewById(R.id.yellow);
+            ImageButton Green = findViewById(R.id.green);
+
+            ImageButton Textsize = findViewById(R.id.TextSize);
+            ImageButton ChangeColor = findViewById(R.id.ChangeColor);
+            ImageButton Bold = findViewById(R.id.Bold);
+            ImageButton Italic = findViewById(R.id.Italic);
+            ImageButton Underline = findViewById(R.id.Underline);
+            ImageButton Striketrough = findViewById(R.id.Striketrough);
+            //ImageButton Subscript = findViewById(R.id.Subscript);
+            ImageButton HighlightText = findViewById(R.id.HighlightText);
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+
+                Black.setVisibility(View.GONE);
+                Blue.setVisibility(View.GONE);
+                Purple.setVisibility(View.GONE);
+                Magenta.setVisibility(View.GONE);
+                Orange.setVisibility(View.GONE);
+                Yellow.setVisibility(View.GONE);
+                Green.setVisibility(View.GONE);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    Textsize.setVisibility(View.VISIBLE);
+                  //  ChangeColor.setVisibility(View.VISIBLE);
+                    Bold.setVisibility(View.VISIBLE);
+                    Italic.setVisibility(View.VISIBLE);
+                    Bold.setVisibility(View.VISIBLE);
+                    Underline.setVisibility(View.VISIBLE);
+                    Striketrough.setVisibility(View.VISIBLE);
+                    HighlightText.setVisibility(View.VISIBLE);
+                }, 200);
+
+            });
+
+        }).start();
     }
 }

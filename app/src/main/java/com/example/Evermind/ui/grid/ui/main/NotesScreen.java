@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,10 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Spannable;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +51,10 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     public static ArrayList<String> titles = new ArrayList<>();
     public static ArrayList<String> dates = new ArrayList<>();
     public static ArrayList<Integer> ids = new ArrayList<>();
+    public static String[] data;
+    public static String[] title;
+    public static String[] date;
+    public static Integer[] id;
 
     private MainViewModel mViewModel;
 
@@ -65,10 +74,26 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
+
+
             notes = databaseHelper.getContentsFromDatabase();
+
+            data = notes.toArray(new String[0]);
+
             titles = databaseHelper.getTitlesFromDatabase();
-            dates = databaseHelper.getDateFromDatabase();
+
+            title = titles.toArray(new String[0]);
+
             ids = databaseHelper.getIDFromDatabase();
+
+            id = ids.toArray(new Integer[0]);
+
+            dates = databaseHelper.getDateFromDatabase();
+
+            date = dates.toArray(new String[0]);
+
+
+          //  ids = databaseHelper.getIDFromDatabase();
 
             //titles = new ArrayList(title_content_from_device);
            // Collections.sort(notes, new Comparator<String>() { // Sort alphabetically TODO
@@ -84,10 +109,12 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         // data to populate the RecyclerView with
 
 
-        String[] data = notes.toArray(new String[0]);
-        String[] title = titles.toArray(new String[0]);
-        String[] date = dates.toArray(new String[0]);
-        Integer[] id = ids.toArray(new Integer[0]);
+   //     String[] data = notes.toArray(new String[0]);
+     //   String[] title = titles.toArray(new String[0]);
+      //  String[] date = dates.toArray(new String[0]);
+      //  Integer[] id = ids.toArray(new Integer[0]);
+
+
 
 
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -95,29 +122,25 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         // set up the RecyclerView
         RecyclerView recyclerView = getActivity().findViewById(R.id.rvNumbers);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
-/// TODO \/
         adapter = new RecyclerGridAdapter(this.getActivity(), data, title, date); //requireContext() works too
         recyclerView.setAdapter(adapter);
- ///       TODO /\
+
         adapter.setClickListener(this);
+
     }
 
     @Override
     public void onItemClick(View view, int position) {
 
 
-        String title_content = titles.get(position);
-        Integer id = ids.get(position);
-        String waswrote = notes.get(position);
-
-
         SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
         SharedPreferences.Editor editor = preferences.edit();
 
+
+        Integer id = ids.get(position);
+
         editor.putInt("noteId", id);
-        editor.putString("title", title_content);
-        editor.putString("content", waswrote);
         editor.putBoolean("athome", false);
         editor.apply();
 
@@ -129,8 +152,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
         NavController navController = Navigation.findNavController(view);
         navController.navigate(R.id.action_nav_home_to_nav_note);
-
-
 
 
     }
