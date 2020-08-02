@@ -3,8 +3,8 @@
         <shape android:shape="rectangle" android:padding="5dp">
             <solid android:color="@color/White" />
             <corners
-               android:radius="20dp"/>
+                android:radius="20dp"/>
         </shape>
     </item>
-    <item android:drawable="@drawable/ic_baseline_add_24" />
+    <item android:drawable="@drawable/ic_baseline_clear_24" />
 </layer-list>

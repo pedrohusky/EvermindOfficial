@@ -83,9 +83,9 @@ class NoteEditorActivity : AppCompatActivity() {
             if (boolean == true) {
 
                 val intent = Intent(this, MainActivity::class.java)
-                intent.putExtra("notes", this.ToSaveNoteText.text.toString())
+              //  intent.putExtra("notes", this.ToSaveNoteText.text.toString())
                 intent.putExtra("noteId", noteid)
-                NotesScreen.notes.add(ToSaveNoteText.text.toString())
+              //  NotesScreen.notes.add(ToSaveNoteText.text.toString())
 
                 val sharedPreferences = applicationContext.getSharedPreferences("com.example.Evermind", Context.MODE_PRIVATE)
                 val set: HashSet<String> = HashSet(NotesScreen.notes)
@@ -99,9 +99,9 @@ class NoteEditorActivity : AppCompatActivity() {
 
 
                 val intent = Intent(this, MainActivity::class.java)
-                intent.putExtra("notes", this.ToSaveNoteText.text.toString())
+               // intent.putExtra("notes", this.ToSaveNoteText.text.toString())
                 intent.putExtra("noteId", noteid)
-                NotesScreen.notes.set(noteid, ToSaveNoteText.text.toString())
+              //  NotesScreen.notes.set(noteid, ToSaveNoteText.text.toString())
 
 
                 val sharedPreferences = applicationContext.getSharedPreferences("com.example.Evermind", Context.MODE_PRIVATE)

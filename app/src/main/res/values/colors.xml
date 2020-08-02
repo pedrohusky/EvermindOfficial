@@ -10,4 +10,10 @@
     <color name="SkyBlue">#6CCAEF</color>
     <color name="YellowSun">#FAF075</color>
     <color name="GrassGreen">#8de791</color>
+    <color name="MagentaHighlight">#BFFFF7</color>
+    <color name="PinkHighlight">#FFCCF4</color>
+    <color name="OrangeHighlight">#FFB89C</color>
+    <color name="SkyBlueHighlight">#89DDFF</color>
+    <color name="YellowSunHighlight">#EEFF00</color>
+    <color name="GrassGreenHighlight">#A0FF8A</color>
 </resources>

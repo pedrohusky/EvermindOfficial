@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
     android:background="@color/Transparent"
     android:fillViewport="true"
     app:layout_anchorGravity="bottom"
@@ -13,14 +12,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:gravity="bottom"
+        android:gravity="top"
         android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="bottom"
+            android:layout_gravity="top"
             android:layout_marginStart="20dp"
             android:layout_marginLeft="20dp"
             android:layout_marginEnd="21dp"
@@ -34,31 +33,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:gravity="bottom"
+                android:gravity="top"
                 android:orientation="vertical">
 
-                <EditText
+                <jp.wasabeef.richeditor.RichEditor
                     android:id="@+id/ToSaveNoteText"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:background="@color/White"
-                    android:bufferType="spannable"
-                    android:ems="10"
-                    android:gravity="start"
-                    android:hint="Create something"
-                    android:includeFontPadding="false"
-                    android:inputType="textMultiLine|textNoSuggestions"
-                    android:maxLines="200"
-                    android:minLines="22"
-                    android:paddingHorizontal="15dp"
-                    android:paddingVertical="6dp"
-                    android:paddingLeft="5dp"
-                    android:paddingTop="10dp"
-                    android:paddingRight="5dp"
-                    android:paddingBottom="10dp"
-                    android:textIsSelectable="true"
-                    android:textSize="21sp" />
+                    android:layout_height="wrap_content" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

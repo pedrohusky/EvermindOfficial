@@ -34,6 +34,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
+    private AdapterView.OnItemLongClickListener mLongClick;
 
     // data is passed into the constructor
     public RecyclerGridAdapter(Context context, String[] data, String[] title, String[] date) {
@@ -64,14 +65,14 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                holder.myTitleView.setText(Html.fromHtml(mTitle[position], Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH));
+                holder.myTitleView.setText(mTitle[position]);
             }
 
 
 
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                holder.myTextView.setText(Html.fromHtml(mData[position], Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH));
+                holder.myTextView.setText(Html.fromHtml(mData[position], Html.FROM_HTML_MODE_COMPACT));
             }
 
     }
@@ -103,13 +104,25 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
                 myTitleView = itemView.findViewById(R.id.info_title);
                 itemView.setOnClickListener(this);
 
+                ///////////////
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    int p = getLayoutPosition();
+
+                    return true;// returning true instead of false, works for me
+                }
+            });
         }
+        ///////////////////////
 
         @Override
         public void onClick(View view) {
             if (mClickListener != null)
                 mClickListener.onItemClick(view, getAdapterPosition());
         }
+
     }
 
     // convenience method for getting data at click position
@@ -122,7 +135,8 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
         this.mClickListener = itemClickListener;
     }
 
-    void setOnLongClickListener(AdapterView.OnItemLongClickListener onItemLongClickListener) {
+   public void setOnLongClickListener(AdapterView.OnItemLongClickListener onItemLongClickListener) {
+        this.mLongClick = onItemLongClickListener;
     }
 
     // parent activity will implement this method to respond to click events

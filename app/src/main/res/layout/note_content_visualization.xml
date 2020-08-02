@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical">
 
 
     <TextView
         android:id="@+id/info_title"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
         android:layout_marginStart="15dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="12dp"
         android:background="@drawable/title_note_rectangle"
         android:backgroundTint="#00BCD4"
         android:elevation="7dp"
-        android:gravity="bottom|center"
+        android:gravity="center|top"
         android:includeFontPadding="false"
         android:maxLength="200"
         android:outlineProvider="none"
-        android:padding="3dp"
+        android:paddingTop="1dp"
         android:singleLine="true"
+        android:text="Imbora"
         android:textColor="@color/Black"
         android:textSize="15dp"
-        android:textStyle="bold"
         android:visibility="visible"
         app:autoSizeMaxTextSize="18dp"
         app:autoSizeMinTextSize="14dp"
@@ -36,12 +36,10 @@
         android:id="@+id/info_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
         android:layout_marginStart="15dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="37dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="15dp"
         android:background="@drawable/note_content_rectangle"
         android:elevation="7dp"
         android:gravity="center|top"
@@ -54,4 +52,5 @@
         app:autoSizeMaxTextSize="20dp"
         app:autoSizeMinTextSize="14.3dp"
         app:autoSizeTextType="uniform" />
-</RelativeLayout>
+
+</LinearLayout>

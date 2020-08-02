@@ -9,9 +9,9 @@
         android:id="@+id/rvNumbers"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="16.5dp"
         android:background="@color/Transparent"
         android:layoutAnimation="@anim/grid_appear_layout_animation"
-        android:translationY="15dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <RelativeLayout

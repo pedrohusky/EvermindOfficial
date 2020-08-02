@@ -74,7 +74,9 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
+            ids = databaseHelper.getIDFromDatabase();
 
+            id = ids.toArray(new Integer[0]);
 
             notes = databaseHelper.getContentsFromDatabase();
 
@@ -83,10 +85,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
             titles = databaseHelper.getTitlesFromDatabase();
 
             title = titles.toArray(new String[0]);
-
-            ids = databaseHelper.getIDFromDatabase();
-
-            id = ids.toArray(new Integer[0]);
 
             dates = databaseHelper.getDateFromDatabase();
 
@@ -106,17 +104,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
 
 
-        // data to populate the RecyclerView with
-
-
-   //     String[] data = notes.toArray(new String[0]);
-     //   String[] title = titles.toArray(new String[0]);
-      //  String[] date = dates.toArray(new String[0]);
-      //  Integer[] id = ids.toArray(new Integer[0]);
-
-
-
-
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 
         // set up the RecyclerView
@@ -126,7 +113,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         recyclerView.setAdapter(adapter);
 
         adapter.setClickListener(this);
-
     }
 
     @Override
@@ -139,8 +125,12 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
 
         Integer id = ids.get(position);
+        String title = titles.get(position);
+        String content = notes.get(position);
 
         editor.putInt("noteId", id);
+        editor.putString("title", title);
+        editor.putString("content", content);
         editor.putBoolean("athome", false);
         editor.apply();
 

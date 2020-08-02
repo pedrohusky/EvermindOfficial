@@ -5,17 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import com.example.Evermind.ui.grid.ui.main.NotesScreen;
-import com.tuyenmonkey.textdecorator.TextDecorator;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-
-import static com.example.Evermind.ui.grid.ui.main.NotesScreen.databaseHelper;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "DatabaseHelper";
@@ -38,20 +31,25 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
+      //  new Thread(() -> {
+
         // TODO String createTable = "CREATE TABLE " + TABLE_NOTES + " (" + NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NOTE_TITLE + " TEXT, " + NOTE_CONTENT + " TEXT, " + NOTE_DATE + " TEXT)";
 
         String createTable = "CREATE TABLE " + TABLE_NOTES + " (" + NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NOTE_TITLE + " TEXT, " + NOTE_CONTENT + " TEXT, " + NOTE_DATE + " TEXT)";
 
         db.execSQL(createTable);
 
+   // }).start();
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+        new Thread(() -> {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTES);
         onCreate(db);
+        }).start();
     }
 
 
@@ -142,6 +140,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<String> getContentsFromDatabase() {
+
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
         ArrayList<String> arrayListContent = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_NOTES;
@@ -162,22 +161,25 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         sqLiteDatabase.close();
+
         return arrayListContent;
     }
 
-    public boolean deleteNote(Integer id) {
+    public void deleteNote(Integer id) {
+
+        new Thread(() -> {
+
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "DELETE FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + id + "'";
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
-            return true;
-        } else {
-            return false;
-        }
 
+        } else {
+        }
+        }).start();
     }
 
-    public boolean editTitle(String id, String title) {
+    public void editTitle(String id, String title) {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -187,11 +189,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[] { id });
         sqLiteDatabase.close();
-        return true;
 
     }
 
-    public boolean editContent(String id, String content) {
+    public void editContent(String id, String content) {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -201,7 +202,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[] { id });
         sqLiteDatabase.close();
-        return true;
 
     }
 
