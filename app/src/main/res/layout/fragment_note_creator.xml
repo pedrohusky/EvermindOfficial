@@ -36,6 +36,20 @@
                 android:gravity="top"
                 android:orientation="vertical">
 
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/TitleTextBox"
+                    android:layout_width="270dp"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:background="@color/Transparent"
+                    android:bufferType="normal"
+                    android:hint="Create a new Title"
+                    android:inputType="textShortMessage|text"
+                    android:paddingLeft="12dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="12dp"
+                    android:paddingBottom="2dp" />
+
                 <jp.wasabeef.richeditor.RichEditor
                     android:id="@+id/ToSaveNoteText"
                     android:layout_width="match_parent"

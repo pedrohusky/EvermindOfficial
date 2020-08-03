@@ -20,13 +20,11 @@ import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.example.Evermind.DataBaseHelper;
 import com.example.Evermind.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,76 +70,78 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
         int id = preferences.getInt("noteId", -1);
 
-            mEditor = (RichEditor) getActivity().findViewById(R.id.ToSaveNoteText);
-            mEditor.setEditorHeight(500);
-            mEditor.setEditorFontSize(22);
-            mEditor.setPadding(15, 15, 15, 15);
+        mEditor = (RichEditor) getActivity().findViewById(R.id.ToSaveNoteText);
+        mEditor.setEditorHeight(500);
+        mEditor.setEditorFontSize(22);
+        mEditor.setPadding(15, 15, 15, 15);
 
-            ImageButton ChangeColor =  getActivity().findViewById(R.id.ChangeColor);
-            ImageButton HighlightText =  getActivity().findViewById(R.id.HighlightText);
+        EditText TitleTextBox = getActivity().findViewById(R.id.TitleTextBox);
 
-            ImageButton Black =  getActivity().findViewById(R.id.black);
-            ImageButton Blue =  getActivity().findViewById(R.id.blue);
-            ImageButton Purple =  getActivity().findViewById(R.id.purple);
-            ImageButton Magenta =  getActivity().findViewById(R.id.magenta);
-            ImageButton Orange =  getActivity().findViewById(R.id.orange);
-            ImageButton Yellow =  getActivity().findViewById(R.id.yellow);
-            ImageButton Green =  getActivity().findViewById(R.id.green);
+        ImageButton ChangeColor = getActivity().findViewById(R.id.ChangeColor);
+        ImageButton HighlightText = getActivity().findViewById(R.id.HighlightText);
 
-            ImageButton ClearHighlight =  getActivity().findViewById(R.id.clearhighlight);
-            ImageButton BlackHighlight =  getActivity().findViewById(R.id.blackhighlight);
-            ImageButton BlueHighlight =  getActivity().findViewById(R.id.bluehighlight);
-            ImageButton PurpleHighlight =  getActivity().findViewById(R.id.purplehighlight);
-            ImageButton MagentaHighlight =  getActivity().findViewById(R.id.magentahighlight);
-            ImageButton OrangeHighlight =  getActivity().findViewById(R.id.orangehighlight);
-            ImageButton YellowHighlight =  getActivity().findViewById(R.id.yellowhighlight);
-            ImageButton GreenHighlight =  getActivity().findViewById(R.id.greenhighlight);
+        ImageButton Black = getActivity().findViewById(R.id.black);
+        ImageButton Blue = getActivity().findViewById(R.id.blue);
+        ImageButton Purple = getActivity().findViewById(R.id.purple);
+        ImageButton Magenta = getActivity().findViewById(R.id.magenta);
+        ImageButton Orange = getActivity().findViewById(R.id.orange);
+        ImageButton Yellow = getActivity().findViewById(R.id.yellow);
+        ImageButton Green = getActivity().findViewById(R.id.green);
+
+        ImageButton ClearHighlight = getActivity().findViewById(R.id.clearhighlight);
+        ImageButton BlackHighlight = getActivity().findViewById(R.id.blackhighlight);
+        ImageButton BlueHighlight = getActivity().findViewById(R.id.bluehighlight);
+        ImageButton PurpleHighlight = getActivity().findViewById(R.id.purplehighlight);
+        ImageButton MagentaHighlight = getActivity().findViewById(R.id.magentahighlight);
+        ImageButton OrangeHighlight = getActivity().findViewById(R.id.orangehighlight);
+        ImageButton YellowHighlight = getActivity().findViewById(R.id.yellowhighlight);
+        ImageButton GreenHighlight = getActivity().findViewById(R.id.greenhighlight);
 
 // Purple.post(() ->
-            Black.setOnClickListener(view ->  ColorClickedSwitcher("Black", false));
+        Black.setOnClickListener(view -> ColorClickedSwitcher("Black", false));
 
-            Blue.setOnClickListener(view ->   ColorClickedSwitcher("Blue", false));
+        Blue.setOnClickListener(view -> ColorClickedSwitcher("Blue", false));
 
-            Purple.setOnClickListener(view ->  ColorClickedSwitcher("Purple", false));
+        Purple.setOnClickListener(view -> ColorClickedSwitcher("Purple", false));
 
-            Magenta.setOnClickListener(view -> ColorClickedSwitcher("Magenta", false));
+        Magenta.setOnClickListener(view -> ColorClickedSwitcher("Magenta", false));
 
-            Orange.setOnClickListener(view ->  ColorClickedSwitcher("Orange", false));
+        Orange.setOnClickListener(view -> ColorClickedSwitcher("Orange", false));
 
-            Yellow.setOnClickListener(view -> ColorClickedSwitcher("Yellow", false));
+        Yellow.setOnClickListener(view -> ColorClickedSwitcher("Yellow", false));
 
-            Green.setOnClickListener(view -> ColorClickedSwitcher("Green", false));
+        Green.setOnClickListener(view -> ColorClickedSwitcher("Green", false));
 
-            ClearHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Clear", true));
+        ClearHighlight.setOnClickListener(view -> ColorClickedSwitcher("Clear", true));
 
-            BlackHighlight.setOnClickListener(view -> ColorClickedSwitcher("Black", true));
+        BlackHighlight.setOnClickListener(view -> ColorClickedSwitcher("Black", true));
 
-            BlueHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Blue", true));
+        BlueHighlight.setOnClickListener(view -> ColorClickedSwitcher("Blue", true));
 
-            PurpleHighlight.setOnClickListener(view -> ColorClickedSwitcher("Purple", true));
+        PurpleHighlight.setOnClickListener(view -> ColorClickedSwitcher("Purple", true));
 
-            MagentaHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Magenta", true));
+        MagentaHighlight.setOnClickListener(view -> ColorClickedSwitcher("Magenta", true));
 
-            OrangeHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Orange", true));
+        OrangeHighlight.setOnClickListener(view -> ColorClickedSwitcher("Orange", true));
 
-            YellowHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Yellow", true));
+        YellowHighlight.setOnClickListener(view -> ColorClickedSwitcher("Yellow", true));
 
-            GreenHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Green", true));
+        GreenHighlight.setOnClickListener(view -> ColorClickedSwitcher("Green", true));
 
-            ChangeColor.setOnClickListener(view -> {
-                if (CloseOpenedColors) {
+        ChangeColor.setOnClickListener(view -> {
+            if (CloseOpenedColors) {
 
-                    OpenOrCloseColors(false, true);
+                OpenOrCloseColors(false, true);
 
 
-                } else {
+            } else {
 
-                    OpenOrCloseColors(false, false);
+                OpenOrCloseColors(false, false);
 
-                }
-            });
+            }
+        });
 
-            HighlightText.setOnClickListener(view -> {
+        HighlightText.setOnClickListener(view -> {
             if (CloseOpenedColorsHighlight) {
 
                 OpenOrCloseColors(true, true);
@@ -156,7 +156,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
 
         getActivity().findViewById(R.id.IncreaseSize).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
 
 
                 if (size < 7) {
@@ -169,7 +170,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         });
 
         getActivity().findViewById(R.id.DecreaseSize).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
 
 
                 if (size > 3) {
@@ -180,266 +182,284 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             }
         });
 
-       //     getActivity().findViewById(R.id.action_undo).setOnClickListener(new View.OnClickListener() {
-         //       @Override public void onClick(View v) {
-       //             mEditor.undo();
-       //         }
-        //    });
+             getActivity().findViewById(R.id.Undo).setOnClickListener(new View.OnClickListener() {
+               @Override public void onClick(View v) {
+                     mEditor.undo();
+                 }
+            });
 
-         //   getActivity().findViewById(R.id.action_redo).setOnClickListener(new View.OnClickListener() {
+           getActivity().findViewById(R.id.Redo).setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                     mEditor.redo();
+                }
+            });
+
+        getActivity().findViewById(R.id.Bold).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditor.setBold();
+            }
+        });
+
+        getActivity().findViewById(R.id.Italic).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditor.setItalic();
+            }
+        });
+
+        //   getActivity().findViewById(R.id.TODO).setOnClickListener(new View.OnClickListener() {
+        //      @Override public void onClick(View v) {
+        //          mEditor.setSubscript();
+        //       }
+        //   });
+
+        //     getActivity().findViewById(R.id.action_superscript).setOnClickListener(new View.OnClickListener() {
+        //         @Override public void onClick(View v) {
+        //             mEditor.setSuperscript();
+        //        }
+        //     });
+
+        getActivity().findViewById(R.id.Striketrough).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditor.setStrikeThrough();
+            }
+        });
+
+        getActivity().findViewById(R.id.Underline).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditor.setUnderline();
+            }
+        });
+
+        //     getActivity().findViewById(R.id.action_heading1).setOnClickListener(new View.OnClickListener() {
+        //          @Override public void onClick(View v) {
+        //              mEditor.setHeading(1);
+        //          }
+        //      });
+
+        //      getActivity().findViewById(R.id.action_heading2).setOnClickListener(new View.OnClickListener() {
         //        @Override public void onClick(View v) {
-       //             mEditor.redo();
+        //             mEditor.setHeading(2);
+        //         }
+        //      });
+
+        ///      getActivity().findViewById(R.id.action_heading3).setOnClickListener(new View.OnClickListener() {
+        //          @Override public void onClick(View v) {
+        //              mEditor.setHeading(3);
+        //            }
+        //     });
+
+        //     getActivity().findViewById(R.id.action_heading4).setOnClickListener(new View.OnClickListener() {
+        //         @Override public void onClick(View v) {
+        //             mEditor.setHeading(4);
+        //        }
+        //      });
+
+        //     getActivity().findViewById(R.id.action_heading5).setOnClickListener(new View.OnClickListener() {
+        //         @Override public void onClick(View v) {
+        //             mEditor.setHeading(5);
         //        }
         //    });
 
-            getActivity().findViewById(R.id.Bold).setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    mEditor.setBold();
-                }
-            });
+        //      getActivity().findViewById(R.id.action_heading6).setOnClickListener(new View.OnClickListener() {
+        //          @Override public void onClick(View v) {
+        //              mEditor.setHeading(6);
+        //          }
+        //     });
 
-            getActivity().findViewById(R.id.Italic).setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    mEditor.setItalic();
-                }
-            });
+        //        getActivity().findViewById(R.id.action_indent).setOnClickListener(new View.OnClickListener() {
+        //            @Override public void onClick(View v) {
+        //              mEditor.setIndent();
+        //          }
+        //      });
 
-         //   getActivity().findViewById(R.id.TODO).setOnClickListener(new View.OnClickListener() {
-          //      @Override public void onClick(View v) {
-          //          mEditor.setSubscript();
-         //       }
-         //   });
+        //     getActivity().findViewById(R.id.action_outdent).setOnClickListener(new View.OnClickListener() {
+        //         @Override public void onClick(View v) {
+        //             mEditor.setOutdent();
+        //         }
+        //     });
 
-       //     getActivity().findViewById(R.id.action_superscript).setOnClickListener(new View.OnClickListener() {
-       //         @Override public void onClick(View v) {
-       //             mEditor.setSuperscript();
-        //        }
-       //     });
+        getActivity().findViewById(R.id.AlignLeft).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditor.setAlignLeft();
+            }
+        });
 
-            getActivity().findViewById(R.id.Striketrough).setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    mEditor.setStrikeThrough();
-                }
-            });
+        getActivity().findViewById(R.id.AlignCenter).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditor.setAlignCenter();
+            }
+        });
 
-            getActivity().findViewById(R.id.Underline).setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    mEditor.setUnderline();
-                }
-            });
+        getActivity().findViewById(R.id.AlignRight).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditor.setAlignRight();
+            }
+        });
 
-       //     getActivity().findViewById(R.id.action_heading1).setOnClickListener(new View.OnClickListener() {
-      //          @Override public void onClick(View v) {
-      //              mEditor.setHeading(1);
-      //          }
-      //      });
+        //       getActivity().findViewById(R.id.action_blockquote).setOnClickListener(new View.OnClickListener() {
+        //          @Override public void onClick(View v) {
+        //              mEditor.setBlockquote();
+        //          }
+        //      });
 
-      //      getActivity().findViewById(R.id.action_heading2).setOnClickListener(new View.OnClickListener() {
-        //        @Override public void onClick(View v) {
-       //             mEditor.setHeading(2);
-       //         }
-      //      });
+        //      getActivity().findViewById(R.id.action_insert_bullets).setOnClickListener(new View.OnClickListener() {
+        //            @Override public void onClick(View v) {
+        //               mEditor.setBullets();
+        //           }
+        //       });
 
-      ///      getActivity().findViewById(R.id.action_heading3).setOnClickListener(new View.OnClickListener() {
-      //          @Override public void onClick(View v) {
-      //              mEditor.setHeading(3);
-    //            }
-       //     });
+        //      getActivity().findViewById(R.id.action_insert_numbers).setOnClickListener(new View.OnClickListener() {
+        //          @Override public void onClick(View v) {
+        //              mEditor.setNumbers();
+        //          }
+        //      });
 
-       //     getActivity().findViewById(R.id.action_heading4).setOnClickListener(new View.OnClickListener() {
-       //         @Override public void onClick(View v) {
-       //             mEditor.setHeading(4);
-        //        }
-      //      });
+        //      getActivity().findViewById(R.id.action_insert_image).setOnClickListener(new View.OnClickListener() {
+        //          @Override public void onClick(View v) {
+        //              mEditor.insertImage("http://www.1honeywan.com/dachshund/image/7.21/7.21_3_thumb.JPG",
+        //                      "dachshund");
+        //          }
+        //     });
 
-       //     getActivity().findViewById(R.id.action_heading5).setOnClickListener(new View.OnClickListener() {
-       //         @Override public void onClick(View v) {
-       //             mEditor.setHeading(5);
-        //        }
-        //    });
-
-      //      getActivity().findViewById(R.id.action_heading6).setOnClickListener(new View.OnClickListener() {
-      //          @Override public void onClick(View v) {
-      //              mEditor.setHeading(6);
-      //          }
-       //     });
-
-    //        getActivity().findViewById(R.id.action_indent).setOnClickListener(new View.OnClickListener() {
-    //            @Override public void onClick(View v) {
-      //              mEditor.setIndent();
-      //          }
-      //      });
-
-       //     getActivity().findViewById(R.id.action_outdent).setOnClickListener(new View.OnClickListener() {
-       //         @Override public void onClick(View v) {
-       //             mEditor.setOutdent();
-       //         }
-       //     });
-
-            getActivity().findViewById(R.id.AlignLeft).setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    mEditor.setAlignLeft();
-                }
-            });
-
-            getActivity().findViewById(R.id.AlignCenter).setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    mEditor.setAlignCenter();
-                }
-            });
-
-            getActivity().findViewById(R.id.AlignRight).setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    mEditor.setAlignRight();
-                }
-            });
-
-     //       getActivity().findViewById(R.id.action_blockquote).setOnClickListener(new View.OnClickListener() {
-      //          @Override public void onClick(View v) {
-      //              mEditor.setBlockquote();
-      //          }
-      //      });
-
-      //      getActivity().findViewById(R.id.action_insert_bullets).setOnClickListener(new View.OnClickListener() {
-    //            @Override public void onClick(View v) {
-     //               mEditor.setBullets();
-     //           }
-     //       });
-
-      //      getActivity().findViewById(R.id.action_insert_numbers).setOnClickListener(new View.OnClickListener() {
-      //          @Override public void onClick(View v) {
-      //              mEditor.setNumbers();
-      //          }
-      //      });
-
-      //      getActivity().findViewById(R.id.action_insert_image).setOnClickListener(new View.OnClickListener() {
-      //          @Override public void onClick(View v) {
-      //              mEditor.insertImage("http://www.1honeywan.com/dachshund/image/7.21/7.21_3_thumb.JPG",
-      //                      "dachshund");
-      //          }
-       //     });
-
-       //     getActivity().findViewById(R.id.action_insert_link).setOnClickListener(new View.OnClickListener() {
-       ////         @Override public void onClick(View v) {
-       //             mEditor.insertLink("https://github.com/wasabeef", "wasabeef");
-       //         }
-       //     });
-       //     getActivity().findViewById(R.id.action_insert_checkbox).setOnClickListener(new View.OnClickListener() {
-       //         @Override public void onClick(View v) {
+        //     getActivity().findViewById(R.id.action_insert_link).setOnClickListener(new View.OnClickListener() {
+        ////         @Override public void onClick(View v) {
+        //             mEditor.insertLink("https://github.com/wasabeef", "wasabeef");
+        //         }
+        //     });
+        //     getActivity().findViewById(R.id.action_insert_checkbox).setOnClickListener(new View.OnClickListener() {
+        //         @Override public void onClick(View v) {
         //            mEditor.insertTodo();
         //        }
-       //    });
+        //    });
 
-
-     ///////   EditText content_editText = getActivity().findViewById(R.id.ToSaveNoteText);
-
-        EditText title_editText = getActivity().findViewById(R.id.myEditText);
 
         dataBaseHelper = new DataBaseHelper(getActivity());
 
 
-    //    notes = databaseHelper.getContentsFromDatabase();
-     //   titles = databaseHelper.getTitlesFromDatabase();
-
-
-
-      //  String title_text = titles.get(id);
-      //  String content_text = notes.get(id);
-
         mViewModel = ViewModelProviders.of(this).get(NoteEditorFragmentMainViewModel.class);
 
 
-            new Thread(() -> {
+        new Thread(() -> {
 
-                String title = preferences.getString("title", "");
+            String title = preferences.getString("title", "");
 
-                new Handler(Looper.getMainLooper()).post(() -> {
+            new Handler(Looper.getMainLooper()).post(() -> {
 
-                    title_editText.setText(title);
+                TitleTextBox.setText(title);
 
-                });
+            });
 
-            }).start();
+        }).start();
 
 
-            new Thread(() -> {
+        new Thread(() -> {
 
-                String content = preferences.getString("content", "");
-                boolean NewNote =  preferences.getBoolean("newnote", false);
+            String content = preferences.getString("content", "");
+            boolean NewNote = preferences.getBoolean("newnote", false);
 
-                new Handler(Looper.getMainLooper()).post(() -> {
+            new Handler(Looper.getMainLooper()).post(() -> {
 
-                    mEditor.setHtml(content);
+                mEditor.setHtml(content);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                    if (NewNote) {
+                        mEditor.focusEditor();
+
+                        InputMethodManager keyboard = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                        keyboard.showSoftInput(mEditor, 0);
+                    }
+
+                }, 500);
+
+            });
+
+        }).start();
+
+        mEditor.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+
+                if (b) {
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                        if (NewNote) {
-                           mEditor.focusEditor();
+                        Animation bottom_nav_anim = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_up_anim);
+                        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation_note);
+                        bottomNavigationView.setVisibility(View.VISIBLE);
+                        bottomNavigationView.startAnimation(bottom_nav_anim);
 
-                            InputMethodManager keyboard=(InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-                            keyboard.showSoftInput(mEditor,0);
-                        }
+                    }, 250);
 
-                            }, 500);
+                } else {
 
-                });
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-            }).start();
+                        InputMethodManager keyboard = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                        keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-            mEditor.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View view, boolean b) {
+                    }, 100);
+                }
+            }
+        });
 
-                    if (b) {
+
+        mEditor.setOnTextChangeListener(new RichEditor.OnTextChangeListener() {
+            @Override
+            public void onTextChange(String text) {
+
+                new Thread(() -> {
+
+                    String transformToHexHTML = replaceRGBColorsWithHex(mEditor.getHtml());
+
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                        dataBaseHelper.editContent(Integer.toString(id), transformToHexHTML);
+
+                    }, 750);
+
+                }).start();
+            }
+        });
+
+        TitleTextBox.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+
+                    new Handler(Looper.getMainLooper()).post(() -> {
+
+                        Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_up_anim_reverse);
+                        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation_note);
+                        bottomNavigationView.startAnimation(bottom_nav_anim_reverse);
 
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                            Animation bottom_nav_anim = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_up_anim);
-                            BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation_note);
-                            bottomNavigationView.setVisibility(View.VISIBLE);
-                            bottomNavigationView.startAnimation(bottom_nav_anim);
+                            bottomNavigationView.setVisibility(View.GONE);
 
-                        }, 250);
+                        }, 300);
 
-                    } else {
+                    });
 
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                } else {
 
-                            InputMethodManager keyboard=(InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-                            keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                        }, 100);
-                    }
+                        InputMethodManager keyboard = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                        keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                    }, 100);
                 }
-            });
+            }
+        });
 
-            mEditor.setOnDecorationChangeListener(new RichEditor.OnDecorationStateListener() {
-                @Override
-                public void onStateChangeListener(String text, List<RichEditor.Type> types) {
-                    Toast.makeText(getActivity(), text.toString(), Toast.LENGTH_SHORT).show();
-                    mEditor.setTextColor(Color.BLACK);
-                }
-            });
-
-
-
-            mEditor.setOnTextChangeListener(new RichEditor.OnTextChangeListener() {
-                @Override
-                public void onTextChange(String text) {
-
-                    new Thread(() -> {
-
-                        String transformToHexHTML = replaceRGBColorsWithHex(mEditor.getHtml());
-
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                            dataBaseHelper.editContent(Integer.toString(id), transformToHexHTML);
-
-                        }, 750);
-
-                    }).start();
-                }
-            });
     }
 
     private void OpenOrCloseColors(Boolean highlight, Boolean close) {

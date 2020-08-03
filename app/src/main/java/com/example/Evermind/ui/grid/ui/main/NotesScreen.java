@@ -20,11 +20,10 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.example.Evermind.DataBaseHelper;
-import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapter;
 import com.example.Evermind.Test;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -128,7 +127,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         editor.apply();
 
 
-        EditText editText = this.getActivity().findViewById(R.id.myEditText);
+        EditText editText = this.getActivity().findViewById(R.id.TitleTextBox);
         editText.setVisibility(View.VISIBLE);
        // BottomNavigationView bottomNavigationView = this.getActivity().findViewById(R.id.navigation_note);
        // bottomNavigationView.setVisibility(View.VISIBLE);

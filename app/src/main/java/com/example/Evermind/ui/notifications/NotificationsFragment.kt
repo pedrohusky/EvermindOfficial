@@ -22,7 +22,7 @@ class NotificationsFragment : Fragment() {
         notificationsViewModel =
             ViewModelProviders.of(this).get(NotificationsViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_colors, container, false)
-        val textView: TextView = root.findViewById(R.id.myEditText)
+        val textView: TextView = root.findViewById(R.id.TitleTextBox)
         notificationsViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })

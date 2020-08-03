@@ -1,28 +1,14 @@
 package com.example.Evermind;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.UnderlineSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -38,8 +24,6 @@ import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import java.util.ArrayList;
-
-import jp.wasabeef.richeditor.RichEditor;
 
 import static com.example.Evermind.ui.grid.ui.main.NotesScreen.databaseHelper;
 
@@ -123,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
                             break;
 
-                        case R.id.navigation_notifications:
+                        case R.id.nav_checkbox:
 
                             Toast.makeText(MainActivity.this, "3", Toast.LENGTH_SHORT).show();
 
@@ -149,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             // menu should be considered as top level destinations.
 
             mAppBarConfiguration = new AppBarConfiguration.Builder(
-                    R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                    R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_note)
                     // .setDrawerLayout(drawer)
                     .build();
 
@@ -189,16 +173,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        EditText editText = findViewById(R.id.myEditText);
+        EditText editText = findViewById(R.id.TitleTextBox);
 
         editText.post(() -> {
 
             SharedPreferences preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
             new Thread(() -> {
-                EditText title_editText = this.findViewById(R.id.myEditText);
                 int id = preferences.getInt("noteId", -1);
-                mDatabaseHelper.editTitle(Integer.toString(id), title_editText.getText().toString());
+                mDatabaseHelper.editTitle(Integer.toString(id), editText.getText().toString());
 
             }).start();
 
@@ -241,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
             new Thread(() -> {
                 // a potentially time consuming task
-                EditText title_editText = this.findViewById(R.id.myEditText);
+                EditText title_editText = this.findViewById(R.id.TitleTextBox);
                 int id = preferences.getInt("noteId", -1);
 
                 mDatabaseHelper.editTitle(Integer.toString(id), title_editText.getText().toString());
@@ -257,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                 // TODO /////////////////////////////////////////////////////////////
 
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    EditText editText = findViewById(R.id.myEditText);
+                    EditText editText = findViewById(R.id.TitleTextBox);
                     editText.setVisibility(View.GONE);
 
                     //Hide nav view \/ \/ \/
@@ -319,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.putBoolean("BlackHighlight?", false);
                     editor.apply();
 
-                    EditText editText = findViewById(R.id.myEditText);
+                    EditText editText = findViewById(R.id.TitleTextBox);
                     editText.setVisibility(View.VISIBLE);
 
                     BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
@@ -337,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.putBoolean("athome", false);
                     editor.apply();
 
-                    EditText editText = findViewById(R.id.myEditText);
+                    EditText editText = findViewById(R.id.TitleTextBox);
                     editText.setVisibility(View.VISIBLE);
 
                     BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);

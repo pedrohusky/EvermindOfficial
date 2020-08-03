@@ -10,7 +10,7 @@
     </alpha>
 
     <translate
-        android:duration="800"
+        android:duration="300"
         android:fromYDelta="200"
         android:toYDelta="0" >
 

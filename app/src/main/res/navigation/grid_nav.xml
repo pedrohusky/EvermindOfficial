@@ -18,7 +18,7 @@
         tools:layout="@layout/fragment_note_creator" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/nav_checkbox"
         android:name="com.example.Evermind.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_colors" />
