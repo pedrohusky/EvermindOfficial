@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -86,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
                                 CloseOrOpenFormatter(false);
 
                             }
-                            CloseFormatter = !CloseFormatter;
 
                             //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
 
@@ -206,8 +206,19 @@ public class MainActivity extends AppCompatActivity {
 
             CloseOrOpenFormatter(true);
 
+
+            //Hide nav view \/ \/ \/
             BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
-            bottomNavigationView.setVisibility(View.GONE);
+            Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
+            bottomNavigationView.startAnimation(bottom_nav_anim_reverse);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+
+                bottomNavigationView.setVisibility(View.GONE);
+
+            }, 350);
+            //Hide nav view /\ /\ /\
 
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("athome", true);
@@ -233,26 +244,36 @@ public class MainActivity extends AppCompatActivity {
                 EditText title_editText = this.findViewById(R.id.myEditText);
                 int id = preferences.getInt("noteId", -1);
 
+                mDatabaseHelper.editTitle(Integer.toString(id), title_editText.getText().toString());
 
                 // TODO  /////////////////////////////////////////////////////
 
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+              //  new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                    mDatabaseHelper.editTitle(Integer.toString(id), title_editText.getText().toString());
+            //        mDatabaseHelper.editTitle(Integer.toString(id), title_editText.getText().toString());
 
-                }, 250);
+            //    }, 250);
 
                 // TODO /////////////////////////////////////////////////////////////
-
-
-                CloseOrOpenFormatter(true);
 
                 new Handler(Looper.getMainLooper()).post(() -> {
                     EditText editText = findViewById(R.id.myEditText);
                     editText.setVisibility(View.GONE);
 
+                    //Hide nav view \/ \/ \/
                     BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
-                    bottomNavigationView.setVisibility(View.GONE);
+                    Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
+                    bottomNavigationView.startAnimation(bottom_nav_anim_reverse);
+
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+
+                        bottomNavigationView.setVisibility(View.GONE);
+
+                    }, 350);
+                    //Hide nav view /\ /\ /\
+
+                    CloseOrOpenFormatter(true);
 
                 });
 
@@ -294,6 +315,8 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("title", "");
                     editor.putString("content", "");
                     editor.putBoolean("athome", false);
+                    editor.putBoolean("newnote", true);
+                    editor.putBoolean("BlackHighlight?", false);
                     editor.apply();
 
                     EditText editText = findViewById(R.id.myEditText);
@@ -329,101 +352,17 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void CloseOpenedColors(Boolean highlight) {
-
-        new Thread(() -> {
-
-            ImageButton Black = findViewById(R.id.black);
-            ImageButton Blue = findViewById(R.id.blue);
-            ImageButton Purple = findViewById(R.id.purple);
-            ImageButton Magenta = findViewById(R.id.magenta);
-            ImageButton Orange = findViewById(R.id.orange);
-            ImageButton Yellow = findViewById(R.id.yellow);
-            ImageButton Green = findViewById(R.id.green);
-
-            ImageButton BlackHighlight = findViewById(R.id.blackhighlight);
-            ImageButton BlueHighlight = findViewById(R.id.bluehighlight);
-            ImageButton PurpleHighlight = findViewById(R.id.purplehighlight);
-            ImageButton MagentaHighlight = findViewById(R.id.magentahighlight);
-            ImageButton OrangeHighlight = findViewById(R.id.orangehighlight);
-            ImageButton YellowHighlight = findViewById(R.id.yellowhighlight);
-            ImageButton GreenHighlight = findViewById(R.id.greenhighlight);
-
-            ImageButton Textsize = findViewById(R.id.TextSize);
-            ImageButton ChangeColor = findViewById(R.id.ChangeColor);
-            ImageButton Bold = findViewById(R.id.Bold);
-            ImageButton Italic = findViewById(R.id.Italic);
-            ImageButton Underline = findViewById(R.id.Underline);
-            ImageButton Striketrough = findViewById(R.id.Striketrough);
-            //ImageButton Subscript = findViewById(R.id.Subscript);
-            ImageButton HighlightText = findViewById(R.id.HighlightText);
-
-            if (highlight) {
-                new Handler(Looper.getMainLooper()).post(() -> {
-
-                    BlackHighlight.setVisibility(View.GONE);
-                    BlueHighlight.setVisibility(View.GONE);
-                    PurpleHighlight.setVisibility(View.GONE);
-                    MagentaHighlight.setVisibility(View.GONE);
-                    OrangeHighlight.setVisibility(View.GONE);
-                    YellowHighlight.setVisibility(View.GONE);
-                    GreenHighlight.setVisibility(View.GONE);
-
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        Textsize.setVisibility(View.VISIBLE);
-                        ChangeColor.setVisibility(View.VISIBLE);
-                        Bold.setVisibility(View.VISIBLE);
-                        Italic.setVisibility(View.VISIBLE);
-                        Bold.setVisibility(View.VISIBLE);
-                        Underline.setVisibility(View.VISIBLE);
-                        Striketrough.setVisibility(View.VISIBLE);
-                    }, 200);
-
-                });
-            } else {
-
-                new Handler(Looper.getMainLooper()).post(() -> {
-
-                    Black.setVisibility(View.GONE);
-                    Blue.setVisibility(View.GONE);
-                    Purple.setVisibility(View.GONE);
-                    Magenta.setVisibility(View.GONE);
-                    Orange.setVisibility(View.GONE);
-                    Yellow.setVisibility(View.GONE);
-                    Green.setVisibility(View.GONE);
-
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        Textsize.setVisibility(View.VISIBLE);
-                        //  ChangeColor.setVisibility(View.VISIBLE);
-                        Bold.setVisibility(View.VISIBLE);
-                        Italic.setVisibility(View.VISIBLE);
-                        Bold.setVisibility(View.VISIBLE);
-                        Underline.setVisibility(View.VISIBLE);
-                        Striketrough.setVisibility(View.VISIBLE);
-                        HighlightText.setVisibility(View.VISIBLE);
-                    }, 200);
-
-                });
-            }
-
-        }).start();
-    }
-
     private void CloseOrOpenFormatter(Boolean close) {
-
-        //new Thread(() -> {
 
         Animation fadein = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_button_colors);
         Animation fadeout = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
         CardView format_text = findViewById(R.id.format_selector);
 
-        ImageButton Textsize = findViewById(R.id.TextSize);
         ImageButton ChangeColor = findViewById(R.id.ChangeColor);
         ImageButton Bold = findViewById(R.id.Bold);
         ImageButton Italic = findViewById(R.id.Italic);
         ImageButton Underline = findViewById(R.id.Underline);
         ImageButton Striketrough = findViewById(R.id.Striketrough);
-        //ImageButton Subscript = findViewById(R.id.Subscript);
         ImageButton HighlightText = findViewById(R.id.HighlightText);
 
         ImageButton Black = findViewById(R.id.black);
@@ -442,14 +381,14 @@ public class MainActivity extends AppCompatActivity {
         ImageButton YellowHighlight = findViewById(R.id.yellowhighlight);
         ImageButton GreenHighlight = findViewById(R.id.greenhighlight);
 
+        ImageButton Increase =  findViewById(R.id.IncreaseSize);
+        ImageButton Decrease =  findViewById(R.id.DecreaseSize);
+        ImageButton Left =  findViewById(R.id.AlignLeft);
+        ImageButton Center =  findViewById(R.id.AlignCenter);
+        ImageButton Right =  findViewById(R.id.AlignRight);
+
         if (close) {
 
-            //new Handler(Looper.getMainLooper()).post(() -> {
-
-
-            format_text.startAnimation(fadeout);
-
-            Textsize.setVisibility(View.GONE);
             ChangeColor.setVisibility(View.GONE);
             Bold.setVisibility(View.GONE);
             Italic.setVisibility(View.GONE);
@@ -474,29 +413,48 @@ public class MainActivity extends AppCompatActivity {
             YellowHighlight.setVisibility(View.GONE);
             GreenHighlight.setVisibility(View.GONE);
 
-            //format_text.setVisibility(View.GONE);
+            Increase.setVisibility(View.GONE);
+            Decrease.setVisibility(View.GONE);
+            Left.setVisibility(View.GONE);
+            Center.setVisibility(View.GONE);
+            Right.setVisibility(View.GONE);
 
-            // });
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                format_text.startAnimation(fadeout);
+
+            }, 150);
+
+            CloseFormatter = false;
+
 
         } else {
-
-            //new Handler(Looper.getMainLooper()).post(() -> {
 
             format_text.setVisibility(View.VISIBLE);
 
             format_text.startAnimation(fadein);
 
-            Textsize.setVisibility(View.VISIBLE);
-            ChangeColor.setVisibility(View.VISIBLE);
-            Bold.setVisibility(View.VISIBLE);
-            Italic.setVisibility(View.VISIBLE);
-            Bold.setVisibility(View.VISIBLE);
-            Underline.setVisibility(View.VISIBLE);
-            Striketrough.setVisibility(View.VISIBLE);
-            HighlightText.setVisibility(View.VISIBLE);
 
-            // });
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                Increase.setVisibility(View.VISIBLE);
+                Decrease.setVisibility(View.VISIBLE);
+                Left.setVisibility(View.VISIBLE);
+                Center.setVisibility(View.VISIBLE);
+                Right.setVisibility(View.VISIBLE);
+                ChangeColor.setVisibility(View.VISIBLE);
+                Bold.setVisibility(View.VISIBLE);
+                Italic.setVisibility(View.VISIBLE);
+                Bold.setVisibility(View.VISIBLE);
+                Underline.setVisibility(View.VISIBLE);
+                Striketrough.setVisibility(View.VISIBLE);
+                HighlightText.setVisibility(View.VISIBLE);
+
+            }, 150);
+
+            CloseFormatter = true;
+
         }
-        //}).start();
     }
 }

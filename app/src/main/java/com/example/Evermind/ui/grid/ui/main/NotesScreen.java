@@ -5,9 +5,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,25 +13,18 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
-import android.os.Handler;
-import android.os.Looper;
-import android.text.Spannable;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.example.Evermind.DataBaseHelper;
+import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapter;
 import com.example.Evermind.Test;
-import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -132,13 +123,15 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         editor.putString("title", title);
         editor.putString("content", content);
         editor.putBoolean("athome", false);
+        editor.putBoolean("newnote", false);
+        editor.putBoolean("BlackHighlight?", false);
         editor.apply();
 
 
         EditText editText = this.getActivity().findViewById(R.id.myEditText);
         editText.setVisibility(View.VISIBLE);
-        BottomNavigationView bottomNavigationView = this.getActivity().findViewById(R.id.navigation_note);
-        bottomNavigationView.setVisibility(View.VISIBLE);
+       // BottomNavigationView bottomNavigationView = this.getActivity().findViewById(R.id.navigation_note);
+       // bottomNavigationView.setVisibility(View.VISIBLE);
 
         NavController navController = Navigation.findNavController(view);
         navController.navigate(R.id.action_nav_home_to_nav_note);

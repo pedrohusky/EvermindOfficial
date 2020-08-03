@@ -4,9 +4,6 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Paint.Style;
-import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,25 +12,12 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
-import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.TextWatcher;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.SubscriptSpan;
-import android.text.style.TypefaceSpan;
-import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -42,15 +26,13 @@ import com.example.Evermind.DataBaseHelper;
 import com.example.Evermind.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jp.wasabeef.richeditor.RichEditor;
 
 import static android.content.Context.MODE_PRIVATE;
-import static android.text.Spanned.SPAN_COMPOSING;
-import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
-import static android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE;
-import static com.example.Evermind.ui.grid.ui.main.NotesScreen.databaseHelper;
 
 public class NoteEditorFragmentJavaFragment extends Fragment {
 
@@ -62,20 +44,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
     private RichEditor mEditor;
 
-    boolean Black = false;
-    boolean Blue = false;
-    boolean Purple = false;
-    boolean Magenta = false;
-    boolean Orange = false;
-    boolean Yellow = false;
-    boolean Green = false;
-    boolean BlackH = false;
-    boolean BlueH = false;
-    boolean PurpleH = false;
-    boolean MagentaH = false;
-    boolean OrangeH = false;
-    boolean YellowH = false;
-    boolean GreenH = false;
+    public Boolean CloseOpenedColors = false;
+    public Boolean CloseOpenedColorsHighlight = false;
+    public Boolean CloseOpenedText = false;
+
+    int size = 4;
 
     public static NoteEditorFragmentJavaFragment newInstance() {
         return new NoteEditorFragmentJavaFragment();
@@ -99,16 +72,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
         int id = preferences.getInt("noteId", -1);
 
-        new Thread(() -> {
-
             mEditor = (RichEditor) getActivity().findViewById(R.id.ToSaveNoteText);
             mEditor.setEditorHeight(500);
             mEditor.setEditorFontSize(22);
-            mEditor.setPadding(10, 10, 10, 10);
+            mEditor.setPadding(15, 15, 15, 15);
 
             ImageButton ChangeColor =  getActivity().findViewById(R.id.ChangeColor);
             ImageButton HighlightText =  getActivity().findViewById(R.id.HighlightText);
-            ImageButton TextSize =  getActivity().findViewById(R.id.TextSize);
 
             ImageButton Black =  getActivity().findViewById(R.id.black);
             ImageButton Blue =  getActivity().findViewById(R.id.blue);
@@ -127,45 +97,88 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             ImageButton YellowHighlight =  getActivity().findViewById(R.id.yellowhighlight);
             ImageButton GreenHighlight =  getActivity().findViewById(R.id.greenhighlight);
 
+// Purple.post(() ->
+            Black.setOnClickListener(view ->  ColorClickedSwitcher("Black", false));
 
-            Black.setOnClickListener(view -> Black.post(() ->  ColorClickedSwitcher("Black", false)));
+            Blue.setOnClickListener(view ->   ColorClickedSwitcher("Blue", false));
 
-            Blue.setOnClickListener(view -> Blue.post(() -> ColorClickedSwitcher("Blue", false)));
+            Purple.setOnClickListener(view ->  ColorClickedSwitcher("Purple", false));
 
-            Purple.setOnClickListener(view -> Purple.post(() -> ColorClickedSwitcher("Purple", false)));
+            Magenta.setOnClickListener(view -> ColorClickedSwitcher("Magenta", false));
 
-            Magenta.setOnClickListener(view -> Magenta.post(() -> ColorClickedSwitcher("Magenta", false)));
+            Orange.setOnClickListener(view ->  ColorClickedSwitcher("Orange", false));
 
-            Orange.setOnClickListener(view -> Orange.post(() -> ColorClickedSwitcher("Orange", false)));
+            Yellow.setOnClickListener(view -> ColorClickedSwitcher("Yellow", false));
 
-            Yellow.setOnClickListener(view -> Yellow.post(() -> ColorClickedSwitcher("Yellow", false)));
+            Green.setOnClickListener(view -> ColorClickedSwitcher("Green", false));
 
-            Green.setOnClickListener(view -> Green.post(() -> ColorClickedSwitcher("Green", false)));
+            ClearHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Clear", true));
 
-            ClearHighlight.setOnClickListener(view -> ClearHighlight.post(() -> ColorClickedSwitcher("Clear", true)));
+            BlackHighlight.setOnClickListener(view -> ColorClickedSwitcher("Black", true));
 
-            BlackHighlight.setOnClickListener(view -> Black.post(() -> ColorClickedSwitcher("Black", true)));
+            BlueHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Blue", true));
 
-            BlueHighlight.setOnClickListener(view -> Blue.post(() -> ColorClickedSwitcher("Blue", true)));
+            PurpleHighlight.setOnClickListener(view -> ColorClickedSwitcher("Purple", true));
 
-            PurpleHighlight.setOnClickListener(view -> Purple.post(() -> ColorClickedSwitcher("Purple", true)));
+            MagentaHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Magenta", true));
 
-            MagentaHighlight.setOnClickListener(view -> Magenta.post(() -> ColorClickedSwitcher("Magenta", true)));
+            OrangeHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Orange", true));
 
-            OrangeHighlight.setOnClickListener(view -> Orange.post(() -> ColorClickedSwitcher("Orange", true)));
+            YellowHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Yellow", true));
 
-            YellowHighlight.setOnClickListener(view -> Yellow.post(() -> ColorClickedSwitcher("Yellow", true)));
+            GreenHighlight.setOnClickListener(view ->  ColorClickedSwitcher("Green", true));
 
-            GreenHighlight.setOnClickListener(view -> Green.post(() -> ColorClickedSwitcher("Green", true)));
+            ChangeColor.setOnClickListener(view -> {
+                if (CloseOpenedColors) {
 
-            ChangeColor.setOnClickListener(view -> OpenColors(false));
-
-            HighlightText.setOnClickListener(view ->  OpenColors(true));
-
-            TextSize.setOnClickListener(view -> mEditor.setFontSize(7));
-
+                    OpenOrCloseColors(false, true);
 
 
+                } else {
+
+                    OpenOrCloseColors(false, false);
+
+                }
+            });
+
+            HighlightText.setOnClickListener(view -> {
+            if (CloseOpenedColorsHighlight) {
+
+                OpenOrCloseColors(true, true);
+
+
+            } else {
+
+                OpenOrCloseColors(true, false);
+
+            }
+        });
+
+
+        getActivity().findViewById(R.id.IncreaseSize).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+
+
+                if (size < 7) {
+
+                    size++;
+                    mEditor.setFontSize(size);
+                }
+
+            }
+        });
+
+        getActivity().findViewById(R.id.DecreaseSize).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+
+
+                if (size > 3) {
+
+                    size--;
+                    mEditor.setFontSize(size);
+                }
+            }
+        });
 
        //     getActivity().findViewById(R.id.action_undo).setOnClickListener(new View.OnClickListener() {
          //       @Override public void onClick(View v) {
@@ -263,23 +276,23 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
        //         }
        //     });
 
-       //     getActivity().findViewById(R.id.action_align_left).setOnClickListener(new View.OnClickListener() {
-       //         @Override public void onClick(View v) {
-       //             mEditor.setAlignLeft();
-      //          }
-      //      });
+            getActivity().findViewById(R.id.AlignLeft).setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    mEditor.setAlignLeft();
+                }
+            });
 
-       //     getActivity().findViewById(R.id.action_align_center).setOnClickListener(new View.OnClickListener() {
-       //         @Override public void onClick(View v) {
-      //              mEditor.setAlignCenter();
-      //          }
-       //     });
+            getActivity().findViewById(R.id.AlignCenter).setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    mEditor.setAlignCenter();
+                }
+            });
 
-    //        getActivity().findViewById(R.id.action_align_right).setOnClickListener(new View.OnClickListener() {
-     //           @Override public void onClick(View v) {
-      //              mEditor.setAlignRight();
-     //           }
-     //       });
+            getActivity().findViewById(R.id.AlignRight).setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    mEditor.setAlignRight();
+                }
+            });
 
      //       getActivity().findViewById(R.id.action_blockquote).setOnClickListener(new View.OnClickListener() {
       //          @Override public void onClick(View v) {
@@ -342,58 +355,102 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                 new Handler(Looper.getMainLooper()).post(() -> {
 
-                        title_editText.setText(title);
+                    title_editText.setText(title);
 
                 });
+
             }).start();
 
 
             new Thread(() -> {
 
                 String content = preferences.getString("content", "");
+                boolean NewNote =  preferences.getBoolean("newnote", false);
 
-              //  Spanned content_html = null;
-             ///   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-             //       TextHtml = Html.fromHtml(content, Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH);
-             //   }
+                new Handler(Looper.getMainLooper()).post(() -> {
 
-        new Handler(Looper.getMainLooper()).post(() -> {
+                    mEditor.setHtml(content);
 
-                mEditor.setHtml(content);
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-        });
+                        if (NewNote) {
+                           mEditor.focusEditor();
+
+                            InputMethodManager keyboard=(InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                            keyboard.showSoftInput(mEditor,0);
+                        }
+
+                            }, 500);
+
+                });
+
             }).start();
+
+            mEditor.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean b) {
+
+                    if (b) {
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                            Animation bottom_nav_anim = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_up_anim);
+                            BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation_note);
+                            bottomNavigationView.setVisibility(View.VISIBLE);
+                            bottomNavigationView.startAnimation(bottom_nav_anim);
+
+                        }, 250);
+
+                    } else {
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                            InputMethodManager keyboard=(InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                            keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                        }, 100);
+                    }
+                }
+            });
+
+            mEditor.setOnDecorationChangeListener(new RichEditor.OnDecorationStateListener() {
+                @Override
+                public void onStateChangeListener(String text, List<RichEditor.Type> types) {
+                    Toast.makeText(getActivity(), text.toString(), Toast.LENGTH_SHORT).show();
+                    mEditor.setTextColor(Color.BLACK);
+                }
+            });
+
 
 
             mEditor.setOnTextChangeListener(new RichEditor.OnTextChangeListener() {
                 @Override
                 public void onTextChange(String text) {
+
                     new Thread(() -> {
+
+                        String transformToHexHTML = replaceRGBColorsWithHex(mEditor.getHtml());
 
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                            dataBaseHelper.editContent(Integer.toString(id), mEditor.getHtml());
+                            dataBaseHelper.editContent(Integer.toString(id), transformToHexHTML);
 
-                        }, 1000);
+                        }, 750);
 
                     }).start();
                 }
             });
-
-        }).start();
     }
 
-    private void OpenColors(Boolean highlight) {
+    private void OpenOrCloseColors(Boolean highlight, Boolean close) {
 
         new Thread(() -> {
 
-            ImageButton Textsize =  getActivity().findViewById(R.id.TextSize);
             ImageButton ChangeColor =  getActivity().findViewById(R.id.ChangeColor);
             ImageButton Bold =  getActivity().findViewById(R.id.Bold);
             ImageButton Italic =  getActivity().findViewById(R.id.Italic);
             ImageButton Underline =  getActivity().findViewById(R.id.Underline);
             ImageButton Striketrough =  getActivity().findViewById(R.id.Striketrough);
-            //ImageButton Subscript = findViewById(R.id.Subscript);
             ImageButton HighlightText =  getActivity().findViewById(R.id.HighlightText);
 
             ImageButton Black =  getActivity().findViewById(R.id.black);
@@ -413,156 +470,172 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             ImageButton YellowHighlight =  getActivity().findViewById(R.id.yellowhighlight);
             ImageButton GreenHighlight =  getActivity().findViewById(R.id.greenhighlight);
 
-            if (highlight) {
-                new Handler(Looper.getMainLooper()).post(() -> {
+            ImageButton Increase =  getActivity().findViewById(R.id.IncreaseSize);
+            ImageButton Decrease =  getActivity().findViewById(R.id.DecreaseSize);
+            ImageButton Left =  getActivity().findViewById(R.id.AlignLeft);
+            ImageButton Center =  getActivity().findViewById(R.id.AlignCenter);
+            ImageButton Right =  getActivity().findViewById(R.id.AlignRight);
 
-                    Textsize.setVisibility(View.GONE);
-                    ChangeColor.setVisibility(View.GONE);
-                    Bold.setVisibility(View.GONE);
-                    Italic.setVisibility(View.GONE);
-                    Bold.setVisibility(View.GONE);
-                    Underline.setVisibility(View.GONE);
-                    Striketrough.setVisibility(View.GONE);
-                    HighlightText.setVisibility(View.GONE);
-                    ClearHighlight.setVisibility(View.VISIBLE);
+            SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
 
+            if (close) {
 
+                if (highlight) {
 
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        Textsize.setVisibility(View.GONE);
-                        // ChangeColor.setVisibility(View.GONE);
+                    new Handler(Looper.getMainLooper()).post(() -> {
 
-                        BlackHighlight.setVisibility(View.VISIBLE);
-                        BlueHighlight.setVisibility(View.VISIBLE);
-                        PurpleHighlight.setVisibility(View.VISIBLE);
-                        MagentaHighlight.setVisibility(View.VISIBLE);
-                        OrangeHighlight.setVisibility(View.VISIBLE);
-                        YellowHighlight.setVisibility(View.VISIBLE);
-                        GreenHighlight.setVisibility(View.VISIBLE);
-                    }, 250);
-                });
+                        BlackHighlight.setVisibility(View.GONE);
+                        BlueHighlight.setVisibility(View.GONE);
+                        PurpleHighlight.setVisibility(View.GONE);
+                        MagentaHighlight.setVisibility(View.GONE);
+                        OrangeHighlight.setVisibility(View.GONE);
+                        YellowHighlight.setVisibility(View.GONE);
+                        GreenHighlight.setVisibility(View.GONE);
+                        ClearHighlight.setVisibility(View.GONE);
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            ChangeColor.setVisibility(View.VISIBLE);
+                            Bold.setVisibility(View.VISIBLE);
+                            Italic.setVisibility(View.VISIBLE);
+                            Bold.setVisibility(View.VISIBLE);
+                            Underline.setVisibility(View.VISIBLE);
+                            Striketrough.setVisibility(View.VISIBLE);
+                            HighlightText.setVisibility(View.VISIBLE);
+
+                            Increase.setVisibility(View.VISIBLE);
+                            Decrease.setVisibility(View.VISIBLE);
+                            Left.setVisibility(View.VISIBLE);
+                            Center.setVisibility(View.VISIBLE);
+                            Right.setVisibility(View.VISIBLE);
+                        }, 200);
+
+                        CloseOpenedColorsHighlight = false;
+
+                    });
+                } else {
+
+                    new Handler(Looper.getMainLooper()).post(() -> {
+
+                        Black.setVisibility(View.GONE);
+                        Blue.setVisibility(View.GONE);
+                        Purple.setVisibility(View.GONE);
+                        Magenta.setVisibility(View.GONE);
+                        Orange.setVisibility(View.GONE);
+                        Yellow.setVisibility(View.GONE);
+                        Green.setVisibility(View.GONE);
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                            //  ChangeColor.setVisibility(View.VISIBLE);
+                            Bold.setVisibility(View.VISIBLE);
+                            Italic.setVisibility(View.VISIBLE);
+                            Bold.setVisibility(View.VISIBLE);
+                            Underline.setVisibility(View.VISIBLE);
+                            Striketrough.setVisibility(View.VISIBLE);
+                            HighlightText.setVisibility(View.VISIBLE);
+
+                            Increase.setVisibility(View.VISIBLE);
+                            Decrease.setVisibility(View.VISIBLE);
+                            Left.setVisibility(View.VISIBLE);
+                            Center.setVisibility(View.VISIBLE);
+                            Right.setVisibility(View.VISIBLE);
+
+                        }, 200);
+
+                        CloseOpenedColors = false;
+
+                    });
+                }
 
             } else {
-                new Handler(Looper.getMainLooper()).post(() -> {
+                if (highlight) {
+                    new Handler(Looper.getMainLooper()).post(() -> {
 
-                    BlackHighlight.setVisibility(View.GONE);
-                    BlueHighlight.setVisibility(View.GONE);
-                    PurpleHighlight.setVisibility(View.GONE);
-                    MagentaHighlight.setVisibility(View.GONE);
-                    OrangeHighlight.setVisibility(View.GONE);
-                    YellowHighlight.setVisibility(View.GONE);
-                    GreenHighlight.setVisibility(View.GONE);
+                        ChangeColor.setVisibility(View.GONE);
+                        Bold.setVisibility(View.GONE);
+                        Italic.setVisibility(View.GONE);
+                        Bold.setVisibility(View.GONE);
+                        Underline.setVisibility(View.GONE);
+                        Striketrough.setVisibility(View.GONE);
+                        HighlightText.setVisibility(View.GONE);
+                        ClearHighlight.setVisibility(View.VISIBLE);
 
-                    Textsize.setVisibility(View.GONE);
-                    Bold.setVisibility(View.GONE);
-                    Italic.setVisibility(View.GONE);
-                    Bold.setVisibility(View.GONE);
-                    Underline.setVisibility(View.GONE);
-                    Striketrough.setVisibility(View.GONE);
-                    HighlightText.setVisibility(View.GONE);
+                        Increase.setVisibility(View.GONE);
+                        Decrease.setVisibility(View.GONE);
+                        Left.setVisibility(View.GONE);
+                        Center.setVisibility(View.GONE);
+                        Right.setVisibility(View.GONE);
 
 
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        Textsize.setVisibility(View.GONE);
-                        // ChangeColor.setVisibility(View.GONE);
 
-                        Black.setVisibility(View.VISIBLE);
-                        Blue.setVisibility(View.VISIBLE);
-                        Purple.setVisibility(View.VISIBLE);
-                        Magenta.setVisibility(View.VISIBLE);
-                        Orange.setVisibility(View.VISIBLE);
-                        Yellow.setVisibility(View.VISIBLE);
-                        Green.setVisibility(View.VISIBLE);
-                    }, 250);
-                });
-            }
-        }).start();
-    }
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            // ChangeColor.setVisibility(View.GONE);
 
-    private void CloseOpenedColors(Boolean highlight) {
+                            BlackHighlight.setVisibility(View.VISIBLE);
+                            BlueHighlight.setVisibility(View.VISIBLE);
+                            PurpleHighlight.setVisibility(View.VISIBLE);
+                            MagentaHighlight.setVisibility(View.VISIBLE);
+                            OrangeHighlight.setVisibility(View.VISIBLE);
+                            YellowHighlight.setVisibility(View.VISIBLE);
+                            GreenHighlight.setVisibility(View.VISIBLE);
+                        }, 250);
 
-        new Thread(() -> {
+                        CloseOpenedColorsHighlight = false;
+                    });
 
-            ImageButton Textsize =  getActivity().findViewById(R.id.TextSize);
-            ImageButton ChangeColor =  getActivity().findViewById(R.id.ChangeColor);
-            ImageButton Bold =  getActivity().findViewById(R.id.Bold);
-            ImageButton Italic =  getActivity().findViewById(R.id.Italic);
-            ImageButton Underline =  getActivity().findViewById(R.id.Underline);
-            ImageButton Striketrough =  getActivity().findViewById(R.id.Striketrough);
-            //ImageButton Subscript = findViewById(R.id.Subscript);
-            ImageButton HighlightText =  getActivity().findViewById(R.id.HighlightText);
+                } else {
+                    new Handler(Looper.getMainLooper()).post(() -> {
 
-            ImageButton Black =  getActivity().findViewById(R.id.black);
-            ImageButton Blue =  getActivity().findViewById(R.id.blue);
-            ImageButton Purple =  getActivity().findViewById(R.id.purple);
-            ImageButton Magenta =  getActivity().findViewById(R.id.magenta);
-            ImageButton Orange =  getActivity().findViewById(R.id.orange);
-            ImageButton Yellow =  getActivity().findViewById(R.id.yellow);
-            ImageButton Green =  getActivity().findViewById(R.id.green);
+                        editor.putBoolean("WhiteHighlight?", false);
+                        editor.putBoolean("BlackHighlight?", false);
+                        editor.apply();
 
-            ImageButton ClearHighlight =  getActivity().findViewById(R.id.clearhighlight);
-            ImageButton BlackHighlight =  getActivity().findViewById(R.id.blackhighlight);
-            ImageButton BlueHighlight =  getActivity().findViewById(R.id.bluehighlight);
-            ImageButton PurpleHighlight =  getActivity().findViewById(R.id.purplehighlight);
-            ImageButton MagentaHighlight =  getActivity().findViewById(R.id.magentahighlight);
-            ImageButton OrangeHighlight =  getActivity().findViewById(R.id.orangehighlight);
-            ImageButton YellowHighlight =  getActivity().findViewById(R.id.yellowhighlight);
-            ImageButton GreenHighlight =  getActivity().findViewById(R.id.greenhighlight);
+                        BlackHighlight.setVisibility(View.GONE);
+                        BlueHighlight.setVisibility(View.GONE);
+                        PurpleHighlight.setVisibility(View.GONE);
+                        MagentaHighlight.setVisibility(View.GONE);
+                        OrangeHighlight.setVisibility(View.GONE);
+                        YellowHighlight.setVisibility(View.GONE);
+                        GreenHighlight.setVisibility(View.GONE);
 
-            if (highlight) {
-                new Handler(Looper.getMainLooper()).post(() -> {
+                        Bold.setVisibility(View.GONE);
+                        Italic.setVisibility(View.GONE);
+                        Bold.setVisibility(View.GONE);
+                        Underline.setVisibility(View.GONE);
+                        Striketrough.setVisibility(View.GONE);
+                        HighlightText.setVisibility(View.GONE);
 
-                    BlackHighlight.setVisibility(View.GONE);
-                    BlueHighlight.setVisibility(View.GONE);
-                    PurpleHighlight.setVisibility(View.GONE);
-                    MagentaHighlight.setVisibility(View.GONE);
-                    OrangeHighlight.setVisibility(View.GONE);
-                    YellowHighlight.setVisibility(View.GONE);
-                    GreenHighlight.setVisibility(View.GONE);
-                    ClearHighlight.setVisibility(View.GONE);
+                        Increase.setVisibility(View.GONE);
+                        Decrease.setVisibility(View.GONE);
+                        Left.setVisibility(View.GONE);
+                        Center.setVisibility(View.GONE);
+                        Right.setVisibility(View.GONE);
 
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        Textsize.setVisibility(View.VISIBLE);
-                        ChangeColor.setVisibility(View.VISIBLE);
-                        Bold.setVisibility(View.VISIBLE);
-                        Italic.setVisibility(View.VISIBLE);
-                        Bold.setVisibility(View.VISIBLE);
-                        Underline.setVisibility(View.VISIBLE);
-                        Striketrough.setVisibility(View.VISIBLE);
-                        HighlightText.setVisibility(View.VISIBLE);
-                    }, 200);
 
-                });
-            } else {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            // ChangeColor.setVisibility(View.GONE);
 
-                new Handler(Looper.getMainLooper()).post(() -> {
+                            Black.setVisibility(View.VISIBLE);
+                            Blue.setVisibility(View.VISIBLE);
+                            Purple.setVisibility(View.VISIBLE);
+                            Magenta.setVisibility(View.VISIBLE);
+                            Orange.setVisibility(View.VISIBLE);
+                            Yellow.setVisibility(View.VISIBLE);
+                            Green.setVisibility(View.VISIBLE);
+                        }, 250);
 
-                    Black.setVisibility(View.GONE);
-                    Blue.setVisibility(View.GONE);
-                    Purple.setVisibility(View.GONE);
-                    Magenta.setVisibility(View.GONE);
-                    Orange.setVisibility(View.GONE);
-                    Yellow.setVisibility(View.GONE);
-                    Green.setVisibility(View.GONE);
-
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        Textsize.setVisibility(View.VISIBLE);
-                        //  ChangeColor.setVisibility(View.VISIBLE);
-                        Bold.setVisibility(View.VISIBLE);
-                        Italic.setVisibility(View.VISIBLE);
-                        Bold.setVisibility(View.VISIBLE);
-                        Underline.setVisibility(View.VISIBLE);
-                        Striketrough.setVisibility(View.VISIBLE);
-                        HighlightText.setVisibility(View.VISIBLE);
-                    }, 200);
-
-                });
+                        CloseOpenedColors = false;
+                    });
+                }
             }
 
         }).start();
     }
-
     public void ColorClickedSwitcher (String color, boolean highlight) {
+
+        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
 
             if (highlight) {
 
@@ -572,9 +645,14 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                         ImageButton ClearHighlight =  getActivity().findViewById(R.id.clearhighlight);
 
-                        mEditor.removeFormat();
+                        //mEditor.removeFormat();
+                        mEditor.setTextBackgroundColor(Color.WHITE);
 
-                        CloseOpenedColors(true);
+                        editor.putBoolean("BlackHighlight?", false);
+                        editor.putBoolean("WhiteHighlight?", true);
+                        editor.apply();
+
+                        OpenOrCloseColors(true, true);
 
                         ClearHighlight.setVisibility(View.GONE);
 
@@ -582,16 +660,19 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                     case "Black":
 
+                            mEditor.setTextBackgroundColor(Color.parseColor("#CCC3FF"));
 
-                            mEditor.setTextBackgroundColor(Color.BLACK);
+                        editor.putBoolean("BlackHighlight?", true);
+                        editor.putBoolean("WhiteHighlight?", false);
+                        editor.apply();
 
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                       // new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                            mEditor.setTextColor(Color.WHITE);
+                            //mEditor.setTextColor(Color.WHITE);
 
-                        }, 1350);
+                       //}, 250);
 
-                        CloseOpenedColors(true);
+                        OpenOrCloseColors(true, true);
 
 
                         break;
@@ -599,11 +680,15 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                     case "Blue":
 
 
-                            mEditor.setTextBackgroundColor(Color.parseColor("#89DDFF"));
+                            mEditor.setTextBackgroundColor(Color.parseColor("#8ECAFF"));
+
+                        editor.putBoolean("BlackHighlight?", false);
+                        editor.putBoolean("WhiteHighlight?", false);
+                        editor.apply();
 
 
 
-                        CloseOpenedColors(true);
+                        OpenOrCloseColors(true, true);
 
 
                         break;
@@ -613,8 +698,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                             mEditor.setTextBackgroundColor(Color.parseColor("#FFCCF4"));
 
+                        editor.putBoolean("BlackHighlight?", false);
+                        editor.putBoolean("WhiteHighlight?", false);
+                        editor.apply();
 
-                        CloseOpenedColors(true);
+
+                        OpenOrCloseColors(true, true);
 
 
                         break;
@@ -622,11 +711,15 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                     case "Magenta":
 
 
-                            mEditor.setTextBackgroundColor(Color.parseColor("#BFFFF7"));
+                            mEditor.setTextBackgroundColor(Color.parseColor("#B1FFF5"));
+
+                        editor.putBoolean("BlackHighlight?", false);
+                        editor.putBoolean("WhiteHighlight?", false);
+                        editor.apply();
 
 
 
-                        CloseOpenedColors(true);
+                        OpenOrCloseColors(true, true);
 
 
                         break;
@@ -636,8 +729,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                             mEditor.setTextBackgroundColor(Color.parseColor("#FFB89C"));
 
+                        editor.putBoolean("BlackHighlight?", false);
+                        editor.putBoolean("WhiteHighlight?", false);
+                        editor.apply();
 
-                        CloseOpenedColors(true);
+
+                        OpenOrCloseColors(true, true);
 
 
                         break;
@@ -646,8 +743,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                             mEditor.setTextBackgroundColor(Color.parseColor("#EEFF00"));
 
+                        editor.putBoolean("BlackHighlight?", false);
+                        editor.putBoolean("WhiteHighlight?", false);
+                        editor.apply();
 
-                        CloseOpenedColors(true);
+
+                        OpenOrCloseColors(true, true);
 
 
                         break;
@@ -656,7 +757,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                             mEditor.setTextBackgroundColor(Color.parseColor("#A0FF8A"));
 
-                        CloseOpenedColors(true);
+                        editor.putBoolean("BlackHighlight?", false);
+                        editor.putBoolean("WhiteHighlight?", false);
+                        editor.apply();
+
+                        OpenOrCloseColors(true, true);
 
 
                         break;
@@ -674,7 +779,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                             mEditor.setTextColor(Color.parseColor("#000000"));
 
 
-                        CloseOpenedColors(false);
+                        OpenOrCloseColors(false, true);
 
 
                         break;
@@ -683,10 +788,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                             mEditor.setTextColor(Color.parseColor("#6CCAEF"));
 
-                        Blue = !Blue;
+                      //  Blue = !Blue;
 
 
-                        CloseOpenedColors(false);
+                        OpenOrCloseColors(false, true);
 
 
                         break;
@@ -695,9 +800,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                             mEditor.setTextColor(Color.parseColor("#c371f9"));
 
-                        Purple = !Purple;
+                      //  Purple = !Purple;
 
-                        CloseOpenedColors(false);
+                        OpenOrCloseColors(false, true);
 
 
                         break;
@@ -706,10 +811,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                             mEditor.setTextColor(Color.parseColor("#EDF52E66"));
 
-                        Magenta = !Magenta;
+                      //  Magenta = !Magenta;
 
 
-                        CloseOpenedColors(false);
+                        OpenOrCloseColors(false, true);
 
 
                         break;
@@ -719,9 +824,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                             mEditor.setTextColor(Color.parseColor("#F9A75D"));
 
-                        Orange = !Orange;
+                      //  Orange = !Orange;
 
-                        CloseOpenedColors(false);
+                        OpenOrCloseColors(false, true);
 
 
                         break;
@@ -731,9 +836,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                             mEditor.setTextColor(Color.parseColor("#FAF075"));
 
-                        Yellow = !Yellow;
+                       // Yellow = !Yellow;
 
-                        CloseOpenedColors(false);
+                        OpenOrCloseColors(false, true);
 
 
                         break;
@@ -743,9 +848,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                             mEditor.setTextColor(Color.parseColor("#8de791"));
 
-                        Green = !Green;
+                       // Green = !Green;
 
-                        CloseOpenedColors(false);
+                        OpenOrCloseColors(false, true);
 
 
                         break;
@@ -756,5 +861,132 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                         break;
                 }
             }
+    }
+
+    private static String replaceRGBColorsWithHex(String html) {
+        // using regular expression to find all occurences of rgb(a,b,c) using
+        // capturing groups to get separate numbers.
+        Pattern p = Pattern.compile("(rgb\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\))");
+        Matcher m = p.matcher(html);
+
+        while (m.find()) {
+            // get whole matched rgb(a,b,c) text
+            String foundRGBColor = m.group(1);
+          //  System.out.println("Found: " + foundRGBColor);
+
+            // get r value
+            String rString = m.group(2);
+            // get g value
+            String gString = m.group(3);
+            // get b value
+            String bString = m.group(4);
+
+          //  System.out.println(" separated r value: " + rString);
+         //   System.out.println(" separated g value: " + gString);
+         //   System.out.println(" separated b value: " + bString);
+
+            // converting numbers from string to int
+            int rInt = Integer.parseInt(rString);
+            int gInt = Integer.parseInt(gString);
+            int bInt = Integer.parseInt(bString);
+
+            // converting int to hex value
+            String rHex = Integer.toHexString(rInt);
+            String gHex = Integer.toHexString(gInt);
+            String bHex = Integer.toHexString(bInt);
+
+            // add leading zero if number is small to avoid converting
+            // rgb(1,2,3) to rgb(#123)
+            String rHexFormatted = String.format("%2s", rHex).replace(" ", "0");
+            String gHexFormatted = String.format("%2s", gHex).replace(" ", "0");
+            String bHexFormatted = String.format("%2s", bHex).replace(" ", "0");
+
+         //   System.out.println(" converted " + rString + " to hex: " + rHexFormatted);
+          //  System.out.println(" converted " + gString + " to hex: " + gHexFormatted);
+         //   System.out.println(" converted " + bString + " to hex:" + bHexFormatted);
+
+            // concatenate new color in hex
+            String hexColorString = "#" + rHexFormatted + gHexFormatted + bHexFormatted ;
+
+            System.out.println("  replacing " + foundRGBColor + " with " + hexColorString);
+            html = html.replaceAll(Pattern.quote(foundRGBColor), hexColorString);
+        }
+        return html;
+    }
+
+    private void OpenOrCloseTextFormatSize(Boolean close) {
+
+        new Thread(() -> {
+
+            ImageButton ChangeColor =  getActivity().findViewById(R.id.ChangeColor);
+            ImageButton Bold =  getActivity().findViewById(R.id.Bold);
+            ImageButton Italic =  getActivity().findViewById(R.id.Italic);
+            ImageButton Underline =  getActivity().findViewById(R.id.Underline);
+            ImageButton Striketrough =  getActivity().findViewById(R.id.Striketrough);
+            ImageButton HighlightText =  getActivity().findViewById(R.id.HighlightText);
+
+            ImageButton Increase =  getActivity().findViewById(R.id.IncreaseSize);
+            ImageButton Decrease =  getActivity().findViewById(R.id.DecreaseSize);
+            ImageButton Left =  getActivity().findViewById(R.id.AlignLeft);
+            ImageButton Center =  getActivity().findViewById(R.id.AlignCenter);
+            ImageButton Right =  getActivity().findViewById(R.id.AlignRight);
+
+
+
+            SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+
+            if (close) {
+
+                    new Handler(Looper.getMainLooper()).post(() -> {
+
+                        Increase.setVisibility(View.GONE);
+                        Decrease.setVisibility(View.GONE);
+                        Left.setVisibility(View.GONE);
+                        Center.setVisibility(View.GONE);
+                        Right.setVisibility(View.GONE);
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            ChangeColor.setVisibility(View.VISIBLE);
+                            Bold.setVisibility(View.VISIBLE);
+                            Italic.setVisibility(View.VISIBLE);
+                            Bold.setVisibility(View.VISIBLE);
+                            Underline.setVisibility(View.VISIBLE);
+                            Striketrough.setVisibility(View.VISIBLE);
+                            HighlightText.setVisibility(View.VISIBLE);
+                        }, 200);
+
+                        CloseOpenedText = false;
+
+                    });
+
+
+            } else {
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+
+                    ChangeColor.setVisibility(View.GONE);
+                    Bold.setVisibility(View.GONE);
+                    Italic.setVisibility(View.GONE);
+                    Bold.setVisibility(View.GONE);
+                    Underline.setVisibility(View.GONE);
+                    Striketrough.setVisibility(View.GONE);
+                    HighlightText.setVisibility(View.GONE);
+
+
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                        Increase.setVisibility(View.VISIBLE);
+                        Decrease.setVisibility(View.VISIBLE);
+                        Left.setVisibility(View.VISIBLE);
+                        Center.setVisibility(View.VISIBLE);
+                        Right.setVisibility(View.VISIBLE);
+                    }, 250);
+
+                    CloseOpenedText = false;
+                });
+            }
+
+        }).start();
     }
 }

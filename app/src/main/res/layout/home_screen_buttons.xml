@@ -34,6 +34,7 @@
                 android:visibility="gone" />
 
             <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/titletest2"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
@@ -43,6 +44,7 @@
                 app:srcCompat="@drawable/evermindblack_cropped" />
 
             <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/titletest"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
@@ -102,19 +104,74 @@
                 android:paddingBottom="0dp">
 
                 <ImageButton
-                    android:id="@+id/TextSize"
+                    android:id="@+id/DecreaseSize"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="centerInside"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Black"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/decrease" />
+
+                <ImageButton
+                    android:id="@+id/IncreaseSize"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="centerInside"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Black"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/increase" />
+
+                <ImageButton
+                    android:id="@+id/AlignRight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
-                    android:layout_marginHorizontal="5dp"
                     android:background="@drawable/selected_background"
                     android:padding="4dp"
                     android:scaleType="center"
-                    android:scaleX="1.35"
-                    android:scaleY="1.35"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
                     android:tint="@color/Black"
                     android:visibility="gone"
-                    app:srcCompat="@drawable/text_size_icon" />
+                    app:srcCompat="@drawable/align_right" />
+
+                <ImageButton
+                    android:id="@+id/AlignCenter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Black"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/align_center" />
+
+                <ImageButton
+                    android:id="@+id/AlignLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Black"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/align_left" />
 
                 <ImageButton
                     android:id="@+id/ChangeColor"
@@ -285,6 +342,20 @@
                     app:srcCompat="@drawable/striketrough_icon" />
 
                 <ImageButton
+                    android:id="@+id/purplehighlight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/PinkHighlight"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/circle_colors_border" />
+
+                <ImageButton
                     android:id="@+id/blackhighlight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -294,7 +365,7 @@
                     android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
-                    android:tint="@color/Black"
+                    android:tint="@color/PurpleHighlight"
                     android:visibility="gone"
                     app:srcCompat="@drawable/circle_colors_border" />
 
@@ -313,20 +384,6 @@
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/purplehighlight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="7dp"
-                    android:background="@drawable/selected_background"
-                    android:padding="4dp"
-                    android:scaleType="center"
-                    android:scaleX="1.15"
-                    android:scaleY="1.15"
-                    android:tint="@color/PinkHighlight"
-                    android:visibility="gone"
-                    app:srcCompat="@drawable/circle_colors_border" />
-
-                <ImageButton
                     android:id="@+id/magentahighlight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -341,7 +398,7 @@
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/orangehighlight"
+                    android:id="@+id/greenhighlight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -350,7 +407,7 @@
                     android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
-                    android:tint="@color/OrangeHighlight"
+                    android:tint="@color/GrassGreenHighlight"
                     android:visibility="gone"
                     app:srcCompat="@drawable/circle_colors_border" />
 
@@ -369,7 +426,7 @@
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/greenhighlight"
+                    android:id="@+id/orangehighlight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -378,7 +435,7 @@
                     android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
-                    android:tint="@color/GrassGreenHighlight"
+                    android:tint="@color/OrangeHighlight"
                     android:visibility="gone"
                     app:srcCompat="@drawable/circle_colors_border" />
 

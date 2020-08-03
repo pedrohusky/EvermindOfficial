@@ -1,30 +1,19 @@
 package com.example.Evermind;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.tuyenmonkey.textdecorator.TextDecorator;
-import com.tuyenmonkey.textdecorator.callback.OnTextClickListener;
+import com.sysdata.kt.htmltextview.SDHtmlTextView;
 
-import java.util.Arrays;
-
-import static com.tuyenmonkey.textdecorator.TextDecorator.decorate;
+import org.htmlcleaner.HtmlSerializer;
 
 public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapter.ViewHolder> {
 
@@ -72,7 +61,10 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                holder.myTextView.setText(Html.fromHtml(mData[position], Html.FROM_HTML_MODE_COMPACT));
+
+
+                holder.myTextView.setHtmlText(mData[position]);
+
             }
 
     }
@@ -93,7 +85,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView myTextView;
+        SDHtmlTextView myTextView;
         TextView myTitleView;
 
         ViewHolder(View itemView) {
@@ -104,12 +96,18 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
                 myTitleView = itemView.findViewById(R.id.info_title);
                 itemView.setOnClickListener(this);
 
-                ///////////////
+                //TODO IMPORTANT CODE \/ \/ \/ \/ \/
+
+                myTextView.setOnClickListener(this);
+
+                ////TODO/////////////// /\ /\ /\ /\
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     int p = getLayoutPosition();
+
+                    System.out.println(p);
 
                     return true;// returning true instead of false, works for me
                 }
