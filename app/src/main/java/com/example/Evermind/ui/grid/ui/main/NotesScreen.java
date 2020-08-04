@@ -1,8 +1,6 @@
 package com.example.Evermind.ui.grid.ui.main;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProviders;
-
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.Toast;
 import com.example.Evermind.DataBaseHelper;
 import com.example.Evermind.R;
@@ -34,10 +31,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
     public static RecyclerGridAdapter adapter;
     public static DataBaseHelper databaseHelper;
-
-    //Notes Array \/
     public static ArrayList<String> notes = new ArrayList<>();
-    //Notes Array /\
     public static ArrayList<String> titles = new ArrayList<>();
     public static ArrayList<String> dates = new ArrayList<>();
     public static ArrayList<Integer> ids = new ArrayList<>();
@@ -124,13 +118,9 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         editor.putBoolean("athome", false);
         editor.putBoolean("newnote", false);
         editor.putBoolean("BlackHighlight?", false);
+        editor.putBoolean("DeleteNSave", false);
+        editor.putBoolean("UndoRedo", false);
         editor.apply();
-
-
-        EditText editText = this.getActivity().findViewById(R.id.TitleTextBox);
-        editText.setVisibility(View.VISIBLE);
-       // BottomNavigationView bottomNavigationView = this.getActivity().findViewById(R.id.navigation_note);
-       // bottomNavigationView.setVisibility(View.VISIBLE);
 
         NavController navController = Navigation.findNavController(view);
         navController.navigate(R.id.action_nav_home_to_nav_note);

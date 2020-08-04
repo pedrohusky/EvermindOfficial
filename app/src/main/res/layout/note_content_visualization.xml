@@ -42,7 +42,6 @@
         android:layout_marginBottom="15dp"
         android:background="@drawable/note_content_rectangle"
         android:elevation="7dp"
-        android:gravity="center|top"
         android:includeFontPadding="false"
         android:maxLength="200"
         android:paddingHorizontal="10dp"

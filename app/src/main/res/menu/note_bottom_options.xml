@@ -2,28 +2,29 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_home"
+        android:id="@+id/nav_formatText"
         android:icon="@drawable/text_edi"
         android:title="Format Text" />
 
     <item
-        android:id="@+id/navigation_dashboard"
-        android:icon="@drawable/set_color_icon"
-        android:title="Bullets" />
-
-    <item
-    android:id="@+id/nav_checkbox"
-    android:icon="@drawable/ic_notifications_black_24dp"
-    android:title="Checkbox" />
-
-    <item
-        android:id="@+id/navigation_bullet"
-        android:icon="@drawable/ic_notifications_black_24dp"
+        android:id="@+id/nav_checkbox"
+        android:icon="@drawable/format_paragraph_icon"
         android:title="Checkbox" />
 
     <item
-        android:id="@+id/navigation_save"
-        android:icon="@drawable/ic_baseline_delete_forever_24"
-        android:title="Delete" />
+        android:id="@+id/nav_quotes"
+        android:icon="@drawable/ic_baseline_format_quote_24"
+        android:title="Blockquote" />
+
+
+    <item
+        android:id="@+id/nav_bullets"
+        android:icon="@drawable/bullets"
+        android:title="Bullets" />
+
+    <item
+        android:id="@+id/nav_numbers"
+        android:icon="@drawable/numbers"
+        android:title="Numbers" />
 
 </menu>

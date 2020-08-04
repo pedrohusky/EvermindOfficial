@@ -47,81 +47,10 @@ public class MainActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
             BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
 
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+
             CardView format_text = findViewById(R.id.format_selector);
 
-            new Handler(Looper.getMainLooper()).post(() -> {
-
-                bottomNavigationView1.setOnNavigationItemSelectedListener(item -> {
-                    int id = item.getItemId();
-
-
-                    switch (id) {
-                        case R.id.navigation_home:
-
-                            //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
-
-
-                            if (CloseFormatter) {
-
-                                CloseOrOpenFormatter(true);
-
-
-                            } else {
-
-                                CloseOrOpenFormatter(false);
-
-                            }
-
-                            //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
-
-                            break;
-
-                        case R.id.navigation_dashboard:
-
-                            //  TODO
-
-
-                            break;
-
-                        case R.id.navigation_save:
-
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setIcon(android.R.drawable.ic_dialog_alert)
-                                    .setTitle("Are you sure?")
-                                    .setMessage("Do you want to delete this note?")
-                                    .setPositiveButton("Yes", (dialogInterface, i) -> {
-
-                                                SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-                                                int id1 = preferences.getInt("noteId", -1);
-
-                                                mDatabaseHelper.deleteNote(id1);
-
-                                        onBackPressed();
-
-                                                //NavController navController = Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment);
-                                        // navController.navigate(R.id.action_nav_note_to_nav_home);
-                                            }
-                                    )
-                                    .setNegativeButton("No", null)
-                                    .show();
-
-                            break;
-
-                        case R.id.nav_checkbox:
-
-                            Toast.makeText(MainActivity.this, "3", Toast.LENGTH_SHORT).show();
-
-                            break;
-
-
-                        default:
-                            return true;
-                    }
-                    return true;
-                });
-
-
-            });
 
             mDatabaseHelper = new DataBaseHelper(this);
 
@@ -151,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
 
             //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT /\
 
-
         }).start();
 
     }
@@ -159,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        //getMenuInflater().inflate(R.menu.toolbar_menu, menu);
         return true;
     }
 
@@ -188,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
             editText.setVisibility(View.GONE);
 
             CloseOrOpenFormatter(true);
+            CloseEditorButtonsSaveDelete();
 
 
             //Hide nav view \/ \/ \/
@@ -195,22 +124,16 @@ public class MainActivity extends AppCompatActivity {
             Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
             bottomNavigationView.startAnimation(bottom_nav_anim_reverse);
 
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-
-                bottomNavigationView.setVisibility(View.GONE);
-
-            }, 350);
             //Hide nav view /\ /\ /\
 
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("athome", true);
+            editor.putString("content", "");
             editor.apply();
         });
 
         super.onBackPressed();
     }
-
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -240,8 +163,6 @@ public class MainActivity extends AppCompatActivity {
                 // TODO /////////////////////////////////////////////////////////////
 
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    EditText editText = findViewById(R.id.TitleTextBox);
-                    editText.setVisibility(View.GONE);
 
                     //Hide nav view \/ \/ \/
                     BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
@@ -300,10 +221,9 @@ public class MainActivity extends AppCompatActivity {
                     editor.putBoolean("athome", false);
                     editor.putBoolean("newnote", true);
                     editor.putBoolean("BlackHighlight?", false);
+                    editor.putBoolean("DeleteNSave", false);
+                    editor.putBoolean("UndoRedo", false);
                     editor.apply();
-
-                    EditText editText = findViewById(R.id.TitleTextBox);
-                    editText.setVisibility(View.VISIBLE);
 
                     BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
                     bottomNavigationView.setVisibility(View.VISIBLE);
@@ -318,6 +238,10 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("title", "");
                     editor.putString("content", "");
                     editor.putBoolean("athome", false);
+                    editor.putBoolean("newnote", true);
+                    editor.putBoolean("BlackHighlight?", false);
+                    editor.putBoolean("DeleteNSave", false);
+                    editor.putBoolean("UndoRedo", false);
                     editor.apply();
 
                     EditText editText = findViewById(R.id.TitleTextBox);
@@ -337,8 +261,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void CloseOrOpenFormatter(Boolean close) {
 
-        Animation fadein = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_button_colors);
-        Animation fadeout = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_button_colors);
+        Animation fadein = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_formatter);
+        Animation fadeout = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_formatter);
         CardView format_text = findViewById(R.id.format_selector);
 
         ImageButton ChangeColor = findViewById(R.id.ChangeColor);
@@ -439,5 +363,15 @@ public class MainActivity extends AppCompatActivity {
             CloseFormatter = true;
 
         }
+    }
+
+    private void CloseEditorButtonsSaveDelete () {
+
+        ImageButton Delete = findViewById(R.id.Delete);
+        ImageButton Save = findViewById(R.id.Save);
+
+            Delete.setVisibility(View.GONE);
+            Save.setVisibility(View.GONE);
+
     }
 }

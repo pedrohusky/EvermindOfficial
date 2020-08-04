@@ -54,6 +54,9 @@ dependencies {
     implementation 'com.tuyenmonkey:text-decorator:1.0.0'
     implementation 'jp.wasabeef:richeditor-android:1.2.2'
     implementation 'it.sysdata.mobile:htmltextview:1.0.0'
-    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
+    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.22'
     implementation 'it.sysdata.mobile:htmlspanner:1.0.2'
+   implementation 'com.yarolegovich:discrete-scrollview:1.5.1'
+    implementation 'me.everything:overscroll-decor-android:1.1.0'
+
 }

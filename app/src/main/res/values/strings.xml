@@ -9,6 +9,8 @@
     <string name="DescriptionEvermindblack">EvermindBlack</string>
     <string name="DescriptionApp">Do it better</string>
 
+    <string name="note_editor_activity">Note Editor</string>
+    <string name="note_activity">Notes</string>
     <string name="menu_home">@string/app_name</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
