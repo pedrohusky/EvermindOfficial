@@ -1,64 +1,119 @@
 package com.example.Evermind.ui.dashboard.ui.main;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Layout;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.example.Evermind.CheckboxAdapter;
+import com.example.Evermind.Checkboxlist_model;
 import com.example.Evermind.DataBaseHelper;
-import com.example.Evermind.MainActivity;
+import com.example.Evermind.EvermindEditor;
+import com.example.Evermind.ImagesDataBaseHelper;
+import com.example.Evermind.ImagesRecyclerGridAdapter;
 import com.example.Evermind.R;
+import com.example.Evermind.RecyclerGridAdapter;
 import com.example.Evermind.SoftInputAssist;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.koushikdutta.async.Util;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import jp.wasabeef.richeditor.RichEditor;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
+import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
 public class NoteEditorFragmentJavaFragment extends Fragment {
 
     private NoteEditorFragmentMainViewModel mViewModel;
 
+    private CheckboxAdapter adapter_checkbox;
+
+    public static ImagesRecyclerGridAdapter adapter;
+
     private DataBaseHelper dataBaseHelper;
 
-    private RichEditor mEditor;
+    private ImagesDataBaseHelper imageDatabaseHelper;
+
+    private EvermindEditor mEditor;
+
+    public static ArrayList<Integer> ImagesIDs = new ArrayList<>();
+    public static ArrayList<String> ImagesURLs = new ArrayList<>();
+    public static String[] ImageURL;
 
     public Boolean CloseFormatter = false;
     public Boolean CloseParagraph = false;
     public Boolean CloseOpenedColors = false;
     public Boolean CloseOpenedColorsHighlight = false;
     public Boolean DeleteSave = false;
+
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    public static int fromPosition;
+    public static int toPosition;
 
     private SoftInputAssist softInputAssist;
 
@@ -73,7 +128,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-      //  getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        //  getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
 
         return inflater.inflate(R.layout.fragment_note_creator, container, false);
@@ -85,7 +140,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
         softInputAssist = new SoftInputAssist(getActivity());
 
-       /////////////////////////////////////////////////////////////////////////// MainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+        /////////////////////////////////////////////////////////////////////////// MainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
         mEditor = getActivity().findViewById(R.id.ToSaveNoteText);
@@ -101,9 +156,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         ScrollView scrollView = getActivity().findViewById(R.id.scrollview);
         HorizontalScrollView scrollView1 = getActivity().findViewById(R.id.scroll_formatter);
         HorizontalScrollView scrollView2 = getActivity().findViewById(R.id.scroll_paragraph);
+        HorizontalScrollView scrollView3 = getActivity().findViewById(R.id.scroll_import);
         OverScrollDecoratorHelper.setUpOverScroll(scrollView);
         OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
         OverScrollDecoratorHelper.setUpOverScroll(scrollView2);
+        OverScrollDecoratorHelper.setUpOverScroll(scrollView3);
 
         EditText TitleTextBox = getActivity().findViewById(R.id.TitleTextBox);
         ImageButton Undo = getActivity().findViewById(R.id.Undo);
@@ -162,6 +219,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
         GreenHighlight.setOnClickListener(view -> ColorClickedSwitcher("Green", true));
 
+
         ChangeColor.setOnClickListener(view -> {
             if (CloseOpenedColors) {
 
@@ -211,7 +269,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         });
 
 
-
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             int id_nav = item.getItemId();
 
@@ -237,7 +294,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                     break;
 
-                case R.id.nav_checkbox:
+                case R.id.nav_paragraph:
 
                     if (CloseParagraph) {
 
@@ -253,15 +310,15 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                     break;
 
-                case R.id.nav_quotes:
-
-                    mEditor.setIndent();
+                case R.id.nav_checkbox:
+                    requestPermissions(PERMISSIONS_STORAGE, 0);
+                    openImageChooser();
 
                     break;
 
                 case R.id.nav_bullets:
 
-                    mEditor.setBullets();
+                    mEditor.insertTodo();
 
 
                     break;
@@ -279,8 +336,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             }
             return true;
         });
-
-
 
 
         Delete.setOnClickListener(view -> new AlertDialog.Builder(getActivity())
@@ -309,10 +364,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         getActivity().findViewById(R.id.Bold).setOnClickListener(v -> mEditor.setBold());
 
         getActivity().findViewById(R.id.Italic).setOnClickListener(v -> mEditor.setItalic());
-
-        getActivity().findViewById(R.id.Underscript).setOnClickListener(v -> mEditor.setSubscript());
-
-        getActivity().findViewById(R.id.Superscript).setOnClickListener(v -> mEditor.setSuperscript());
 
         getActivity().findViewById(R.id.Striketrough).setOnClickListener(v -> mEditor.setStrikeThrough());
 
@@ -355,9 +406,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         //     });
 
 
-                getActivity().findViewById(R.id.AlignLeft).setOnClickListener(v -> mEditor.setAlignLeft());
-                getActivity().findViewById(R.id.AlignCenter).setOnClickListener(v -> mEditor.setAlignCenter());
-                getActivity().findViewById(R.id.AlignRight).setOnClickListener(v -> mEditor.setAlignRight());
+        getActivity().findViewById(R.id.AlignLeft).setOnClickListener(v -> mEditor.setAlignLeft());
+        getActivity().findViewById(R.id.AlignCenter).setOnClickListener(v -> mEditor.setAlignCenter());
+        getActivity().findViewById(R.id.AlignRight).setOnClickListener(v -> mEditor.setAlignRight());
 
 
         //      getActivity().findViewById(R.id.action_insert_image).setOnClickListener(new View.OnClickListener() {
@@ -374,6 +425,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
 
         dataBaseHelper = new DataBaseHelper(getActivity());
+        imageDatabaseHelper = new ImagesDataBaseHelper(getActivity());
 
 
         mViewModel = ViewModelProviders.of(this).get(NoteEditorFragmentMainViewModel.class);
@@ -407,15 +459,15 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                         mEditor.focusEditor();
                         CardView cardView = getActivity().findViewById(R.id.cardView);
                         TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                                           .addTransition(new ChangeBounds()));
+                                .addTransition(new ChangeBounds()));
 
                         mEditor.setEditorHeight(200);
 
-                                   ViewGroup.LayoutParams params = cardView.getLayoutParams();
+                        ViewGroup.LayoutParams params = cardView.getLayoutParams();
 
-                                  params.height = 1000;
+                        params.height = 1000;
 
-                                  cardView.setLayoutParams(params);
+                        cardView.setLayoutParams(params);
 
                         Undo.setVisibility(View.VISIBLE);
                         Redo.setVisibility(View.VISIBLE);
@@ -444,19 +496,18 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                 if (mEditor.getHeight() >= 822) {
 
 
-                        TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                                .addTransition(new ChangeBounds()));
+                    TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                            .addTransition(new ChangeBounds()));
 
-                        ViewGroup.LayoutParams params = cardView.getLayoutParams();
+                    ViewGroup.LayoutParams params = cardView.getLayoutParams();
 
-                        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
-                        cardView.setLayoutParams(params);
+                    cardView.setLayoutParams(params);
 
                 }
 
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
 
 
                     bottomNavigationView12.setVisibility(View.VISIBLE);
@@ -503,13 +554,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                 new Handler(Looper.getMainLooper()).post(() -> {
 
-              //      TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-              //              .addTransition(new ChangeBounds()));
+                    //      TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                    //              .addTransition(new ChangeBounds()));
 
-                //    ViewGroup.LayoutParams params = cardView.getLayoutParams();
+                    //    ViewGroup.LayoutParams params = cardView.getLayoutParams();
 
-                //    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;;
-               //     cardView.setLayoutParams(params);
+                    //    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;;
+                    //     cardView.setLayoutParams(params);
 
 
                     ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
@@ -546,7 +597,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             }
 
 
-           // focusOnView(scrollView, mEditor);
+            // focusOnView(scrollView, mEditor);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
@@ -599,11 +650,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                     bottomNavigationView1.startAnimation(bottom_nav_anim_reverse);
 
-                   // new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    // new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                       // bottomNavigationView.setVisibility(View.GONE);
+                    // bottomNavigationView.setVisibility(View.GONE);
 
-                   // }, 200);
+                    // }, 200);
 
                 });
 
@@ -614,16 +665,134 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                     InputMethodManager keyboard = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
                     keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-                   // Delete.setVisibility(View.GONE);
-                   // Save.setVisibility(View.GONE);
+                    // Delete.setVisibility(View.GONE);
+                    // Save.setVisibility(View.GONE);
 
                     ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
 
                 });
             }
+
+
         });
 
+
+        //////////////////////////////////////////// HANDLE IMAGES \/
+
+        ImagesURLs = dataBaseHelper.getImageURLFromDatabase();
+        ImageURL = ImagesURLs.toArray(new String[0]);
+        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+
+       String test = ImagesURLs.get(preferences.getInt("position", -1));
+        if (test != null) {
+            String[] testfinal = test.split("┼");
+
+            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+
+            // set up the RecyclerView
+            RecyclerView recyclerView = getActivity().findViewById(R.id.ImagesRecycler);
+            recyclerView.setLayoutManager(staggeredGridLayoutManager);
+            adapter = new ImagesRecyclerGridAdapter(this.getActivity(), testfinal, preferences.getInt("position", -1), test.split("┼").length);
+            recyclerView.setAdapter(adapter);
+
+            ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT, 0) {
+                @Override
+                public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                    fromPosition = viewHolder.getAdapterPosition();
+                    toPosition = target.getAdapterPosition();
+                    if (fromPosition < toPosition) {
+                        for (int i = fromPosition; i < toPosition; i++) {
+                            Collections.swap(ImagesURLs, i, i + 1);
+                        }
+                    } else {
+                        for (int i = fromPosition; i > toPosition; i--) {
+                            Collections.swap(ImagesURLs, i, i - 1);
+                        }
+                    }
+                    adapter.notifyItemMoved(fromPosition, toPosition);
+                    return true;
+                }
+
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                    //   ids.remove(viewHolder.getAdapterPosition());
+                    //   adapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+                    //  databaseHelper.deleteNote(viewHolder.getAdapterPosition());
+                }//
+
+                @Override
+                public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                    super.clearView(recyclerView, viewHolder);
+                }
+            };
+
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+            itemTouchHelper.attachToRecyclerView(recyclerView);
+        }
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+
+        String test = ImagesURLs.get(preferences.getInt("position", -1));
+        if (requestCode != RESULT_OK) {
+            Uri imageUri = data.getData();
+            Toast.makeText(getActivity(), "aaa", Toast.LENGTH_SHORT).show();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), imageUri);
+                File directory = this.getActivity().getDir("imageDir", Context.MODE_PRIVATE);
+                File file = new File(directory, "EverImage"+ preferences.getInt("noteId", -1)*99 + ".jpg");
+                if (!file.exists()) {
+                    Log.d("path", file.toString());
+                    FileOutputStream fos = null;
+                    try {
+                        fos = new FileOutputStream(file);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                        fos.flush();
+                        fos.close();
+                        dataBaseHelper.insertImageToDatabase(String.valueOf(preferences.getInt("noteId", -1)), file.toString());
+                        Toast.makeText(getActivity(), String.valueOf(preferences.getInt("noteId", -1)), Toast.LENGTH_SHORT).show();
+                    } catch (java.io.IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 0:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getActivity(), "Permission successfully granted :D", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "Permission DENIED, try again", Toast.LENGTH_SHORT).show();
+                    try {
+                        finalize();
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                }
+        }
+    }
+
+
+    //////////////////////////////////////////// HANDLE IMAGES /\ /\ /\ /\ /\
+      void openImageChooser() {
+          Intent intent = new Intent();
+          intent.setType("image/*");
+          intent.setAction(Intent.ACTION_GET_CONTENT);
+          startActivityForResult(Intent.createChooser(intent, "Select Picture"), 101);
+      }
+
 
     private void OpenOrCloseColors(Boolean highlight, Boolean close) {
 
@@ -1067,6 +1236,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                 //Hide nav view /\ /\ /\
                 ApplyChangesToSharedPreferences("athome", false, "", true, true, false, 0);
                 ApplyChangesToSharedPreferences("content", true, "", false, false, false, 0);
+
+                NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_nav_note_to_nav_home);
+                CloseEditorButtonsSaveDelete();
             }
 
             else {
@@ -1091,6 +1264,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                 CloseOrOpenFormatter(true);
                 CloseEditorButtonsSaveDelete();
+                NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_nav_note_to_nav_home);
             }
         });
     }
@@ -1126,8 +1301,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
         ImageButton Increase = getActivity().findViewById(R.id.IncreaseSize);
         ImageButton Decrease = getActivity().findViewById(R.id.DecreaseSize);
-        ImageButton Superscript = getActivity().findViewById(R.id.Superscript);
-        ImageButton Underscript = getActivity().findViewById(R.id.Underscript);
 
         if (close) {
 
@@ -1157,8 +1330,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
             Increase.setVisibility(View.GONE);
             Decrease.setVisibility(View.GONE);
-            Superscript.setVisibility(View.GONE);
-            Underscript.setVisibility(View.GONE);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
@@ -1180,8 +1351,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                 Increase.setVisibility(View.VISIBLE);
                 Decrease.setVisibility(View.VISIBLE);
-                Superscript.setVisibility(View.VISIBLE);
-                Underscript.setVisibility(View.VISIBLE);
                 ChangeColor.setVisibility(View.VISIBLE);
                 Bold.setVisibility(View.VISIBLE);
                 Italic.setVisibility(View.VISIBLE);
@@ -1206,11 +1375,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         ImageButton Bullets = getActivity().findViewById(R.id.Bullets);
         ImageButton Numbers = getActivity().findViewById(R.id.Numbers);
         ImageButton Left = getActivity().findViewById(R.id.AlignLeft);
+        ImageView spacing = getActivity().findViewById(R.id.imageView2);
         ImageButton Center = getActivity().findViewById(R.id.AlignCenter);
         ImageButton Right = getActivity().findViewById(R.id.AlignRight);
 
         if (close) {
 
+            spacing.setVisibility(View.GONE);
             Bullets.setVisibility(View.GONE);
             Numbers.setVisibility(View.GONE);
             Left.setVisibility(View.GONE);
@@ -1235,6 +1406,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
+                spacing.setVisibility(View.VISIBLE);
                 Bullets.setVisibility(View.VISIBLE);
                 Numbers.setVisibility(View.VISIBLE);
                 Left.setVisibility(View.VISIBLE);
@@ -1320,4 +1492,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         }
 
     }
-}
+
+
+    }

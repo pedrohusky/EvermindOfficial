@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_quotes">
+    app:startDestination="@+id/nav_checkbox">
 
     <fragment
     android:id="@+id/nav_formatText"
@@ -12,13 +12,13 @@
     tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_quotes"
+        android:id="@+id/nav_checkbox"
         android:name="com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_note_creator" />
 
     <fragment
-        android:id="@+id/nav_checkbox"
+        android:id="@+id/nav_paragraph"
         android:name="com.example.Evermind.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_colors" />

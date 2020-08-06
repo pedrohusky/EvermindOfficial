@@ -10,6 +10,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -20,10 +21,14 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import java.util.ArrayList;
+
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 import static com.example.Evermind.ui.grid.ui.main.NotesScreen.databaseHelper;
 
@@ -103,17 +108,17 @@ public class MainActivity extends AppCompatActivity {
 
         EditText editText = findViewById(R.id.TitleTextBox);
 
-        editText.post(() -> {
-
             SharedPreferences preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
-            new Thread(() -> {
-                int id = preferences.getInt("noteId", -1);
-                mDatabaseHelper.editTitle(Integer.toString(id), editText.getText().toString());
+            if (!preferences.getBoolean("athome", false)) {
+                new Thread(() -> {
+                    int id = preferences.getInt("noteId", -1);
+                    mDatabaseHelper.editTitle(Integer.toString(id), editText.getText().toString());
 
-            }).start();
+                }).start();
+            }
 
-            editText.setVisibility(View.GONE);
+
 
             CloseOrOpenFormatter(true);
             CloseEditorButtonsSaveDelete();
@@ -130,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
             editor.putBoolean("athome", true);
             editor.putString("content", "");
             editor.apply();
-        });
 
         super.onBackPressed();
     }

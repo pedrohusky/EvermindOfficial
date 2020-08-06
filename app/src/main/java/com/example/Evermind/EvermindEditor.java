@@ -21,24 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import jp.wasabeef.richeditor.Utils;
-
-/**
- * Copyright (C) 2017 Wasabeef
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 public class EvermindEditor extends WebView {
 
   public enum Type {
@@ -229,8 +211,8 @@ public class EvermindEditor extends WebView {
 
   @Override
   public void setBackgroundResource(int resid) {
-    Bitmap bitmap = Utils.decodeResource(getContext(), resid);
-    String base64 = Utils.toBase64(bitmap);
+    Bitmap bitmap = EvermindEditorUtils.decodeResource(getContext(), resid);
+    String base64 = EvermindEditorUtils.toBase64(bitmap);
     bitmap.recycle();
 
     exec("javascript:RE.setBackgroundImage('url(data:image/png;base64," + base64 + ")');");
@@ -238,8 +220,8 @@ public class EvermindEditor extends WebView {
 
   @Override
   public void setBackground(Drawable background) {
-    Bitmap bitmap = Utils.toBitmap(background);
-    String base64 = Utils.toBase64(bitmap);
+    Bitmap bitmap = EvermindEditorUtils.toBitmap(background);
+    String base64 = EvermindEditorUtils.toBase64(bitmap);
     bitmap.recycle();
 
     exec("javascript:RE.setBackgroundImage('url(data:image/png;base64," + base64 + ")');");
@@ -383,7 +365,7 @@ public class EvermindEditor extends WebView {
 
   public void insertTodo() {
     exec("javascript:RE.prepareInsert();");
-    exec("javascript:RE.setTodo('" + Utils.getCurrentTime() + "');");
+    exec("javascript:RE.setTodo('" + EvermindEditorUtils.getCurrentTime() + "');");
   }
 
   public void focusEditor() {

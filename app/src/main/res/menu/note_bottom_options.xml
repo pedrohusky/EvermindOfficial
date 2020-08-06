@@ -7,14 +7,14 @@
         android:title="Format Text" />
 
     <item
-        android:id="@+id/nav_checkbox"
+        android:id="@+id/nav_paragraph"
         android:icon="@drawable/format_paragraph_icon"
         android:title="Checkbox" />
 
     <item
-        android:id="@+id/nav_quotes"
-        android:icon="@drawable/ic_baseline_format_quote_24"
-        android:title="Blockquote" />
+        android:id="@+id/nav_checkbox"
+        android:icon="@drawable/import_icon"
+        android:title="Import" />
 
 
     <item

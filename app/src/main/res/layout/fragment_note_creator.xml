@@ -4,18 +4,18 @@
     android:id="@+id/scrollview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_above="@+id/navigation_note"
+    android:layout_alignBottom="@id/navigation_note"
     android:background="@color/Transparent"
     android:orientation="vertical"
-    tools:context=".MainActivity"
-    android:layout_above="@+id/navigation_note"
-    android:layout_alignBottom="@id/navigation_note">
+    tools:context=".MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:gravity="top"
-        android:orientation="vertical"
-        android:fitsSystemWindows="true">
+        android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
@@ -26,17 +26,17 @@
             android:layout_marginEnd="21dp"
             android:layout_marginRight="21dp"
             android:layout_marginBottom="110dp"
+            android:fitsSystemWindows="true"
             android:translationY="30dp"
             app:cardCornerRadius="30dp"
-            app:cardElevation="8dp"
-            android:fitsSystemWindows="true">
+            app:cardElevation="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
                 android:gravity="top"
-                android:orientation="vertical"
-                android:fitsSystemWindows="true">
+                android:orientation="vertical">
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/TitleTextBox"
@@ -44,6 +44,7 @@
                     android:layout_height="wrap_content"
                     android:autofillHints=""
                     android:background="@color/Transparent"
+                    android:fitsSystemWindows="true"
                     android:gravity="center"
                     android:hint="Create a new Title"
                     android:inputType="textShortMessage"
@@ -51,16 +52,24 @@
                     android:paddingTop="2dp"
                     android:paddingRight="12dp"
                     android:paddingBottom="2dp"
-                    android:textSize="25sp"
-                    android:fitsSystemWindows="true"/>
+                    android:textSize="25sp" />
 
-                <jp.wasabeef.richeditor.RichEditor
+                <com.example.Evermind.EvermindEditor
                     android:id="@+id/ToSaveNoteText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
                     android:animateLayoutChanges="true"
-                    android:fitsSystemWindows="true"/>
+                    android:fitsSystemWindows="true">
+
+                </com.example.Evermind.EvermindEditor>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/ImagesRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

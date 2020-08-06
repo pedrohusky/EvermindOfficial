@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:background="@color/Transparent"
+    android:clipToPadding="false"
+    android:orientation="horizontal"
+    app:cardBackgroundColor="@color/Transparent"
+    app:cardCornerRadius="25dp"
+    app:cardElevation="0dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/color_selector"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:paddingBottom="5dp"
+        app:cardBackgroundColor="#EAEAEA"
+        app:cardCornerRadius="25dp"
+        app:cardElevation="10dp"
+        app:contentPadding="8dp">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingTop="5dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp">
+
+            <ImageView
+                android:id="@+id/Black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="TODO"
+                android:padding="5dp"
+                android:tint="@color/Black"
+                app:srcCompat="@drawable/circle_colors" />
+
+            <ImageView
+                android:id="@+id/Blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:tint="@color/White"
+                app:srcCompat="@drawable/circle_colors" />
+
+            <ImageView
+                android:id="@+id/Purple"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:tint="@color/Magenta"
+                app:srcCompat="@drawable/circle_colors" />
+
+            <ImageView
+                android:id="@+id/Magenta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:tint="@color/Pink"
+                app:srcCompat="@drawable/circle_colors" />
+
+            <ImageView
+                android:id="@+id/Orange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:tint="@color/Orange"
+                app:srcCompat="@drawable/circle_colors" />
+
+            <ImageView
+                android:id="@+id/Yellow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:tint="@color/SkyBlue"
+                app:srcCompat="@drawable/circle_colors" />
+
+            <ImageView
+                android:id="@+id/Green"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:tint="@color/YellowSun"
+                app:srcCompat="@drawable/circle_colors" />
+
+            <ImageView
+                android:id="@+id/White"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:tint="@color/GrassGreen"
+                app:srcCompat="@drawable/circle_colors" />
+        </GridLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.cardview.widget.CardView>

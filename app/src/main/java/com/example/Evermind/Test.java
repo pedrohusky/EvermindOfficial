@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
@@ -90,10 +91,10 @@ public class Test extends AppCompatActivity implements RecyclerGridAdapter.ItemC
     @Override
     public void onItemClick(View view, int position) {
         Log.i("TAG", "You clicked number " + adapter.getItem(position) + ", which is at cell position " + position);
-        String waswrote = adapter.getItem(position);
+//        String waswrote = adapter.getItem(position);
         Intent intent = new Intent(getApplicationContext(), NoteEditorActivity.class);
         intent.putExtra("noteId", position);
-        intent.putExtra("WhatWasWrote", waswrote);
+       // intent.putExtra("WhatWasWrote", waswrote);
         startActivity(intent);
     }
 
@@ -110,6 +111,12 @@ public class Test extends AppCompatActivity implements RecyclerGridAdapter.ItemC
         startActivity(intent);
 
     }
+
+    @Override
+    public void onLongPress(View view, int position) {
+
+    }
+
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -137,6 +144,11 @@ public class Test extends AppCompatActivity implements RecyclerGridAdapter.ItemC
                 .show();
 
         return true;
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
     }
     //public static class Utility {
     // public static int calculateNoOfColumns(Context context, float columnWidthDp) { // For example columnWidthdp=180

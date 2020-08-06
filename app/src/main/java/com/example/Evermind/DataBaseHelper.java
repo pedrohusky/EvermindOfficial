@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,7 +19,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String NOTE_CONTENT = "Note_content";
     private static final String NOTE_ID = "ID";
     private static final String NOTE_DATE = "Date";
-
+    private static final String NOTE_IMAGEURL = "URL";
 
 
     DataBaseHelper mDatabaseHelper;
@@ -31,15 +32,15 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-      //  new Thread(() -> {
+        //  new Thread(() -> {
 
         // TODO String createTable = "CREATE TABLE " + TABLE_NOTES + " (" + NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NOTE_TITLE + " TEXT, " + NOTE_CONTENT + " TEXT, " + NOTE_DATE + " TEXT)";
 
-        String createTable = "CREATE TABLE " + TABLE_NOTES + " (" + NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NOTE_TITLE + " TEXT, " + NOTE_CONTENT + " TEXT, " + NOTE_DATE + " TEXT)";
+        String createTable = "CREATE TABLE " + TABLE_NOTES + " (" + NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NOTE_TITLE + " TEXT, " + NOTE_CONTENT + " TEXT, " + NOTE_DATE + " TEXT, " + NOTE_IMAGEURL + " TEXT)";
 
         db.execSQL(createTable);
 
-   // }).start();
+        // }).start();
 
     }
 
@@ -47,8 +48,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
         new Thread(() -> {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTES);
-        onCreate(db);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTES);
+            onCreate(db);
         }).start();
     }
 
@@ -58,6 +59,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(NOTE_CONTENT, content);
         contentValues.put(NOTE_TITLE, title);
+        contentValues.put(NOTE_IMAGEURL, "");
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
@@ -78,12 +80,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 String title = cursor.getString(1);
                 String content = cursor.getString(2);
                 String date = cursor.getString(3);
+                String ImageURL = cursor.getString(4);
+                Note_Model note_model = new Note_Model(id, title, content, date, ImageURL);
+                arrayListTitles.add(note_model.getDate());
+            }
 
-                Note_Model note_model = new Note_Model(id, title, content, date);
-                arrayListTitles.add(note_model.getDate()); }
-
-            while (cursor.moveToNext()); }
-        else { // DO NOTHING
+            while (cursor.moveToNext());
+        } else { // DO NOTHING
         }
         cursor.close();
         sqLiteDatabase.close();
@@ -102,12 +105,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 String title = cursor.getString(1);
                 String content = cursor.getString(2);
                 String date = cursor.getString(3);
+                String ImageURL = cursor.getString(4);
 
-                Note_Model note_model = new Note_Model(id, title, content, date);
-                arrayListTitles.add(note_model.getId()); }
+                Note_Model note_model = new Note_Model(id, title, content, date, ImageURL);
+                arrayListTitles.add(note_model.getId());
+            }
 
-            while (cursor.moveToNext()); }
-        else { // DO NOTHING
+            while (cursor.moveToNext());
+        } else { // DO NOTHING
         }
         cursor.close();
         sqLiteDatabase.close();
@@ -127,12 +132,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 String title = cursor.getString(1);
                 String content = cursor.getString(2);
                 String date = cursor.getString(3);
+                String ImageURL = cursor.getString(4);
 
-                Note_Model note_model = new Note_Model(id, title, content, date);
-                arrayListTitles.add(note_model.getTitle()); }
+                Note_Model note_model = new Note_Model(id, title, content, date, ImageURL);
+                arrayListTitles.add(note_model.getTitle());
+            }
 
-            while (cursor.moveToNext()); }
-        else { // DO NOTHING
+            while (cursor.moveToNext());
+        } else { // DO NOTHING
         }
         cursor.close();
         sqLiteDatabase.close();
@@ -152,12 +159,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 String title = cursor.getString(1);
                 String content = cursor.getString(2);
                 String date = cursor.getString(3);
+                String ImageURL = cursor.getString(4);
 
-                Note_Model note_model = new Note_Model(id, title, content, date);
-                arrayListContent.add(note_model.getContent()); }
+                Note_Model note_model = new Note_Model(id, title, content, date, ImageURL);
+                arrayListContent.add(note_model.getContent());
+            }
 
-            while (cursor.moveToNext()); }
-        else { // DO NOTHING
+            while (cursor.moveToNext());
+        } else { // DO NOTHING
         }
         cursor.close();
         sqLiteDatabase.close();
@@ -165,17 +174,43 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return arrayListContent;
     }
 
+    public ArrayList<String> getImageURLFromDatabase() {
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        ArrayList<String> arrayListTitles = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_NOTES;
+        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
+        //cursor.moveToFirst();
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(0);
+                String title = cursor.getString(1);
+                String content = cursor.getString(2);
+                String date = cursor.getString(3);
+                String ImageURL = cursor.getString(4);
+
+                Note_Model note_model = new Note_Model(id, title, content, date, ImageURL);
+                arrayListTitles.add(note_model.getImageURLS());
+            }
+
+            while (cursor.moveToNext());
+        } else { // DO NOTHING
+        }
+        cursor.close();
+        sqLiteDatabase.close();
+        return arrayListTitles;
+    }
+
     public void deleteNote(Integer id) {
 
         new Thread(() -> {
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        String query = "DELETE FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + id + "'";
-        Cursor cursor = db.rawQuery(query, null);
-        if (cursor.moveToFirst()) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            String query = "DELETE FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + id + "'";
+            Cursor cursor = db.rawQuery(query, null);
+            if (cursor.moveToFirst()) {
 
-        } else {
-        }
+            } else {
+            }
         }).start();
     }
 
@@ -187,7 +222,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
-        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[] { id });
+        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
         sqLiteDatabase.close();
 
     }
@@ -200,9 +235,22 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
-        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[] { id });
+        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
         sqLiteDatabase.close();
 
     }
 
+    public void insertImageToDatabase(String id, String url) {
+
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(NOTE_IMAGEURL, "┼" + url);
+        Date currentTime = Calendar.getInstance().getTime();
+        contentValues.put(NOTE_DATE, currentTime.toString());
+
+        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
+        sqLiteDatabase.close();
+
     }
+}

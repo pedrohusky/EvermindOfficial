@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:animateLayoutChanges="true"
+    android:background="@color/Transparent"
+    android:orientation="vertical"
+    app:cardBackgroundColor="@color/Transparent"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="5dp">
+
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/recyclerImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="8dp"
+        android:fitsSystemWindows="true"
+        android:scaleType="centerCrop" />
+
+</androidx.cardview.widget.CardView>

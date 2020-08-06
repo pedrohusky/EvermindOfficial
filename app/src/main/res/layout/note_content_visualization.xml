@@ -1,55 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_margin="10dp"
     android:animateLayoutChanges="true"
-    android:orientation="vertical">
+    android:background="@color/Transparent"
+    android:clipToPadding="false"
+    android:orientation="vertical"
+    app:cardBackgroundColor="@color/Transparent"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="10dp">
 
 
-    <TextView
-        android:id="@+id/info_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="15dp"
-        android:background="@drawable/title_note_rectangle"
-        android:backgroundTint="#00BCD4"
-        android:elevation="7dp"
-        android:gravity="center|top"
-        android:includeFontPadding="false"
-        android:maxLength="200"
-        android:outlineProvider="none"
-        android:paddingTop="1dp"
-        android:singleLine="true"
-        android:text="Imbora"
-        android:textColor="@color/Black"
-        android:textSize="15dp"
-        android:visibility="visible"
-        app:autoSizeMaxTextSize="18dp"
-        app:autoSizeMinTextSize="14dp"
-        app:autoSizeTextType="uniform" />
-
-    <com.sysdata.kt.htmltextview.SDHtmlTextView
-        android:id="@+id/info_text"
+    <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginBottom="15dp"
-        android:background="@drawable/note_content_rectangle"
-        android:elevation="7dp"
-        android:includeFontPadding="false"
-        android:maxLength="200"
-        android:paddingHorizontal="10dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="12dp"
-        android:textColor="#050505"
-        app:autoSizeMaxTextSize="20dp"
-        app:autoSizeMinTextSize="14.3dp"
-        app:autoSizeTextType="uniform" />
+        app:cardCornerRadius="10dp"
+        app:cardElevation="8dp">
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/info_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@drawable/title_note_rectangle"
+                android:backgroundTint="#ffffff"
+                android:elevation="7dp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLength="20"
+                android:outlineProvider="none"
+                android:paddingHorizontal="10dp"
+                android:paddingTop="1dp"
+                android:singleLine="true"
+                android:text="puta"
+                android:textColor="@color/Black"
+                android:textSize="22dp"
+                android:visibility="visible"
+                app:autoSizeMaxTextSize="18dp"
+                app:autoSizeMinTextSize="14dp"
+                app:autoSizeTextType="uniform" />
+
+            <com.sysdata.kt.htmltextview.SDHtmlTextView
+                android:id="@+id/info_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@drawable/note_content_rectangle"
+                android:elevation="0dp"
+                android:includeFontPadding="false"
+                android:maxLength="200"
+                android:padding="7dp"
+                android:text="asas"
+                android:textColor="#050505"
+                app:autoSizeMaxTextSize="20dp"
+                app:autoSizeMinTextSize="14.3dp"
+                app:autoSizeTextType="uniform" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <GridView
+                        android:id="@+id/imagesrecyclernotes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.cardview.widget.CardView>

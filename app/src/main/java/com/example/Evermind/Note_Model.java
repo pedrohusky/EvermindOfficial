@@ -4,22 +4,11 @@ import android.graphics.Color;
 
 public class Note_Model {
 
-
     private int id;
     private String title;
     private String content;
     private String date;
-
-    // Constructors
-
-    public Note_Model(int id, String title, String content, String date) {
-        this.id = id;
-        this.title = title;
-        this.content = content;
-        this.date = date;
-    }
-
-    //ToString
+    private String ImageURLS;
 
     @Override
     public String toString() {
@@ -28,11 +17,18 @@ public class Note_Model {
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
                 ", date='" + date + '\'' +
+                ", ImageURLS='" + ImageURLS + '\'' +
                 '}';
     }
 
 
-//Getter and setter
+    public Note_Model(int id, String title, String content, String date, String imageURLS) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.date = date;
+        ImageURLS = imageURLS;
+    }
 
     public int getId() {
         return id;
@@ -64,5 +60,13 @@ public class Note_Model {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getImageURLS() {
+        return ImageURLS;
+    }
+
+    public void setImageURLS(String imageURLS) {
+        ImageURLS = imageURLS;
     }
 }

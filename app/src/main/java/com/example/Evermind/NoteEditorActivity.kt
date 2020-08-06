@@ -28,7 +28,7 @@ class NoteEditorActivity : AppCompatActivity() {
         // Passing each menu ID as a set of Ids because each
 
         // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(setOf(R.id.nav_formatText, R.id.nav_quotes, R.id.nav_checkbox, R.id.nav_bullets, R.id.nav_numbers))
+        val appBarConfiguration = AppBarConfiguration(setOf(R.id.nav_formatText, R.id.nav_checkbox, R.id.nav_paragraph, R.id.nav_bullets, R.id.nav_numbers))
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
