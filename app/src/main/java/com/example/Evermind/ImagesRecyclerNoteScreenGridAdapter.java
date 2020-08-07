@@ -9,12 +9,12 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.koushikdutta.ion.Ion;
 
+import com.koushikdutta.ion.Ion;
 
 import pl.droidsonroids.gif.GifImageView;
 
-public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecyclerGridAdapter.ViewHolder>  {
+public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<ImagesRecyclerNoteScreenGridAdapter.ViewHolder>  {
 
     private String[] mImageURLs;
     private Integer mID;
@@ -26,10 +26,11 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
     private AdapterView.OnItemLongClickListener mLongClick;
 
     // data is passed into the constructor
-    public ImagesRecyclerGridAdapter(Context context, String ImageURLs, Integer ID, int countURLs) {
+    public ImagesRecyclerNoteScreenGridAdapter(Context context, String ImageURLs, Integer ID, int countURLs) {
 
 
-        SplittedURLs = ImageURLs.replaceAll("[\\[\\](){}]","").split("┼");
+        SplittedURLs = ImageURLs.replaceAll("[\\[\\](){}]","").trim().split("┼");
+       System.out.println(ImageURLs.replaceAll("[\\[\\](){}]","").trim());
 
             this.mInflater = LayoutInflater.from(context);
             this.mImageURLs = SplittedURLs;
@@ -42,7 +43,7 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
     @Override
     @NonNull
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.images_imagerecycler, parent, false);
+        View view = mInflater.inflate(R.layout.images_imagerecycler_notescreen, parent, false);
 
 
         return new ViewHolder(view);
@@ -58,37 +59,39 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
         //  }
 
        // lastPositionToSet = position;
-
-       if (mImageURLs[position].equals("")) {
-           Ion.with(holder.myImageView)
-               .error(R.drawable.ic_baseline_clear_24)
-               .animateLoad(R.anim.translate_up_anim)
-               .animateIn(R.anim.fade_in_formatter)
-               .smartSize(true)
-               .load(mImageURLs[position+1]); }
-
-       else { if (position >= mImageURLs.length - 1) {
-           Ion.with(holder.myImageView)
-                   .error(R.drawable.ic_baseline_clear_24)
-                   .animateLoad(R.anim.translate_up_anim)
-                   .animateIn(R.anim.fade_in_formatter)
-                   .smartSize(true)
-                   .load(mImageURLs[position]);
-
-       } else {
+        if (mImageURLs[position].equals("")) {
             Ion.with(holder.myImageView)
                     .error(R.drawable.ic_baseline_clear_24)
                     .animateLoad(R.anim.translate_up_anim)
                     .animateIn(R.anim.fade_in_formatter)
-                   .smartSize(true)
+                    .smartSize(true)
                     .load(mImageURLs[position+1]); }
+
+        else {
+            if (position >= mImageURLs.length - 1) {
+                Ion.with(holder.myImageView)
+                        .error(R.drawable.ic_baseline_clear_24)
+                        .animateLoad(R.anim.translate_up_anim)
+                        .animateIn(R.anim.fade_in_formatter)
+                        .smartSize(true)
+                        .load(mImageURLs[0]); // was position
+
+            } else {
+                Ion.with(holder.myImageView)
+                        .error(R.drawable.ic_baseline_clear_24)
+                        .animateLoad(R.anim.translate_up_anim)
+                        .animateIn(R.anim.fade_in_formatter)
+                        .smartSize(true)
+                        .load(mImageURLs[position + 1]);
+            }
+        }
 
 
         System.out.println("LAST STEP LOADED = " + mImageURLs[position]);
 
         }
 
-        }
+
 
 
 

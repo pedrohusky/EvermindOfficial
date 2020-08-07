@@ -45,6 +45,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //////////CLEAR SHAREDPREFS
+
+        SharedPreferences preferences = this.getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.clear();
+        editor.apply();
+
+        //////////CLEAR SHAREDPREFS
+
         new Thread(() -> {
             // a potentially time consuming task
 

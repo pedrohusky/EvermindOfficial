@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -38,6 +39,7 @@ import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -73,6 +75,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
@@ -678,21 +681,21 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
 
         //////////////////////////////////////////// HANDLE IMAGES \/
-
-        ImagesURLs = dataBaseHelper.getImageURLFromDatabase();
-        ImageURL = ImagesURLs.toArray(new String[0]);
         SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
-       String test = ImagesURLs.get(preferences.getInt("position", -1));
-        if (test != null) {
-            String[] testfinal = test.split("┼");
+        ImagesURLs = dataBaseHelper.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
 
-            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+
+
+            GridLayoutManager staggeredGridLayoutManager = new GridLayoutManager(getActivity(), GridLayoutManager.VERTICAL);
+            staggeredGridLayoutManager.setSpanCount(2);
 
             // set up the RecyclerView
             RecyclerView recyclerView = getActivity().findViewById(R.id.ImagesRecycler);
             recyclerView.setLayoutManager(staggeredGridLayoutManager);
-            adapter = new ImagesRecyclerGridAdapter(this.getActivity(), testfinal, preferences.getInt("position", -1), test.split("┼").length);
+
+            adapter = new ImagesRecyclerGridAdapter(this.getActivity(), ImagesURLs.toString(), preferences.getInt("position", -1), ImagesURLs.toString().replaceAll("[\\[\\](){}]","").split("┼").length);
+
             recyclerView.setAdapter(adapter);
 
             ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT, 0) {
@@ -729,21 +732,24 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
             itemTouchHelper.attachToRecyclerView(recyclerView);
         }
-    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
-        String test = ImagesURLs.get(preferences.getInt("position", -1));
+        SharedPreferences.Editor editor = preferences.edit();
+
+
+        new Thread(() -> {
+
         if (requestCode != RESULT_OK) {
             Uri imageUri = data.getData();
-            Toast.makeText(getActivity(), "aaa", Toast.LENGTH_SHORT).show();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), imageUri);
                 File directory = this.getActivity().getDir("imageDir", Context.MODE_PRIVATE);
-                File file = new File(directory, "EverImage"+ preferences.getInt("noteId", -1)*99 + ".jpg");
+                File file = new File(directory, "EverImage" + Calendar.getInstance().getTimeInMillis() + ".jpg");
                 if (!file.exists()) {
                     Log.d("path", file.toString());
                     FileOutputStream fos = null;
@@ -752,8 +758,20 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                         fos.flush();
                         fos.close();
-                        dataBaseHelper.insertImageToDatabase(String.valueOf(preferences.getInt("noteId", -1)), file.toString());
-                        Toast.makeText(getActivity(), String.valueOf(preferences.getInt("noteId", -1)), Toast.LENGTH_SHORT).show();
+
+                        dataBaseHelper.insertImageToDatabase(String.valueOf(preferences.getInt("noteId", -1)), file.toString(), ImagesURLs.toString().replaceAll("[\\[\\](){}]",""));
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                            ImagesURLs = dataBaseHelper.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
+                            RecyclerView recyclerView = getActivity().findViewById(R.id.ImagesRecycler);
+                            adapter = new ImagesRecyclerGridAdapter(this.getActivity(), ImagesURLs.toString(), preferences.getInt("position", -1), ImagesURLs.toString().replaceAll("[\\[\\](){}]","").split("┼").length);
+                            recyclerView.invalidate();
+                            recyclerView.setAdapter(adapter);
+
+                        }, 400);
+
+
                     } catch (java.io.IOException e) {
                         e.printStackTrace();
                     }
@@ -765,24 +783,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                 e.printStackTrace();
             }
         }
+        }).start();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 0:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getActivity(), "Permission successfully granted :D", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity(), "Permission DENIED, try again", Toast.LENGTH_SHORT).show();
-                    try {
-                        finalize();
-                    } catch (Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-        }
-    }
 
 
     //////////////////////////////////////////// HANDLE IMAGES /\ /\ /\ /\ /\
@@ -1492,6 +1495,5 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         }
 
     }
-
 
     }

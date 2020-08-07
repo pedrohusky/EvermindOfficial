@@ -14,16 +14,19 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.sysdata.kt.htmltextview.SDHtmlTextView;
 
 import org.htmlcleaner.HtmlSerializer;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import pl.droidsonroids.gif.GifImageView;
@@ -35,23 +38,34 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     private String[] mData;
     private String[] mTitle;
     private String[] mDate;
+    private Integer[] mIds;
     public static String[] title;
     public static Integer[] id;
     public  Context context;
+    private String[] SplittedURLs;
+    private String[] urls;
+    private  ArrayList<String> ImagesURLs = new ArrayList<>();
 
+    private RecyclerView mRecyclerView;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
+    private DataBaseHelper mDataBaseHelper;
+    private ImagesRecyclerNoteScreenGridAdapter adapter;
 
     // data is passed into the constructor
-    public RecyclerGridAdapter(Context context, String[] data, String[] title, String[] date) {
+    public RecyclerGridAdapter(Context context, String[] data, String[] title, String[] date, Integer[] ids, String[] ImageURL) {
 
+        mDataBaseHelper = new DataBaseHelper(context);
 
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
         this.mTitle = title;
         this.mDate = date;
         this.context = context;
+        this.mIds = ids;
+        this.context = context;
+        this.urls = ImageURL;
     }
 
 
@@ -69,6 +83,21 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
+        ImagesURLs = mDataBaseHelper.getImageURLFromDatabaseWithID(mIds[position]);
+
+        if (ImagesURLs.toString().replaceAll("[\\[\\](){}]", "").split("┼").length <= 1) {
+
+        } else {
+
+            System.out.println(ImagesURLs.toString());
+            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
+
+            holder.myRecyclerView.setLayoutManager(staggeredGridLayoutManager);
+
+            adapter = new ImagesRecyclerNoteScreenGridAdapter(context, ImagesURLs.toString(), position, ImagesURLs.toString().replaceAll("[\\[\\](){}]", "").split("┼").length);
+            holder.myRecyclerView.setAdapter(adapter);
+
+        }
 
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -136,6 +165,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
         SDHtmlTextView myTextView;
         TextView myTitleView;
+        RecyclerView myRecyclerView;
         Activity mActivity;
         LinearLayout myLinearLayout;
 
@@ -147,6 +177,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
                 myTextView = itemView.findViewById(R.id.info_text);
                 myTitleView = itemView.findViewById(R.id.info_title);
+                myRecyclerView = itemView.findViewById(R.id.RecyclerNoteScren);
                 itemView.setOnClickListener(this);
 
                 //TODO IMPORTANT CODE \/ \/ \/ \/ \/

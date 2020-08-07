@@ -176,7 +176,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public ArrayList<String> getImageURLFromDatabase() {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        ArrayList<String> arrayListTitles = new ArrayList<>();
+        ArrayList<String> arrayListURLs = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_NOTES;
         Cursor cursor = sqLiteDatabase.rawQuery(query, null);
         //cursor.moveToFirst();
@@ -189,7 +189,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 String ImageURL = cursor.getString(4);
 
                 Note_Model note_model = new Note_Model(id, title, content, date, ImageURL);
-                arrayListTitles.add(note_model.getImageURLS());
+                arrayListURLs.add(note_model.getImageURLS());
             }
 
             while (cursor.moveToNext());
@@ -197,7 +197,33 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         sqLiteDatabase.close();
-        return arrayListTitles;
+        return arrayListURLs;
+    }
+
+    public ArrayList<String> getImageURLFromDatabaseWithID(Integer ID) {
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        ArrayList<String> arrayListURLs = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + ID + "'";
+        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
+        //cursor.moveToFirst();
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(0);
+                String title = cursor.getString(1);
+                String content = cursor.getString(2);
+                String date = cursor.getString(3);
+                String ImageURL = cursor.getString(4);
+
+                Note_Model note_model = new Note_Model(id, title, content, date, ImageURL);
+                arrayListURLs.add(note_model.getImageURLS());
+            }
+
+            while (cursor.moveToNext());
+        } else { // DO NOTHING
+        }
+        cursor.close();
+        sqLiteDatabase.close();
+        return arrayListURLs;
     }
 
     public void deleteNote(Integer id) {
@@ -240,14 +266,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public void insertImageToDatabase(String id, String url) {
+    public void insertImageToDatabase(String id, String newURL, String oldURL) {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-
-        contentValues.put(NOTE_IMAGEURL, "┼" + url);
+        contentValues.put(NOTE_IMAGEURL, oldURL + "┼" + newURL);
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
+        System.out.println(oldURL + "┼" + newURL);
 
         sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
         sqLiteDatabase.close();
