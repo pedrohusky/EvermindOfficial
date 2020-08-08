@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -22,10 +23,12 @@ import com.example.Evermind.CheckboxAdapter;
 import com.example.Evermind.Checkboxlist_model;
 import com.example.Evermind.DataBaseHelper;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
+import com.example.Evermind.ImagesRecyclerNoteScreenGridAdapter;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -36,7 +39,8 @@ import static android.content.Context.MODE_PRIVATE;
 public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemClickListener, AdapterView.OnItemLongClickListener {
 
 
-    public static RecyclerGridAdapter adapter;
+    public RecyclerGridAdapter adapter;
+    public ImagesRecyclerNoteScreenGridAdapter recyclerAdapter;
     public static ImagesRecyclerGridAdapter listadapter;
     public static DataBaseHelper databaseHelper;
     public static ArrayList<String> notes = new ArrayList<>();
@@ -90,6 +94,8 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
         ImagesURLs = databaseHelper.getImageURLFromDatabase();
 
+        ImagesURLs.removeAll(Collections.singletonList(""));
+
         ImageURL = ImagesURLs.toArray(new String[0]);
 
 
@@ -127,6 +133,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
 
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+
 
         // set up the RecyclerView
         RecyclerView recyclerView = getActivity().findViewById(R.id.rvNumbers);
@@ -173,7 +180,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
     //This start NoteEditor and send Array to
     public void onClick(View view) {
-
+        System.out.println("CARALHOOOOOOOOOOOOOOOOOOO DEL CERTO");
     }
 
     @Override
@@ -184,16 +191,21 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         popView = LayoutInflater.from(getActivity()).inflate(R.layout.note_customization_layout, null);
         popupWindowHelper = new PopupWindowHelper(popView);
 
-       popupWindowHelper.showAsDropDown(view);
+        popupWindowHelper.showAsDropDown(view);
     }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-         final int noteToDelete = i;
+        final int noteToDelete = i;
 
         return true;
     }
+
+
+    public interface MyInterface {
+        public void foo();
     }
+}
 
 
 

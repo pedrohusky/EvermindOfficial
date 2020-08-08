@@ -1,17 +1,31 @@
 package com.example.Evermind;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.koushikdutta.ion.Ion;
+import com.kyleduo.blurpopupwindow.library.BlurPopupWindow;
+import com.stfalcon.imageviewer.StfalconImageViewer;
 
+import java.util.Arrays;
+
+import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 import pl.droidsonroids.gif.GifImageView;
 
 public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<ImagesRecyclerNoteScreenGridAdapter.ViewHolder>  {
@@ -20,22 +34,25 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
     private Integer mID;
     private int count;
     private String[] SplittedURLs;
+    private int realID;
 
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
+    private Context context;
+    private PopupWindowHelper popupWindowHelper;
 
     // data is passed into the constructor
     public ImagesRecyclerNoteScreenGridAdapter(Context context, String ImageURLs, Integer ID, int countURLs) {
 
 
         SplittedURLs = ImageURLs.replaceAll("[\\[\\](){}]","").trim().split("┼");
-       System.out.println(ImageURLs.replaceAll("[\\[\\](){}]","").trim());
 
             this.mInflater = LayoutInflater.from(context);
             this.mImageURLs = SplittedURLs;
             this.mID = ID;
             this.count = countURLs;
+            this.context = context;
     }
 
 
@@ -53,41 +70,32 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        // if (position == 0 && count == 0) {
-        //     StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
-        //       layoutParams.setFullSpan(true);
-        //  }
 
-       // lastPositionToSet = position;
-        if (mImageURLs[position].equals("")) {
+        if (position == 0 && getItemCount() <= 1) {
             Ion.with(holder.myImageView)
                     .error(R.drawable.ic_baseline_clear_24)
-                    .animateLoad(R.anim.translate_up_anim)
-                    .animateIn(R.anim.fade_in_formatter)
-                    .smartSize(true)
-                    .load(mImageURLs[position+1]); }
+                    .animateLoad(R.anim.grid_new_item_anim)
+                    .animateIn(R.anim.grid_new_item_anim)
+                    .load(mImageURLs[position]); // was position
 
-        else {
-            if (position >= mImageURLs.length - 1) {
-                Ion.with(holder.myImageView)
-                        .error(R.drawable.ic_baseline_clear_24)
-                        .animateLoad(R.anim.translate_up_anim)
-                        .animateIn(R.anim.fade_in_formatter)
-                        .smartSize(true)
-                        .load(mImageURLs[0]); // was position
+            ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
 
-            } else {
-                Ion.with(holder.myImageView)
-                        .error(R.drawable.ic_baseline_clear_24)
-                        .animateLoad(R.anim.translate_up_anim)
-                        .animateIn(R.anim.fade_in_formatter)
-                        .smartSize(true)
-                        .load(mImageURLs[position + 1]);
-            }
+            params.height = 600;
+            params.width = 600;
+
+            holder.myImageView.setLayoutParams(params);
         }
 
+        Ion.with(holder.myImageView)
+                .error(R.drawable.ic_baseline_clear_24)
+                .animateLoad(R.anim.grid_new_item_anim)
+                .animateIn(R.anim.grid_new_item_anim)
+                .smartSize(true)
+                .load(mImageURLs[position]); // was position
 
-        System.out.println("LAST STEP LOADED = " + mImageURLs[position]);
+
+
+        System.out.println("NOTE SCREEN POSITION WICH LOADED = " + position +  "   LAST STEP LOADED = " + mImageURLs[position]);
 
         }
 
@@ -100,6 +108,11 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
     public int getItemCount() {
         return count;
 
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
 
@@ -123,33 +136,32 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
 
                 //TODO IMPORTANT CODE \/ \/ \/ \/ \/
 
-            myImageView.setOnClickListener(this);
+            myImageView.setOnClickListener(view -> {
 
-            myImageView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        int p = getLayoutPosition();
+                ((MainActivity)context).OpenNoteFromImage(view, mID);
+            });
 
-                        if (mClickListener != null)
-                            mClickListener.onLongPress(view, p);
-                        System.out.println(p);
-                        return false;
-                    }
-                });
+           // myImageView.setOnClickListener(this);
+
+            myImageView.setOnLongClickListener(view -> {
+                int p = getLayoutPosition();
+
+                if (mClickListener != null)
+                    mClickListener.onLongPress(view, p);
+                System.out.println(p);
+                return false;
+            });
 
                 ////TODO/////////////// /\ /\ /\ /\
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    int p = getLayoutPosition();
+            itemView.setOnLongClickListener(view -> {
+                int p = getLayoutPosition();
 
-                    if (mClickListener != null)
-                        mClickListener.onLongPress(view, p);
-                    System.out.println(p);
+                if (mClickListener != null)
+                    mClickListener.onLongPress(view, p);
+                System.out.println(p);
 
-                    return true;// returning true instead of false, works for me
-                }
+                return true;// returning true instead of false, works for me
             });
         }
         ///////////////////////

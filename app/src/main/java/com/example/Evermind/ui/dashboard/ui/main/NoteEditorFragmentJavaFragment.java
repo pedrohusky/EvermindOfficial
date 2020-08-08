@@ -59,6 +59,7 @@ import com.example.Evermind.DataBaseHelper;
 import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.ImagesDataBaseHelper;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
+import com.example.Evermind.ImagesRecyclerNoteScreenGridAdapter;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapter;
 import com.example.Evermind.SoftInputAssist;
@@ -685,8 +686,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
         ImagesURLs = dataBaseHelper.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
 
+        ImagesURLs.removeAll(Collections.singletonList(""));
 
-
+        if (ImagesURLs.size() > 0) {
             GridLayoutManager staggeredGridLayoutManager = new GridLayoutManager(getActivity(), GridLayoutManager.VERTICAL);
             staggeredGridLayoutManager.setSpanCount(2);
 
@@ -694,7 +696,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             RecyclerView recyclerView = getActivity().findViewById(R.id.ImagesRecycler);
             recyclerView.setLayoutManager(staggeredGridLayoutManager);
 
-            adapter = new ImagesRecyclerGridAdapter(this.getActivity(), ImagesURLs.toString(), preferences.getInt("position", -1), ImagesURLs.toString().replaceAll("[\\[\\](){}]","").split("┼").length);
+            adapter = new ImagesRecyclerGridAdapter(this.getActivity(), ImagesURLs.toString(), preferences.getInt("position", -1), ImagesURLs.toString().replaceAll("[\\[\\](){}]", "").split("┼").length);
 
             recyclerView.setAdapter(adapter);
 
@@ -731,7 +733,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
             itemTouchHelper.attachToRecyclerView(recyclerView);
+
+
         }
+    }
+
 
 
     @Override

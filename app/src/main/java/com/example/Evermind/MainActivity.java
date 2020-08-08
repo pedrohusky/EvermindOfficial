@@ -1,5 +1,6 @@
 package com.example.Evermind;
 import android.content.SharedPreferences;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -26,6 +27,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.koushikdutta.ion.Ion;
+import com.stfalcon.frescoimageviewer.ImageViewer;
+import com.stfalcon.imageviewer.StfalconImageViewer;
+
 import java.util.ArrayList;
 
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
@@ -38,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
     public static DataBaseHelper mDatabaseHelper;
     Integer ID;
     public Boolean CloseFormatter = false;
+
+    public static ArrayList<String> notes = new ArrayList<>();
+    public static ArrayList<String> titles = new ArrayList<>();
+    public static ArrayList<Integer> ids = new ArrayList<>();
 
 
     @Override
@@ -246,7 +255,8 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
 
-                    ID = NotesScreen.adapter.getItemCount();
+//                    ID = NotesScreen.adapter.getItemCount();
+                    ID = 1;
 
 
                     editor.putInt("noteId", ID);
@@ -387,6 +397,45 @@ public class MainActivity extends AppCompatActivity {
 
             Delete.setVisibility(View.GONE);
             Save.setVisibility(View.GONE);
+
+    }
+
+    public void OpenNoteFromImage(View view, int position) {
+
+
+        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = preferences.edit();
+
+        new ImageViewer.Builder(this, databaseHelper.getImageURLFromDatabaseWithID(position))
+               // .setStartPosition(1)
+                .show();
+
+        ids = databaseHelper.getIDFromDatabase();
+
+        notes = databaseHelper.getContentsFromDatabase();
+
+        titles = databaseHelper.getTitlesFromDatabase();
+
+
+        Integer id = ids.get(position);
+        String title = titles.get(position);
+        String content = notes.get(position);
+
+        editor.putInt("noteId", id);
+        editor.putInt("position", position);
+        editor.putString("title", title);
+        editor.putString("content", content);
+        editor.putBoolean("athome", false);
+        editor.putBoolean("newnote", false);
+        editor.putBoolean("BlackHighlight?", false);
+        editor.putBoolean("DeleteNSave", false);
+        editor.putBoolean("UndoRedo", false);
+        editor.apply();
+
+     //   NavController navController = Navigation.findNavController(view);
+      //  navController.navigate(R.id.action_nav_home_to_nav_note);
+
 
     }
 }

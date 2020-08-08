@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -64,7 +66,6 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
         this.mDate = date;
         this.context = context;
         this.mIds = ids;
-        this.context = context;
         this.urls = ImageURL;
     }
 
@@ -85,20 +86,37 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
         ImagesURLs = mDataBaseHelper.getImageURLFromDatabaseWithID(mIds[position]);
 
-        if (ImagesURLs.toString().replaceAll("[\\[\\](){}]", "").split("┼").length <= 1) {
+        if (ImagesURLs.size() > 0) {
 
-        } else {
-
-            System.out.println(ImagesURLs.toString());
             StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
 
             holder.myRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
             adapter = new ImagesRecyclerNoteScreenGridAdapter(context, ImagesURLs.toString(), position, ImagesURLs.toString().replaceAll("[\\[\\](){}]", "").split("┼").length);
             holder.myRecyclerView.setAdapter(adapter);
+            holder.myRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    int x = (int) motionEvent.getX();
+                    int y = (int) motionEvent.getY();
+
+                    switch (motionEvent.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            Toast.makeText(context, "sas", Toast.LENGTH_SHORT).show();
+                            break;
+
+                        case MotionEvent.ACTION_UP:
+
+                            break;
+                    }
+
+                    return false;
+
+                }
+            });
+
 
         }
-
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 holder.myTitleView.setText(mTitle[position]);
@@ -184,31 +202,38 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
                 myTextView.setOnClickListener(this);
 
-                myTextView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        int p = getLayoutPosition();
+                myTextView.setOnLongClickListener(view -> {
+                int p = getLayoutPosition();
 
-                        if (mClickListener != null)
-                            mClickListener.onLongPress(view, p);
-                        System.out.println(p);
-                        return false;
-                    }
-                });
+                if (mClickListener != null)
+                    mClickListener.onLongPress(view, p);
+                System.out.println(p);
+                return false;
+            });
+
+                myRecyclerView.setOnClickListener(this);
+
+            myRecyclerView.setOnLongClickListener(view -> {
+                int p = getLayoutPosition();
+
+                if (mClickListener != null)
+                    mClickListener.onLongPress(view, p);
+                System.out.println(p);
+                return false;
+            });
+
+
 
                 ////TODO/////////////// /\ /\ /\ /\
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    int p = getLayoutPosition();
+            itemView.setOnLongClickListener(view -> {
+                int p = getLayoutPosition();
 
-                    if (mClickListener != null)
-                        mClickListener.onLongPress(view, p);
-                    System.out.println(p);
+                if (mClickListener != null)
+                    mClickListener.onLongPress(view, p);
+                System.out.println(p);
 
-                    return true;// returning true instead of false, works for me
-                }
+                return true;// returning true instead of false, works for me
             });
         }
         ///////////////////////

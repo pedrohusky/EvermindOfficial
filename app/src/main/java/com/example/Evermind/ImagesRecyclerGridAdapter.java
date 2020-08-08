@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.koushikdutta.ion.Ion;
 
@@ -52,43 +53,36 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        // if (position == 0 && count == 0) {
-        //     StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
-        //       layoutParams.setFullSpan(true);
-        //  }
+        if (position == 0 && getItemCount() <= 1) {
+            Ion.with(holder.myImageView)
+                    .error(R.drawable.ic_baseline_clear_24)
+                    .animateLoad(R.anim.grid_new_item_anim)
+                    .animateIn(R.anim.grid_new_item_anim)
+                    .load(mImageURLs[position]); // was position
 
-       // lastPositionToSet = position;
+            ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
 
-       if (mImageURLs[position].equals("")) {
-           Ion.with(holder.myImageView)
-               .error(R.drawable.ic_baseline_clear_24)
-               .animateLoad(R.anim.translate_up_anim)
-               .animateIn(R.anim.fade_in_formatter)
-               .smartSize(true)
-               .load(mImageURLs[position+1]); }
+            params.height = 1300;
+            params.width = 1300;
 
-       else { if (position >= mImageURLs.length - 1) {
+            holder.myImageView.setLayoutParams(params);
+
+        }
+
+
            Ion.with(holder.myImageView)
                    .error(R.drawable.ic_baseline_clear_24)
-                   .animateLoad(R.anim.translate_up_anim)
-                   .animateIn(R.anim.fade_in_formatter)
+                   .animateLoad(R.anim.grid_new_item_anim)
+                   .animateIn(R.anim.grid_new_item_anim)
                    .smartSize(true)
                    .load(mImageURLs[position]);
 
-       } else {
-            Ion.with(holder.myImageView)
-                    .error(R.drawable.ic_baseline_clear_24)
-                    .animateLoad(R.anim.translate_up_anim)
-                    .animateIn(R.anim.fade_in_formatter)
-                   .smartSize(true)
-                    .load(mImageURLs[position+1]); }
 
-
-        System.out.println("LAST STEP LOADED = " + mImageURLs[position]);
+        System.out.println("POSITION WICH LOADED = " + position +  "   LAST STEP LOADED = " + mImageURLs[position]);
 
         }
 
-        }
+
 
 
 

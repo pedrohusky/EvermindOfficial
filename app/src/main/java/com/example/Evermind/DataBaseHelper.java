@@ -59,7 +59,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(NOTE_CONTENT, content);
         contentValues.put(NOTE_TITLE, title);
-        contentValues.put(NOTE_IMAGEURL, "");
+        contentValues.put(NOTE_IMAGEURL, "┼");
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
@@ -270,7 +270,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_IMAGEURL, oldURL + "┼" + newURL);
+        contentValues.put(NOTE_IMAGEURL, newURL + "┼" + oldURL);
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
         System.out.println(oldURL + "┼" + newURL);
