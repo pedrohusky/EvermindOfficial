@@ -16,13 +16,12 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.startup_activity.*
 import java.util.*
 import kotlin.concurrent.schedule
-
-
 class StartupActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.startup_activity)
+
 
         Thread(Runnable {
             // a potentially time consuming task
@@ -101,9 +100,18 @@ class StartupActivity : AppCompatActivity() {
                     circle4.startAnimation(scaleup4)
                     circle5.startAnimation(scaleup5)
                     startButton.startAnimation(fadebutton)
-                    Timer("SettingUp", false).schedule(1550) {
+                    Timer("SettingUp", false).schedule(1400) {
                         val intent = Intent(applicationContext, MainActivity::class.java)
+
                         startActivity(intent)
+
+                        Handler(Looper.getMainLooper()).post {
+                            circle1.visibility = View.GONE
+                            circle2.visibility = View.GONE
+                            circle3.visibility = View.GONE
+                            circle4.visibility = View.GONE
+                            circle5.visibility = View.GONE
+                        }
                     }
                 }
             }

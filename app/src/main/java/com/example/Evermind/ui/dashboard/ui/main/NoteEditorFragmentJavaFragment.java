@@ -2,23 +2,15 @@ package com.example.Evermind.ui.dashboard.ui.main;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProviders;
-
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -27,63 +19,46 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Gallery;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.divyanshu.draw.activity.DrawingActivity;
 import com.example.Evermind.CheckboxAdapter;
-import com.example.Evermind.Checkboxlist_model;
 import com.example.Evermind.DataBaseHelper;
 import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.ImagesDataBaseHelper;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
-import com.example.Evermind.ImagesRecyclerNoteScreenGridAdapter;
 import com.example.Evermind.R;
-import com.example.Evermind.RecyclerGridAdapter;
 import com.example.Evermind.SoftInputAssist;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.koushikdutta.async.Util;
-
-import org.apache.commons.io.FileUtils;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
-
+import xyz.klinker.giphy.Giphy;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
@@ -91,33 +66,31 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
     private NoteEditorFragmentMainViewModel mViewModel;
 
-    private CheckboxAdapter adapter_checkbox;
-
     public static ImagesRecyclerGridAdapter adapter;
 
     private DataBaseHelper dataBaseHelper;
 
-    private ImagesDataBaseHelper imageDatabaseHelper;
-
     private EvermindEditor mEditor;
 
-    public static ArrayList<Integer> ImagesIDs = new ArrayList<>();
     public static ArrayList<String> ImagesURLs = new ArrayList<>();
-    public static String[] ImageURL;
 
     public Boolean CloseFormatter = false;
     public Boolean CloseParagraph = false;
+    public Boolean CloseImporter = false;
     public Boolean CloseOpenedColors = false;
     public Boolean CloseOpenedColorsHighlight = false;
     public Boolean DeleteSave = false;
 
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     public static int fromPosition;
     public static int toPosition;
+
+    private boolean tomanocu = false;
+
+    private static final String GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos";
 
     private SoftInputAssist softInputAssist;
 
@@ -165,6 +138,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
         OverScrollDecoratorHelper.setUpOverScroll(scrollView2);
         OverScrollDecoratorHelper.setUpOverScroll(scrollView3);
+
+        ImageButton Draw = getActivity().findViewById(R.id.Draw);
+
+        ImageButton GooglePhotos = getActivity().findViewById(R.id.GooglePhotos);
+        ImageButton Gallery = getActivity().findViewById(R.id.Gallery);
+        ImageButton Files = getActivity().findViewById(R.id.Files);
 
         EditText TitleTextBox = getActivity().findViewById(R.id.TitleTextBox);
         ImageButton Undo = getActivity().findViewById(R.id.Undo);
@@ -222,6 +201,31 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         YellowHighlight.setOnClickListener(view -> ColorClickedSwitcher("Yellow", true));
 
         GreenHighlight.setOnClickListener(view -> ColorClickedSwitcher("Green", true));
+
+
+
+        GooglePhotos.setOnClickListener(view -> {
+            requestPermissions(PERMISSIONS_STORAGE, 0);
+            openImageChooser("GooglePhotos");
+        });
+
+        Gallery.setOnClickListener(view -> {
+            requestPermissions(PERMISSIONS_STORAGE, 0);
+            openImageChooser("Gallery");
+        });
+
+        Files.setOnClickListener(view -> {
+            requestPermissions(PERMISSIONS_STORAGE, 0);
+            openImageChooser("Files");
+        });
+
+        Draw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intentGooglePhotos = new Intent(getActivity(), DrawingActivity.class);
+                startActivityForResult(intentGooglePhotos, 101);
+            }
+        });
 
 
         ChangeColor.setOnClickListener(view -> {
@@ -282,17 +286,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                     //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
 
-
-                    if (CloseFormatter) {
-
-                        CloseOrOpenFormatter(true);
-
-
-                    } else {
-
-                        CloseOrOpenFormatter(false);
-
-                    }
+                        CloseOrOpenFormatter();
 
                     //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
 
@@ -300,29 +294,23 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                 case R.id.nav_paragraph:
 
-                    if (CloseParagraph) {
-
-                        CloseOrOpenParagraph(true);
-
-
-                    } else {
-
-                        CloseOrOpenParagraph(false);
-
-                    }
-
+                        CloseOrOpenParagraph();
 
                     break;
 
                 case R.id.nav_checkbox:
-                    requestPermissions(PERMISSIONS_STORAGE, 0);
-                    openImageChooser();
+
+                        CloseOrOpenImporter();
 
                     break;
 
                 case R.id.nav_bullets:
 
-                    mEditor.insertTodo();
+
+                    requestPermissions(PERMISSIONS_STORAGE, 0);
+                    new Giphy.Builder(getActivity(), "Hk0LrxdgiZoPHSgBKzGMaS17qleIG4nV")    // Giphy's BETA key
+                            .start();
+                    tomanocu = true;
 
 
                     break;
@@ -429,7 +417,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
 
         dataBaseHelper = new DataBaseHelper(getActivity());
-        imageDatabaseHelper = new ImagesDataBaseHelper(getActivity());
 
 
         mViewModel = ViewModelProviders.of(this).get(NoteEditorFragmentMainViewModel.class);
@@ -650,7 +637,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                     ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, true, false, 0);
 
 
-                    CloseOrOpenFormatter(true);
+                    if (CloseFormatter) {
+                        CloseOrOpenFormatter();
+                    }
 
                     bottomNavigationView1.startAnimation(bottom_nav_anim_reverse);
 
@@ -739,103 +728,110 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
     }
 
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = preferences.edit();
-
 
         new Thread(() -> {
 
-        if (requestCode != RESULT_OK) {
-            Uri imageUri = data.getData();
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), imageUri);
-                File directory = this.getActivity().getDir("imageDir", Context.MODE_PRIVATE);
-                File file = new File(directory, "EverImage" + Calendar.getInstance().getTimeInMillis() + ".jpg");
-                if (!file.exists()) {
-                    Log.d("path", file.toString());
-                    FileOutputStream fos = null;
+            if(tomanocu) {
+
+                if (resultCode != RESULT_OK) {
+
+                    Uri gif = data.getData();
+
                     try {
-                        fos = new FileOutputStream(file);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                        fos.flush();
-                        fos.close();
-
-                        dataBaseHelper.insertImageToDatabase(String.valueOf(preferences.getInt("noteId", -1)), file.toString(), ImagesURLs.toString().replaceAll("[\\[\\](){}]",""));
-
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                            ImagesURLs = dataBaseHelper.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
-                            RecyclerView recyclerView = getActivity().findViewById(R.id.ImagesRecycler);
-                            adapter = new ImagesRecyclerGridAdapter(this.getActivity(), ImagesURLs.toString(), preferences.getInt("position", -1), ImagesURLs.toString().replaceAll("[\\[\\](){}]","").split("┼").length);
-                            recyclerView.invalidate();
-                            recyclerView.setAdapter(adapter);
-
-                        }, 400);
-
-
-                    } catch (java.io.IOException e) {
+                        TransformUriToFile(gif, true, ".gif");
+                        Toast.makeText(getActivity(), gif.toString(), Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        }
+
+            if (requestCode != RESULT_OK) {
+
+                Uri imageUri = data.getData();
+
+                try {
+                    TransformUriToFile(imageUri, true, ".jpg" );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
         }).start();
     }
 
 
-
     //////////////////////////////////////////// HANDLE IMAGES /\ /\ /\ /\ /\
-      void openImageChooser() {
-          Intent intent = new Intent();
-          intent.setType("image/*");
-          intent.setAction(Intent.ACTION_GET_CONTENT);
-          startActivityForResult(Intent.createChooser(intent, "Select Picture"), 101);
-      }
+    void openImageChooser(String name) {
+
+        switch (name) {
+            case "GooglePhotos":
+
+                Intent intentGooglePhotos = new Intent();
+                intentGooglePhotos.setAction(Intent.ACTION_PICK);
+                intentGooglePhotos.setType("image/*");
+                intentGooglePhotos.setPackage(GOOGLE_PHOTOS_PACKAGE_NAME);
+                startActivityForResult(intentGooglePhotos, 101);
+
+                break;
+
+            case "Gallery":
+
+
+                break;
+
+            case "Files":
+
+                Intent intentFiles = new Intent();
+                intentFiles.setType("image/*");
+                intentFiles.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intentFiles, "Select Picture"), 101);
+
+                break;
+
+
+                 default:
+                    break;
+        }
+    }
 
 
     private void OpenOrCloseColors(Boolean highlight, Boolean close) {
 
         new Thread(() -> {
 
-            ImageButton ChangeColor =  getActivity().findViewById(R.id.ChangeColor);
-            ImageButton Bold =  getActivity().findViewById(R.id.Bold);
-            ImageButton Italic =  getActivity().findViewById(R.id.Italic);
-            ImageButton Underline =  getActivity().findViewById(R.id.Underline);
-            ImageButton Striketrough =  getActivity().findViewById(R.id.Striketrough);
-            ImageButton HighlightText =  getActivity().findViewById(R.id.HighlightText);
+            ImageButton ChangeColor = getActivity().findViewById(R.id.ChangeColor);
+            ImageButton Bold = getActivity().findViewById(R.id.Bold);
+            ImageButton Italic = getActivity().findViewById(R.id.Italic);
+            ImageButton Underline = getActivity().findViewById(R.id.Underline);
+            ImageButton Striketrough = getActivity().findViewById(R.id.Striketrough);
+            ImageButton HighlightText = getActivity().findViewById(R.id.HighlightText);
 
-            ImageButton Black =  getActivity().findViewById(R.id.black);
-            ImageButton Blue =  getActivity().findViewById(R.id.blue);
-            ImageButton Purple =  getActivity().findViewById(R.id.purple);
-            ImageButton Magenta =  getActivity().findViewById(R.id.magenta);
-            ImageButton Orange =  getActivity().findViewById(R.id.orange);
-            ImageButton Yellow =  getActivity().findViewById(R.id.yellow);
-            ImageButton Green =  getActivity().findViewById(R.id.green);
+            ImageButton Black = getActivity().findViewById(R.id.black);
+            ImageButton Blue = getActivity().findViewById(R.id.blue);
+            ImageButton Purple = getActivity().findViewById(R.id.purple);
+            ImageButton Magenta = getActivity().findViewById(R.id.magenta);
+            ImageButton Orange = getActivity().findViewById(R.id.orange);
+            ImageButton Yellow = getActivity().findViewById(R.id.yellow);
+            ImageButton Green = getActivity().findViewById(R.id.green);
 
-            ImageButton ClearHighlight =  getActivity().findViewById(R.id.clearhighlight);
-            ImageButton BlackHighlight =  getActivity().findViewById(R.id.blackhighlight);
-            ImageButton BlueHighlight =  getActivity().findViewById(R.id.bluehighlight);
-            ImageButton PurpleHighlight =  getActivity().findViewById(R.id.purplehighlight);
-            ImageButton MagentaHighlight =  getActivity().findViewById(R.id.magentahighlight);
-            ImageButton OrangeHighlight =  getActivity().findViewById(R.id.orangehighlight);
-            ImageButton YellowHighlight =  getActivity().findViewById(R.id.yellowhighlight);
-            ImageButton GreenHighlight =  getActivity().findViewById(R.id.greenhighlight);
+            ImageButton ClearHighlight = getActivity().findViewById(R.id.clearhighlight);
+            ImageButton BlackHighlight = getActivity().findViewById(R.id.blackhighlight);
+            ImageButton BlueHighlight = getActivity().findViewById(R.id.bluehighlight);
+            ImageButton PurpleHighlight = getActivity().findViewById(R.id.purplehighlight);
+            ImageButton MagentaHighlight = getActivity().findViewById(R.id.magentahighlight);
+            ImageButton OrangeHighlight = getActivity().findViewById(R.id.orangehighlight);
+            ImageButton YellowHighlight = getActivity().findViewById(R.id.yellowhighlight);
+            ImageButton GreenHighlight = getActivity().findViewById(R.id.greenhighlight);
 
-            ImageButton Increase =  getActivity().findViewById(R.id.IncreaseSize);
-            ImageButton Decrease =  getActivity().findViewById(R.id.DecreaseSize);
-            ImageButton Left =  getActivity().findViewById(R.id.AlignLeft);
-            ImageButton Center =  getActivity().findViewById(R.id.AlignCenter);
-            ImageButton Right =  getActivity().findViewById(R.id.AlignRight);
+            ImageButton Increase = getActivity().findViewById(R.id.IncreaseSize);
+            ImageButton Decrease = getActivity().findViewById(R.id.DecreaseSize);
+            ImageButton Left = getActivity().findViewById(R.id.AlignLeft);
+            ImageButton Center = getActivity().findViewById(R.id.AlignCenter);
+            ImageButton Right = getActivity().findViewById(R.id.AlignRight);
 
             if (close) {
 
@@ -926,7 +922,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                         Right.setVisibility(View.GONE);
 
 
-
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                             // ChangeColor.setVisibility(View.GONE);
 
@@ -986,194 +981,194 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
         }).start();
     }
-    public void ColorClickedSwitcher (String color, boolean highlight) {
 
-            if (highlight) {
+    public void ColorClickedSwitcher(String color, boolean highlight) {
 
-                switch (color) {
+        if (highlight) {
 
-                    case "Clear":
+            switch (color) {
 
-                        ImageButton ClearHighlight =  getActivity().findViewById(R.id.clearhighlight);
+                case "Clear":
 
-                        mEditor.setTextBackgroundColor(Color.WHITE);
+                    ImageButton ClearHighlight = getActivity().findViewById(R.id.clearhighlight);
 
-                        OpenOrCloseColors(true, true);
+                    mEditor.setTextBackgroundColor(Color.WHITE);
 
-                        ClearHighlight.setVisibility(View.GONE);
+                    OpenOrCloseColors(true, true);
 
-                        break;
+                    ClearHighlight.setVisibility(View.GONE);
 
-                    case "Black":
+                    break;
 
-                            mEditor.setTextBackgroundColor(Color.parseColor("#CCC3FF"));
+                case "Black":
 
+                    mEditor.setTextBackgroundColor(Color.parseColor("#CCC3FF"));
 
 
-                       // new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    // new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                            //mEditor.setTextColor(Color.WHITE);
+                    //mEditor.setTextColor(Color.WHITE);
 
-                       //}, 250);
+                    //}, 250);
 
-                        OpenOrCloseColors(true, true);
+                    OpenOrCloseColors(true, true);
 
 
-                        break;
+                    break;
 
-                    case "Blue":
+                case "Blue":
 
 
-                            mEditor.setTextBackgroundColor(Color.parseColor("#8ECAFF"));
+                    mEditor.setTextBackgroundColor(Color.parseColor("#8ECAFF"));
 
-                        OpenOrCloseColors(true, true);
+                    OpenOrCloseColors(true, true);
 
 
-                        break;
+                    break;
 
-                    case "Purple":
+                case "Purple":
 
 
-                            mEditor.setTextBackgroundColor(Color.parseColor("#FFCCF4"));
+                    mEditor.setTextBackgroundColor(Color.parseColor("#FFCCF4"));
 
-                        OpenOrCloseColors(true, true);
+                    OpenOrCloseColors(true, true);
 
 
-                        break;
+                    break;
 
-                    case "Magenta":
+                case "Magenta":
 
 
-                            mEditor.setTextBackgroundColor(Color.parseColor("#B1FFF5"));
+                    mEditor.setTextBackgroundColor(Color.parseColor("#B1FFF5"));
 
-                        OpenOrCloseColors(true, true);
+                    OpenOrCloseColors(true, true);
 
 
-                        break;
+                    break;
 
-                    case "Orange":
+                case "Orange":
 
 
-                            mEditor.setTextBackgroundColor(Color.parseColor("#FFB89C"));
+                    mEditor.setTextBackgroundColor(Color.parseColor("#FFB89C"));
 
-                        OpenOrCloseColors(true, true);
+                    OpenOrCloseColors(true, true);
 
 
-                        break;
+                    break;
 
-                    case "Yellow":
+                case "Yellow":
 
-                            mEditor.setTextBackgroundColor(Color.parseColor("#EEFF00"));
+                    mEditor.setTextBackgroundColor(Color.parseColor("#EEFF00"));
 
-                        OpenOrCloseColors(true, true);
+                    OpenOrCloseColors(true, true);
 
 
-                        break;
+                    break;
 
-                    case "Green":
+                case "Green":
 
-                            mEditor.setTextBackgroundColor(Color.parseColor("#A0FF8A"));
+                    mEditor.setTextBackgroundColor(Color.parseColor("#A0FF8A"));
 
-                        OpenOrCloseColors(true, true);
+                    OpenOrCloseColors(true, true);
 
 
-                        break;
+                    break;
 
-                    default:
+                default:
 
 
-                        break;
-                }
-            } else {
-                switch (color) {
-
-                    case "Black":
-
-                            mEditor.setTextColor(Color.parseColor("#000000"));
-
-
-                        OpenOrCloseColors(false, true);
-
-
-                        break;
-
-                    case "Blue":
-
-                            mEditor.setTextColor(Color.parseColor("#6CCAEF"));
-
-                      //  Blue = !Blue;
-
-
-                        OpenOrCloseColors(false, true);
-
-
-                        break;
-
-                    case "Purple":
-
-                            mEditor.setTextColor(Color.parseColor("#c371f9"));
-
-                      //  Purple = !Purple;
-
-                        OpenOrCloseColors(false, true);
-
-
-                        break;
-
-                    case "Magenta":
-
-                            mEditor.setTextColor(Color.parseColor("#EDF52E66"));
-
-                      //  Magenta = !Magenta;
-
-
-                        OpenOrCloseColors(false, true);
-
-
-                        break;
-
-                    case "Orange":
-
-
-                            mEditor.setTextColor(Color.parseColor("#F9A75D"));
-
-                      //  Orange = !Orange;
-
-                        OpenOrCloseColors(false, true);
-
-
-                        break;
-
-                    case "Yellow":
-
-
-                            mEditor.setTextColor(Color.parseColor("#FAF075"));
-
-                       // Yellow = !Yellow;
-
-                        OpenOrCloseColors(false, true);
-
-
-                        break;
-
-                    case "Green":
-
-
-                            mEditor.setTextColor(Color.parseColor("#8de791"));
-
-                       // Green = !Green;
-
-                        OpenOrCloseColors(false, true);
-
-
-                        break;
-
-                    default:
-
-
-                        break;
-                }
+                    break;
             }
+        } else {
+            switch (color) {
+
+                case "Black":
+
+                    mEditor.setTextColor(Color.parseColor("#000000"));
+
+
+                    OpenOrCloseColors(false, true);
+
+
+                    break;
+
+                case "Blue":
+
+                    mEditor.setTextColor(Color.parseColor("#6CCAEF"));
+
+                    //  Blue = !Blue;
+
+
+                    OpenOrCloseColors(false, true);
+
+
+                    break;
+
+                case "Purple":
+
+                    mEditor.setTextColor(Color.parseColor("#c371f9"));
+
+                    //  Purple = !Purple;
+
+                    OpenOrCloseColors(false, true);
+
+
+                    break;
+
+                case "Magenta":
+
+                    mEditor.setTextColor(Color.parseColor("#EDF52E66"));
+
+                    //  Magenta = !Magenta;
+
+
+                    OpenOrCloseColors(false, true);
+
+
+                    break;
+
+                case "Orange":
+
+
+                    mEditor.setTextColor(Color.parseColor("#F9A75D"));
+
+                    //  Orange = !Orange;
+
+                    OpenOrCloseColors(false, true);
+
+
+                    break;
+
+                case "Yellow":
+
+
+                    mEditor.setTextColor(Color.parseColor("#FAF075"));
+
+                    // Yellow = !Yellow;
+
+                    OpenOrCloseColors(false, true);
+
+
+                    break;
+
+                case "Green":
+
+
+                    mEditor.setTextColor(Color.parseColor("#8de791"));
+
+                    // Green = !Green;
+
+                    OpenOrCloseColors(false, true);
+
+
+                    break;
+
+                default:
+
+
+                    break;
+            }
+        }
     }
 
     private static String replaceRGBColorsWithHex(String html) {
@@ -1185,7 +1180,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         while (m.find()) {
             // get whole matched rgb(a,b,c) text
             String foundRGBColor = m.group(1);
-          //  System.out.println("Found: " + foundRGBColor);
+            //  System.out.println("Found: " + foundRGBColor);
 
             // get r value
             String rString = m.group(2);
@@ -1194,9 +1189,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             // get b value
             String bString = m.group(4);
 
-          //  System.out.println(" separated r value: " + rString);
-         //   System.out.println(" separated g value: " + gString);
-         //   System.out.println(" separated b value: " + bString);
+            //  System.out.println(" separated r value: " + rString);
+            //   System.out.println(" separated g value: " + gString);
+            //   System.out.println(" separated b value: " + bString);
 
             // converting numbers from string to int
             int rInt = Integer.parseInt(rString);
@@ -1214,12 +1209,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             String gHexFormatted = String.format("%2s", gHex).replace(" ", "0");
             String bHexFormatted = String.format("%2s", bHex).replace(" ", "0");
 
-         //   System.out.println(" converted " + rString + " to hex: " + rHexFormatted);
-          //  System.out.println(" converted " + gString + " to hex: " + gHexFormatted);
-         //   System.out.println(" converted " + bString + " to hex:" + bHexFormatted);
+            //   System.out.println(" converted " + rString + " to hex: " + rHexFormatted);
+            //  System.out.println(" converted " + gString + " to hex: " + gHexFormatted);
+            //   System.out.println(" converted " + bString + " to hex:" + bHexFormatted);
 
             // concatenate new color in hex
-            String hexColorString = "#" + rHexFormatted + gHexFormatted + bHexFormatted ;
+            String hexColorString = "#" + rHexFormatted + gHexFormatted + bHexFormatted;
 
             System.out.println("  replacing " + foundRGBColor + " with " + hexColorString);
             html = html.replaceAll(Pattern.quote(foundRGBColor), hexColorString);
@@ -1227,14 +1222,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         return html;
     }
 
-    private  void onBackPressed(Boolean delete) {
+    private void onBackPressed(Boolean delete) {
 
         new Handler(Looper.getMainLooper()).post(() -> {
 
             if (delete) {
 
-                CloseOrOpenFormatter(true);
-
+                CloseAllButtons();
 
                 //Hide nav view \/ \/ \/
                 BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation_note);
@@ -1249,9 +1243,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
                 NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_nav_note_to_nav_home);
                 CloseEditorButtonsSaveDelete();
-            }
-
-            else {
+            } else {
 
 
                 EditText editText = getActivity().findViewById(R.id.TitleTextBox);
@@ -1271,7 +1263,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                 }).start();
 
-                CloseOrOpenFormatter(true);
+                CloseAllButtons();
+
                 CloseEditorButtonsSaveDelete();
                 NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_nav_note_to_nav_home);
@@ -1279,12 +1272,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         });
     }
 
-    private void CloseOrOpenFormatter(Boolean close) {
+    private void CloseOrOpenFormatter() {
 
         Animation fadein = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_formatter);
         Animation fadeout = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out_formatter);
         CardView format_text = getActivity().findViewById(R.id.format_selector);
 
+        ImageButton Draw = getActivity().findViewById(R.id.Draw);
         ImageButton ChangeColor = getActivity().findViewById(R.id.ChangeColor);
         ImageButton Bold = getActivity().findViewById(R.id.Bold);
         ImageButton Italic = getActivity().findViewById(R.id.Italic);
@@ -1311,8 +1305,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         ImageButton Increase = getActivity().findViewById(R.id.IncreaseSize);
         ImageButton Decrease = getActivity().findViewById(R.id.DecreaseSize);
 
-        if (close) {
+        if (CloseFormatter) {
 
+            Draw.setVisibility(View.GONE);
             ChangeColor.setVisibility(View.GONE);
             Bold.setVisibility(View.GONE);
             Italic.setVisibility(View.GONE);
@@ -1344,6 +1339,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                 format_text.startAnimation(fadeout);
 
+                format_text.setVisibility(View.GONE);
+
             }, 150);
 
             CloseFormatter = false;
@@ -1360,6 +1357,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
                 Increase.setVisibility(View.VISIBLE);
                 Decrease.setVisibility(View.VISIBLE);
+                Draw.setVisibility(View.VISIBLE);
                 ChangeColor.setVisibility(View.VISIBLE);
                 Bold.setVisibility(View.VISIBLE);
                 Italic.setVisibility(View.VISIBLE);
@@ -1375,7 +1373,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         }
     }
 
-    private void CloseOrOpenParagraph(Boolean close) {
+    private void CloseOrOpenParagraph() {
 
         Animation fadein = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_formatter);
         Animation fadeout = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out_formatter);
@@ -1388,7 +1386,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         ImageButton Center = getActivity().findViewById(R.id.AlignCenter);
         ImageButton Right = getActivity().findViewById(R.id.AlignRight);
 
-        if (close) {
+        if (CloseParagraph) {
 
             spacing.setVisibility(View.GONE);
             Bullets.setVisibility(View.GONE);
@@ -1400,6 +1398,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
                 format_text.startAnimation(fadeout);
+
+                format_text.setVisibility(View.GONE);
 
             }, 150);
 
@@ -1429,13 +1429,60 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         }
     }
 
-    private void CloseEditorButtonsSaveDelete () {
+    private void CloseOrOpenImporter() {
+
+        Animation fadein = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_formatter);
+        Animation fadeout = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out_formatter);
+        CardView importer = getActivity().findViewById(R.id.import_options);
+
+        ImageButton Google = getActivity().findViewById(R.id.GooglePhotos);
+        ImageButton Gallery = getActivity().findViewById(R.id.Gallery);
+        ImageButton Files = getActivity().findViewById(R.id.Files);
+
+        if (CloseImporter) {
+
+            Google.setVisibility(View.GONE);
+            Gallery.setVisibility(View.GONE);
+            Files.setVisibility(View.GONE);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                importer.startAnimation(fadeout);
+
+                importer.setVisibility(View.GONE);
+
+            }, 150);
+
+            CloseImporter = false;
+
+
+        } else {
+
+            importer.setVisibility(View.VISIBLE);
+
+            importer.startAnimation(fadein);
+
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                Google.setVisibility(View.VISIBLE);
+                Gallery.setVisibility(View.VISIBLE);
+                Files.setVisibility(View.VISIBLE);
+
+            }, 150);
+
+            CloseImporter = true;
+
+        }
+    }
+
+    private void CloseEditorButtonsSaveDelete() {
 
         ImageButton Delete = getActivity().findViewById(R.id.Delete);
         ImageButton Save = getActivity().findViewById(R.id.Save);
 
-            Delete.setVisibility(View.GONE);
-            Save.setVisibility(View.GONE);
+        Delete.setVisibility(View.GONE);
+        Save.setVisibility(View.GONE);
 
     }
 
@@ -1452,7 +1499,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
             int vBottom = view.getBottom();
             int sHeight = scroll.getBottom();
             //scroll.smoothScrollTo(((vTop + vBottom - sHeight) / 2), 0);
-             scroll.smoothScrollTo(0, vTop + vBottom - sHeight / 2);
+            scroll.smoothScrollTo(0, vTop + vBottom - sHeight / 2);
         });
     }
 
@@ -1488,7 +1535,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
         SharedPreferences.Editor editor = preferences.edit();
 
         if (string) {
-            editor.putString(name,text);
+            editor.putString(name, text);
             editor.apply();
         }
         if (integer) {
@@ -1502,4 +1549,51 @@ public class NoteEditorFragmentJavaFragment extends Fragment {
 
     }
 
+    private void TransformUriToFile(Uri uri, boolean addToDatabase, String fileType) throws IOException {
+
+        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), uri);
+
+        File directory = this.getActivity().getDir("imageDir", Context.MODE_PRIVATE);
+
+        File file = new File(directory, "EverImage" + Calendar.getInstance().getTimeInMillis() + fileType);
+
+        if (!file.exists()) {
+            Log.d("path", file.toString());
+            FileOutputStream fos = null;
+
+            fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+
+
+            if (addToDatabase) {
+                dataBaseHelper.insertImageToDatabase(String.valueOf(preferences.getInt("noteId", -1)), file.toString(), ImagesURLs.toString().replaceAll("[\\[\\](){}]", ""));
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                    ImagesURLs = dataBaseHelper.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
+                    RecyclerView recyclerView = getActivity().findViewById(R.id.ImagesRecycler);
+                    adapter = new ImagesRecyclerGridAdapter(this.getActivity(), ImagesURLs.toString(), preferences.getInt("position", -1), ImagesURLs.toString().replaceAll("[\\[\\](){}]", "").split("┼").length);
+                    recyclerView.invalidate();
+                    recyclerView.setAdapter(adapter);
+
+                }, 400);
+            }
+        }
     }
+
+    private void CloseAllButtons() {
+        if (CloseFormatter) {
+            CloseOrOpenFormatter();
+        }
+        if (CloseImporter) {
+            CloseOrOpenImporter();
+        }
+        if (CloseParagraph) {
+            CloseOrOpenParagraph();
+        }
+    }
+}
+

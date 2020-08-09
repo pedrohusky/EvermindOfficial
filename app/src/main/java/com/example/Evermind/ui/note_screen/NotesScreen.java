@@ -1,36 +1,31 @@
-package com.example.Evermind.ui.grid.ui.main;
+package com.example.Evermind.ui.note_screen;
 import androidx.lifecycle.ViewModelProviders;
 import android.content.SharedPreferences;
-import android.graphics.ColorSpace;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
 
-import com.example.Evermind.CheckboxAdapter;
-import com.example.Evermind.Checkboxlist_model;
 import com.example.Evermind.DataBaseHelper;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
 import com.example.Evermind.ImagesRecyclerNoteScreenGridAdapter;
+import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapter;
+import com.facebook.drawee.backends.pipeline.Fresco;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 
 import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 
@@ -64,7 +59,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
+        Fresco.initialize(getActivity());
         databaseHelper = new DataBaseHelper(getActivity());
         return inflater.inflate(R.layout.home_screen_notes, container, false);
 
@@ -75,6 +70,8 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+
+
 
         ids = databaseHelper.getIDFromDatabase();
 
@@ -139,17 +136,21 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         RecyclerView recyclerView = getActivity().findViewById(R.id.rvNumbers);
 
 
-        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-        adapter = new RecyclerGridAdapter(this.getActivity(), data, title, date, id, ImageURL); //requireContext() works too
-        recyclerView.setAdapter(adapter);
 
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+                recyclerView.setLayoutManager(staggeredGridLayoutManager);
+                adapter = new RecyclerGridAdapter(this.getActivity(), data, title, date, id, ImageURL); //requireContext() works too
+                recyclerView.setAdapter(adapter);
 
-        adapter.setClickListener(this);
+                itemTouchHelper.attachToRecyclerView(recyclerView);
+
+                adapter.setClickListener(this);
+
+
     }
 
     @Override
     public void onItemClick(View view, int position) {
+
 
 
         SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
@@ -172,6 +173,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         editor.putBoolean("UndoRedo", false);
         editor.apply();
 
+
         NavController navController = Navigation.findNavController(view);
         navController.navigate(R.id.action_nav_home_to_nav_note);
 
@@ -180,7 +182,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
     //This start NoteEditor and send Array to
     public void onClick(View view) {
-        System.out.println("CARALHOOOOOOOOOOOOOOOOOOO DEL CERTO");
+
     }
 
     @Override
@@ -190,8 +192,8 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         View popView;
         popView = LayoutInflater.from(getActivity()).inflate(R.layout.note_customization_layout, null);
         popupWindowHelper = new PopupWindowHelper(popView);
-
         popupWindowHelper.showAsDropDown(view);
+
     }
 
     @Override
@@ -199,11 +201,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         final int noteToDelete = i;
 
         return true;
-    }
-
-
-    public interface MyInterface {
-        public void foo();
     }
 }
 

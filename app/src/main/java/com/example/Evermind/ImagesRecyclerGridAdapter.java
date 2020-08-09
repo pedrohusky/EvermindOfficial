@@ -1,6 +1,9 @@
 package com.example.Evermind;
 
 import android.content.Context;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +14,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.koushikdutta.ion.Ion;
+import com.stfalcon.frescoimageviewer.ImageViewer;
 
+
+import java.io.File;
+import java.util.ArrayList;
 
 import pl.droidsonroids.gif.GifImageView;
 
@@ -26,9 +33,13 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
     private ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
 
+    public static ArrayList<Uri> uris = new ArrayList<>();
+    public static Uri[] uri;
+
     // data is passed into the constructor
     public ImagesRecyclerGridAdapter(Context context, String ImageURLs, Integer ID, int countURLs) {
 
+        new Thread(() -> {
 
         SplittedURLs = ImageURLs.replaceAll("[\\[\\](){}]","").split("┼");
 
@@ -36,6 +47,8 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
             this.mImageURLs = SplittedURLs;
             this.mID = ID;
             this.count = countURLs;
+
+    }).start();
     }
 
 
@@ -69,8 +82,26 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
 
         }
 
+        if (position == 2 && getItemCount() <= 3) {
+            Ion.with(holder.myImageView)
+                    .error(R.drawable.ic_baseline_clear_24)
+                    .animateLoad(R.anim.grid_new_item_anim)
+                    .animateIn(R.anim.grid_new_item_anim)
+                    .smartSize(true)
+                    .centerCrop()
+                    .load(mImageURLs[position]); // was position
 
-           Ion.with(holder.myImageView)
+            ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
+
+            params.height = 800;
+            params.width = 1300;
+
+            holder.myImageView.setLayoutParams(params);
+        }
+
+
+
+        Ion.with(holder.myImageView)
                    .error(R.drawable.ic_baseline_clear_24)
                    .animateLoad(R.anim.grid_new_item_anim)
                    .animateIn(R.anim.grid_new_item_anim)
@@ -114,7 +145,30 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
 
                 //TODO IMPORTANT CODE \/ \/ \/ \/ \/
 
-            myImageView.setOnClickListener(this);
+            myImageView.setOnClickListener(view -> {
+
+                        new Thread(() -> {
+
+                            for (String item : mImageURLs) {
+
+                                File file = new File(item);
+                                uris.add(Uri.fromFile(file));
+
+                            }
+
+                            uri = uris.toArray(new Uri[0]);
+
+                            new Handler(Looper.getMainLooper()).post(() -> {
+
+                                new ImageViewer.Builder(view.getContext(), uri)
+                                        .setStartPosition(getLayoutPosition())
+                                        .show();
+                            });
+
+                            uris.clear();
+
+                        }).start();
+                    });
 
             myImageView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override

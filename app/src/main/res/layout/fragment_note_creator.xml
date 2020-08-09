@@ -31,46 +31,55 @@
             app:cardCornerRadius="30dp"
             app:cardElevation="8dp">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fitsSystemWindows="true"
-                android:gravity="top"
-                android:orientation="vertical">
+                android:gravity="top">
 
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/TitleTextBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:autofillHints=""
-                    android:background="@color/Transparent"
-                    android:fitsSystemWindows="true"
-                    android:gravity="center"
-                    android:hint="Create a new Title"
-                    android:inputType="textShortMessage"
-                    android:paddingLeft="12dp"
-                    android:paddingTop="2dp"
-                    android:paddingRight="12dp"
-                    android:paddingBottom="2dp"
-                    android:textSize="25sp" />
-
-                <com.example.Evermind.EvermindEditor
-                    android:id="@+id/ToSaveNoteText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:animateLayoutChanges="true"
-                    android:fitsSystemWindows="true">
-
-                </com.example.Evermind.EvermindEditor>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/ImagesRecycler"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:orientation="vertical">
 
-            </LinearLayout>
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/TitleTextBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:autofillHints=""
+                        android:background="@color/Transparent"
+                        android:fitsSystemWindows="true"
+                        android:gravity="center"
+                        android:hint="Create a new Title"
+                        android:inputType="textShortMessage"
+                        android:paddingLeft="12dp"
+                        android:paddingTop="2dp"
+                        android:paddingRight="12dp"
+                        android:paddingBottom="2dp"
+                        android:textSize="25sp" />
+
+                    <com.example.Evermind.EvermindEditor
+                        android:id="@+id/ToSaveNoteText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
+                        android:fitsSystemWindows="true">
+
+                    </com.example.Evermind.EvermindEditor>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/ImagesRecycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </LinearLayout>
+
+                <com.divyanshu.draw.widget.DrawView
+                    android:id="@+id/draw_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/Transparent" />
+
+            </RelativeLayout>
 
         </androidx.cardview.widget.CardView>
 

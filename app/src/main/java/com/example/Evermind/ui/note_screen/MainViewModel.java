@@ -1,6 +1,4 @@
-package com.example.Evermind.ui.grid.ui.main;
-
-import android.widget.Toast;
+package com.example.Evermind.ui.note_screen;
 
 import androidx.lifecycle.ViewModel;
 

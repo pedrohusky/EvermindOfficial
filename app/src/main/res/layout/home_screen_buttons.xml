@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -160,6 +161,21 @@
                     android:tint="@color/Black"
                     android:visibility="gone"
                     app:srcCompat="@drawable/increase" />
+
+                <ImageButton
+                    android:id="@+id/Draw"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_margin="7dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="centerInside"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Black"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/draw_icon" />
 
                 <ImageButton
                     android:id="@+id/ChangeColor"
@@ -494,16 +510,16 @@
                 android:visibility="visible">
 
                 <ImageButton
-                    android:id="@+id/GooglePhotos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/Gallery"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_marginLeft="15dp"
                     android:layout_marginTop="7dp"
                     android:layout_marginRight="15dp"
                     android:layout_marginBottom="7dp"
                     android:background="@drawable/selected_background"
                     android:padding="4dp"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Black"
@@ -511,33 +527,32 @@
                     app:srcCompat="@drawable/gallery" />
 
                 <ImageButton
-                    android:id="@+id/Gallery"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/GooglePhotos"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_marginLeft="15dp"
                     android:layout_marginTop="7dp"
                     android:layout_marginRight="15dp"
                     android:layout_marginBottom="7dp"
                     android:background="@drawable/selected_background"
                     android:padding="4dp"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
-                    android:tint="@color/Black"
                     android:visibility="gone"
-                    app:srcCompat="@drawable/gallery" />
+                    app:srcCompat="@drawable/googlephotos" />
 
                 <ImageButton
                     android:id="@+id/Files"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_marginLeft="15dp"
                     android:layout_marginTop="7dp"
                     android:layout_marginRight="15dp"
                     android:layout_marginBottom="7dp"
                     android:background="@drawable/selected_background"
                     android:padding="4dp"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Black"

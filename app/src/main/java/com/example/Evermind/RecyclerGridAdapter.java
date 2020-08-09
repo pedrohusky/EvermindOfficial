@@ -2,38 +2,24 @@ package com.example.Evermind;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.sysdata.kt.htmltextview.SDHtmlTextView;
 
-import org.htmlcleaner.HtmlSerializer;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
-import pl.droidsonroids.gif.GifImageView;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapter.ViewHolder>  {
 
@@ -58,6 +44,8 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     // data is passed into the constructor
     public RecyclerGridAdapter(Context context, String[] data, String[] title, String[] date, Integer[] ids, String[] ImageURL) {
 
+
+
         mDataBaseHelper = new DataBaseHelper(context);
 
         this.mInflater = LayoutInflater.from(context);
@@ -67,6 +55,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
         this.context = context;
         this.mIds = ids;
         this.urls = ImageURL;
+
     }
 
 
@@ -86,6 +75,8 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
         ImagesURLs = mDataBaseHelper.getImageURLFromDatabaseWithID(mIds[position]);
 
+
+
         if (ImagesURLs.size() > 0) {
 
             StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
@@ -94,26 +85,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
             adapter = new ImagesRecyclerNoteScreenGridAdapter(context, ImagesURLs.toString(), position, ImagesURLs.toString().replaceAll("[\\[\\](){}]", "").split("┼").length);
             holder.myRecyclerView.setAdapter(adapter);
-            holder.myRecyclerView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    int x = (int) motionEvent.getX();
-                    int y = (int) motionEvent.getY();
 
-                    switch (motionEvent.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            Toast.makeText(context, "sas", Toast.LENGTH_SHORT).show();
-                            break;
-
-                        case MotionEvent.ACTION_UP:
-
-                            break;
-                    }
-
-                    return false;
-
-                }
-            });
 
 
         }

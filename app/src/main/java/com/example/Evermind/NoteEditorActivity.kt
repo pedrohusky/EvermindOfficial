@@ -10,7 +10,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.example.Evermind.ui.grid.ui.main.NotesScreen
+import com.example.Evermind.ui.note_screen.NotesScreen
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 

@@ -1,6 +1,7 @@
 package com.example.Evermind;
+
 import android.content.SharedPreferences;
-import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,10 +12,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ScrollView;
-import android.widget.Toast;
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -22,37 +21,52 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.koushikdutta.ion.Ion;
 import com.stfalcon.frescoimageviewer.ImageViewer;
-import com.stfalcon.imageviewer.StfalconImageViewer;
-
 import java.util.ArrayList;
 
-import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
-import static com.example.Evermind.ui.grid.ui.main.NotesScreen.databaseHelper;
+import static com.example.Evermind.ui.note_screen.NotesScreen.databaseHelper;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
+
     public static DataBaseHelper mDatabaseHelper;
+
     Integer ID;
+
     public Boolean CloseFormatter = false;
+    public Boolean CloseParagraph = false;
+    public Boolean CloseImporter = false;
 
-    public static ArrayList<String> notes = new ArrayList<>();
-    public static ArrayList<String> titles = new ArrayList<>();
-    public static ArrayList<Integer> ids = new ArrayList<>();
-
+    public static String[] URL;
+    public static String[] Data;
+    public static String[] Title;
+    public static String[] Date;
+    public static int[] Id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        this.getIntent().getIntArrayExtra("id");
+        this.getIntent().getStringArrayExtra("title");
+        this.getIntent().getStringArrayExtra("content");
+        this.getIntent().getStringArrayExtra("date");
+        this.getIntent().getStringArrayExtra("url");
+
+        Id =  this.getIntent().getIntArrayExtra("id");
+
+        Title =  this.getIntent().getStringArrayExtra("title");
+
+        Data =  this.getIntent().getStringArrayExtra("content");
+
+        Date =  this.getIntent().getStringArrayExtra("date");
+
+        URL =  this.getIntent().getStringArrayExtra("url");
 
         //////////CLEAR SHAREDPREFS
 
@@ -61,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.clear();
+        editor.putBoolean("athome", true);
         editor.apply();
 
         //////////CLEAR SHAREDPREFS
@@ -140,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-            CloseOrOpenFormatter(true);
+           CloseAllButtons();
             CloseEditorButtonsSaveDelete();
 
 
@@ -201,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                     }, 350);
                     //Hide nav view /\ /\ /\
 
-                    CloseOrOpenFormatter(true);
+                    CloseAllButtons();
 
                 });
 
@@ -284,43 +299,42 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void CloseOrOpenFormatter(Boolean close) {
+    private void CloseOrOpenFormatter() {
 
-        Animation fadein = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_in_formatter);
-        Animation fadeout = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_formatter);
-        CardView format_text = findViewById(R.id.format_selector);
+        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
+        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
+        CardView format_text = this.findViewById(R.id.format_selector);
 
-        ImageButton ChangeColor = findViewById(R.id.ChangeColor);
-        ImageButton Bold = findViewById(R.id.Bold);
-        ImageButton Italic = findViewById(R.id.Italic);
-        ImageButton Underline = findViewById(R.id.Underline);
-        ImageButton Striketrough = findViewById(R.id.Striketrough);
-        ImageButton HighlightText = findViewById(R.id.HighlightText);
+        ImageButton Draw = this.findViewById(R.id.Draw);
+        ImageButton ChangeColor = this.findViewById(R.id.ChangeColor);
+        ImageButton Bold = this.findViewById(R.id.Bold);
+        ImageButton Italic = this.findViewById(R.id.Italic);
+        ImageButton Underline = this.findViewById(R.id.Underline);
+        ImageButton Striketrough = this.findViewById(R.id.Striketrough);
+        ImageButton HighlightText = this.findViewById(R.id.HighlightText);
 
-        ImageButton Black = findViewById(R.id.black);
-        ImageButton Blue = findViewById(R.id.blue);
-        ImageButton Purple = findViewById(R.id.purple);
-        ImageButton Magenta = findViewById(R.id.magenta);
-        ImageButton Orange = findViewById(R.id.orange);
-        ImageButton Yellow = findViewById(R.id.yellow);
-        ImageButton Green = findViewById(R.id.green);
+        ImageButton Black = this.findViewById(R.id.black);
+        ImageButton Blue = this.findViewById(R.id.blue);
+        ImageButton Purple = this.findViewById(R.id.purple);
+        ImageButton Magenta = this.findViewById(R.id.magenta);
+        ImageButton Orange = this.findViewById(R.id.orange);
+        ImageButton Yellow = this.findViewById(R.id.yellow);
+        ImageButton Green = this.findViewById(R.id.green);
 
-        ImageButton BlackHighlight = findViewById(R.id.blackhighlight);
-        ImageButton BlueHighlight = findViewById(R.id.bluehighlight);
-        ImageButton PurpleHighlight = findViewById(R.id.purplehighlight);
-        ImageButton MagentaHighlight = findViewById(R.id.magentahighlight);
-        ImageButton OrangeHighlight = findViewById(R.id.orangehighlight);
-        ImageButton YellowHighlight = findViewById(R.id.yellowhighlight);
-        ImageButton GreenHighlight = findViewById(R.id.greenhighlight);
+        ImageButton BlackHighlight = this.findViewById(R.id.blackhighlight);
+        ImageButton BlueHighlight = this.findViewById(R.id.bluehighlight);
+        ImageButton PurpleHighlight = this.findViewById(R.id.purplehighlight);
+        ImageButton MagentaHighlight = this.findViewById(R.id.magentahighlight);
+        ImageButton OrangeHighlight = this.findViewById(R.id.orangehighlight);
+        ImageButton YellowHighlight = this.findViewById(R.id.yellowhighlight);
+        ImageButton GreenHighlight = this.findViewById(R.id.greenhighlight);
 
-        ImageButton Increase =  findViewById(R.id.IncreaseSize);
-        ImageButton Decrease =  findViewById(R.id.DecreaseSize);
-        ImageButton Left =  findViewById(R.id.AlignLeft);
-        ImageButton Center =  findViewById(R.id.AlignCenter);
-        ImageButton Right =  findViewById(R.id.AlignRight);
+        ImageButton Increase = this.findViewById(R.id.IncreaseSize);
+        ImageButton Decrease = this.findViewById(R.id.DecreaseSize);
 
-        if (close) {
+        if (CloseFormatter) {
 
+            Draw.setVisibility(View.GONE);
             ChangeColor.setVisibility(View.GONE);
             Bold.setVisibility(View.GONE);
             Italic.setVisibility(View.GONE);
@@ -347,13 +361,12 @@ public class MainActivity extends AppCompatActivity {
 
             Increase.setVisibility(View.GONE);
             Decrease.setVisibility(View.GONE);
-            Left.setVisibility(View.GONE);
-            Center.setVisibility(View.GONE);
-            Right.setVisibility(View.GONE);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
                 format_text.startAnimation(fadeout);
+
+                format_text.setVisibility(View.GONE);
 
             }, 150);
 
@@ -367,14 +380,11 @@ public class MainActivity extends AppCompatActivity {
             format_text.startAnimation(fadein);
 
 
-
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
                 Increase.setVisibility(View.VISIBLE);
                 Decrease.setVisibility(View.VISIBLE);
-                Left.setVisibility(View.VISIBLE);
-                Center.setVisibility(View.VISIBLE);
-                Right.setVisibility(View.VISIBLE);
+                Draw.setVisibility(View.VISIBLE);
                 ChangeColor.setVisibility(View.VISIBLE);
                 Bold.setVisibility(View.VISIBLE);
                 Italic.setVisibility(View.VISIBLE);
@@ -390,6 +400,120 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void CloseOrOpenParagraph() {
+
+        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
+        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
+        CardView format_text = this.findViewById(R.id.format_paragraph);
+
+        ImageButton Bullets = this.findViewById(R.id.Bullets);
+        ImageButton Numbers = this.findViewById(R.id.Numbers);
+        ImageButton Left = this.findViewById(R.id.AlignLeft);
+        ImageView spacing = this.findViewById(R.id.imageView2);
+        ImageButton Center = this.findViewById(R.id.AlignCenter);
+        ImageButton Right = this.findViewById(R.id.AlignRight);
+
+        if (CloseParagraph) {
+
+            spacing.setVisibility(View.GONE);
+            Bullets.setVisibility(View.GONE);
+            Numbers.setVisibility(View.GONE);
+            Left.setVisibility(View.GONE);
+            Center.setVisibility(View.GONE);
+            Right.setVisibility(View.GONE);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                format_text.startAnimation(fadeout);
+
+                format_text.setVisibility(View.GONE);
+
+            }, 150);
+
+            CloseParagraph = false;
+
+
+        } else {
+
+            format_text.setVisibility(View.VISIBLE);
+
+            format_text.startAnimation(fadein);
+
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                spacing.setVisibility(View.VISIBLE);
+                Bullets.setVisibility(View.VISIBLE);
+                Numbers.setVisibility(View.VISIBLE);
+                Left.setVisibility(View.VISIBLE);
+                Center.setVisibility(View.VISIBLE);
+                Right.setVisibility(View.VISIBLE);
+
+            }, 150);
+
+            CloseParagraph = true;
+
+        }
+    }
+
+    private void CloseOrOpenImporter() {
+
+        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
+        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
+        CardView importer = this.findViewById(R.id.import_options);
+
+        ImageButton Google = this.findViewById(R.id.GooglePhotos);
+        ImageButton Gallery = this.findViewById(R.id.Gallery);
+        ImageButton Files = this.findViewById(R.id.Files);
+
+        if (CloseImporter) {
+
+            Google.setVisibility(View.GONE);
+            Gallery.setVisibility(View.GONE);
+            Files.setVisibility(View.GONE);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                importer.startAnimation(fadeout);
+                importer.setVisibility(View.GONE);
+
+            }, 150);
+
+            CloseImporter = false;
+
+
+        } else {
+
+            importer.setVisibility(View.VISIBLE);
+
+            importer.startAnimation(fadein);
+
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                Google.setVisibility(View.VISIBLE);
+                Gallery.setVisibility(View.VISIBLE);
+                Files.setVisibility(View.VISIBLE);
+
+            }, 150);
+
+            CloseImporter = true;
+
+        }
+    }
+
+    private void CloseAllButtons() {
+        if (CloseFormatter) {
+            CloseOrOpenFormatter();
+        }
+        if (CloseImporter) {
+            CloseOrOpenImporter();
+        }
+        if (CloseParagraph) {
+            CloseOrOpenParagraph();
+        }
+    }
+
     private void CloseEditorButtonsSaveDelete () {
 
         ImageButton Delete = findViewById(R.id.Delete);
@@ -400,42 +524,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void OpenNoteFromImage(View view, int position) {
+    public void OpenNoteFromImage(int position, Uri[] uri) {
 
+        new Handler(Looper.getMainLooper()).post(() -> {
 
-        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+            new ImageViewer.Builder(this, uri)
+                    .setStartPosition(position)
+                    .show();
 
-        SharedPreferences.Editor editor = preferences.edit();
-
-        new ImageViewer.Builder(this, databaseHelper.getImageURLFromDatabaseWithID(position))
-               // .setStartPosition(1)
-                .show();
-
-        ids = databaseHelper.getIDFromDatabase();
-
-        notes = databaseHelper.getContentsFromDatabase();
-
-        titles = databaseHelper.getTitlesFromDatabase();
-
-
-        Integer id = ids.get(position);
-        String title = titles.get(position);
-        String content = notes.get(position);
-
-        editor.putInt("noteId", id);
-        editor.putInt("position", position);
-        editor.putString("title", title);
-        editor.putString("content", content);
-        editor.putBoolean("athome", false);
-        editor.putBoolean("newnote", false);
-        editor.putBoolean("BlackHighlight?", false);
-        editor.putBoolean("DeleteNSave", false);
-        editor.putBoolean("UndoRedo", false);
-        editor.apply();
-
-     //   NavController navController = Navigation.findNavController(view);
-      //  navController.navigate(R.id.action_nav_home_to_nav_note);
-
-
+        });
     }
 }

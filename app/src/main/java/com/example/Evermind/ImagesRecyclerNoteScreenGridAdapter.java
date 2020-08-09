@@ -1,28 +1,21 @@
 package com.example.Evermind;
 
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
-import android.view.Gravity;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
-import com.example.Evermind.ui.grid.ui.main.NotesScreen;
 import com.koushikdutta.ion.Ion;
-import com.kyleduo.blurpopupwindow.library.BlurPopupWindow;
-import com.stfalcon.imageviewer.StfalconImageViewer;
+import com.stfalcon.frescoimageviewer.ImageViewer;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
@@ -34,16 +27,19 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
     private Integer mID;
     private int count;
     private String[] SplittedURLs;
-    private int realID;
 
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
     private Context context;
-    private PopupWindowHelper popupWindowHelper;
+
+    public static ArrayList<Uri> uris = new ArrayList<>();
+    public static Uri[] uri;
+
 
     // data is passed into the constructor
     public ImagesRecyclerNoteScreenGridAdapter(Context context, String ImageURLs, Integer ID, int countURLs) {
+
 
 
         SplittedURLs = ImageURLs.replaceAll("[\\[\\](){}]","").trim().split("┼");
@@ -53,6 +49,8 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
             this.mID = ID;
             this.count = countURLs;
             this.context = context;
+
+
     }
 
 
@@ -76,6 +74,8 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
                     .error(R.drawable.ic_baseline_clear_24)
                     .animateLoad(R.anim.grid_new_item_anim)
                     .animateIn(R.anim.grid_new_item_anim)
+                    .smartSize(true)
+                    .centerCrop()
                     .load(mImageURLs[position]); // was position
 
             ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
@@ -86,16 +86,16 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
             holder.myImageView.setLayoutParams(params);
         }
 
+
         Ion.with(holder.myImageView)
                 .error(R.drawable.ic_baseline_clear_24)
                 .animateLoad(R.anim.grid_new_item_anim)
                 .animateIn(R.anim.grid_new_item_anim)
                 .smartSize(true)
+                .centerCrop()
                 .load(mImageURLs[position]); // was position
 
 
-
-        System.out.println("NOTE SCREEN POSITION WICH LOADED = " + position +  "   LAST STEP LOADED = " + mImageURLs[position]);
 
         }
 
@@ -138,8 +138,30 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
 
             myImageView.setOnClickListener(view -> {
 
-                ((MainActivity)context).OpenNoteFromImage(view, mID);
-            });
+                new Thread(() -> {
+
+                for (String item: mImageURLs) {
+
+                    File file = new File(item);
+                    uris.add(Uri.fromFile(file));
+
+                }
+
+                uri = uris.toArray(new Uri[0]);
+
+                    new Handler(Looper.getMainLooper()).post(() -> {
+
+                        new ImageViewer.Builder(context, uri)
+                                .setStartPosition(getLayoutPosition())
+                                .show();
+                    });
+
+                uris.clear();
+
+            }).start();
+
+                    });
+
 
            // myImageView.setOnClickListener(this);
 
