@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/PaintColor"
+        android:icon="@drawable/text_edi"
+        android:title="Color" />
+
+    <item
+        android:id="@+id/PaintSize"
+        android:icon="@drawable/format_paragraph_icon"
+        android:title="Stroke Size" />
+
+    <item
+        android:id="@+id/PaintStyle"
+        android:icon="@drawable/import_icon"
+        android:title="Paint Style" />
+
+    <item
+        android:id="@+id/ClosePaint"
+        android:icon="@drawable/ic_close_black_24dp"
+        android:title="Close Paint Mode" />
+
+</menu>

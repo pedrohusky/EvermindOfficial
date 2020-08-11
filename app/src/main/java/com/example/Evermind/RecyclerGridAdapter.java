@@ -3,8 +3,12 @@ package com.example.Evermind;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,13 +36,12 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     public  Context context;
     private String[] SplittedURLs;
     private String[] urls;
-    private  ArrayList<String> ImagesURLs = new ArrayList<>();
 
     private RecyclerView mRecyclerView;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
-    private DataBaseHelper mDataBaseHelper;
+    private EverDataBase mEverDataBase;
     private ImagesRecyclerNoteScreenGridAdapter adapter;
 
     // data is passed into the constructor
@@ -46,7 +49,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
 
 
-        mDataBaseHelper = new DataBaseHelper(context);
+        mEverDataBase = new EverDataBase(context);
 
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
@@ -73,17 +76,27 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        ImagesURLs = mDataBaseHelper.getImageURLFromDatabaseWithID(mIds[position]);
+        String imagesURLs = mEverDataBase.getImageURLFromDatabaseWithID(mIds[position]);
 
+        if (!mEverDataBase.getBackgroundFromDatabaseWithID(mIds[position]).equals("┼")) {
+            Bitmap bitmap = BitmapFactory.decodeFile(mEverDataBase.getBackgroundFromDatabaseWithID(mIds[position]));
 
+            if (bitmap != null) {
+                BitmapDrawable bitmapDrawable = new BitmapDrawable(bitmap);
 
-        if (ImagesURLs.size() > 0) {
+                holder.myTextView.setBackground(bitmapDrawable);
+                holder.myTextView.setGravity(Gravity.START);
+                holder.myTextView.setPadding(4, 4 ,4 ,4);
+            }
+        }
+
+        if (imagesURLs.length() > 0) {
 
             StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
 
             holder.myRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
-            adapter = new ImagesRecyclerNoteScreenGridAdapter(context, ImagesURLs.toString(), position, ImagesURLs.toString().replaceAll("[\\[\\](){}]", "").split("┼").length);
+            adapter = new ImagesRecyclerNoteScreenGridAdapter(context, imagesURLs, position, imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
             holder.myRecyclerView.setAdapter(adapter);
 
 

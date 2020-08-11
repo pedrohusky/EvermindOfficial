@@ -10,40 +10,31 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-
-import com.example.Evermind.DataBaseHelper;
-import com.example.Evermind.ImagesRecyclerGridAdapter;
-import com.example.Evermind.ImagesRecyclerNoteScreenGridAdapter;
-import com.example.Evermind.MainActivity;
+import com.example.Evermind.EverDataBase;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapter;
-import com.facebook.drawee.backends.pipeline.Fresco;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
-
 import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
-
 import static android.content.Context.MODE_PRIVATE;
 
 public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemClickListener, AdapterView.OnItemLongClickListener {
 
 
     public RecyclerGridAdapter adapter;
-    public ImagesRecyclerNoteScreenGridAdapter recyclerAdapter;
-    public static ImagesRecyclerGridAdapter listadapter;
-    public static DataBaseHelper databaseHelper;
+    public static EverDataBase databaseEver;
     public static ArrayList<String> notes = new ArrayList<>();
     public static ArrayList<String> titles = new ArrayList<>();
     public static ArrayList<String> dates = new ArrayList<>();
     public static ArrayList<Integer> ids = new ArrayList<>();
     public static ArrayList<String> ImagesURLs = new ArrayList<>();
-    public static ArrayList<Integer> ImagesIDs = new ArrayList<>();
     public static String[] ImageURL;
     public static String[] data;
     public static String[] title;
@@ -53,14 +44,11 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     public static int fromPosition;
     public static int toPosition;
 
-    private MainViewModel mViewModel;
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Fresco.initialize(getActivity());
-        databaseHelper = new DataBaseHelper(getActivity());
+        databaseEver = new EverDataBase(getActivity());
         return inflater.inflate(R.layout.home_screen_notes, container, false);
 
     }
@@ -69,27 +57,25 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        MainViewModel mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
-
-
-        ids = databaseHelper.getIDFromDatabase();
+        ids = databaseEver.getIDFromDatabase();
 
         id = ids.toArray(new Integer[0]);
 
-        notes = databaseHelper.getContentsFromDatabase();
+        notes = databaseEver.getContentsFromDatabase();
 
         data = notes.toArray(new String[0]);
 
-        titles = databaseHelper.getTitlesFromDatabase();
+        titles = databaseEver.getTitlesFromDatabase();
 
         title = titles.toArray(new String[0]);
 
-        dates = databaseHelper.getDateFromDatabase();
+        dates = databaseEver.getDateFromDatabase();
 
         date = dates.toArray(new String[0]);
 
-        ImagesURLs = databaseHelper.getImageURLFromDatabase();
+        ImagesURLs = databaseEver.getImageURLFromDatabase();
 
         ImagesURLs.removeAll(Collections.singletonList(""));
 
@@ -98,7 +84,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT, 0) {
             @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            public boolean onMove(@NotNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
                 fromPosition = viewHolder.getAdapterPosition();
                 toPosition = target.getAdapterPosition();
                 if (fromPosition < toPosition) {
@@ -118,11 +104,11 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 ids.remove(viewHolder.getAdapterPosition());
                 adapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                databaseHelper.deleteNote(viewHolder.getAdapterPosition());
+                databaseEver.deleteNote(viewHolder.getAdapterPosition());
             }
 
             @Override
-            public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            public void clearView(@NotNull RecyclerView recyclerView, @NotNull RecyclerView.ViewHolder viewHolder) {
                 super.clearView(recyclerView, viewHolder);
             }
         };
@@ -133,7 +119,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
 
         // set up the RecyclerView
-        RecyclerView recyclerView = getActivity().findViewById(R.id.rvNumbers);
+        RecyclerView recyclerView = requireActivity().findViewById(R.id.rvNumbers);
 
 
 
@@ -151,21 +137,14 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     @Override
     public void onItemClick(View view, int position) {
 
-
-
-        SharedPreferences preferences = getActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        SharedPreferences preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
         SharedPreferences.Editor editor = preferences.edit();
 
 
         Integer id = ids.get(position);
-        String title = titles.get(position);
-        String content = notes.get(position);
 
         editor.putInt("noteId", id);
-        editor.putInt("position", position);
-        editor.putString("title", title);
-        editor.putString("content", content);
         editor.putBoolean("athome", false);
         editor.putBoolean("newnote", false);
         editor.putBoolean("BlackHighlight?", false);
@@ -198,7 +177,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-        final int noteToDelete = i;
 
         return true;
     }

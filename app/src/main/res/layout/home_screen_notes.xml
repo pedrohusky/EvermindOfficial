@@ -5,47 +5,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageButton
+        android:id="@+id/AddNewNoteButton"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@color/White"
+        android:clickable="true"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:onClick="onClick"
+        android:scaleType="center"
+        android:src="@drawable/note_plus_button_rectangle"
+        android:visibility="visible" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvNumbers"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="16.5dp"
+        android:layout_marginTop="28dp"
         android:background="@color/Transparent"
         android:layoutAnimation="@anim/grid_appear_layout_animation"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:paddingTop="4dp"
-        android:paddingBottom="0dp">
-
-        <Button
-            android:id="@+id/AddNewNoteButton"
-            android:layout_width="380dp"
-            android:layout_height="25dp"
-            android:background="@drawable/note_plus_button_rectangle_without_plus"
-            android:clickable="true"
-            android:elevation="10dp"
-            android:focusable="true"
-            android:onClick="onClick"
-            android:visibility="visible" />
-
-        <ImageButton
-            android:id="@+id/DecoyButtonAddNewNote"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:background="@drawable/note_plus_button_rectangle"
-            android:clickable="true"
-            android:elevation="10dp"
-            android:focusable="true"
-            android:onClick="onClick"
-            android:outlineProvider="none"
-            android:translationX="177.5dp"
-            android:visibility="visible" />
-
-    </RelativeLayout>
 
 </RelativeLayout>

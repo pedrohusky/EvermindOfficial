@@ -8,18 +8,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.koushikdutta.ion.Ion;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 import pl.droidsonroids.gif.GifImageView;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<ImagesRecyclerNoteScreenGridAdapter.ViewHolder>  {
 
@@ -40,7 +39,7 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
     // data is passed into the constructor
     public ImagesRecyclerNoteScreenGridAdapter(Context context, String ImageURLs, Integer ID, int countURLs) {
 
-
+        new Thread(() -> {
 
         SplittedURLs = ImageURLs.replaceAll("[\\[\\](){}]","").trim().split("┼");
 
@@ -50,7 +49,7 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
             this.count = countURLs;
             this.context = context;
 
-
+        }).start();
     }
 
 
@@ -66,7 +65,7 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
 
     // binds the data to the TextView in each cell
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NotNull ViewHolder holder, int position) {
 
 
         if (position == 0 && getItemCount() <= 1) {
@@ -81,7 +80,7 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
             ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
 
             params.height = 600;
-            params.width = 600;
+            params.width = MATCH_PARENT;
 
             holder.myImageView.setLayoutParams(params);
         }
@@ -124,7 +123,6 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         GifImageView myImageView;
-        LinearLayout myLinearLayout;
 
         ViewHolder(View itemView) {
             super(itemView);

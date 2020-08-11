@@ -21,19 +21,21 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 import java.util.ArrayList;
 
 
-import static com.example.Evermind.ui.note_screen.NotesScreen.databaseHelper;
+import static com.example.Evermind.ui.note_screen.NotesScreen.databaseEver;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
 
-    public static DataBaseHelper mDatabaseHelper;
+    public static EverDataBase mDatabaseEver;
 
     Integer ID;
 
@@ -41,36 +43,18 @@ public class MainActivity extends AppCompatActivity {
     public Boolean CloseParagraph = false;
     public Boolean CloseImporter = false;
 
-    public static String[] URL;
-    public static String[] Data;
-    public static String[] Title;
-    public static String[] Date;
-    public static int[] Id;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.getIntent().getIntArrayExtra("id");
-        this.getIntent().getStringArrayExtra("title");
-        this.getIntent().getStringArrayExtra("content");
-        this.getIntent().getStringArrayExtra("date");
-        this.getIntent().getStringArrayExtra("url");
-
-        Id =  this.getIntent().getIntArrayExtra("id");
-
-        Title =  this.getIntent().getStringArrayExtra("title");
-
-        Data =  this.getIntent().getStringArrayExtra("content");
-
-        Date =  this.getIntent().getStringArrayExtra("date");
-
-        URL =  this.getIntent().getStringArrayExtra("url");
+        // Transitioner transition = Transitioner(this, )
 
         //////////CLEAR SHAREDPREFS
 
-        SharedPreferences preferences = this.getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
         SharedPreferences.Editor editor = preferences.edit();
 
@@ -80,19 +64,21 @@ public class MainActivity extends AppCompatActivity {
 
         //////////CLEAR SHAREDPREFS
 
+        Fresco.initialize(this);
+
         new Thread(() -> {
             // a potentially time consuming task
 
             Toolbar toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
-            BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
+            //BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
 
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
             CardView format_text = findViewById(R.id.format_selector);
 
 
-            mDatabaseHelper = new DataBaseHelper(this);
+            mDatabaseEver = new EverDataBase(this);
 
 
             //  DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -148,19 +134,19 @@ public class MainActivity extends AppCompatActivity {
             if (!preferences.getBoolean("athome", false)) {
                 new Thread(() -> {
                     int id = preferences.getInt("noteId", -1);
-                    mDatabaseHelper.editTitle(Integer.toString(id), editText.getText().toString());
+                    mDatabaseEver.editTitle(Integer.toString(id), editText.getText().toString());
 
                 }).start();
             }
 
 
 
-           CloseAllButtons();
+            CloseAllButtons();
             CloseEditorButtonsSaveDelete();
 
 
             //Hide nav view \/ \/ \/
-            BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
+            BottomNavigationView bottomNavigationView = findViewById(R.id.note_bottom_bar);
             Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
             bottomNavigationView.startAnimation(bottom_nav_anim_reverse);
 
@@ -189,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 EditText title_editText = this.findViewById(R.id.TitleTextBox);
                 int id = preferences.getInt("noteId", -1);
 
-                mDatabaseHelper.editTitle(Integer.toString(id), title_editText.getText().toString());
+                mDatabaseEver.editTitle(Integer.toString(id), title_editText.getText().toString());
 
                 // TODO  /////////////////////////////////////////////////////
 
@@ -204,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                 new Handler(Looper.getMainLooper()).post(() -> {
 
                     //Hide nav view \/ \/ \/
-                    BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
+                    BottomNavigationView bottomNavigationView = findViewById(R.id.note_bottom_bar);
                     Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
                     bottomNavigationView.startAnimation(bottom_nav_anim_reverse);
 
@@ -240,46 +226,36 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences.Editor editor = preferences.edit();
 
-
-        new Thread(() -> {
-            // a potentially time consuming task
-
-            mDatabaseHelper.AddNoteContent("", "");
+            mDatabaseEver.AddNoteContent("", "");
 
             new Handler(Looper.getMainLooper()).post(() -> {
 
-                ArrayList<Integer> arrayList = databaseHelper.getIDFromDatabase();
+                ArrayList<Integer> arrayList = databaseEver.getIDFromDatabase();
 
                 if (!arrayList.isEmpty()) {
 
                     ID = arrayList.get(arrayList.size() - 1);
+                    System.out.println(ID);
 
                     editor.putInt("noteId", ID);
-                    editor.putString("title", "");
-                    editor.putString("content", "");
                     editor.putBoolean("athome", false);
                     editor.putBoolean("newnote", true);
-                    editor.putBoolean("BlackHighlight?", false);
                     editor.putBoolean("DeleteNSave", false);
                     editor.putBoolean("UndoRedo", false);
                     editor.apply();
 
-                    BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
+                    BottomNavigationView bottomNavigationView = findViewById(R.id.note_bottom_bar);
                     bottomNavigationView.setVisibility(View.VISIBLE);
 
 
                 } else {
 
-//                    ID = NotesScreen.adapter.getItemCount();
                     ID = 1;
 
 
                     editor.putInt("noteId", ID);
-                    editor.putString("title", "");
-                    editor.putString("content", "");
                     editor.putBoolean("athome", false);
                     editor.putBoolean("newnote", true);
-                    editor.putBoolean("BlackHighlight?", false);
                     editor.putBoolean("DeleteNSave", false);
                     editor.putBoolean("UndoRedo", false);
                     editor.apply();
@@ -287,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
                     EditText editText = findViewById(R.id.TitleTextBox);
                     editText.setVisibility(View.VISIBLE);
 
-                    BottomNavigationView bottomNavigationView = findViewById(R.id.navigation_note);
+                    BottomNavigationView bottomNavigationView = findViewById(R.id.note_bottom_bar);
                     bottomNavigationView.setVisibility(View.VISIBLE);
                 }
 
@@ -295,8 +271,6 @@ public class MainActivity extends AppCompatActivity {
                 navController.navigate(R.id.action_nav_home_to_nav_note);
 
             });
-
-        }).start();
     }
 
     private void CloseOrOpenFormatter() {
@@ -305,7 +279,6 @@ public class MainActivity extends AppCompatActivity {
         Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
         CardView format_text = this.findViewById(R.id.format_selector);
 
-        ImageButton Draw = this.findViewById(R.id.Draw);
         ImageButton ChangeColor = this.findViewById(R.id.ChangeColor);
         ImageButton Bold = this.findViewById(R.id.Bold);
         ImageButton Italic = this.findViewById(R.id.Italic);
@@ -334,7 +307,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (CloseFormatter) {
 
-            Draw.setVisibility(View.GONE);
             ChangeColor.setVisibility(View.GONE);
             Bold.setVisibility(View.GONE);
             Italic.setVisibility(View.GONE);
@@ -384,7 +356,6 @@ public class MainActivity extends AppCompatActivity {
 
                 Increase.setVisibility(View.VISIBLE);
                 Decrease.setVisibility(View.VISIBLE);
-                Draw.setVisibility(View.VISIBLE);
                 ChangeColor.setVisibility(View.VISIBLE);
                 Bold.setVisibility(View.VISIBLE);
                 Italic.setVisibility(View.VISIBLE);

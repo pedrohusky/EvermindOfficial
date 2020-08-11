@@ -23,8 +23,8 @@
         android:title="Bullets" />
 
     <item
-        android:id="@+id/nav_numbers"
-        android:icon="@drawable/numbers"
-        android:title="Numbers" />
+        android:id="@+id/nav_draw"
+        android:icon="@drawable/draw_icon"
+        android:title="Draw" />
 
 </menu>

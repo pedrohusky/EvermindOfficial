@@ -66,29 +66,12 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        if (position == 0 && getItemCount() <= 1) {
+        if ((position % 2) == 0 && (position + 1) == getItemCount()) {
+
             Ion.with(holder.myImageView)
                     .error(R.drawable.ic_baseline_clear_24)
                     .animateLoad(R.anim.grid_new_item_anim)
                     .animateIn(R.anim.grid_new_item_anim)
-                    .load(mImageURLs[position]); // was position
-
-            ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
-
-            params.height = 1300;
-            params.width = 1300;
-
-            holder.myImageView.setLayoutParams(params);
-
-        }
-
-        if (position == 2 && getItemCount() <= 3) {
-            Ion.with(holder.myImageView)
-                    .error(R.drawable.ic_baseline_clear_24)
-                    .animateLoad(R.anim.grid_new_item_anim)
-                    .animateIn(R.anim.grid_new_item_anim)
-                    .smartSize(true)
-                    .centerCrop()
                     .load(mImageURLs[position]); // was position
 
             ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
@@ -97,25 +80,22 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
             params.width = 1300;
 
             holder.myImageView.setLayoutParams(params);
-        }
-
-
-
-        Ion.with(holder.myImageView)
-                   .error(R.drawable.ic_baseline_clear_24)
-                   .animateLoad(R.anim.grid_new_item_anim)
-                   .animateIn(R.anim.grid_new_item_anim)
-                   .smartSize(true)
-                   .load(mImageURLs[position]);
-
-
-        System.out.println("POSITION WICH LOADED = " + position +  "   LAST STEP LOADED = " + mImageURLs[position]);
 
         }
 
+        else {
 
+            Ion.with(holder.myImageView)
+                    .error(R.drawable.ic_baseline_clear_24)
+                    .animateLoad(R.anim.grid_new_item_anim)
+                    .animateIn(R.anim.grid_new_item_anim)
+                    .smartSize(true)
+                    .centerCrop()
+                    .load(mImageURLs[position]); // was position
 
+        }
 
+        }
 
     // total number of cells
     @Override

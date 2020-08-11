@@ -4,8 +4,8 @@
     android:id="@+id/scrollview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_above="@+id/navigation_note"
-    android:layout_alignBottom="@id/navigation_note"
+    android:layout_above="@+id/note_bottom_bar"
+    android:layout_alignBottom="@id/note_bottom_bar"
     android:background="@color/Transparent"
     android:orientation="vertical"
     tools:context=".MainActivity">
@@ -28,7 +28,7 @@
             android:layout_marginBottom="110dp"
             android:fitsSystemWindows="true"
             android:translationY="30dp"
-            app:cardCornerRadius="30dp"
+            app:cardCornerRadius="15dp"
             app:cardElevation="8dp">
 
             <RelativeLayout
@@ -40,6 +40,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:animateLayoutChanges="true"
                     android:orientation="vertical">
 
                     <androidx.appcompat.widget.AppCompatEditText
@@ -61,9 +62,7 @@
                     <com.example.Evermind.EvermindEditor
                         android:id="@+id/ToSaveNoteText"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:animateLayoutChanges="true"
-                        android:fitsSystemWindows="true">
+                        android:layout_height="wrap_content">
 
                     </com.example.Evermind.EvermindEditor>
 
@@ -77,7 +76,8 @@
                     android:id="@+id/draw_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/Transparent" />
+                    android:background="@color/Transparent"
+                    android:visibility="gone" />
 
             </RelativeLayout>
 
