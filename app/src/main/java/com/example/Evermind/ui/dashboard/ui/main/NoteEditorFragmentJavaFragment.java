@@ -5,12 +5,14 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProviders;
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,7 +22,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import android.os.Handler;
 import android.os.Looper;
@@ -31,6 +32,7 @@ import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -40,36 +42,24 @@ import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
-import android.widget.Toast;
-
-import com.divyanshu.draw.widget.DrawView;
 import com.example.Evermind.EverDataBase;
+import com.example.Evermind.EverDraw;
 import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
 import com.example.Evermind.R;
 import com.example.Evermind.SoftInputAssist;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.muehlemann.giphy.GiphyLibrary;
-
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
-
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -109,6 +99,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
     private boolean tomanocu = false;
 
+    public int FinalY;
+
     private GiphyLibrary giphyLibrary;
 
     private static final String GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos";
@@ -130,6 +122,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
         return inflater.inflate(R.layout.fragment_note_creator, container, false);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -140,20 +133,17 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         evermindEditor = requireActivity().findViewById(R.id.ToSaveNoteText);
 
-        if (!everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).equals("┼")) {
+        SoftInputAssist softInputAssist = new SoftInputAssist(requireActivity());
 
+        if (!everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).equals("┼")) {
             Bitmap bitmap = BitmapFactory.decodeFile(everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()));
 
             if (bitmap != null) {
-                BitmapDrawable bitmapDrawable = new BitmapDrawable(bitmap);
-
-                evermindEditor.setBackground(bitmapDrawable);
-            } }
-
-        SoftInputAssist softInputAssist = new SoftInputAssist(requireActivity());
+                BitmapDrawable bitmapDrawable = new BitmapDrawable(bitmap);     } }
 
         evermindEditor.setEditorHeight(150);
         evermindEditor.setEditorFontSize(22);
+        evermindEditor.setBackgroundColor(GetColor(R.color.Transparent));
         evermindEditor.setPadding(15, 15, 15, 15);
         // evermindEditor.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
@@ -253,11 +243,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
         ImageButton YellowHighlight = requireActivity().findViewById(R.id.yellowhighlight);
         ImageButton GreenHighlight = requireActivity().findViewById(R.id.greenhighlight);
 
-        CardView cardView = requireActivity().findViewById(R.id.cardView);
+        CardView cardView = requireActivity().findViewById(R.id.card_note_creator);
 
         RecyclerView recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
 
-        DrawView drawView = requireActivity().findViewById(R.id.draw_view);
+        EverDraw everDraw = requireActivity().findViewById(R.id.EverDraw);
 
         new Thread(() -> {
 
@@ -316,7 +306,34 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
             });
 
-            KeyboardVisibilityEvent.setEventListener(
+            everDraw.setOnTouchListener((view, motionEvent) -> {
+
+                int  y = (int) motionEvent.getY();
+
+                 if (y >= FinalY) {
+                     FinalY = y;
+                 }
+
+                if (y >= everDraw.getHeight() - 75) {
+
+                    new Handler(Looper.getMainLooper()).post(() -> {
+
+                        TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                                .addTransition(new ChangeBounds()));
+
+                        ViewGroup.LayoutParams params = everDraw.getLayoutParams();
+
+                        params.height = everDraw.getHeight() + 200;
+
+                        everDraw.setLayoutParams(params);
+
+                    });
+
+                }
+                return false;
+            });
+
+                KeyboardVisibilityEvent.setEventListener(
                     requireActivity(),
                     isOpen -> {
 
@@ -404,7 +421,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
             seekBarDrawSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                    drawView.setStrokeWidth(i);
+                    everDraw.setStrokeWidth(i);
 
                     if (DrawVisualizerIsShowing) {
 
@@ -510,6 +527,18 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                         InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
                         keyboard.hideSoftInputFromWindow(requireView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                                    .addTransition(new ChangeBounds()));
+
+                            ViewGroup.LayoutParams params = everDraw.getLayoutParams();
+
+                            params.height = 1400;
+
+                            everDraw.setLayoutParams(params);
+
+                        }, 500);
+
 
                     default:
                         return true;
@@ -519,7 +548,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
             Delete.setOnClickListener(view -> {
                 if (DrawOn) {
-                    drawView.clearCanvas();
+                    everDraw.clearCanvas();
                     OpenOrCloseDrawOptions();
                 } else {
                     new AlertDialog.Builder(requireActivity())
@@ -543,19 +572,18 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
             Save.setOnClickListener(view -> {
                 if (DrawOn) {
 
-                    Bitmap bitmap = drawView.getBitmap();
-
-                    BitmapDrawable bitmapDrawable = new BitmapDrawable(bitmap);
+                    Bitmap bitmap = everDraw.getBitmap();
+                   Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), FinalY + 100);
+                    BitmapDrawable bitmapDrawable = new BitmapDrawable(resizedBitmap);
                     bitmapDrawable.setGravity(Gravity.CENTER|Gravity.END);
 
                     try {
-                        TransformBitmapToFile(bitmap, true, ".jpeg");
+                        TransformBitmapToFile(resizedBitmap, true, ".jpeg");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    evermindEditor.setBackground(bitmapDrawable);
 
-                    drawView.clearCanvas();
+                    everDraw.clearCanvas();
 
                     OpenOrCloseDrawOptions();
                 } else {
@@ -565,7 +593,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
             Undo.setOnClickListener(view -> {
                 if (DrawOn) {
-                    drawView.undo();
+                    everDraw.undo();
                 } else {
                     evermindEditor.undo();
                 }
@@ -573,7 +601,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
             Redo.setOnClickListener(view -> {
                 if (DrawOn) {
-                    drawView.redo();
+                    everDraw.redo();
                 } else {
                     evermindEditor.redo();
                 }
@@ -690,7 +718,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                         ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, true, false, 0);
                         ApplyChangesToSharedPreferences("UndoRedo", false, "", true, true, false, 0);
 
-                    }, 200);
+                    }, 450);
 
                 } else {
 
@@ -704,6 +732,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                         //    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;;
                         //     cardView.setLayoutParams(params);
 
+                        if (DrawOn) {
+
+                        } else {
 
                         ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
                         ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
@@ -712,7 +743,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                         Redo.setVisibility(View.GONE);
 
                         InputMethodManager keyboard = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-                        keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS); }
 
                     });
                 }
@@ -866,7 +897,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
     //////////////////////////////////////////// HANDLE IMAGES /\ /\ /\ /\ /\
     void openImageChooser(String name) {
-        CardView cardView = requireActivity().findViewById(R.id.cardView);
+        CardView cardView = requireActivity().findViewById(R.id.card_note_creator);
         switch (name) {
             case "GooglePhotos":
 
@@ -1119,26 +1150,36 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
             CardView draw_color = requireActivity().findViewById(R.id.draw_options);
 
             EditText TitleTextBox = requireActivity().findViewById(R.id.TitleTextBox);
+            EvermindEditor evermindEditor = requireActivity().findViewById(R.id.ToSaveNoteText);
 
             ImageButton change_color = requireActivity().findViewById(R.id.DrawChangeColor);
             ImageButton change_size = requireActivity().findViewById(R.id.DrawChangeSize);
+            ImageButton Undo = requireActivity().findViewById(R.id.Undo);
+            ImageButton Redo = requireActivity().findViewById(R.id.Redo);
             RecyclerView recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
 
-            DrawView drawView = requireActivity().findViewById(R.id.draw_view);
+            EverDraw everDraw = requireActivity().findViewById(R.id.EverDraw);
 
             if (CloseOpenedDrawOptions) {
 
                 new Handler(Looper.getMainLooper()).post(() -> {
 
+                    ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
+                    ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
+
+                    Undo.setVisibility(View.GONE);
+                    Redo.setVisibility(View.GONE);
+
                     draw_color.startAnimation(fadeout);
                     change_color.setVisibility(View.GONE);
                     change_size.setVisibility(View.GONE);
-                    TitleTextBox.setVisibility(View.GONE);
+                    TitleTextBox.setVisibility(View.VISIBLE);
+                    evermindEditor.setVisibility(View.VISIBLE);
 
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                        drawView.setVisibility(View.GONE);
+                        everDraw.setVisibility(View.GONE);
                         recyclerViewImage.setVisibility(View.VISIBLE);
 
                         draw_color.setVisibility(View.GONE);
@@ -1152,9 +1193,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
             } else {
                 new Handler(Looper.getMainLooper()).post(() -> {
 
-                    drawView.setVisibility(View.VISIBLE);
+                    everDraw.setVisibility(View.VISIBLE);
                     recyclerViewImage.setVisibility(View.GONE);
                     TitleTextBox.setVisibility(View.GONE);
+                    evermindEditor.setVisibility(View.GONE);
 
                     draw_color.setVisibility(View.VISIBLE);
 
@@ -1547,13 +1589,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
     public void DrawColorClickedSwitcher(String color) {
 
-        DrawView drawView = requireActivity().findViewById(R.id.draw_view);
+        EverDraw everDraw = requireActivity().findViewById(R.id.EverDraw);
 
         switch (color) {
 
             case "Black":
 
-                drawView.setColor(GetColor(R.color.Black));
+                everDraw.setColor(GetColor(R.color.Black));
 
                 OpenOrCloseDrawColors();
 
@@ -1562,7 +1604,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
             case "Blue":
 
-                drawView.setColor(GetColor(R.color.SkyBlue));
+                everDraw.setColor(GetColor(R.color.SkyBlue));
 
 
                 OpenOrCloseDrawColors();
@@ -1572,7 +1614,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
             case "Purple":
 
-                drawView.setColor(GetColor(R.color.Pink));
+                everDraw.setColor(GetColor(R.color.Pink));
 
                 OpenOrCloseDrawColors();
 
@@ -1581,7 +1623,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
             case "Magenta":
 
-                drawView.setColor(GetColor(R.color.Magenta));
+                everDraw.setColor(GetColor(R.color.Magenta));
 
 
                 OpenOrCloseDrawColors();
@@ -1592,7 +1634,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
             case "Orange":
 
 
-                drawView.setColor(GetColor(R.color.Orange));
+                everDraw.setColor(GetColor(R.color.Orange));
 
                 OpenOrCloseDrawColors();
 
@@ -1602,7 +1644,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
             case "Yellow":
 
 
-                drawView.setColor(GetColor(R.color.YellowSun));
+                everDraw.setColor(GetColor(R.color.YellowSun));
 
                 OpenOrCloseDrawColors();
 
@@ -1612,7 +1654,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
             case "Green":
 
 
-                drawView.setColor(GetColor(R.color.GrassGreen));
+                everDraw.setColor(GetColor(R.color.GrassGreen));
 
                 OpenOrCloseDrawColors();
 

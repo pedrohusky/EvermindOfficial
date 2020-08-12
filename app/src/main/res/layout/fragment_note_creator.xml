@@ -14,11 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        android:gravity="top"
         android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
+            android:id="@+id/card_note_creator"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginStart="20dp"
@@ -26,6 +25,7 @@
             android:layout_marginEnd="21dp"
             android:layout_marginRight="21dp"
             android:layout_marginBottom="110dp"
+            android:animateLayoutChanges="true"
             android:fitsSystemWindows="true"
             android:translationY="30dp"
             app:cardCornerRadius="15dp"
@@ -62,7 +62,8 @@
                     <com.example.Evermind.EvermindEditor
                         android:id="@+id/ToSaveNoteText"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:elevation="1dp">
 
                     </com.example.Evermind.EvermindEditor>
 
@@ -70,10 +71,11 @@
                         android:id="@+id/ImagesRecycler"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
+
                 </LinearLayout>
 
-                <com.divyanshu.draw.widget.DrawView
-                    android:id="@+id/draw_view"
+                <com.example.Evermind.EverDraw
+                    android:id="@+id/EverDraw"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/Transparent"

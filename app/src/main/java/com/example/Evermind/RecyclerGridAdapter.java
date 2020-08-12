@@ -86,7 +86,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
                 holder.myTextView.setBackground(bitmapDrawable);
                 holder.myTextView.setGravity(Gravity.START);
-                holder.myTextView.setPadding(4, 4 ,4 ,4);
+                //holder.myTextView.setPadding(8, 8 ,8 ,8);
             }
         }
 

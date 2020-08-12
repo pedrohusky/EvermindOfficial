@@ -18,7 +18,7 @@
 
     <item
         android:id="@+id/ClosePaint"
-        android:icon="@drawable/ic_close_black_24dp"
+        android:icon="@drawable/ic_baseline_clear_24"
         android:title="Close Paint Mode" />
 
 </menu>
