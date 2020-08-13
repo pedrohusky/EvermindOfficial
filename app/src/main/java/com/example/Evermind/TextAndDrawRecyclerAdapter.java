@@ -6,10 +6,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,15 +23,9 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.sysdata.kt.htmltextview.SDHtmlTextView;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-
-public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapter.ViewHolder>  {
+public class TextAndDrawRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
 
     private String[] mData;
-    private String[] mTitle;
-    private String[] mDate;
     private Integer[] mIds;
     public static String[] title;
     public static Integer[] id;
@@ -42,18 +33,15 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
-    private EverDataBase mEverDataBase;
-    private ImagesRecyclerNoteScreenGridAdapter adapter;
+    private EverDataBase everDataBase;
 
     // data is passed into the constructor
-    public RecyclerGridAdapter(Context context, String[] data, String[] title, String[] date, Integer[] ids, EverDataBase database) {
+    public TextAndDrawRecyclerAdapter(Context context, String[] data, Integer[] ids, EverDataBase dataBase) {
 
-        mEverDataBase = database;
+        this.everDataBase = dataBase;
 
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
-        this.mTitle = title;
-        this.mDate = date;
         this.context = context;
         this.mIds = ids;
 
@@ -70,69 +58,21 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
         return new ViewHolder(view);
     }
 
-    // binds the data to the TextView in each cell
     @Override
-    public void onBindViewHolder(@NotNull ViewHolder holder, int position) {
-
-        String imagesURLs = mEverDataBase.getImageURLFromDatabaseWithID(mIds[position]);
-
-            if (imagesURLs.length() > 0) {
-
-                StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
-
-                holder.myRecyclerView.setLayoutManager(staggeredGridLayoutManager);
-
-                adapter = new ImagesRecyclerNoteScreenGridAdapter(context, imagesURLs, position, imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
-                holder.myRecyclerView.setAdapter(adapter);
-
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                holder.myTitleView.setText(mTitle[position]);
-            }
-
-            if (holder.myTitleView.length() < 1) {
-                ViewGroup.LayoutParams params = holder.myTitleView.getLayoutParams();
-
-                params.height = 65;
-
-                holder.myTitleView.setLayoutParams(params);
-                holder.myTextView.setTextSize(18);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    holder.myTitleView.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#c371f9")));
-                }
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    holder.myTitleView.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFCCF4")));
-                }
-            }
-
-
-
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-
-
-                holder.myTextView.setHtmlText(mData[position]);
-
-            }
-
-            if (holder.myTextView.length() < 1) {
-
-                ViewGroup.LayoutParams params = holder.myTextView.getLayoutParams();
-
-                params.height = 0;
-
-                holder.myTextView.setLayoutParams(params);
-
-                ViewGroup.LayoutParams params2 = holder.myTextView.getLayoutParams();
-
-                params2.height = 0;
-
-                holder.myTextView.setLayoutParams(params2);
-            }
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
     }
+
+    // binds the data to the TextView in each cell
+
+    @Override
+    public int getItemViewType(int position) {
+     //   if (TextUtils.isEmpty(employees.get(position).getEmail())) {
+      //      return TYPE_CALL;
+
+      //  } else {
+            return 1;
+        }
 
 
     // total number of cells
@@ -152,6 +92,7 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
 
         SDHtmlTextView myTextView;
         TextView myTitleView;
+        ImageView myImageView;
         RecyclerView myRecyclerView;
         Activity mActivity;
         LinearLayout myLinearLayout;

@@ -10,13 +10,18 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import com.example.Evermind.EverDataBase;
+import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapter;
+import com.muehlemann.giphy.GiphyLibrary;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -29,17 +34,17 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
 
     public RecyclerGridAdapter adapter;
-    public static EverDataBase databaseEver;
-    public static ArrayList<String> notes = new ArrayList<>();
-    public static ArrayList<String> titles = new ArrayList<>();
-    public static ArrayList<String> dates = new ArrayList<>();
-    public static ArrayList<Integer> ids = new ArrayList<>();
-    public static ArrayList<String> ImagesURLs = new ArrayList<>();
-    public static String[] ImageURL;
-    public static String[] data;
-    public static String[] title;
-    public static String[] date;
-    public static Integer[] id;
+    public  EverDataBase databaseEver;
+    public  ArrayList<String> notes = new ArrayList<>();
+    public  ArrayList<String> titles = new ArrayList<>();
+    public  ArrayList<String> dates = new ArrayList<>();
+    public  ArrayList<Integer> ids = new ArrayList<>();
+    public  ArrayList<String> ImagesURLs = new ArrayList<>();
+    public  String[] ImageURL;
+    public  String[] data;
+    public  String[] title;
+    public  String[] date;
+    public  Integer[] id;
 
     public static int fromPosition;
     public static int toPosition;
@@ -48,16 +53,8 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        databaseEver = new EverDataBase(getActivity());
-        return inflater.inflate(R.layout.home_screen_notes, container, false);
 
-    }
-
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        MainViewModel mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        databaseEver = new EverDataBase(requireActivity());
 
         ids = databaseEver.getIDFromDatabase();
 
@@ -81,6 +78,15 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
         ImageURL = ImagesURLs.toArray(new String[0]);
 
+        return inflater.inflate(R.layout.home_screen_notes, container, false);
+
+    }
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        MainViewModel mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT, 0) {
             @Override
@@ -113,25 +119,22 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
             }
         };
 
+
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
 
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 
 
         // set up the RecyclerView
-        RecyclerView recyclerView = requireActivity().findViewById(R.id.rvNumbers);
+            RecyclerView recyclerView = requireActivity().findViewById(R.id.rvNumbers);
 
+            recyclerView.setLayoutManager(staggeredGridLayoutManager);
+            adapter = new RecyclerGridAdapter(this.getActivity(), data, title, date, id, ImageURL, databaseEver); //requireContext() works too
+            recyclerView.setAdapter(adapter);
 
+            itemTouchHelper.attachToRecyclerView(recyclerView);
 
-                recyclerView.setLayoutManager(staggeredGridLayoutManager);
-                adapter = new RecyclerGridAdapter(this.getActivity(), data, title, date, id, ImageURL); //requireContext() works too
-                recyclerView.setAdapter(adapter);
-
-                itemTouchHelper.attachToRecyclerView(recyclerView);
-
-                adapter.setClickListener(this);
-
-
+            adapter.setClickListener(this);
     }
 
     @Override
@@ -147,7 +150,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
         editor.putInt("noteId", id);
         editor.putBoolean("athome", false);
         editor.putBoolean("newnote", false);
-        editor.putBoolean("BlackHighlight?", false);
         editor.putBoolean("DeleteNSave", false);
         editor.putBoolean("UndoRedo", false);
         editor.apply();

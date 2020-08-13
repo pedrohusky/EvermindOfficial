@@ -1,4 +1,5 @@
 package com.example.Evermind
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
@@ -18,13 +19,10 @@ import java.util.*
 import kotlin.concurrent.schedule
 class StartupActivity : AppCompatActivity() {
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.startup_activity)
-
-
-        Thread(Runnable {
-            // a potentially time consuming task
 
             fun setWindowFlag(bits: Int, on: Boolean) {
                 val win = window
@@ -100,34 +98,28 @@ class StartupActivity : AppCompatActivity() {
                     circle4.startAnimation(scaleup4)
                     circle5.startAnimation(scaleup5)
                     startButton.startAnimation(fadebutton)
-                    Timer("SettingUp", false).schedule(1400) {
+
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        circle1.visibility = View.GONE
+                        circle2.visibility = View.GONE
+                        circle3.visibility = View.GONE
+                        circle4.visibility = View.GONE
+                        circle5.visibility = View.GONE
+
                         val intent = Intent(applicationContext, MainActivity::class.java)
 
                         startActivity(intent)
-
-                        Handler(Looper.getMainLooper()).post {
-                            circle1.visibility = View.GONE
-                            circle2.visibility = View.GONE
-                            circle3.visibility = View.GONE
-                            circle4.visibility = View.GONE
-                            circle5.visibility = View.GONE
-                        }
-                    }
+                    }, 1300)
                 }
             }
 
-            Handler(Looper.getMainLooper()).post {
                 startButton.setOnTouchListener { v, event ->
                     when (event?.action) {
                         MotionEvent.ACTION_DOWN -> startButton.startAnimation(focusedButton)//Do Something
                     }
 
                     v?.onTouchEvent(event) ?: true
-                }
 
             }
-
-        }).start()
-
     }
 }

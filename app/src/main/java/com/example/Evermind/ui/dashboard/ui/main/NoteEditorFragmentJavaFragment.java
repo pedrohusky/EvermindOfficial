@@ -12,8 +12,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -30,9 +28,7 @@ import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -48,6 +44,7 @@ import com.example.Evermind.EverDataBase;
 import com.example.Evermind.EverDraw;
 import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
+import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.SoftInputAssist;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -68,45 +65,97 @@ import static com.muehlemann.giphy.GiphyLibrary.API_KEY;
 public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLibrary.Listener {
 
     private NoteEditorFragmentMainViewModel mViewModel;
-
     public static ImagesRecyclerGridAdapter adapter;
-
     private EverDataBase everDataBase;
-
     private EvermindEditor evermindEditor;
-
-    public static String ImagesURLs;
-
-    public Boolean CloseFormatter = false;
-    public Boolean CloseParagraph = false;
-    public Boolean CloseImporter = false;
-    public Boolean CloseOpenedColors = false;
-    public Boolean CloseOpenedDrawOptions = false;
-    public Boolean CloseOpenedDrawColors = false;
-    public Boolean CloseOpenedDrawSize = false;
-    public Boolean CloseOpenedColorsHighlight = false;
-    public Boolean DeleteSave = false;
-
-    public Boolean DrawVisualizerIsShowing = false;
-    public Boolean DrawOn = false;
-
+    private static String ImagesURLs;
+    private Boolean CloseFormatter = false;
+    private Boolean CloseParagraph = false;
+    private Boolean CloseImporter = false;
+    private Boolean CloseOpenedColors = false;
+    private Boolean CloseOpenedDrawOptions = false;
+    private Boolean CloseOpenedDrawColors = false;
+    private Boolean CloseOpenedDrawSize = false;
+    private Boolean CloseOpenedColorsHighlight = false;
+    private Boolean DeleteSave = false;
+    private EditText TitleTextBox;
+    private ImageButton Undo;
+    private ImageButton Redo;
+    private ImageButton Delete;
+    private ImageButton Save;
+    private ImageButton ChangeColor;
+    private ImageButton Bold;
+    private ImageButton Italic;
+    private ImageButton Underline;
+    private ImageButton Striketrough;
+    private ImageButton HighlightText;
+    private ImageButton Black;
+    private ImageButton Blue;
+    private ImageButton Purple;
+    private ImageButton Magenta;
+    private ImageButton Orange;
+    private ImageButton Yellow;
+    private ImageButton Green;
+    private ImageButton BlackDraw;
+    private ImageButton BlueDraw;
+    private ImageButton PurpleDraw;
+    private ImageButton MagentaDraw;
+    private ImageButton OrangeDraw;
+    private ImageButton YellowDraw;
+    private ImageButton GreenDraw;
+    private ImageButton DrawChangeColor;
+    private ImageButton DrawChangeSize;
+    private CardView DrawOptions;
+    private SeekBar seekBarDrawSize;
+    private ImageButton ClearHighlight;
+    private ImageButton BlackHighlight;
+    private ImageButton BlueHighlight;
+    private ImageButton PurpleHighlight;
+    private ImageButton MagentaHighlight;
+    private ImageButton OrangeHighlight;
+    private ImageButton YellowHighlight;
+    private ImageButton GreenHighlight;
+    private ImageButton Increase;
+    private ImageButton Decrease;
+    private ImageButton Left;
+    private ImageButton Center;
+    private ImageButton Right;
+    private BottomNavigationView note_bottom_bar;
+    private Animation bottom_nav_anim;
+    private Animation bottom_nav_anim_reverse;
+    private ScrollView scrollView;
+    private HorizontalScrollView scrollView1;
+    private HorizontalScrollView scrollView2;
+    private HorizontalScrollView scrollView3;
+    private HorizontalScrollView scrollView4;
+    private ImageButton GooglePhotos;
+    private ImageButton Gallery;
+    private ImageButton Files;
+    private CardView cardView;
+    private RecyclerView recyclerViewImage;
+    private EverDraw everDraw;
+    private Boolean DrawVisualizerIsShowing = false;
+    private Boolean DrawOn = false;
+    private Animation fadein;
+    private Animation fadeout;
+    private CardView size_visualizer;
+    private ImageView ImageSizeView;
+    private CardView format_selector;
+    private CardView paragraph_selector;
+    private CardView importer_selector;
+    private ImageButton Bullets;
+    private ImageButton Numbers;
+    private ImageView spacing;
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor editor;
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
-    public static int fromPosition;
-    public static int toPosition;
-
     private boolean tomanocu = false;
-
-    public int FinalY;
-
+    private int FinalY;
     private GiphyLibrary giphyLibrary;
-
     private static final String GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos";
-
     int size = 4;
-
     public static NoteEditorFragmentJavaFragment newInstance() {
         return new NoteEditorFragmentJavaFragment();
     }
@@ -115,9 +164,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
-        //  getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-
 
         return inflater.inflate(R.layout.fragment_note_creator, container, false);
     }
@@ -129,29 +175,35 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         //////////////////////////////////////// INICIAL VARIALBES \/
 
-        everDataBase = new EverDataBase(getActivity());
+        everDataBase = new EverDataBase(requireActivity());
 
         evermindEditor = requireActivity().findViewById(R.id.ToSaveNoteText);
 
+        //everImageBackground = requireActivity().findViewById(R.id.everEditorBackground);
+
         SoftInputAssist softInputAssist = new SoftInputAssist(requireActivity());
+
+        preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+
+        editor = preferences.edit();
 
         if (!everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).equals("┼")) {
             Bitmap bitmap = BitmapFactory.decodeFile(everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()));
 
             if (bitmap != null) {
-                BitmapDrawable bitmapDrawable = new BitmapDrawable(bitmap);     } }
-
-        evermindEditor.setEditorHeight(150);
+                // everImageBackground.setImageBitmap(bitmap); }}
+            }}
+        evermindEditor.setEditorHeight(110);
         evermindEditor.setEditorFontSize(22);
         evermindEditor.setBackgroundColor(GetColor(R.color.Transparent));
         evermindEditor.setPadding(15, 15, 15, 15);
         // evermindEditor.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-        EditText TitleTextBox = requireActivity().findViewById(R.id.TitleTextBox);
-        ImageButton Undo = requireActivity().findViewById(R.id.Undo);
-        ImageButton Redo = requireActivity().findViewById(R.id.Redo);
-        ImageButton Delete = requireActivity().findViewById(R.id.Delete);
-        ImageButton Save = requireActivity().findViewById(R.id.Save);
+         TitleTextBox = requireActivity().findViewById(R.id.TitleTextBox);
+         Undo = requireActivity().findViewById(R.id.Undo);
+         Redo = requireActivity().findViewById(R.id.Redo);
+         Delete = requireActivity().findViewById(R.id.Delete);
+         Save = requireActivity().findViewById(R.id.Save);
 
         String title = everDataBase.getTitlesFromDatabaseWithID(GetIDFromSharedPreferences());
 
@@ -187,69 +239,79 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
         });
 
         //////////////////////////////////////// INICIAL VARIALBES /\
-
-        BottomNavigationView note_bottom_bar = requireActivity().findViewById(R.id.note_bottom_bar);
-
-        Animation bottom_nav_anim = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim);
-        Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim_reverse);
-
-        ScrollView scrollView = requireActivity().findViewById(R.id.scrollview);
-        HorizontalScrollView scrollView1 = requireActivity().findViewById(R.id.scroll_formatter);
-        HorizontalScrollView scrollView2 = requireActivity().findViewById(R.id.scroll_paragraph);
-        HorizontalScrollView scrollView3 = requireActivity().findViewById(R.id.scroll_import);
-        HorizontalScrollView scrollView4 = requireActivity().findViewById(R.id.scroll_draw);
-
-        OverScrollDecoratorHelper.setUpOverScroll(scrollView);
-        OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
-        OverScrollDecoratorHelper.setUpOverScroll(scrollView2);
-        OverScrollDecoratorHelper.setUpOverScroll(scrollView3);
-        OverScrollDecoratorHelper.setUpOverScroll(scrollView4);
-
-        ImageButton GooglePhotos = requireActivity().findViewById(R.id.GooglePhotos);
-        ImageButton Gallery = requireActivity().findViewById(R.id.Gallery);
-        ImageButton Files = requireActivity().findViewById(R.id.Files);
-
-        ImageButton ChangeColor = requireActivity().findViewById(R.id.ChangeColor);
-
-        ImageButton DrawChangeColor = requireActivity().findViewById(R.id.DrawChangeColor);
-        ImageButton DrawChangeSize = requireActivity().findViewById(R.id.DrawChangeSize);
-
-        SeekBar seekBarDrawSize = requireActivity().findViewById(R.id.draw_size_seekbar);
-
-        ImageButton HighlightText = requireActivity().findViewById(R.id.HighlightText);
-
-        ImageButton Black = requireActivity().findViewById(R.id.black);
-        ImageButton Blue = requireActivity().findViewById(R.id.blue);
-        ImageButton Purple = requireActivity().findViewById(R.id.purple);
-        ImageButton Magenta = requireActivity().findViewById(R.id.magenta);
-        ImageButton Orange = requireActivity().findViewById(R.id.orange);
-        ImageButton Yellow = requireActivity().findViewById(R.id.yellow);
-        ImageButton Green = requireActivity().findViewById(R.id.green);
-
-        ImageButton BlackDraw = requireActivity().findViewById(R.id.Drawblack);
-        ImageButton BlueDraw = requireActivity().findViewById(R.id.Drawblue);
-        ImageButton PurpleDraw = requireActivity().findViewById(R.id.Drawpurple);
-        ImageButton MagentaDraw = requireActivity().findViewById(R.id.Drawmagenta);
-        ImageButton OrangeDraw = requireActivity().findViewById(R.id.Draworange);
-        ImageButton YellowDraw = requireActivity().findViewById(R.id.Drawyellow);
-        ImageButton GreenDraw = requireActivity().findViewById(R.id.Drawgreen);
-
-        ImageButton ClearHighlight = requireActivity().findViewById(R.id.clearhighlight);
-        ImageButton BlackHighlight = requireActivity().findViewById(R.id.blackhighlight);
-        ImageButton BlueHighlight = requireActivity().findViewById(R.id.bluehighlight);
-        ImageButton PurpleHighlight = requireActivity().findViewById(R.id.purplehighlight);
-        ImageButton MagentaHighlight = requireActivity().findViewById(R.id.magentahighlight);
-        ImageButton OrangeHighlight = requireActivity().findViewById(R.id.orangehighlight);
-        ImageButton YellowHighlight = requireActivity().findViewById(R.id.yellowhighlight);
-        ImageButton GreenHighlight = requireActivity().findViewById(R.id.greenhighlight);
-
-        CardView cardView = requireActivity().findViewById(R.id.card_note_creator);
-
-        RecyclerView recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
-
-        EverDraw everDraw = requireActivity().findViewById(R.id.EverDraw);
-
         new Thread(() -> {
+
+            note_bottom_bar = requireActivity().findViewById(R.id.note_bottom_bar);
+            bottom_nav_anim = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim);
+            bottom_nav_anim_reverse = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim_reverse);
+            scrollView = requireActivity().findViewById(R.id.scrollview);
+            scrollView1 = requireActivity().findViewById(R.id.scroll_formatter);
+            scrollView2 = requireActivity().findViewById(R.id.scroll_paragraph);
+            scrollView3 = requireActivity().findViewById(R.id.scroll_import);
+            scrollView4 = requireActivity().findViewById(R.id.scroll_draw);
+            OverScrollDecoratorHelper.setUpOverScroll(scrollView);
+            OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
+            OverScrollDecoratorHelper.setUpOverScroll(scrollView2);
+            OverScrollDecoratorHelper.setUpOverScroll(scrollView3);
+            OverScrollDecoratorHelper.setUpOverScroll(scrollView4);
+            GooglePhotos = requireActivity().findViewById(R.id.GooglePhotos);
+            Gallery = requireActivity().findViewById(R.id.Gallery);
+            Files = requireActivity().findViewById(R.id.Files);
+            ChangeColor = requireActivity().findViewById(R.id.ChangeColor);
+            DrawChangeColor = requireActivity().findViewById(R.id.DrawChangeColor);
+            DrawChangeSize = requireActivity().findViewById(R.id.DrawChangeSize);
+            size_visualizer = requireActivity().findViewById(R.id.draw_sizeVisualizerCardView);
+            ImageSizeView = requireActivity().findViewById(R.id.draw_size_visualizer);
+            DrawOptions = requireActivity().findViewById(R.id.draw_options);
+            seekBarDrawSize = requireActivity().findViewById(R.id.draw_size_seekbar);
+            Italic = requireActivity().findViewById(R.id.Italic);
+            Bold  = requireActivity().findViewById(R.id.Bold);
+            Underline  = requireActivity().findViewById(R.id.Underline);
+            Striketrough = requireActivity().findViewById(R.id.Striketrough);
+            HighlightText = requireActivity().findViewById(R.id.HighlightText);
+            Black = requireActivity().findViewById(R.id.black);
+            Blue = requireActivity().findViewById(R.id.blue);
+            Purple = requireActivity().findViewById(R.id.purple);
+            Magenta = requireActivity().findViewById(R.id.magenta);
+            Orange = requireActivity().findViewById(R.id.orange);
+            Yellow = requireActivity().findViewById(R.id.yellow);
+            Green = requireActivity().findViewById(R.id.green);
+            BlackDraw = requireActivity().findViewById(R.id.Drawblack);
+            BlueDraw = requireActivity().findViewById(R.id.Drawblue);
+            PurpleDraw = requireActivity().findViewById(R.id.Drawpurple);
+            MagentaDraw = requireActivity().findViewById(R.id.Drawmagenta);
+            OrangeDraw = requireActivity().findViewById(R.id.Draworange);
+            YellowDraw = requireActivity().findViewById(R.id.Drawyellow);
+            GreenDraw = requireActivity().findViewById(R.id.Drawgreen);
+            ClearHighlight = requireActivity().findViewById(R.id.clearhighlight);
+            BlackHighlight = requireActivity().findViewById(R.id.blackhighlight);
+            BlueHighlight = requireActivity().findViewById(R.id.bluehighlight);
+            PurpleHighlight = requireActivity().findViewById(R.id.purplehighlight);
+            MagentaHighlight = requireActivity().findViewById(R.id.magentahighlight);
+            OrangeHighlight = requireActivity().findViewById(R.id.orangehighlight);
+            YellowHighlight = requireActivity().findViewById(R.id.yellowhighlight);
+            GreenHighlight = requireActivity().findViewById(R.id.greenhighlight);
+            cardView = requireActivity().findViewById(R.id.card_note_creator);
+            recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
+            everDraw = requireActivity().findViewById(R.id.EverDraw);
+            fadein = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_in_formatter);
+            fadeout = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter);
+            DrawOptions = requireActivity().findViewById(R.id.draw_options);
+            size_visualizer = requireActivity().findViewById(R.id.draw_sizeVisualizerCardView);
+            ImageSizeView = requireActivity().findViewById(R.id.draw_size_visualizer);
+            format_selector = requireActivity().findViewById(R.id.format_selector);
+            importer_selector = requireActivity().findViewById(R.id.import_options);
+            paragraph_selector = requireActivity().findViewById(R.id.format_paragraph);
+            Bullets = requireActivity().findViewById(R.id.Bullets);
+            Numbers = requireActivity().findViewById(R.id.Numbers);
+            spacing = requireActivity().findViewById(R.id.paragraph_spacing);
+            Increase = requireActivity().findViewById(R.id.IncreaseSize);
+            Decrease = requireActivity().findViewById(R.id.DecreaseSize);
+            Left = requireActivity().findViewById(R.id.AlignLeft);
+            Right = requireActivity().findViewById(R.id.AlignRight);
+            Center = requireActivity().findViewById(R.id.AlignCenter);
+
+
 
             /////////////////////////////////////////////////////////////////////////// MainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -297,8 +359,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
             YellowHighlight.setOnClickListener(view -> ColorClickedSwitcher("Yellow", true));
 
             GreenHighlight.setOnClickListener(view -> ColorClickedSwitcher("Green", true));
-
-            SharedPreferences preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
             new Handler(Looper.getMainLooper()).post(() -> {
 
@@ -574,8 +634,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                     Bitmap bitmap = everDraw.getBitmap();
                    Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), FinalY + 100);
-                    BitmapDrawable bitmapDrawable = new BitmapDrawable(resizedBitmap);
-                    bitmapDrawable.setGravity(Gravity.CENTER|Gravity.END);
 
                     try {
                         TransformBitmapToFile(resizedBitmap, true, ".jpeg");
@@ -897,7 +955,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
     //////////////////////////////////////////// HANDLE IMAGES /\ /\ /\ /\ /\
     void openImageChooser(String name) {
-        CardView cardView = requireActivity().findViewById(R.id.card_note_creator);
+
         switch (name) {
             case "GooglePhotos":
 
@@ -959,35 +1017,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         new Thread(() -> {
 
-            ImageButton ChangeColor = requireActivity().findViewById(R.id.ChangeColor);
-            ImageButton Bold = requireActivity().findViewById(R.id.Bold);
-            ImageButton Italic = requireActivity().findViewById(R.id.Italic);
-            ImageButton Underline = requireActivity().findViewById(R.id.Underline);
-            ImageButton Striketrough = requireActivity().findViewById(R.id.Striketrough);
-            ImageButton HighlightText = requireActivity().findViewById(R.id.HighlightText);
 
-            ImageButton Black = requireActivity().findViewById(R.id.black);
-            ImageButton Blue = requireActivity().findViewById(R.id.blue);
-            ImageButton Purple = requireActivity().findViewById(R.id.purple);
-            ImageButton Magenta = requireActivity().findViewById(R.id.magenta);
-            ImageButton Orange = requireActivity().findViewById(R.id.orange);
-            ImageButton Yellow = requireActivity().findViewById(R.id.yellow);
-            ImageButton Green = requireActivity().findViewById(R.id.green);
-
-            ImageButton ClearHighlight = requireActivity().findViewById(R.id.clearhighlight);
-            ImageButton BlackHighlight = requireActivity().findViewById(R.id.blackhighlight);
-            ImageButton BlueHighlight = requireActivity().findViewById(R.id.bluehighlight);
-            ImageButton PurpleHighlight = requireActivity().findViewById(R.id.purplehighlight);
-            ImageButton MagentaHighlight = requireActivity().findViewById(R.id.magentahighlight);
-            ImageButton OrangeHighlight = requireActivity().findViewById(R.id.orangehighlight);
-            ImageButton YellowHighlight = requireActivity().findViewById(R.id.yellowhighlight);
-            ImageButton GreenHighlight = requireActivity().findViewById(R.id.greenhighlight);
-
-            ImageButton Increase = requireActivity().findViewById(R.id.IncreaseSize);
-            ImageButton Decrease = requireActivity().findViewById(R.id.DecreaseSize);
-            ImageButton Left = requireActivity().findViewById(R.id.AlignLeft);
-            ImageButton Center = requireActivity().findViewById(R.id.AlignCenter);
-            ImageButton Right = requireActivity().findViewById(R.id.AlignRight);
 
             if (CloseOpenedColors) {
 
@@ -1145,21 +1175,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         new Thread(() -> {
 
-            Animation fadein = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_formatter);
-            Animation fadeout = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out_formatter);
-            CardView draw_color = requireActivity().findViewById(R.id.draw_options);
-
-            EditText TitleTextBox = requireActivity().findViewById(R.id.TitleTextBox);
-            EvermindEditor evermindEditor = requireActivity().findViewById(R.id.ToSaveNoteText);
-
-            ImageButton change_color = requireActivity().findViewById(R.id.DrawChangeColor);
-            ImageButton change_size = requireActivity().findViewById(R.id.DrawChangeSize);
-            ImageButton Undo = requireActivity().findViewById(R.id.Undo);
-            ImageButton Redo = requireActivity().findViewById(R.id.Redo);
-            RecyclerView recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
-
-            EverDraw everDraw = requireActivity().findViewById(R.id.EverDraw);
-
             if (CloseOpenedDrawOptions) {
 
                 new Handler(Looper.getMainLooper()).post(() -> {
@@ -1170,11 +1185,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                     Undo.setVisibility(View.GONE);
                     Redo.setVisibility(View.GONE);
 
-                    draw_color.startAnimation(fadeout);
-                    change_color.setVisibility(View.GONE);
-                    change_size.setVisibility(View.GONE);
+                    DrawOptions.startAnimation(fadeout);
+                    DrawChangeColor.setVisibility(View.GONE);
+                    DrawChangeSize.setVisibility(View.GONE);
                     TitleTextBox.setVisibility(View.VISIBLE);
-                    evermindEditor.setVisibility(View.VISIBLE);
+                   //  evermindEditor.setVisibility(View.VISIBLE);
 
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -1182,7 +1197,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                         everDraw.setVisibility(View.GONE);
                         recyclerViewImage.setVisibility(View.VISIBLE);
 
-                        draw_color.setVisibility(View.GONE);
+                        DrawOptions.setVisibility(View.GONE);
 
                     }, 100);
 
@@ -1196,16 +1211,16 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                     everDraw.setVisibility(View.VISIBLE);
                     recyclerViewImage.setVisibility(View.GONE);
                     TitleTextBox.setVisibility(View.GONE);
-                    evermindEditor.setVisibility(View.GONE);
+                  //  evermindEditor.setVisibility(View.GONE);
 
-                    draw_color.setVisibility(View.VISIBLE);
+                    DrawOptions.setVisibility(View.VISIBLE);
 
-                    draw_color.startAnimation(fadein);
+                    DrawOptions.startAnimation(fadein);
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                        change_color.setVisibility(View.VISIBLE);
-                        change_size.setVisibility(View.VISIBLE);
+                        DrawChangeColor.setVisibility(View.VISIBLE);
+                        DrawChangeSize.setVisibility(View.VISIBLE);
                     }, 100);
 
                     CloseOpenedDrawOptions = true;
@@ -1219,35 +1234,18 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         new Thread(() -> {
 
-            ImageButton change_color = requireActivity().findViewById(R.id.DrawChangeColor);
-            ImageButton change_size = requireActivity().findViewById(R.id.DrawChangeSize);
-            SeekBar size_seekbar = requireActivity().findViewById(R.id.draw_size_seekbar);
-            ImageButton Black = requireActivity().findViewById(R.id.Drawblack);
-            ImageButton Blue = requireActivity().findViewById(R.id.Drawblue);
-            ImageButton Purple = requireActivity().findViewById(R.id.Drawpurple);
-            ImageButton Magenta = requireActivity().findViewById(R.id.Drawmagenta);
-            ImageButton Orange = requireActivity().findViewById(R.id.Draworange);
-            ImageButton Yellow = requireActivity().findViewById(R.id.Drawyellow);
-            ImageButton Green = requireActivity().findViewById(R.id.Drawgreen);
 
             if (CloseOpenedDrawSize) {
 
                 new Handler(Looper.getMainLooper()).post(() -> {
 
-                    change_color.setVisibility(View.VISIBLE);
-                    change_size.setVisibility(View.VISIBLE);
-                    Black.setVisibility(View.GONE);
-                    Blue.setVisibility(View.GONE);
-                    Purple.setVisibility(View.GONE);
-                    Magenta.setVisibility(View.GONE);
-                    Orange.setVisibility(View.GONE);
-                    Yellow.setVisibility(View.GONE);
-                    Green.setVisibility(View.GONE);
+                    DrawChangeColor.setVisibility(View.VISIBLE);
+                    DrawChangeSize.setVisibility(View.VISIBLE);
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         // ChangeColor.setVisibility(View.GONE);
 
-                        size_seekbar.setVisibility(View.GONE);
+                        seekBarDrawSize.setVisibility(View.GONE);
 
                     }, 100);
 
@@ -1259,17 +1257,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 new Handler(Looper.getMainLooper()).post(() -> {
 
-                    change_color.setVisibility(View.GONE);
-                    change_size.setVisibility(View.VISIBLE);
-                    Black.setVisibility(View.GONE);
-                    Blue.setVisibility(View.GONE);
-                    Purple.setVisibility(View.GONE);
-                    Magenta.setVisibility(View.GONE);
-                    Orange.setVisibility(View.GONE);
-                    Yellow.setVisibility(View.GONE);
-                    Green.setVisibility(View.GONE);
+                    DrawChangeColor.setVisibility(View.GONE);
+                    DrawChangeSize.setVisibility(View.VISIBLE);
 
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> size_seekbar.setVisibility(View.VISIBLE), 100);
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> seekBarDrawSize.setVisibility(View.VISIBLE), 100);
 
                     CloseOpenedDrawSize = true;
                 });
@@ -1282,34 +1273,24 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         new Thread(() -> {
 
-            ImageButton change_color = requireActivity().findViewById(R.id.DrawChangeColor);
-            ImageButton change_size = requireActivity().findViewById(R.id.DrawChangeSize);
-            ImageButton Black = requireActivity().findViewById(R.id.Drawblack);
-            ImageButton Blue = requireActivity().findViewById(R.id.Drawblue);
-            ImageButton Purple = requireActivity().findViewById(R.id.Drawpurple);
-            ImageButton Magenta = requireActivity().findViewById(R.id.Drawmagenta);
-            ImageButton Orange = requireActivity().findViewById(R.id.Draworange);
-            ImageButton Yellow = requireActivity().findViewById(R.id.Drawyellow);
-            ImageButton Green = requireActivity().findViewById(R.id.Drawgreen);
-
             if (CloseOpenedDrawColors) {
 
                 new Handler(Looper.getMainLooper()).post(() -> {
 
-                    Black.setVisibility(View.GONE);
-                    Blue.setVisibility(View.GONE);
-                    Purple.setVisibility(View.GONE);
-                    Magenta.setVisibility(View.GONE);
-                    Orange.setVisibility(View.GONE);
-                    Yellow.setVisibility(View.GONE);
-                    Green.setVisibility(View.GONE);
+                    BlackDraw.setVisibility(View.GONE);
+                    BlueDraw.setVisibility(View.GONE);
+                    PurpleDraw.setVisibility(View.GONE);
+                    MagentaDraw.setVisibility(View.GONE);
+                    OrangeDraw.setVisibility(View.GONE);
+                    YellowDraw.setVisibility(View.GONE);
+                    GreenDraw.setVisibility(View.GONE);
 
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         // ChangeColor.setVisibility(View.GONE);
 
-                        change_color.setVisibility(View.VISIBLE);
-                        change_size.setVisibility(View.VISIBLE);
+                        DrawChangeColor.setVisibility(View.VISIBLE);
+                        DrawChangeSize.setVisibility(View.VISIBLE);
 
 
                     }, 150);
@@ -1322,19 +1303,19 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 new Handler(Looper.getMainLooper()).post(() -> {
 
-                    change_color.setVisibility(View.GONE);
-                    change_size.setVisibility(View.GONE);
+                    DrawChangeColor.setVisibility(View.GONE);
+                    DrawChangeSize.setVisibility(View.GONE);
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         // ChangeColor.setVisibility(View.GONE);
 
-                        Black.setVisibility(View.VISIBLE);
-                        Blue.setVisibility(View.VISIBLE);
-                        Purple.setVisibility(View.VISIBLE);
-                        Magenta.setVisibility(View.VISIBLE);
-                        Orange.setVisibility(View.VISIBLE);
-                        Yellow.setVisibility(View.VISIBLE);
-                        Green.setVisibility(View.VISIBLE);
+                        BlackDraw.setVisibility(View.VISIBLE);
+                        BlueDraw.setVisibility(View.VISIBLE);
+                        PurpleDraw.setVisibility(View.VISIBLE);
+                        MagentaDraw.setVisibility(View.VISIBLE);
+                        OrangeDraw.setVisibility(View.VISIBLE);
+                        YellowDraw.setVisibility(View.VISIBLE);
+                        GreenDraw.setVisibility(View.VISIBLE);
 
 
                     }, 150);
@@ -1350,12 +1331,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
     private void ShowDrawSizeVisualizer() {
 
         new Thread(() -> {
-
-            Animation fadein = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_formatter);
-            Animation fadeout = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out_formatter);
-            CardView size_visualizer = requireActivity().findViewById(R.id.draw_sizeVisualizer);
-
-            ImageView ImageSizeView = requireActivity().findViewById(R.id.draw_size_visualizer);
 
             DrawVisualizerIsShowing = true;
 
@@ -1398,8 +1373,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         new Thread(() -> {
 
-            ImageView ImageSizeView = requireActivity().findViewById(R.id.draw_size_visualizer);
-
             ImageSizeView.setScaleX(value);
             ImageSizeView.setScaleY(value);
 
@@ -1413,8 +1386,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
             switch (color) {
 
                 case "Clear":
-
-                    ImageButton ClearHighlight = requireActivity().findViewById(R.id.clearhighlight);
 
                     evermindEditor.setTextBackgroundColor(Color.WHITE);
 
@@ -1589,8 +1560,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
     public void DrawColorClickedSwitcher(String color) {
 
-        EverDraw everDraw = requireActivity().findViewById(R.id.EverDraw);
-
         switch (color) {
 
             case "Black":
@@ -1729,9 +1698,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                 CloseAllButtons();
 
                 //Hide nav view \/ \/ \/
-                BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.note_bottom_bar);
-                Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_up_anim_reverse);
-                bottomNavigationView.startAnimation(bottom_nav_anim_reverse);
+
+                note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
 
 
                 //Hide nav view /\ /\ /\
@@ -1743,17 +1711,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                 CloseEditorButtonsSaveDelete();
             } else {
 
-
-                EditText editText = requireActivity().findViewById(R.id.TitleTextBox);
-
                 new Thread(() -> {
                     int id = GetIDFromSharedPreferences();
-                    everDataBase.editTitle(Integer.toString(id), editText.getText().toString());
+                    everDataBase.editTitle(Integer.toString(id), TitleTextBox.getText().toString());
 
                     //Hide nav view \/ \/ \/
-                    BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.note_bottom_bar);
-                    Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim_reverse);
-                    bottomNavigationView.startAnimation(bottom_nav_anim_reverse);
+
+                    note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
 
                     ApplyChangesToSharedPreferences("athome", false, "", true, true, false, 0);
                     ApplyChangesToSharedPreferences("content", true, "", false, false, false, 0);
@@ -1771,36 +1735,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
     }
 
     private void CloseOrOpenFormatter() {
-
-        Animation fadein = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_formatter);
-        Animation fadeout = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out_formatter);
-        CardView format_text = requireActivity().findViewById(R.id.format_selector);
-
-        ImageButton ChangeColor = requireActivity().findViewById(R.id.ChangeColor);
-        ImageButton Bold = requireActivity().findViewById(R.id.Bold);
-        ImageButton Italic = requireActivity().findViewById(R.id.Italic);
-        ImageButton Underline = requireActivity().findViewById(R.id.Underline);
-        ImageButton Striketrough = requireActivity().findViewById(R.id.Striketrough);
-        ImageButton HighlightText = requireActivity().findViewById(R.id.HighlightText);
-
-        ImageButton Black = requireActivity().findViewById(R.id.black);
-        ImageButton Blue = requireActivity().findViewById(R.id.blue);
-        ImageButton Purple = requireActivity().findViewById(R.id.purple);
-        ImageButton Magenta = requireActivity().findViewById(R.id.magenta);
-        ImageButton Orange = requireActivity().findViewById(R.id.orange);
-        ImageButton Yellow = requireActivity().findViewById(R.id.yellow);
-        ImageButton Green = requireActivity().findViewById(R.id.green);
-
-        ImageButton BlackHighlight = requireActivity().findViewById(R.id.blackhighlight);
-        ImageButton BlueHighlight = requireActivity().findViewById(R.id.bluehighlight);
-        ImageButton PurpleHighlight = requireActivity().findViewById(R.id.purplehighlight);
-        ImageButton MagentaHighlight = requireActivity().findViewById(R.id.magentahighlight);
-        ImageButton OrangeHighlight = requireActivity().findViewById(R.id.orangehighlight);
-        ImageButton YellowHighlight = requireActivity().findViewById(R.id.yellowhighlight);
-        ImageButton GreenHighlight = requireActivity().findViewById(R.id.greenhighlight);
-
-        ImageButton Increase = requireActivity().findViewById(R.id.IncreaseSize);
-        ImageButton Decrease = requireActivity().findViewById(R.id.DecreaseSize);
 
         if (CloseFormatter) {
 
@@ -1833,9 +1767,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                format_text.startAnimation(fadeout);
+                format_selector.startAnimation(fadeout);
 
-                format_text.setVisibility(View.GONE);
+                format_selector.setVisibility(View.GONE);
 
             }, 150);
 
@@ -1844,9 +1778,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         } else {
 
-            format_text.setVisibility(View.VISIBLE);
+            format_selector.setVisibility(View.VISIBLE);
 
-            format_text.startAnimation(fadein);
+            format_selector.startAnimation(fadein);
 
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -1854,7 +1788,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                 Increase.setVisibility(View.VISIBLE);
                 Decrease.setVisibility(View.VISIBLE);
                 ChangeColor.setVisibility(View.VISIBLE);
-                Bold.setVisibility(View.VISIBLE);
                 Italic.setVisibility(View.VISIBLE);
                 Bold.setVisibility(View.VISIBLE);
                 Underline.setVisibility(View.VISIBLE);
@@ -1870,17 +1803,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
     private void CloseOrOpenParagraph() {
 
-        Animation fadein = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_in_formatter);
-        Animation fadeout = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter);
-        CardView format_text = requireActivity().findViewById(R.id.format_paragraph);
-
-        ImageButton Bullets = requireActivity().findViewById(R.id.Bullets);
-        ImageButton Numbers = requireActivity().findViewById(R.id.Numbers);
-        ImageButton Left = requireActivity().findViewById(R.id.AlignLeft);
-        ImageView spacing = requireActivity().findViewById(R.id.imageView2);
-        ImageButton Center = requireActivity().findViewById(R.id.AlignCenter);
-        ImageButton Right = requireActivity().findViewById(R.id.AlignRight);
-
         if (CloseParagraph) {
 
             spacing.setVisibility(View.GONE);
@@ -1892,9 +1814,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                format_text.startAnimation(fadeout);
+                paragraph_selector.startAnimation(fadeout);
 
-                format_text.setVisibility(View.GONE);
+                paragraph_selector.setVisibility(View.GONE);
 
             }, 150);
 
@@ -1903,9 +1825,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         } else {
 
-            format_text.setVisibility(View.VISIBLE);
+            paragraph_selector.setVisibility(View.VISIBLE);
 
-            format_text.startAnimation(fadein);
+            paragraph_selector.startAnimation(fadein);
 
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -1926,23 +1848,15 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
     private void CloseOrOpenImporter() {
 
-        Animation fadein = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_in_formatter);
-        Animation fadeout = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter);
-        CardView importer = requireActivity().findViewById(R.id.import_options);
-
-        ImageButton Google = requireActivity().findViewById(R.id.GooglePhotos);
-        ImageButton Gallery = requireActivity().findViewById(R.id.Gallery);
-        ImageButton Files = requireActivity().findViewById(R.id.Files);
-
         if (CloseImporter) {
 
-            Google.setVisibility(View.GONE);
+            GooglePhotos.setVisibility(View.GONE);
             Gallery.setVisibility(View.GONE);
             Files.setVisibility(View.GONE);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                importer.startAnimation(fadeout);
+                importer_selector.startAnimation(fadeout);
 
               //  importer.setVisibility(View.GONE);
 
@@ -1953,14 +1867,14 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         } else {
 
-            importer.setVisibility(View.VISIBLE);
+            importer_selector.setVisibility(View.VISIBLE);
 
-            importer.startAnimation(fadein);
+            importer_selector.startAnimation(fadein);
 
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                Google.setVisibility(View.VISIBLE);
+                GooglePhotos.setVisibility(View.VISIBLE);
                 Gallery.setVisibility(View.VISIBLE);
                 Files.setVisibility(View.VISIBLE);
 
@@ -1972,9 +1886,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
     }
 
     private void CloseEditorButtonsSaveDelete() {
-
-        ImageButton Delete = requireActivity().findViewById(R.id.Delete);
-        ImageButton Save = requireActivity().findViewById(R.id.Save);
 
         Delete.setVisibility(View.GONE);
         Save.setVisibility(View.GONE);
@@ -1999,25 +1910,14 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
     }
 
     private int GetIDFromSharedPreferences() {
-        SharedPreferences preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
         return preferences.getInt("noteId", -1);
     }
 
-    private Boolean GetNewNoteFromSharedPreferences() {
-        SharedPreferences preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-        return preferences.getBoolean("newnote", false);
-    }
+    private Boolean GetNewNoteFromSharedPreferences() { return preferences.getBoolean("newnote", false); }
 
-    private Boolean GetDeleteNSaveFromSharedPreferences() {
-        SharedPreferences preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-        return preferences.getBoolean("DeleteNSave", false);
-    }
+    private Boolean GetDeleteNSaveFromSharedPreferences() { return preferences.getBoolean("DeleteNSave", false); }
 
     private void ApplyChangesToSharedPreferences(String name, boolean string, String text, boolean bolean, boolean value, boolean integer, int id) {
-
-        SharedPreferences preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = preferences.edit();
 
         if (string) {
             editor.putString(name, text);
@@ -2035,8 +1935,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
     }
 
     private void TransformUriToFile(Uri uri, boolean addToDatabase, String fileType) throws IOException {
-
-        SharedPreferences preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.requireActivity().getContentResolver(), uri);
 
@@ -2064,8 +1962,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
     private void TransformBitmapToFile(Bitmap bitmap, boolean addToDatabase, String fileType) throws IOException {
 
-        SharedPreferences preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
         File directory = this.requireActivity().getDir("imageDir", Context.MODE_PRIVATE);
 
         File file = new File(directory, "EverImage" + Calendar.getInstance().getTimeInMillis() + fileType);
@@ -2088,15 +1984,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
     private void ReloadImagesRecycler() {
 
-        SharedPreferences preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
             ImagesURLs = everDataBase.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
-            RecyclerView recyclerView = requireActivity().findViewById(R.id.ImagesRecycler);
             adapter = new ImagesRecyclerGridAdapter(this.requireActivity(), ImagesURLs, preferences.getInt("position", -1), ImagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
-            recyclerView.invalidate();
-            recyclerView.setAdapter(adapter);
+            recyclerViewImage.invalidate();
+            recyclerViewImage.setAdapter(adapter);
 
         }, 400);
     }

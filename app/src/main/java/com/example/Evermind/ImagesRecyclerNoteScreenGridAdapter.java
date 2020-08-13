@@ -158,7 +158,7 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
 
             }).start();
 
-                    });
+            });
 
 
            // myImageView.setOnClickListener(this);

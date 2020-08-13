@@ -1,5 +1,6 @@
 package com.example.Evermind;
 
+import android.content.ComponentCallbacks2;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,34 +22,42 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.muehlemann.giphy.GiphyLibrary;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 import java.util.ArrayList;
-
-
-import static com.example.Evermind.ui.note_screen.NotesScreen.databaseEver;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
 
-    public static EverDataBase mDatabaseEver;
+    public GiphyLibrary giphyLibrary;
 
-    Integer ID;
+    public EverDataBase mDatabaseEver;
+
+    public Integer ID;
 
     public Boolean CloseFormatter = false;
     public Boolean CloseParagraph = false;
     public Boolean CloseImporter = false;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mDatabaseEver = new EverDataBase(this);
+
+        new Handler(Looper.getMainLooper()).post(() -> {
+
+            giphyLibrary = new GiphyLibrary();
+
+            Fresco.initialize(this);
+
+        });
 
         // Transitioner transition = Transitioner(this, )
 
@@ -64,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
 
         //////////CLEAR SHAREDPREFS
 
-        Fresco.initialize(this);
-
         new Thread(() -> {
             // a potentially time consuming task
 
@@ -76,9 +83,6 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
             CardView format_text = findViewById(R.id.format_selector);
-
-
-            mDatabaseEver = new EverDataBase(this);
 
 
             //  DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -230,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
 
             new Handler(Looper.getMainLooper()).post(() -> {
 
-                ArrayList<Integer> arrayList = databaseEver.getIDFromDatabase();
+                ArrayList<Integer> arrayList = mDatabaseEver.getIDFromDatabase();
 
                 if (!arrayList.isEmpty()) {
 
@@ -380,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
         ImageButton Bullets = this.findViewById(R.id.Bullets);
         ImageButton Numbers = this.findViewById(R.id.Numbers);
         ImageButton Left = this.findViewById(R.id.AlignLeft);
-        ImageView spacing = this.findViewById(R.id.imageView2);
+        ImageView spacing = this.findViewById(R.id.paragraph_spacing);
         ImageButton Center = this.findViewById(R.id.AlignCenter);
         ImageButton Right = this.findViewById(R.id.AlignRight);
 
@@ -504,5 +508,61 @@ public class MainActivity extends AppCompatActivity {
                     .show();
 
         });
+    }
+
+    public void onTrimMemory(int level) {
+
+        // Determine which lifecycle or system event was raised.
+        switch (level) {
+
+            case ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN:
+
+                /*
+                   Release any UI objects that currently hold memory.
+
+                   The user interface has moved to the background.
+                */
+
+                break;
+
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE:
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
+
+                /*
+                   Release any memory that your app doesn't need to run.
+
+                   The device is running low on memory while the app is running.
+                   The event raised indicates the severity of the memory-related event.
+                   If the event is TRIM_MEMORY_RUNNING_CRITICAL, then the system will
+                   begin killing background processes.
+                */
+
+                break;
+
+            case ComponentCallbacks2.TRIM_MEMORY_BACKGROUND:
+            case ComponentCallbacks2.TRIM_MEMORY_MODERATE:
+            case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
+
+                /*
+                   Release as much memory as the process can.
+
+                   The app is on the LRU list and the system is running low on memory.
+                   The event raised indicates where the app sits within the LRU list.
+                   If the event is TRIM_MEMORY_COMPLETE, the process will be one of
+                   the first to be terminated.
+                */
+
+                break;
+
+            default:
+                /*
+                  Release any non-critical data structures.
+
+                  The app received an unrecognized memory level value
+                  from the system. Treat this as a generic low-memory message.
+                */
+                break;
+        }
     }
 }

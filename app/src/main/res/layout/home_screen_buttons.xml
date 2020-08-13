@@ -185,7 +185,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/draw_sizeVisualizer"
+        android:id="@+id/draw_sizeVisualizerCardView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
@@ -821,7 +821,7 @@
                     app:srcCompat="@drawable/numbers" />
 
                 <ImageView
-                    android:id="@+id/imageView2"
+                    android:id="@+id/paragraph_spacing"
                     android:layout_width="1dp"
                     android:layout_height="35dp"
                     android:layout_gravity="center"
