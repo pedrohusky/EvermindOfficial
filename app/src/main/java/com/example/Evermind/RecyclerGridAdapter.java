@@ -36,7 +36,6 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
     private String[] mTitle;
     private String[] mDate;
     private Integer[] mIds;
-    public static String[] title;
     public static Integer[] id;
     public  Context context;
     private LayoutInflater mInflater;
@@ -153,8 +152,6 @@ public class RecyclerGridAdapter extends RecyclerView.Adapter<RecyclerGridAdapte
         SDHtmlTextView myTextView;
         TextView myTitleView;
         RecyclerView myRecyclerView;
-        Activity mActivity;
-        LinearLayout myLinearLayout;
 
 
 

@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,8 +18,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
@@ -40,20 +40,28 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
+import android.widget.Toast;
+
 import com.example.Evermind.EverDataBase;
 import com.example.Evermind.EverDraw;
 import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
-import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.SoftInputAssist;
+import com.example.Evermind.TextAndDrawRecyclerAdapter;
+import com.example.Evermind.recycler_models.Content;
+import com.example.Evermind.recycler_models.Draw;
+import com.example.Evermind.recycler_models.EverAdapter;
+import com.example.Evermind.recycler_models.Item;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.muehlemann.giphy.GiphyLibrary;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
@@ -62,12 +70,13 @@ import static android.content.Context.MODE_PRIVATE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.muehlemann.giphy.GiphyLibrary.API_KEY;
 
-public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLibrary.Listener {
+public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdapter.ItemClickListener {
 
     private NoteEditorFragmentMainViewModel mViewModel;
     public static ImagesRecyclerGridAdapter adapter;
+    public static EverAdapter everAdapter;
     private EverDataBase everDataBase;
-    private EvermindEditor evermindEditor;
+   // private EvermindEditor evermindEditor;
     private static String ImagesURLs;
     private Boolean CloseFormatter = false;
     private Boolean CloseParagraph = false;
@@ -77,7 +86,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
     private Boolean CloseOpenedDrawColors = false;
     private Boolean CloseOpenedDrawSize = false;
     private Boolean CloseOpenedColorsHighlight = false;
-    private Boolean DeleteSave = false;
+    public Boolean DeleteSave = false;
     private EditText TitleTextBox;
     private ImageButton Undo;
     private ImageButton Redo;
@@ -134,8 +143,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
     private CardView cardView;
     private RecyclerView recyclerViewImage;
     private EverDraw everDraw;
-    private Boolean DrawVisualizerIsShowing = false;
-    private Boolean DrawOn = false;
+    public Boolean DrawVisualizerIsShowing = false;
+    public Boolean DrawOn = false;
     private Animation fadein;
     private Animation fadeout;
     private CardView size_visualizer;
@@ -152,10 +161,14 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private boolean tomanocu = false;
-    private int FinalY;
+    private int FinalYHeight;
     private GiphyLibrary giphyLibrary;
     private static final String GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos";
     int size = 4;
+    public List<Item> items;
+    public List<String> bitmaps;
+    private int i;
+
     public static NoteEditorFragmentJavaFragment newInstance() {
         return new NoteEditorFragmentJavaFragment();
     }
@@ -164,6 +177,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
+        everDataBase = new EverDataBase(requireActivity());
+
+        preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+
+        editor = preferences.edit();
 
         return inflater.inflate(R.layout.fragment_note_creator, container, false);
     }
@@ -175,624 +194,641 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
         //////////////////////////////////////// INICIAL VARIALBES \/
 
-        everDataBase = new EverDataBase(requireActivity());
-
-        evermindEditor = requireActivity().findViewById(R.id.ToSaveNoteText);
-
-        //everImageBackground = requireActivity().findViewById(R.id.everEditorBackground);
+        //evermindEditor = requireActivity().findViewById(R.id.ToSaveNoteText);
 
         SoftInputAssist softInputAssist = new SoftInputAssist(requireActivity());
 
-        preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        RecyclerView recyclerView = requireActivity().findViewById(R.id.TextAndDrawRecyclerView);
 
-        editor = preferences.edit();
+        items = new ArrayList<>();
+        bitmaps = new ArrayList<>();
+        i = 0;
 
-        if (!everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).equals("┼")) {
-            Bitmap bitmap = BitmapFactory.decodeFile(everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()));
+        String[] html = everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
 
-            if (bitmap != null) {
-                // everImageBackground.setImageBitmap(bitmap); }}
-            }}
-        evermindEditor.setEditorHeight(110);
-        evermindEditor.setEditorFontSize(22);
-        evermindEditor.setBackgroundColor(GetColor(R.color.Transparent));
-        evermindEditor.setPadding(15, 15, 15, 15);
+        for (String bitmap: html) {
+            bitmaps.add(bitmap);
+        }
+
+        String[] strings = everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
+
+            for (String text: strings) {
+                Content content1 = new Content(text);
+                items.add(new Item(0, content1));
+
+                if (i <= bitmaps.size() - 1) {
+                    Draw draw1 = new Draw(bitmaps.get(i));
+                    items.add(new Item(1, draw1));
+                    i++;
+                    Content content = new Content("");
+                    items.add(new Item(0, content));
+                }
+
+                System.out.println("content size = " + items.size());
+            }
+
+     /*   String[] html = everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
+
+        for (String bitmap: html) {
+            Draw draw1 = new Draw(bitmap);
+            items.add(new Item(1, draw1));
+            System.out.println("draw size = " + items.size());
+        }
+*/
+
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+
+        everAdapter = new EverAdapter(requireActivity(), items, GetIDFromSharedPreferences(), everDataBase, everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()));
+
+        recyclerView.setAdapter(everAdapter);
+
+        EverAdapter.setClickListener(this);
+
+    //    evermindEditor.setEditorFontSize(22);
+    //    evermindEditor.setBackgroundColor(GetColor(R.color.Transparent));
+     //   evermindEditor.setPadding(15, 15, 15, 15);
         // evermindEditor.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-         TitleTextBox = requireActivity().findViewById(R.id.TitleTextBox);
-         Undo = requireActivity().findViewById(R.id.Undo);
-         Redo = requireActivity().findViewById(R.id.Redo);
-         Delete = requireActivity().findViewById(R.id.Delete);
-         Save = requireActivity().findViewById(R.id.Save);
+        TitleTextBox = requireActivity().findViewById(R.id.TitleTextBox);
+        Undo = requireActivity().findViewById(R.id.Undo);
+        Redo = requireActivity().findViewById(R.id.Redo);
+        Delete = requireActivity().findViewById(R.id.Delete);
+        Save = requireActivity().findViewById(R.id.Save);
 
         String title = everDataBase.getTitlesFromDatabaseWithID(GetIDFromSharedPreferences());
 
-        new Handler(Looper.getMainLooper()).post(() -> {
-
-            TitleTextBox.setText(title);
-
-        });
+        TitleTextBox.setText(title);
 
         String content = everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences());
         boolean NewNote = GetNewNoteFromSharedPreferences();
 
-        new Handler(Looper.getMainLooper()).post(() -> {
+       // evermindEditor.setHtml(content);
 
-            evermindEditor.setHtml(content);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (NewNote) {
+               // evermindEditor.focusEditor();
 
-                if (NewNote) {
-                    evermindEditor.focusEditor();
+                Undo.setVisibility(View.VISIBLE);
+                Redo.setVisibility(View.VISIBLE);
+                Delete.setVisibility(View.VISIBLE);
+                Save.setVisibility(View.VISIBLE);
 
-                    Undo.setVisibility(View.VISIBLE);
-                    Redo.setVisibility(View.VISIBLE);
-                    Delete.setVisibility(View.VISIBLE);
-                    Save.setVisibility(View.VISIBLE);
+                InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
+                keyboard.showSoftInput(EverAdapter.GetActiveEditor(), 0);
+            }
 
-                    InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
-                    keyboard.showSoftInput(evermindEditor, 0);
+        }, 500);
+
+        //////////////////////////////////////// INICIAL VARIALBES /\
+        //new Thread(() -> {
+
+        note_bottom_bar = requireActivity().findViewById(R.id.note_bottom_bar);
+        bottom_nav_anim = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim);
+        bottom_nav_anim_reverse = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim_reverse);
+        scrollView = requireActivity().findViewById(R.id.scrollview);
+        scrollView1 = requireActivity().findViewById(R.id.scroll_formatter);
+        scrollView2 = requireActivity().findViewById(R.id.scroll_paragraph);
+        scrollView3 = requireActivity().findViewById(R.id.scroll_import);
+        scrollView4 = requireActivity().findViewById(R.id.scroll_draw);
+        OverScrollDecoratorHelper.setUpOverScroll(scrollView);
+        OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
+        OverScrollDecoratorHelper.setUpOverScroll(scrollView2);
+        OverScrollDecoratorHelper.setUpOverScroll(scrollView3);
+        OverScrollDecoratorHelper.setUpOverScroll(scrollView4);
+        GooglePhotos = requireActivity().findViewById(R.id.GooglePhotos);
+        Gallery = requireActivity().findViewById(R.id.Gallery);
+        Files = requireActivity().findViewById(R.id.Files);
+        ChangeColor = requireActivity().findViewById(R.id.ChangeColor);
+        DrawChangeColor = requireActivity().findViewById(R.id.DrawChangeColor);
+        DrawChangeSize = requireActivity().findViewById(R.id.DrawChangeSize);
+        size_visualizer = requireActivity().findViewById(R.id.draw_sizeVisualizerCardView);
+        ImageSizeView = requireActivity().findViewById(R.id.draw_size_visualizer);
+        DrawOptions = requireActivity().findViewById(R.id.draw_options);
+        seekBarDrawSize = requireActivity().findViewById(R.id.draw_size_seekbar);
+        Italic = requireActivity().findViewById(R.id.Italic);
+        Bold = requireActivity().findViewById(R.id.Bold);
+        Underline = requireActivity().findViewById(R.id.Underline);
+        Striketrough = requireActivity().findViewById(R.id.Striketrough);
+        HighlightText = requireActivity().findViewById(R.id.HighlightText);
+        Black = requireActivity().findViewById(R.id.black);
+        Blue = requireActivity().findViewById(R.id.blue);
+        Purple = requireActivity().findViewById(R.id.purple);
+        Magenta = requireActivity().findViewById(R.id.magenta);
+        Orange = requireActivity().findViewById(R.id.orange);
+        Yellow = requireActivity().findViewById(R.id.yellow);
+        Green = requireActivity().findViewById(R.id.green);
+        BlackDraw = requireActivity().findViewById(R.id.Drawblack);
+        BlueDraw = requireActivity().findViewById(R.id.Drawblue);
+        PurpleDraw = requireActivity().findViewById(R.id.Drawpurple);
+        MagentaDraw = requireActivity().findViewById(R.id.Drawmagenta);
+        OrangeDraw = requireActivity().findViewById(R.id.Draworange);
+        YellowDraw = requireActivity().findViewById(R.id.Drawyellow);
+        GreenDraw = requireActivity().findViewById(R.id.Drawgreen);
+        ClearHighlight = requireActivity().findViewById(R.id.clearhighlight);
+        BlackHighlight = requireActivity().findViewById(R.id.blackhighlight);
+        BlueHighlight = requireActivity().findViewById(R.id.bluehighlight);
+        PurpleHighlight = requireActivity().findViewById(R.id.purplehighlight);
+        MagentaHighlight = requireActivity().findViewById(R.id.magentahighlight);
+        OrangeHighlight = requireActivity().findViewById(R.id.orangehighlight);
+        YellowHighlight = requireActivity().findViewById(R.id.yellowhighlight);
+        GreenHighlight = requireActivity().findViewById(R.id.greenhighlight);
+        cardView = requireActivity().findViewById(R.id.card_note_creator);
+        recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
+        everDraw = requireActivity().findViewById(R.id.EverDraw);
+        fadein = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_in_formatter);
+        fadeout = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter);
+        DrawOptions = requireActivity().findViewById(R.id.draw_options);
+        size_visualizer = requireActivity().findViewById(R.id.draw_sizeVisualizerCardView);
+        ImageSizeView = requireActivity().findViewById(R.id.draw_size_visualizer);
+        format_selector = requireActivity().findViewById(R.id.format_selector);
+        importer_selector = requireActivity().findViewById(R.id.import_options);
+        paragraph_selector = requireActivity().findViewById(R.id.format_paragraph);
+        Bullets = requireActivity().findViewById(R.id.Bullets);
+        Numbers = requireActivity().findViewById(R.id.Numbers);
+        spacing = requireActivity().findViewById(R.id.paragraph_spacing);
+        Increase = requireActivity().findViewById(R.id.IncreaseSize);
+        Decrease = requireActivity().findViewById(R.id.DecreaseSize);
+        Left = requireActivity().findViewById(R.id.AlignLeft);
+        Right = requireActivity().findViewById(R.id.AlignRight);
+        Center = requireActivity().findViewById(R.id.AlignCenter);
+
+
+        /////////////////////////////////////////////////////////////////////////// MainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+
+        Black.setOnClickListener(view -> ColorClickedSwitcher("Black", false));
+
+        Blue.setOnClickListener(view -> ColorClickedSwitcher("Blue", false));
+
+        Purple.setOnClickListener(view -> ColorClickedSwitcher("Purple", false));
+
+        Magenta.setOnClickListener(view -> ColorClickedSwitcher("Magenta", false));
+
+        Orange.setOnClickListener(view -> ColorClickedSwitcher("Orange", false));
+
+        Yellow.setOnClickListener(view -> ColorClickedSwitcher("Yellow", false));
+
+        Green.setOnClickListener(view -> ColorClickedSwitcher("Green", false));
+
+        BlackDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Black"));
+
+        BlueDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Blue"));
+
+        PurpleDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Purple"));
+
+        MagentaDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Magenta"));
+
+        OrangeDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Orange"));
+
+        YellowDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Yellow"));
+
+        GreenDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Green"));
+
+        ClearHighlight.setOnClickListener(view -> ColorClickedSwitcher("Clear", true));
+
+        BlackHighlight.setOnClickListener(view -> ColorClickedSwitcher("Black", true));
+
+        BlueHighlight.setOnClickListener(view -> ColorClickedSwitcher("Blue", true));
+
+        PurpleHighlight.setOnClickListener(view -> ColorClickedSwitcher("Purple", true));
+
+        MagentaHighlight.setOnClickListener(view -> ColorClickedSwitcher("Magenta", true));
+
+        OrangeHighlight.setOnClickListener(view -> ColorClickedSwitcher("Orange", true));
+
+        YellowHighlight.setOnClickListener(view -> ColorClickedSwitcher("Yellow", true));
+
+        GreenHighlight.setOnClickListener(view -> ColorClickedSwitcher("Green", true));
+
+
+        everDraw.setOnTouchListener((view, motionEvent) -> {
+
+            int y = (int) motionEvent.getY();
+
+            if (y >= FinalYHeight) {
+                FinalYHeight = y;
+            }
+
+            if (y >= everDraw.getHeight() - 75) {
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+
+                    TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                            .addTransition(new ChangeBounds()));
+
+                    ViewGroup.LayoutParams params = everDraw.getLayoutParams();
+
+                    params.height = everDraw.getHeight() + 200;
+
+                    everDraw.setLayoutParams(params);
+
+                });
+
+            }
+            return false;
+        });
+
+        KeyboardVisibilityEvent.setEventListener(
+                requireActivity(),
+                isOpen -> {
+
+                    if (isOpen) {
+
+                    /*    new Handler(Looper.getMainLooper()).post(() -> {
+
+                            TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                                    .addTransition(new ChangeBounds()));
+
+                            // evermindEditor.setEditorHeight(250);
+
+                            ViewGroup.LayoutParams params = cardView.getLayoutParams();
+
+                            params.height = 1100;
+
+                            cardView.setLayoutParams(params);
+                        });
+                  */  } else {
+
+                        //      if (DrawOn) {
+
+                        //         new Handler(Looper.getMainLooper()).post(() -> {
+
+                        //             TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                        //                    .addTransition(new ChangeBounds()));
+
+                        // evermindEditor.setEditorHeight(250);
+
+                        //           ViewGroup.LayoutParams params = cardView.getLayoutParams();
+
+                        //           params.height = 2000;
+
+                        //          cardView.setLayoutParams(params); });
+
+                        //    } else {
+
+                        new Handler(Looper.getMainLooper()).post(() -> {
+
+                            TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                                    .addTransition(new ChangeBounds()));
+
+                            ViewGroup.LayoutParams params = cardView.getLayoutParams();
+
+                            params.height = WRAP_CONTENT;
+
+                            cardView.setLayoutParams(params);
+                        });
+                    }// }
+                });
+
+
+        GooglePhotos.setOnClickListener(view -> {
+            requestPermissions(PERMISSIONS_STORAGE, 0);
+            openImageChooser("GooglePhotos");
+        });
+
+        Gallery.setOnClickListener(view -> {
+            requestPermissions(PERMISSIONS_STORAGE, 0);
+            openImageChooser("Gallery");
+        });
+
+        Files.setOnClickListener(view -> {
+            requestPermissions(PERMISSIONS_STORAGE, 0);
+            openImageChooser("Files");
+        });
+
+        ChangeColor.setOnClickListener(view -> {
+            if (CloseOpenedColors) {
+
+                OpenOrCloseColors(false);
+
+
+            } else {
+
+                OpenOrCloseColors(false);
+
+            }
+        });
+
+        DrawChangeColor.setOnClickListener(view -> OpenOrCloseDrawColors());
+
+        DrawChangeSize.setOnClickListener(view -> OpenOrCloseDrawSize());
+
+        seekBarDrawSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                everDraw.setStrokeWidth(i);
+
+                if (DrawVisualizerIsShowing) {
+
+                    ModifyDrawSizeVisualizer(i);
+
+                } else {
+                    ShowDrawSizeVisualizer();
+                    ModifyDrawSizeVisualizer(i);
                 }
+            }
 
-            }, 500);
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        HighlightText.setOnClickListener(view -> {
+            if (CloseOpenedColorsHighlight) {
+
+                OpenOrCloseColors(true);
+
+
+            } else {
+
+                OpenOrCloseColors(true);
+
+            }
+        });
+
+
+        requireActivity().findViewById(R.id.IncreaseSize).setOnClickListener(v -> {
+
+
+            if (size < 7) {
+
+                size++;
+                EverAdapter.GetActiveEditor().setFontSize(size);
+            }
 
         });
 
-        //////////////////////////////////////// INICIAL VARIALBES /\
-        new Thread(() -> {
-
-            note_bottom_bar = requireActivity().findViewById(R.id.note_bottom_bar);
-            bottom_nav_anim = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim);
-            bottom_nav_anim_reverse = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim_reverse);
-            scrollView = requireActivity().findViewById(R.id.scrollview);
-            scrollView1 = requireActivity().findViewById(R.id.scroll_formatter);
-            scrollView2 = requireActivity().findViewById(R.id.scroll_paragraph);
-            scrollView3 = requireActivity().findViewById(R.id.scroll_import);
-            scrollView4 = requireActivity().findViewById(R.id.scroll_draw);
-            OverScrollDecoratorHelper.setUpOverScroll(scrollView);
-            OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
-            OverScrollDecoratorHelper.setUpOverScroll(scrollView2);
-            OverScrollDecoratorHelper.setUpOverScroll(scrollView3);
-            OverScrollDecoratorHelper.setUpOverScroll(scrollView4);
-            GooglePhotos = requireActivity().findViewById(R.id.GooglePhotos);
-            Gallery = requireActivity().findViewById(R.id.Gallery);
-            Files = requireActivity().findViewById(R.id.Files);
-            ChangeColor = requireActivity().findViewById(R.id.ChangeColor);
-            DrawChangeColor = requireActivity().findViewById(R.id.DrawChangeColor);
-            DrawChangeSize = requireActivity().findViewById(R.id.DrawChangeSize);
-            size_visualizer = requireActivity().findViewById(R.id.draw_sizeVisualizerCardView);
-            ImageSizeView = requireActivity().findViewById(R.id.draw_size_visualizer);
-            DrawOptions = requireActivity().findViewById(R.id.draw_options);
-            seekBarDrawSize = requireActivity().findViewById(R.id.draw_size_seekbar);
-            Italic = requireActivity().findViewById(R.id.Italic);
-            Bold  = requireActivity().findViewById(R.id.Bold);
-            Underline  = requireActivity().findViewById(R.id.Underline);
-            Striketrough = requireActivity().findViewById(R.id.Striketrough);
-            HighlightText = requireActivity().findViewById(R.id.HighlightText);
-            Black = requireActivity().findViewById(R.id.black);
-            Blue = requireActivity().findViewById(R.id.blue);
-            Purple = requireActivity().findViewById(R.id.purple);
-            Magenta = requireActivity().findViewById(R.id.magenta);
-            Orange = requireActivity().findViewById(R.id.orange);
-            Yellow = requireActivity().findViewById(R.id.yellow);
-            Green = requireActivity().findViewById(R.id.green);
-            BlackDraw = requireActivity().findViewById(R.id.Drawblack);
-            BlueDraw = requireActivity().findViewById(R.id.Drawblue);
-            PurpleDraw = requireActivity().findViewById(R.id.Drawpurple);
-            MagentaDraw = requireActivity().findViewById(R.id.Drawmagenta);
-            OrangeDraw = requireActivity().findViewById(R.id.Draworange);
-            YellowDraw = requireActivity().findViewById(R.id.Drawyellow);
-            GreenDraw = requireActivity().findViewById(R.id.Drawgreen);
-            ClearHighlight = requireActivity().findViewById(R.id.clearhighlight);
-            BlackHighlight = requireActivity().findViewById(R.id.blackhighlight);
-            BlueHighlight = requireActivity().findViewById(R.id.bluehighlight);
-            PurpleHighlight = requireActivity().findViewById(R.id.purplehighlight);
-            MagentaHighlight = requireActivity().findViewById(R.id.magentahighlight);
-            OrangeHighlight = requireActivity().findViewById(R.id.orangehighlight);
-            YellowHighlight = requireActivity().findViewById(R.id.yellowhighlight);
-            GreenHighlight = requireActivity().findViewById(R.id.greenhighlight);
-            cardView = requireActivity().findViewById(R.id.card_note_creator);
-            recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
-            everDraw = requireActivity().findViewById(R.id.EverDraw);
-            fadein = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_in_formatter);
-            fadeout = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter);
-            DrawOptions = requireActivity().findViewById(R.id.draw_options);
-            size_visualizer = requireActivity().findViewById(R.id.draw_sizeVisualizerCardView);
-            ImageSizeView = requireActivity().findViewById(R.id.draw_size_visualizer);
-            format_selector = requireActivity().findViewById(R.id.format_selector);
-            importer_selector = requireActivity().findViewById(R.id.import_options);
-            paragraph_selector = requireActivity().findViewById(R.id.format_paragraph);
-            Bullets = requireActivity().findViewById(R.id.Bullets);
-            Numbers = requireActivity().findViewById(R.id.Numbers);
-            spacing = requireActivity().findViewById(R.id.paragraph_spacing);
-            Increase = requireActivity().findViewById(R.id.IncreaseSize);
-            Decrease = requireActivity().findViewById(R.id.DecreaseSize);
-            Left = requireActivity().findViewById(R.id.AlignLeft);
-            Right = requireActivity().findViewById(R.id.AlignRight);
-            Center = requireActivity().findViewById(R.id.AlignCenter);
+        requireActivity().findViewById(R.id.DecreaseSize).setOnClickListener(v -> {
 
 
+            if (size > 3) {
 
-            /////////////////////////////////////////////////////////////////////////// MainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+                size--;
+                EverAdapter.GetActiveEditor().setFontSize(size);
+            }
+        });
 
 
-            Black.setOnClickListener(view -> ColorClickedSwitcher("Black", false));
+        note_bottom_bar.setOnNavigationItemSelectedListener(item -> {
+            int id_nav = item.getItemId();
 
-            Blue.setOnClickListener(view -> ColorClickedSwitcher("Blue", false));
 
-            Purple.setOnClickListener(view -> ColorClickedSwitcher("Purple", false));
+            switch (id_nav) {
+                case R.id.nav_formatText:
 
-            Magenta.setOnClickListener(view -> ColorClickedSwitcher("Magenta", false));
+                    //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
 
-            Orange.setOnClickListener(view -> ColorClickedSwitcher("Orange", false));
+                    CloseOrOpenFormatter();
 
-            Yellow.setOnClickListener(view -> ColorClickedSwitcher("Yellow", false));
+                    //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
 
-            Green.setOnClickListener(view -> ColorClickedSwitcher("Green", false));
+                    break;
 
-            BlackDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Black"));
+                case R.id.nav_paragraph:
 
-            BlueDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Blue"));
+                    CloseOrOpenParagraph();
 
-            PurpleDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Purple"));
+                    break;
 
-            MagentaDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Magenta"));
+                case R.id.nav_checkbox:
 
-            OrangeDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Orange"));
+                    CloseOrOpenImporter();
 
-            YellowDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Yellow"));
+                    break;
 
-            GreenDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Green"));
+                case R.id.nav_bullets:
 
-            ClearHighlight.setOnClickListener(view -> ColorClickedSwitcher("Clear", true));
+                    tomanocu = true;
 
-            BlackHighlight.setOnClickListener(view -> ColorClickedSwitcher("Black", true));
+                    requestPermissions(PERMISSIONS_STORAGE, 0);
 
-            BlueHighlight.setOnClickListener(view -> ColorClickedSwitcher("Blue", true));
+                   // giphyLibrary.start(requireActivity(), this, API_KEY);
 
-            PurpleHighlight.setOnClickListener(view -> ColorClickedSwitcher("Purple", true));
 
-            MagentaHighlight.setOnClickListener(view -> ColorClickedSwitcher("Magenta", true));
+                    break;
 
-            OrangeHighlight.setOnClickListener(view -> ColorClickedSwitcher("Orange", true));
+                case R.id.nav_draw:
 
-            YellowHighlight.setOnClickListener(view -> ColorClickedSwitcher("Yellow", true));
+                    OpenOrCloseDrawOptions();
 
-            GreenHighlight.setOnClickListener(view -> ColorClickedSwitcher("Green", true));
+                    InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
+                    keyboard.hideSoftInputFromWindow(requireView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-            new Handler(Looper.getMainLooper()).post(() -> {
-
-                giphyLibrary = new GiphyLibrary();
-
-            });
-
-            everDraw.setOnTouchListener((view, motionEvent) -> {
-
-                int  y = (int) motionEvent.getY();
-
-                 if (y >= FinalY) {
-                     FinalY = y;
-                 }
-
-                if (y >= everDraw.getHeight() - 75) {
-
-                    new Handler(Looper.getMainLooper()).post(() -> {
-
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
                                 .addTransition(new ChangeBounds()));
 
                         ViewGroup.LayoutParams params = everDraw.getLayoutParams();
 
-                        params.height = everDraw.getHeight() + 200;
+                        params.height = 1400;
 
                         everDraw.setLayoutParams(params);
 
-                    });
-
-                }
-                return false;
-            });
-
-                KeyboardVisibilityEvent.setEventListener(
-                    requireActivity(),
-                    isOpen -> {
-
-                        if (isOpen) {
-
-                            new Handler(Looper.getMainLooper()).post(() -> {
-
-                                TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                                        .addTransition(new ChangeBounds()));
-
-                               // evermindEditor.setEditorHeight(250);
-
-                                ViewGroup.LayoutParams params = cardView.getLayoutParams();
-
-                                params.height = 1100;
-
-                                cardView.setLayoutParams(params);
-                            });
-                        } else {
-
-                      //      if (DrawOn) {
-
-                       //         new Handler(Looper.getMainLooper()).post(() -> {
-
-                       //             TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                        //                    .addTransition(new ChangeBounds()));
-
-                                    // evermindEditor.setEditorHeight(250);
-
-                         //           ViewGroup.LayoutParams params = cardView.getLayoutParams();
-
-                         //           params.height = 2000;
-
-                          //          cardView.setLayoutParams(params); });
-
-                        //    } else {
-
-                            new Handler(Looper.getMainLooper()).post(() -> {
-
-                                TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                                        .addTransition(new ChangeBounds()));
-
-                                ViewGroup.LayoutParams params = cardView.getLayoutParams();
-
-                                params.height = WRAP_CONTENT;
-
-                                cardView.setLayoutParams(params);
-                            });
-                        }// }
-                    });
+                    }, 500);
 
 
-            GooglePhotos.setOnClickListener(view -> {
-                requestPermissions(PERMISSIONS_STORAGE, 0);
-                openImageChooser("GooglePhotos");
-            });
+                default:
+                    return true;
+            }
+            return true;
+        });
 
-            Gallery.setOnClickListener(view -> {
-                requestPermissions(PERMISSIONS_STORAGE, 0);
-                openImageChooser("Gallery");
-            });
+        Delete.setOnClickListener(view -> {
+            if (DrawOn) {
+                everDraw.clearCanvas();
+                OpenOrCloseDrawOptions();
+            } else {
+                new AlertDialog.Builder(requireActivity())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle("Are you sure?")
+                        .setMessage("Do you want to delete this note?")
+                        .setPositiveButton("Yes", (dialogInterface, i) -> {
 
-            Files.setOnClickListener(view -> {
-                requestPermissions(PERMISSIONS_STORAGE, 0);
-                openImageChooser("Files");
-            });
+                                    int id1 = preferences.getInt("noteId", -1);
 
-            ChangeColor.setOnClickListener(view -> {
-                if (CloseOpenedColors) {
+                                    everDataBase.deleteNote(id1);
 
-                    OpenOrCloseColors(false);
+                                    onBackPressed(true);
+                                }
+                        )
+                        .setNegativeButton("No", null)
+                        .show();
+            }
+        });
 
+        Save.setOnClickListener(view -> {
+            if (DrawOn) {
 
-                } else {
+                Bitmap bitmap = everDraw.getBitmap();
+                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), FinalYHeight + 100);
 
-                    OpenOrCloseColors(false);
-
-                }
-            });
-
-            DrawChangeColor.setOnClickListener(view -> OpenOrCloseDrawColors());
-
-            DrawChangeSize.setOnClickListener(view -> OpenOrCloseDrawSize());
-
-            seekBarDrawSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                    everDraw.setStrokeWidth(i);
-
-                    if (DrawVisualizerIsShowing) {
-
-                        ModifyDrawSizeVisualizer(i);
-
-                    } else {
-                        ShowDrawSizeVisualizer();
-                        ModifyDrawSizeVisualizer(i);
-                    }
+                try {
+                    TransformBitmapToFile(resizedBitmap, true, ".jpeg");
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
+                everDraw.clearCanvas();
 
-                }
+                OpenOrCloseDrawOptions();
+            } else {
+                onBackPressed(false);
+            }
+        });
 
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
+        Undo.setOnClickListener(view -> {
+            if (DrawOn) {
+                everDraw.undo();
+            } else {
+                EverAdapter.GetActiveEditor().undo();
+            }
+        });
 
-                }
-            });
+        Redo.setOnClickListener(view -> {
+            if (DrawOn) {
+                everDraw.redo();
+            } else {
+                EverAdapter.GetActiveEditor().redo();
+            }
+        });
 
-            HighlightText.setOnClickListener(view -> {
-                if (CloseOpenedColorsHighlight) {
+        requireActivity().findViewById(R.id.Bold).setOnClickListener(v -> EverAdapter.GetActiveEditor().setBold());
 
-                    OpenOrCloseColors(true);
+        requireActivity().findViewById(R.id.Italic).setOnClickListener(v -> EverAdapter.GetActiveEditor().setItalic());
 
+        requireActivity().findViewById(R.id.Striketrough).setOnClickListener(v -> EverAdapter.GetActiveEditor().setStrikeThrough());
 
-                } else {
+        requireActivity().findViewById(R.id.Underline).setOnClickListener(v -> EverAdapter.GetActiveEditor().setUnderline());
 
-                    OpenOrCloseColors(true);
+        //     getActivity().findViewById(R.id.action_heading1).setOnClickListener(new View.OnClickListener() {
+        //          @Override public void onClick(View v) {
+        //              mEditor.setHeading(1);
+        //          }
+        //      });
 
-                }
-            });
+        //      getActivity().findViewById(R.id.action_heading2).setOnClickListener(new View.OnClickListener() {
+        //        @Override public void onClick(View v) {
+        //             mEditor.setHeading(2);
+        //         }
+        //      });
 
+        ///      getActivity().findViewById(R.id.action_heading3).setOnClickListener(new View.OnClickListener() {
+        //          @Override public void onClick(View v) {
+        //              mEditor.setHeading(3);
+        //            }
+        //     });
 
-            requireActivity().findViewById(R.id.IncreaseSize).setOnClickListener(v -> {
+        //     getActivity().findViewById(R.id.action_heading4).setOnClickListener(new View.OnClickListener() {
+        //         @Override public void onClick(View v) {
+        //             mEditor.setHeading(4);
+        //        }
+        //      });
 
+        //     getActivity().findViewById(R.id.action_heading5).setOnClickListener(new View.OnClickListener() {
+        //         @Override public void onClick(View v) {
+        //             mEditor.setHeading(5);
+        //        }
+        //    });
 
-                if (size < 7) {
-
-                    size++;
-                    evermindEditor.setFontSize(size);
-                }
-
-            });
-
-            requireActivity().findViewById(R.id.DecreaseSize).setOnClickListener(v -> {
-
-
-                if (size > 3) {
-
-                    size--;
-                    evermindEditor.setFontSize(size);
-                }
-            });
-
-
-            note_bottom_bar.setOnNavigationItemSelectedListener(item -> {
-                int id_nav = item.getItemId();
-
-
-                switch (id_nav) {
-                    case R.id.nav_formatText:
-
-                        //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
-
-                        CloseOrOpenFormatter();
-
-                        //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
-
-                        break;
-
-                    case R.id.nav_paragraph:
-
-                        CloseOrOpenParagraph();
-
-                        break;
-
-                    case R.id.nav_checkbox:
-
-                        CloseOrOpenImporter();
-
-                        break;
-
-                    case R.id.nav_bullets:
-
-                        tomanocu = true;
-
-                        requestPermissions(PERMISSIONS_STORAGE, 0);
-
-                        giphyLibrary.start(requireActivity(), this, API_KEY);
+        //      getActivity().findViewById(R.id.action_heading6).setOnClickListener(new View.OnClickListener() {
+        //          @Override public void onClick(View v) {
+        //              mEditor.setHeading(6);
+        //          }
+        //     });
 
 
-                        break;
+        requireActivity().findViewById(R.id.AlignLeft).setOnClickListener(v -> EverAdapter.GetActiveEditor().setAlignLeft());
+        requireActivity().findViewById(R.id.AlignCenter).setOnClickListener(v -> EverAdapter.GetActiveEditor().setAlignCenter());
+        requireActivity().findViewById(R.id.AlignRight).setOnClickListener(v -> EverAdapter.GetActiveEditor().setAlignRight());
 
-                    case R.id.nav_draw:
 
-                        OpenOrCloseDrawOptions();
+        //      getActivity().findViewById(R.id.action_insert_image).setOnClickListener(new View.OnClickListener() {
+        //          @Override public void onClick(View v) {
+        //              mEditor.insertImage("http://www.1honeywan.com/dachshund/image/7.21/7.21_3_thumb.JPG",
+        //                      "dachshund");
+        //          }
+        //     });
 
-                        DrawOn = true;
+        //     getActivity().findViewById(R.id.action_insert_link).setOnClickListener(new View.OnClickListener() {
+        ////         @Override public void onClick(View v) {
+        //             mEditor.insertLink("https://github.com/wasabeef", "wasabeef");
+        //         }
 
-                        InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
-                        keyboard.hideSoftInputFromWindow(requireView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+        mViewModel = ViewModelProviders.of(this).get(NoteEditorFragmentMainViewModel.class);
+
+
+    /*    EverAdapter.GetActiveEditor().setOnFocusChangeListener((view, b) -> {
+
+            if (b) {
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+
+                    note_bottom_bar.setVisibility(View.VISIBLE);
+                    note_bottom_bar.startAnimation(bottom_nav_anim);
+
+                    DeleteSave = GetDeleteNSaveFromSharedPreferences();
+
+                    if (DeleteSave) {
 
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                            TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                                    .addTransition(new ChangeBounds()));
 
-                            ViewGroup.LayoutParams params = everDraw.getLayoutParams();
-
-                            params.height = 1400;
-
-                            everDraw.setLayoutParams(params);
-
-                        }, 500);
+                            Undo.setVisibility(View.VISIBLE);
+                            Redo.setVisibility(View.VISIBLE);
 
 
-                    default:
-                        return true;
-                }
-                return true;
-            });
+                            InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
+                            if (keyboard.isActive()) {
 
-            Delete.setOnClickListener(view -> {
-                if (DrawOn) {
-                    everDraw.clearCanvas();
-                    OpenOrCloseDrawOptions();
-                } else {
-                    new AlertDialog.Builder(requireActivity())
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setTitle("Are you sure?")
-                            .setMessage("Do you want to delete this note?")
-                            .setPositiveButton("Yes", (dialogInterface, i) -> {
+                            } else {
+                                keyboard.showSoftInput(EverAdapter.GetActiveEditor(), 0);
+                            }
 
-                                        int id1 = preferences.getInt("noteId", -1);
+                        }, 200);
 
-                                        everDataBase.deleteNote(id1);
+                    } else {
 
-                                        onBackPressed(true);
-                                    }
-                            )
-                            .setNegativeButton("No", null)
-                            .show();
-                }
-            });
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-            Save.setOnClickListener(view -> {
-                if (DrawOn) {
+                            Undo.setVisibility(View.VISIBLE);
+                            Redo.setVisibility(View.VISIBLE);
+                            Delete.setVisibility(View.VISIBLE);
+                            Save.setVisibility(View.VISIBLE);
 
-                    Bitmap bitmap = everDraw.getBitmap();
-                   Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), FinalY + 100);
+                        }, 200);
 
-                    try {
-                        TransformBitmapToFile(resizedBitmap, true, ".jpeg");
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
 
-                    everDraw.clearCanvas();
+                    ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, true, false, 0);
+                    ApplyChangesToSharedPreferences("UndoRedo", false, "", true, true, false, 0);
 
-                    OpenOrCloseDrawOptions();
-                } else {
-                    onBackPressed(false);
-                }
-            });
+                }, 450);
 
-            Undo.setOnClickListener(view -> {
-                if (DrawOn) {
-                    everDraw.undo();
-                } else {
-                    evermindEditor.undo();
-                }
-            });
+            } else {
 
-            Redo.setOnClickListener(view -> {
-                if (DrawOn) {
-                    everDraw.redo();
-                } else {
-                    evermindEditor.redo();
-                }
-            });
+                new Handler(Looper.getMainLooper()).post(() -> {
 
-            requireActivity().findViewById(R.id.Bold).setOnClickListener(v -> evermindEditor.setBold());
+                    //      TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                    //              .addTransition(new ChangeBounds()));
 
-            requireActivity().findViewById(R.id.Italic).setOnClickListener(v -> evermindEditor.setItalic());
+                    //    ViewGroup.LayoutParams params = cardView.getLayoutParams();
 
-            requireActivity().findViewById(R.id.Striketrough).setOnClickListener(v -> evermindEditor.setStrikeThrough());
+                    //    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;;
+                    //     cardView.setLayoutParams(params);
 
-            requireActivity().findViewById(R.id.Underline).setOnClickListener(v -> evermindEditor.setUnderline());
+                    if (DrawOn) {
 
-            //     getActivity().findViewById(R.id.action_heading1).setOnClickListener(new View.OnClickListener() {
-            //          @Override public void onClick(View v) {
-            //              mEditor.setHeading(1);
-            //          }
-            //      });
-
-            //      getActivity().findViewById(R.id.action_heading2).setOnClickListener(new View.OnClickListener() {
-            //        @Override public void onClick(View v) {
-            //             mEditor.setHeading(2);
-            //         }
-            //      });
-
-            ///      getActivity().findViewById(R.id.action_heading3).setOnClickListener(new View.OnClickListener() {
-            //          @Override public void onClick(View v) {
-            //              mEditor.setHeading(3);
-            //            }
-            //     });
-
-            //     getActivity().findViewById(R.id.action_heading4).setOnClickListener(new View.OnClickListener() {
-            //         @Override public void onClick(View v) {
-            //             mEditor.setHeading(4);
-            //        }
-            //      });
-
-            //     getActivity().findViewById(R.id.action_heading5).setOnClickListener(new View.OnClickListener() {
-            //         @Override public void onClick(View v) {
-            //             mEditor.setHeading(5);
-            //        }
-            //    });
-
-            //      getActivity().findViewById(R.id.action_heading6).setOnClickListener(new View.OnClickListener() {
-            //          @Override public void onClick(View v) {
-            //              mEditor.setHeading(6);
-            //          }
-            //     });
-
-
-            requireActivity().findViewById(R.id.AlignLeft).setOnClickListener(v -> evermindEditor.setAlignLeft());
-            requireActivity().findViewById(R.id.AlignCenter).setOnClickListener(v -> evermindEditor.setAlignCenter());
-            requireActivity().findViewById(R.id.AlignRight).setOnClickListener(v -> evermindEditor.setAlignRight());
-
-
-            //      getActivity().findViewById(R.id.action_insert_image).setOnClickListener(new View.OnClickListener() {
-            //          @Override public void onClick(View v) {
-            //              mEditor.insertImage("http://www.1honeywan.com/dachshund/image/7.21/7.21_3_thumb.JPG",
-            //                      "dachshund");
-            //          }
-            //     });
-
-            //     getActivity().findViewById(R.id.action_insert_link).setOnClickListener(new View.OnClickListener() {
-            ////         @Override public void onClick(View v) {
-            //             mEditor.insertLink("https://github.com/wasabeef", "wasabeef");
-            //         }
-
-
-            mViewModel = ViewModelProviders.of(this).get(NoteEditorFragmentMainViewModel.class);
-
-
-            evermindEditor.setOnFocusChangeListener((view, b) -> {
-
-                if (b) {
-
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-
-                        note_bottom_bar.setVisibility(View.VISIBLE);
-                        note_bottom_bar.startAnimation(bottom_nav_anim);
-
-                        DeleteSave = GetDeleteNSaveFromSharedPreferences();
-
-                        if (DeleteSave) {
-
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                                Undo.setVisibility(View.VISIBLE);
-                                Redo.setVisibility(View.VISIBLE);
-
-
-                                InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
-                                if (keyboard.isActive()) {
-
-                                } else {
-                                    keyboard.showSoftInput(evermindEditor, 0);
-                                }
-
-                            }, 200);
-
-                        } else {
-
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                                Undo.setVisibility(View.VISIBLE);
-                                Redo.setVisibility(View.VISIBLE);
-                                Delete.setVisibility(View.VISIBLE);
-                                Save.setVisibility(View.VISIBLE);
-
-                            }, 200);
-
-                        }
-
-                        ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, true, false, 0);
-                        ApplyChangesToSharedPreferences("UndoRedo", false, "", true, true, false, 0);
-
-                    }, 450);
-
-                } else {
-
-                    new Handler(Looper.getMainLooper()).post(() -> {
-
-                        //      TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                        //              .addTransition(new ChangeBounds()));
-
-                        //    ViewGroup.LayoutParams params = cardView.getLayoutParams();
-
-                        //    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;;
-                        //     cardView.setLayoutParams(params);
-
-                        if (DrawOn) {
-
-                        } else {
+                    } else {
 
                         ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
                         ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
@@ -801,119 +837,125 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                         Redo.setVisibility(View.GONE);
 
                         InputMethodManager keyboard = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-                        keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS); }
-
-                    });
-                }
-            });
-
-
-            evermindEditor.setOnTextChangeListener(text -> new Thread(() -> {
-
-                String transformToHexHTML = replaceRGBColorsWithHex(evermindEditor.getHtml());
-
-                // focusOnView(scrollView, mEditor);
-
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                    everDataBase.editContent(Integer.toString(GetIDFromSharedPreferences()), transformToHexHTML);
-
-
-                }, 750);
-
-            }).start());
-
-            TitleTextBox.setOnFocusChangeListener((view, b) -> {
-
-                if (b) {
-
-                    new Handler(Looper.getMainLooper()).post(() -> {
-
-                        InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
-                        keyboard.showSoftInput(TitleTextBox, 0);
-
-                        DeleteSave = GetDeleteNSaveFromSharedPreferences();
-
-                        if (DeleteSave) {
-
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                                Undo.setVisibility(View.GONE);
-                                Redo.setVisibility(View.GONE);
-
-                            }, 200);
-
-
-                        } else {
-
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                                Delete.setVisibility(View.VISIBLE);
-                                Save.setVisibility(View.VISIBLE);
-
-                            }, 200);
-
-                        }
-
-                        ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, true, false, 0);
-
-
-                        if (CloseFormatter) {
-                            CloseOrOpenFormatter();
-                        }
-
-                        note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
-
-                        // new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                        // note_bottom_bar.setVisibility(View.GONE);
-
-                        // }, 200);
-
-                    });
-
-                } else {
-
-                    new Handler(Looper.getMainLooper()).post(() -> {
-
-                        InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
                         keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                    }
 
-                        // Delete.setVisibility(View.GONE);
-                        // Save.setVisibility(View.GONE);
+                });
+            }
+        });
+*/
 
-                        ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
+        //evermindEditor.setOnTextChangeListener(text -> new Thread(() -> {
 
-                    });
-                }
+       //     String transformToHexHTML = replaceRGBColorsWithHex(evermindEditor.getHtml());
+
+       //     System.out.println(EverAdapter.GetActiveEditor().toString());
+
+            // focusOnView(scrollView, mEditor);
+//
+     //       new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+       //         everDataBase.editContent(Integer.toString(GetIDFromSharedPreferences()), transformToHexHTML);
 
 
-            });
+       //     }, 750);
 
+      //  }).start());
 
-            //////////////////////////////////////////// HANDLE IMAGES \/
+        TitleTextBox.setOnFocusChangeListener((view, b) -> {
 
-
-            ImagesURLs = everDataBase.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
-
-            //ImagesURLs.removeAll(Collections.singletonList(""));
-
-            if (ImagesURLs.length() > 0) {
-                GridLayoutManager staggeredGridLayoutManager = new GridLayoutManager(getActivity(), GridLayoutManager.VERTICAL);
-                staggeredGridLayoutManager.setSpanCount(2);
+            if (b) {
 
                 new Handler(Looper.getMainLooper()).post(() -> {
 
-                    recyclerViewImage.setLayoutManager(staggeredGridLayoutManager);
+                    //InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
+                   // keyboard.showSoftInput(TitleTextBox, 0);
 
-                    adapter = new ImagesRecyclerGridAdapter(this.getActivity(), ImagesURLs, preferences.getInt("position", -1), ImagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
+                    DeleteSave = GetDeleteNSaveFromSharedPreferences();
 
-                    recyclerViewImage.setAdapter(adapter);
+                    if (DeleteSave) {
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                            Undo.setVisibility(View.GONE);
+                            Redo.setVisibility(View.GONE);
+
+                        }, 200);
+
+
+                    } else {
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                            Delete.setVisibility(View.VISIBLE);
+                            Save.setVisibility(View.VISIBLE);
+
+                        }, 200);
+
+                    }
+
+                    ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, true, false, 0);
+
+
+                    if (CloseFormatter) {
+                        CloseOrOpenFormatter();
+                    }
+
+                    note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
+
+                    // new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                    // note_bottom_bar.setVisibility(View.GONE);
+
+                    // }, 200);
+
+                });
+
+            } else {
+
+               // InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
+               // keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+
+                    // Delete.setVisibility(View.GONE);
+                    // Save.setVisibility(View.GONE);
+
+                    ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
 
                 });
             }
 
-        }).start();
+
+        });
+
+
+        //////////////////////////////////////////// HANDLE IMAGES \/
+
+
+        ImagesURLs = everDataBase.getImageURLFromDatabaseWithID(GetIDFromSharedPreferences());
+
+        StaggeredGridLayoutManager staggeredGridLayoutManagerImage = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+
+        //ImagesURLs.removeAll(Collections.singletonList(""));
+
+        if (ImagesURLs.length() > 0) {
+
+            staggeredGridLayoutManagerImage.setSpanCount(2);
+
+            //   new Handler(Looper.getMainLooper()).post(() -> {
+
+
+            recyclerViewImage.setLayoutManager(staggeredGridLayoutManagerImage);
+
+            adapter = new ImagesRecyclerGridAdapter(this.getActivity(), ImagesURLs, preferences.getInt("position", -1), ImagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
+
+            recyclerViewImage.setAdapter(adapter);
+
+            // });
+        }
+
+        // }).start();
 
     }
 
@@ -1016,7 +1058,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
     private void OpenOrCloseColors(Boolean highlight) {
 
         new Thread(() -> {
-
 
 
             if (CloseOpenedColors) {
@@ -1189,7 +1230,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                     DrawChangeColor.setVisibility(View.GONE);
                     DrawChangeSize.setVisibility(View.GONE);
                     TitleTextBox.setVisibility(View.VISIBLE);
-                   //  evermindEditor.setVisibility(View.VISIBLE);
+                    //  evermindEditor.setVisibility(View.VISIBLE);
 
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -1198,6 +1239,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                         recyclerViewImage.setVisibility(View.VISIBLE);
 
                         DrawOptions.setVisibility(View.GONE);
+
+                        editor.putBoolean("DrawOn", false);
+                        editor.apply();
 
                     }, 100);
 
@@ -1211,7 +1255,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                     everDraw.setVisibility(View.VISIBLE);
                     recyclerViewImage.setVisibility(View.GONE);
                     TitleTextBox.setVisibility(View.GONE);
-                  //  evermindEditor.setVisibility(View.GONE);
+                    //re
+                    //  evermindEditor.setVisibility(View.GONE);
 
                     DrawOptions.setVisibility(View.VISIBLE);
 
@@ -1221,6 +1266,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                         DrawChangeColor.setVisibility(View.VISIBLE);
                         DrawChangeSize.setVisibility(View.VISIBLE);
+
+                        DrawOn = true;
+
+                        editor.putBoolean("DrawOn", true);
+                        editor.apply();
+
                     }, 100);
 
                     CloseOpenedDrawOptions = true;
@@ -1387,7 +1438,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 case "Clear":
 
-                    evermindEditor.setTextBackgroundColor(Color.WHITE);
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(Color.WHITE);
 
                     OpenOrCloseColors(true);
 
@@ -1397,7 +1448,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 case "Black":
 
-                    evermindEditor.setTextBackgroundColor(GetColor(R.color.Black));
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.Black));
 
                     OpenOrCloseColors(true);
 
@@ -1407,7 +1458,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                 case "Blue":
 
 
-                    evermindEditor.setTextBackgroundColor(GetColor(R.color.SkyBlueHighlight));
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.SkyBlueHighlight));
 
                     OpenOrCloseColors(true);
 
@@ -1417,7 +1468,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                 case "Purple":
 
 
-                    evermindEditor.setTextBackgroundColor(GetColor(R.color.PinkHighlight));
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.PinkHighlight));
 
                     OpenOrCloseColors(true);
 
@@ -1427,7 +1478,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                 case "Magenta":
 
 
-                    evermindEditor.setTextBackgroundColor(GetColor(R.color.MagentaHighlight));
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.MagentaHighlight));
 
                     OpenOrCloseColors(true);
 
@@ -1437,7 +1488,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                 case "Orange":
 
 
-                    evermindEditor.setTextBackgroundColor(GetColor(R.color.OrangeHighlight));
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.OrangeHighlight));
 
                     OpenOrCloseColors(true);
 
@@ -1446,7 +1497,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 case "Yellow":
 
-                    evermindEditor.setTextBackgroundColor(GetColor(R.color.YellowSunHighlight));
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.YellowSunHighlight));
 
                     OpenOrCloseColors(true);
 
@@ -1455,7 +1506,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 case "Green":
 
-                    evermindEditor.setTextBackgroundColor(GetColor(R.color.GrassGreen));
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.GrassGreen));
 
                     OpenOrCloseColors(true);
 
@@ -1472,7 +1523,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 case "Black":
 
-                    evermindEditor.setTextColor(GetColor((R.color.Black)));
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.Black)));
 
                     OpenOrCloseColors(false);
 
@@ -1481,7 +1532,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 case "Blue":
 
-                    evermindEditor.setTextColor(GetColor(R.color.SkyBlue));
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.SkyBlue));
 
                     //  Blue = !Blue;
 
@@ -1493,7 +1544,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 case "Purple":
 
-                    evermindEditor.setTextColor(GetColor((R.color.Pink)));
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.Pink)));
 
                     //  Purple = !Purple;
 
@@ -1504,7 +1555,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 case "Magenta":
 
-                    evermindEditor.setTextColor(GetColor(R.color.Magenta));
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Magenta));
 
                     //  Magenta = !Magenta;
 
@@ -1517,7 +1568,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                 case "Orange":
 
 
-                    evermindEditor.setTextColor(GetColor((R.color.Orange)));
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.Orange)));
 
                     //  Orange = !Orange;
 
@@ -1529,7 +1580,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                 case "Yellow":
 
 
-                    evermindEditor.setTextColor(GetColor((R.color.YellowSun)));
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.YellowSun)));
 
                     // Yellow = !Yellow;
 
@@ -1541,7 +1592,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
                 case "Green":
 
 
-                    evermindEditor.setTextColor(GetColor((R.color.GrassGreen)));
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.GrassGreen)));
 
                     // Green = !Green;
 
@@ -1858,7 +1909,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 importer_selector.startAnimation(fadeout);
 
-              //  importer.setVisibility(View.GONE);
+                //  importer.setVisibility(View.GONE);
 
             }, 150);
 
@@ -1913,9 +1964,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
         return preferences.getInt("noteId", -1);
     }
 
-    private Boolean GetNewNoteFromSharedPreferences() { return preferences.getBoolean("newnote", false); }
+    private Boolean GetNewNoteFromSharedPreferences() {
+        return preferences.getBoolean("newnote", false);
+    }
 
-    private Boolean GetDeleteNSaveFromSharedPreferences() { return preferences.getBoolean("DeleteNSave", false); }
+    private Boolean GetDeleteNSaveFromSharedPreferences() {
+        return preferences.getBoolean("DeleteNSave", false);
+    }
 
     private void ApplyChangesToSharedPreferences(String name, boolean string, String text, boolean bolean, boolean value, boolean integer, int id) {
 
@@ -1955,7 +2010,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
                 everDataBase.insertImageToDatabase(String.valueOf(preferences.getInt("noteId", -1)), file.toString(), ImagesURLs.toString().replaceAll("[\\[\\](){}]", ""));
 
-               ReloadImagesRecycler();
+                ReloadImagesRecycler();
             }
         }
     }
@@ -1976,7 +2031,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
 
 
             if (addToDatabase) {
-                everDataBase.insertNoteBackgroundToDatabase(String.valueOf(preferences.getInt("noteId", -1)), file.toString());
+                everDataBase.insertNoteBackgroundToDatabase(String.valueOf(preferences.getInt("noteId", -1)), file.toString(), everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()));
 
             }
         }
@@ -2015,13 +2070,21 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements GiphyLib
         }
     }
 
-    @Override
-    public void onGiphySelected(String url) {
-
+    private int GetColor(int color) {
+        return ResourcesCompat.getColor(getResources(), color, null);
     }
 
-    private int GetColor(int color) {
-        return ResourcesCompat.getColor(getResources(), color,null);
+    @Override
+    public void onItemClick(View view, int position) {
+        Toast.makeText(getActivity(), "a", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClick(View view) {
+    }
+
+    @Override
+    public void onLongPress(View view, int position) {
+
     }
 }
-

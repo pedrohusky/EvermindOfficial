@@ -1,101 +1,164 @@
 package com.example.Evermind;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.Build;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import com.sysdata.kt.htmltextview.SDHtmlTextView;
+import java.util.ArrayList;
 
-public class TextAndDrawRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
+public class TextAndDrawRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private String[] mData;
-    private Integer[] mIds;
-    public static String[] title;
+    private String[] mBitmap;
     public static Integer[] id;
-    public  Context context;
+    public Context context;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
-    private EverDataBase everDataBase;
 
-    // data is passed into the constructor
-    public TextAndDrawRecyclerAdapter(Context context, String[] data, Integer[] ids, EverDataBase dataBase) {
+    private String[] SplittedURLs;
 
-        this.everDataBase = dataBase;
+    private String[] SplittedFiles;
+
+    private EvermindEditor editorContent;
+    private ImageView imageButton;
+
+    public TextAndDrawRecyclerAdapter(Context context, String content, String files) {
+
+        SplittedURLs = content.replaceAll("[\\[\\](){}]", "").trim().split("┼");
+
+
+        SplittedFiles = files.replaceAll("[\\[\\](){}]", "").trim().split("┼");
 
         this.mInflater = LayoutInflater.from(context);
-        this.mData = data;
+        this.mData = SplittedURLs;
+        this.mBitmap = SplittedFiles;
         this.context = context;
-        this.mIds = ids;
 
     }
 
 
-    // inflates the cell layout from xml when needed
     @Override
     @NonNull
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.note_content_visualization, parent, false);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        View view;
 
+            if (viewType == 1) {
+                view = LayoutInflater.from(context).inflate(R.layout.recyclerview_editor_layout, viewGroup, false);
+                return new EditorViewHolder(view);
 
-        return new ViewHolder(view);
-    }
+            } else {
+                    view = LayoutInflater.from(context).inflate(R.layout.recyclerview_image_layout, viewGroup, false);
+                    return new DrawViewHolder(view);
+            }
+        }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
 
+        System.out.println("Type = " + position + " Item Count = " + getItemCount());
+
+            if (getItemViewType(position) == 1) {
+
+                if (position == mData.length && position != 0) {
+
+                    setEditorText("");
+
+                } else {
+
+                    if (mData.length > 0 ) {
+
+                        setEditorText(mData[position]);
+                    }
+                }
+        }
+
+                if (getItemViewType(position) == 2) {
+
+                    if (position == mBitmap.length && position != 0) {
+
+                        //Bitmap bitmap = BitmapFactory.decodeFile(mBitmap[position - 1]);
+
+                        //setDrawImage(bitmap);
+
+                    } else {
+
+                        if (mBitmap.length > 0) {
+                            Bitmap bitmap = BitmapFactory.decodeFile(mBitmap[position]);
+
+                            setDrawImage(bitmap);
+                        }
+
+                    }
+                }
+            }
+
+    private void setEditorText(String html) {
+        editorContent.setHtml(html);
+        editorContent.setEditorHeight(20);
+        editorContent.setEditorFontSize(22);
+        editorContent.setBackgroundColor(Color.TRANSPARENT);
+        editorContent.setPadding(15, 15, 15, 15);
     }
-
-    // binds the data to the TextView in each cell
+    private void setDrawImage(Bitmap bitmap) {
+        imageButton.setImageBitmap(bitmap);
+    }
 
     @Override
     public int getItemViewType(int position) {
-     //   if (TextUtils.isEmpty(employees.get(position).getEmail())) {
-      //      return TYPE_CALL;
 
-      //  } else {
-            return 1;
-        }
+            if (position % 2 == 0) {
 
+                return 1;
 
-    // total number of cells
+            } else {
+
+                return 2;
+
+            }
+    }
+
     @Override
     public int getItemCount() {
-        return mData.length;
-
+        return mData.length + mBitmap.length;
     }
 
 
     public void setClickListener(AdapterView.OnItemClickListener onItemClickListener) {
     }
 
+    class EditorViewHolder extends RecyclerView.ViewHolder {
 
-    // stores and recycles views as they are scrolled off screen
+        EditorViewHolder(@NonNull View itemView) {
+            super(itemView);
+            editorContent = itemView.findViewById(R.id.recycler_everEditor);
+        }
+    }
+    class DrawViewHolder extends RecyclerView.ViewHolder {
+
+
+        DrawViewHolder(@NonNull View itemView) {
+            super(itemView);
+            imageButton = itemView.findViewById(R.id.recycler_imageView);
+        }
+    }
+
+
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        SDHtmlTextView myTextView;
-        TextView myTitleView;
+        EvermindEditor myEditor;
         ImageView myImageView;
-        RecyclerView myRecyclerView;
-        Activity mActivity;
-        LinearLayout myLinearLayout;
 
 
 
@@ -103,16 +166,15 @@ public class TextAndDrawRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
             super(itemView);
 
 
-                myTextView = itemView.findViewById(R.id.info_text);
-                myTitleView = itemView.findViewById(R.id.info_title);
-                myRecyclerView = itemView.findViewById(R.id.RecyclerNoteScren);
+            myImageView = itemView.findViewById(R.id.info_text);
+                myEditor = itemView.findViewById(R.id.info_title);
                 itemView.setOnClickListener(this);
 
                 //TODO IMPORTANT CODE \/ \/ \/ \/ \/
 
-                myTextView.setOnClickListener(this);
+            myImageView.setOnClickListener(this);
 
-                myTextView.setOnLongClickListener(view -> {
+            myImageView.setOnLongClickListener(view -> {
                 int p = getLayoutPosition();
 
                 if (mClickListener != null)
@@ -120,21 +182,6 @@ public class TextAndDrawRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
                 System.out.println(p);
                 return false;
             });
-
-                myRecyclerView.setOnClickListener(this);
-
-            myRecyclerView.setOnLongClickListener(view -> {
-                int p = getLayoutPosition();
-
-                if (mClickListener != null)
-                    mClickListener.onLongPress(view, p);
-                System.out.println(p);
-                return false;
-            });
-
-
-
-                ////TODO/////////////// /\ /\ /\ /\
 
             itemView.setOnLongClickListener(view -> {
                 int p = getLayoutPosition();
@@ -143,10 +190,9 @@ public class TextAndDrawRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
                     mClickListener.onLongPress(view, p);
                 System.out.println(p);
 
-                return true;// returning true instead of false, works for me
+                return true;
             });
         }
-        ///////////////////////
 
         @Override
         public void onClick(View view) {
@@ -156,12 +202,10 @@ public class TextAndDrawRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
 
     }
 
-    // convenience method for getting data at click position
     public String getItem(int id) {
         return mData[id];
     }
 
-    // allows clicks events to be caught
     public void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
@@ -170,7 +214,6 @@ public class TextAndDrawRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
         this.mLongClick = onItemLongClickListener;
     }
 
-    // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
 
@@ -178,5 +221,4 @@ public class TextAndDrawRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
 
         void onLongPress(View view, int position);
     }
-
 }

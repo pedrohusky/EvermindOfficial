@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -22,6 +23,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
+import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentMainViewModel;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -43,6 +47,13 @@ public class MainActivity extends AppCompatActivity {
     public Boolean CloseParagraph = false;
     public Boolean CloseImporter = false;
 
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor editor;
+
+    private boolean deleteSave;
+
+    private  boolean drawOn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mDatabaseEver = new EverDataBase(this);
+
+        preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+
+        editor = preferences.edit();
 
         new Handler(Looper.getMainLooper()).post(() -> {
 
@@ -508,6 +523,124 @@ public class MainActivity extends AppCompatActivity {
                     .show();
 
         });
+    }
+
+    public void OnFocusChangeEditor(View view, EvermindEditor editor, boolean focused) {
+
+        ImageButton Delete = findViewById(R.id.Delete);
+        ImageButton Save = findViewById(R.id.Save);
+        ImageButton Undo = findViewById(R.id.Undo);
+        ImageButton Redo = findViewById(R.id.Redo);
+
+        BottomNavigationView note_bottom_bar = findViewById(R.id.note_bottom_bar);
+
+        Animation  bottom_nav_anim = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim);
+
+
+            if (focused) {
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+
+                    note_bottom_bar.setVisibility(View.VISIBLE);
+                    note_bottom_bar.startAnimation(bottom_nav_anim);
+
+                    deleteSave = GetDeleteNSaveFromSharedPreferences();
+                    drawOn = GetDrawOnFromSharedPreferences();
+
+
+
+
+                    if (deleteSave) {
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                            Undo.setVisibility(View.VISIBLE);
+                            Redo.setVisibility(View.VISIBLE);
+
+
+
+                        }, 300);
+
+                    } else {
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                            Undo.setVisibility(View.VISIBLE);
+                            Redo.setVisibility(View.VISIBLE);
+                            Delete.setVisibility(View.VISIBLE);
+                            Save.setVisibility(View.VISIBLE);
+
+                        }, 200);
+
+                    }
+
+                    ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, true, false, 0);
+                    ApplyChangesToSharedPreferences("UndoRedo", false, "", true, true, false, 0);
+
+                }, 450);
+
+            } else {
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+
+                    //      TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                    //              .addTransition(new ChangeBounds()));
+
+                    //    ViewGroup.LayoutParams params = cardView.getLayoutParams();
+
+                    //    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;;
+                    //     cardView.setLayoutParams(params);
+
+                    if (drawOn) {
+
+                    } else {
+
+                        ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
+                        ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
+
+                        Undo.setVisibility(View.GONE);
+                        Redo.setVisibility(View.GONE);
+
+                     //   InputMethodManager keyboard = (InputMethodManager) getSystemService(this.INPUT_METHOD_SERVICE);
+                     //   keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                    }
+
+                });
+            }
+        }
+
+    private int GetIDFromSharedPreferences() {
+        return preferences.getInt("noteId", -1);
+    }
+
+    private Boolean GetNewNoteFromSharedPreferences() {
+        return preferences.getBoolean("newnote", false);
+    }
+
+    private Boolean GetDeleteNSaveFromSharedPreferences() {
+        return preferences.getBoolean("DeleteNSave", false);
+    }
+
+    private Boolean GetDrawOnFromSharedPreferences() {
+        return preferences.getBoolean("DrawOn", false);
+    }
+
+    private void ApplyChangesToSharedPreferences(String name, boolean string, String text, boolean bolean, boolean value, boolean integer, int id) {
+
+        if (string) {
+            editor.putString(name, text);
+            editor.apply();
+        }
+        if (integer) {
+            editor.putInt(name, id);
+            editor.apply();
+        }
+        if (bolean) {
+            editor.putBoolean(name, value);
+            editor.apply();
+        }
+
     }
 
     public void onTrimMemory(int level) {

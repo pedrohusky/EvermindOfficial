@@ -345,6 +345,19 @@ public class EverDataBase extends SQLiteOpenHelper {
 
     }
 
+    public void editContentWithID(String id, String content, String oldContent, int editorID) {
+
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(NOTE_CONTENT, content + "┼"+editorID+"┼" + oldContent);
+        Date currentTime = Calendar.getInstance().getTime();
+        contentValues.put(NOTE_DATE, currentTime.toString());
+
+        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
+        sqLiteDatabase.close();
+
+    }
+
     public void editContent(String id, String content) {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
@@ -371,11 +384,11 @@ public class EverDataBase extends SQLiteOpenHelper {
 
     }
 
-    public void insertNoteBackgroundToDatabase(String id, String newURL) {
+    public void insertNoteBackgroundToDatabase(String id, String newURL, String oldURL) {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_BACKGROUND, newURL);
+        contentValues.put(NOTE_BACKGROUND, newURL + "┼" + oldURL);
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
