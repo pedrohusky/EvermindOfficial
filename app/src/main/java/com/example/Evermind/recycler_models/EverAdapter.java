@@ -3,9 +3,8 @@ package com.example.Evermind.recycler_models;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +12,14 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.Evermind.EverDataBase;
 import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,7 +27,6 @@ import java.util.regex.Pattern;
 public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static EvermindEditor WichLayoutIsActive;
-
     private List<Item> items;
     private static int ID;
     private static EverDataBase everDataBase;
@@ -40,7 +35,8 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static String[] contents_array;
     private static ArrayList<String> array = new ArrayList<>();
     private static Context context;
-    private static ArrayList<Integer> EditorCount = new ArrayList<>();
+    private static int ActiveEditorPosition;
+
 
     private static EverAdapter.ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
@@ -52,10 +48,10 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         everDataBase = dataBase;
         contents = strings;
         EverAdapter.context = context;
-        EditorCount.clear();
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -84,10 +80,8 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         if (getItemViewType(position) == 0) {
 
-                Content content = (Content) items.get(position).getObject();
-                ((ContentViewHolder)holder).setContentHTML(content);
-            EditorCount.add(position);
-            System.out.println("Editor Count = " + EditorCount.size());
+            Content content = (Content) items.get(position).getObject();
+            ((ContentViewHolder)holder).setContentHTML(content);
 
         } else {
             Draw draw = (Draw) items.get(position).getObject();
@@ -110,14 +104,17 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
 
 
-     static class ContentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    static class ContentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private EvermindEditor everEditor;
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
         public ContentViewHolder(@NonNull View itemView) {
             super(itemView);
             everEditor = itemView.findViewById(R.id.recycler_everEditor);
 
+            everEditor.setEditorHeight(10);
+            everEditor.setEditorBackgroundColor(Color.MAGENTA);
             everEditor.setPadding(5, 10, 10, 5);
             everEditor.setEditorFontSize(22);
 
@@ -129,6 +126,10 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             everEditor.setOnFocusChangeListener((view, b) -> {
                 WichLayoutIsActive = ((EvermindEditor) view);
+                ActiveEditorPosition = getLayoutPosition() / 2;
+
+                System.out.println("Editor Count = " + ActiveEditorPosition);
+
                 System.out.println("Ever editor nº " + getLayoutPosition() + " with name: " + view.toString() + " is being used.");
                 ((MainActivity)context).OnFocusChangeEditor(view, GetActiveEditor(), b);
             });
@@ -150,21 +151,28 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                 String transformToHexHTML = replaceRGBColorsWithHex(contents_text);
 
+                if (ActiveEditorPosition >= array.size()) {
+                    array.add("");
+                }
 
-                //TODO GET LAYOUT POSITION OF EVER EDITORS BECAUSE GETLAYOUT IS NOT WORKING FUTURE PEDRO WORK IT
-                array.set(EditorCount.size()-1, transformToHexHTML + "┼");
+                //TODO GET LAYOUT POSITION OF EVER EDITORS BECAUSE GETLAYOUT IS NOT WORKING FUTURE PEDRO FIX IT
+                array.set(ActiveEditorPosition, transformToHexHTML + "┼");
 
-                System.out.println("New Array value is = " + array.get(getLayoutPosition()) + " <-- is that right?");
+                System.out.println("New Array value is = " + array.get(ActiveEditorPosition) + " <-- is that right?");
 
                 contents_array = array.toArray(new String[0]);
 
-                System.out.println("Final array to string is = " + Arrays.toString(contents_array));
+                String asas = String.join("", contents_array);
+
+                System.out.println("Final array to string is = " + asas);
 
 
                 // focusOnView(scrollView, mEditor);
 
 
-                everDataBase.editContent(Integer.toString(ID), Arrays.toString(contents_array));
+                everDataBase.editContent(Integer.toString(ID), asas);
+
+                contents = asas;
 
                 array.clear();
             });
@@ -204,49 +212,49 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-     static class DrawViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    static class DrawViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-            private ImageView everDraw;
+        private ImageView everDraw;
 
-            public DrawViewHolder(@NonNull View itemView) {
-                super(itemView);
-                everDraw = itemView.findViewById(R.id.recycler_imageView);
-                itemView.setOnClickListener(this);
+        public DrawViewHolder(@NonNull View itemView) {
+            super(itemView);
+            everDraw = itemView.findViewById(R.id.recycler_imageView);
+            itemView.setOnClickListener(this);
 
-                //TODO IMPORTANT CODE \/ \/ \/ \/ \/
+            //TODO IMPORTANT CODE \/ \/ \/ \/ \/
 
-                everDraw.setOnClickListener(this);
+            everDraw.setOnClickListener(this);
 
-                everDraw.setOnLongClickListener(view -> {
-                    int p = getLayoutPosition();
+            everDraw.setOnLongClickListener(view -> {
+                int p = getLayoutPosition();
 
-                    if (mClickListener != null)
-                        mClickListener.onLongPress(view, p);
-                    System.out.println(p);
-                    return false;
-                });
-
-
-                ////TODO/////////////// /\ /\ /\ /\
-
-                itemView.setOnLongClickListener(view -> {
-                    int p = getLayoutPosition();
-
-                    if (mClickListener != null)
-                        mClickListener.onLongPress(view, p);
-                    System.out.println(p);
-
-                    return true;// returning true instead of false, works for me
+                if (mClickListener != null)
+                    mClickListener.onLongPress(view, p);
+                System.out.println(p);
+                return false;
             });
 
-            }
 
-            void setDrawContent(Draw draw) {
+            ////TODO/////////////// /\ /\ /\ /\
 
-                Bitmap bitmap = BitmapFactory.decodeFile(draw.getFileLocation());
+            itemView.setOnLongClickListener(view -> {
+                int p = getLayoutPosition();
 
-                everDraw.setImageBitmap(bitmap);
-            }
+                if (mClickListener != null)
+                    mClickListener.onLongPress(view, p);
+                System.out.println(p);
+
+                return true;// returning true instead of false, works for me
+            });
+
+        }
+
+        void setDrawContent(Draw draw) {
+
+            Bitmap bitmap = BitmapFactory.decodeFile(draw.getFileLocation());
+
+            everDraw.setImageBitmap(bitmap);
+        }
 
         @Override
         public void onClick(View view) {
@@ -268,7 +276,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.mLongClick = onItemLongClickListener;
     }
 
-         // parent activity will implement this method to respond to click events
+    // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
 
@@ -327,4 +335,4 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
         return html;
     }
-    }
+}
