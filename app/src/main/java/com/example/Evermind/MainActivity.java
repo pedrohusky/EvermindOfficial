@@ -24,6 +24,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.Evermind.recycler_models.EverAdapter;
 import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
 import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentMainViewModel;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -148,12 +149,26 @@ public class MainActivity extends AppCompatActivity {
 
         EditText editText = findViewById(R.id.TitleTextBox);
 
+        if (mDatabaseEver.getBackgroundFromDatabaseWithID(preferences.getInt("noteId", -1)).equals("┼")) {
+
+            if (EverAdapter.GetContents().equals("┼") && editText.getText().length() < 1) {
+
+                mDatabaseEver.deleteNote(preferences.getInt("noteId", -1));
+
+                System.out.println("Note with id = " + preferences.getInt("noteId", -1) + " deleted. <-- called from OnBackPress in MainActivity, thx future pedro");
+            }
+        }
+
             SharedPreferences preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
             if (!preferences.getBoolean("athome", false)) {
                 new Thread(() -> {
+
                     int id = preferences.getInt("noteId", -1);
+
                     mDatabaseEver.editTitle(Integer.toString(id), editText.getText().toString());
+
+
 
                 }).start();
             }

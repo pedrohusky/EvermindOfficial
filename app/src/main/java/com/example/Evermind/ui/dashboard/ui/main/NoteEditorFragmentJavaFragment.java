@@ -1,5 +1,6 @@
 package com.example.Evermind.ui.dashboard.ui.main;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
@@ -11,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -76,6 +78,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     public static ImagesRecyclerGridAdapter adapter;
     public static EverAdapter everAdapter;
     private EverDataBase everDataBase;
+    private RecyclerView textanddrawRecyclerView;
     // private EvermindEditor evermindEditor;
     private static String ImagesURLs;
     private Boolean CloseFormatter = false;
@@ -198,14 +201,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         SoftInputAssist softInputAssist = new SoftInputAssist(requireActivity());
 
-        SetupNoteEditorRecycler(false);
-
         //    evermindEditor.setEditorFontSize(22);
         //    evermindEditor.setBackgroundColor(GetColor(R.color.Transparent));
         //   evermindEditor.setPadding(15, 15, 15, 15);
         // evermindEditor.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
         TitleTextBox = requireActivity().findViewById(R.id.TitleTextBox);
+        textanddrawRecyclerView = requireActivity().findViewById(R.id.TextAndDrawRecyclerView);
         Undo = requireActivity().findViewById(R.id.Undo);
         Redo = requireActivity().findViewById(R.id.Redo);
         Delete = requireActivity().findViewById(R.id.Delete);
@@ -215,7 +217,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         TitleTextBox.setText(title);
 
-        String content = everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences());
+        SetupNoteEditorRecycler(false);
+
         boolean NewNote = GetNewNoteFromSharedPreferences();
 
         // evermindEditor.setHtml(content);
@@ -577,19 +580,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     InputMethodManager keyboard = (InputMethodManager) requireActivity().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
                     keyboard.hideSoftInputFromWindow(requireView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                                .addTransition(new ChangeBounds()));
-
-                        ViewGroup.LayoutParams params = everDraw.getLayoutParams();
-
-                        params.height = 1400;
-
-                        everDraw.setLayoutParams(params);
-
-                    }, 500);
-
-
                 default:
                     return true;
             }
@@ -623,7 +613,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             if (DrawOn) {
 
                 Bitmap bitmap = everDraw.getBitmap();
-                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), FinalYHeight + 100);
+                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), FinalYHeight + 75);
 
                 try {
                     TransformBitmapToFile(resizedBitmap, true, ".jpeg");
@@ -906,9 +896,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
             adapter = new ImagesRecyclerGridAdapter(this.getActivity(), ImagesURLs, preferences.getInt("position", -1), ImagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
 
+            recyclerViewImage.setVisibility(View.VISIBLE);
             recyclerViewImage.setAdapter(adapter);
 
             // });
+        } else {
+            recyclerViewImage.setVisibility(View.GONE);
         }
 
         // }).start();
@@ -1186,6 +1179,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     DrawChangeColor.setVisibility(View.GONE);
                     DrawChangeSize.setVisibility(View.GONE);
                     TitleTextBox.setVisibility(View.VISIBLE);
+                    textanddrawRecyclerView.setVisibility(View.VISIBLE);
                     //  evermindEditor.setVisibility(View.VISIBLE);
 
 
@@ -1213,10 +1207,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     everDraw.setVisibility(View.VISIBLE);
                     recyclerViewImage.setVisibility(View.GONE);
                     TitleTextBox.setVisibility(View.GONE);
-                    //re
-                    //  evermindEditor.setVisibility(View.GONE);
+                    textanddrawRecyclerView.setVisibility(View.GONE);
 
                     DrawOptions.setVisibility(View.VISIBLE);
+
+                    PrepareNoteToDraw();
 
                     DrawOptions.startAnimation(fadein);
 
@@ -1224,6 +1219,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                         DrawChangeColor.setVisibility(View.VISIBLE);
                         DrawChangeSize.setVisibility(View.VISIBLE);
+                        Undo.setVisibility(View.VISIBLE);
+                        Redo.setVisibility(View.VISIBLE);
+                        Save.setVisibility(View.VISIBLE);
+                        Delete.setVisibility(View.VISIBLE);
 
                         DrawOn = true;
 
@@ -1724,6 +1723,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     int id = GetIDFromSharedPreferences();
                     everDataBase.editTitle(Integer.toString(id), TitleTextBox.getText().toString());
 
+                    if (TitleTextBox.getText().length() <= 1 && items.size() <= 1) {
+                        everDataBase.deleteNote(id);
+                        System.out.println("Note with id = " + id + " deleted. <-- called from OnBackPress in NoteEditorFragmentJava, thx future pedro");
+                    }
+
                     //Hide nav view \/ \/ \/
 
                     note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
@@ -2034,7 +2038,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
     @Override
     public void onItemClick(View view, int position) {
-        Toast.makeText(getActivity(), "a", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireActivity(), ((ImageView) view).getDrawable().toString(), Toast.LENGTH_SHORT).show();
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) ((ImageView) view).getDrawable();
+        Bitmap drawableBitmap = bitmapDrawable.getBitmap().copy(Bitmap.Config.ARGB_8888, true);
+        OpenOrCloseDrawOptions();
+        everDraw.setBitmap(drawableBitmap);
+       // everDraw.setBackground(((ImageView) view).getDrawable());
     }
 
     @Override
@@ -2047,25 +2056,34 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     }
     private void SetupNoteEditorRecycler(boolean clearAndAdd) {
 
-        RecyclerView recyclerView = requireActivity().findViewById(R.id.TextAndDrawRecyclerView);
-
         items = new ArrayList<>();
         bitmaps = new ArrayList<>();
         i = 0;
 
-        if (clearAndAdd) {
+        String[] html = everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
 
-            recyclerView.removeAllViews();
+        for (String bitmap : html) {
+            bitmaps.add(bitmap);
+        }
 
-            String[] html = everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
+        String[] strings = everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
 
-            for (String bitmap: html) {
-                bitmaps.add(bitmap);
+        if (html.length == 0 && strings.length == 0) {
+            Content content = new Content("");
+            items.add(new Item(0, content));
+        }
+
+        if (strings.length == 0 && html.length >= 1) {
+            Draw draw1 = new Draw(bitmaps.get(i));
+            items.add(new Item(1, draw1));
+            i++;
+            if (i >= strings.length) {
+                Content content = new Content("");
+                items.add(new Item(0, content));
             }
+        } else {
 
-            String[] strings = everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
-
-            for (String text: strings) {
+            for (String text : strings) {
                 Content content1 = new Content(text);
                 items.add(new Item(0, content1));
 
@@ -2079,69 +2097,37 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     }
                 }
             }
-
-     /*   String[] html = everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
-
-        for (String bitmap: html) {
-            Draw draw1 = new Draw(bitmap);
-            items.add(new Item(1, draw1));
-            System.out.println("draw size = " + items.size());
         }
-*/
 
-            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+        if (clearAndAdd) {
 
-            recyclerView.setLayoutManager(staggeredGridLayoutManager);
-
-            everAdapter = new EverAdapter(requireActivity(), items, GetIDFromSharedPreferences(), everDataBase, everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()));
-
-            recyclerView.setAdapter(everAdapter);
+            everAdapter.UpdateAdapter(items, everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()));
 
         } else {
 
-            String[] html = everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
-
-            for (String bitmap: html) {
-                bitmaps.add(bitmap);
-            }
-
-            String[] strings = everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
-
-            for (String text: strings) {
-                Content content1 = new Content(text);
-                items.add(new Item(0, content1));
-
-                if (i <= bitmaps.size() - 1) {
-                    Draw draw1 = new Draw(bitmaps.get(i));
-                    items.add(new Item(1, draw1));
-                    i++;
-                    if (i >= strings.length) {
-                        Content content = new Content("");
-                        items.add(new Item(0, content));
-                    }
-                }
-            }
-
-     /*   String[] html = everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
-
-        for (String bitmap: html) {
-            Draw draw1 = new Draw(bitmap);
-            items.add(new Item(1, draw1));
-            System.out.println("draw size = " + items.size());
-        }
-*/
-
             StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
 
-            recyclerView.setLayoutManager(staggeredGridLayoutManager);
+            textanddrawRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
             everAdapter = new EverAdapter(requireActivity(), items, GetIDFromSharedPreferences(), everDataBase, everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()));
 
-            recyclerView.setAdapter(everAdapter);
+            textanddrawRecyclerView.setAdapter(everAdapter);
 
             EverAdapter.setClickListener(this);
         }
 
-        recyclerView.smoothScrollToPosition(items.size());
+    }
+    private void PrepareNoteToDraw() {
+        //new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                    .addTransition(new ChangeBounds()));
+
+            ViewGroup.LayoutParams params = everDraw.getLayoutParams();
+
+            params.height = 1400;
+
+            everDraw.setLayoutParams(params);
+
+        //}, 500);
     }
 }

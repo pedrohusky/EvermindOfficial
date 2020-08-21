@@ -2,10 +2,7 @@ package com.example.Evermind
 
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
 import android.transition.TransitionSet
@@ -15,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.drawToBitmap
 import java.util.*
 
 class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
@@ -91,6 +89,23 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
         val alpha = (newAlpha*255)/100
         mPaintOptions.alpha = alpha
         setColor(mPaintOptions.color)
+    }
+
+    fun setBitmap(bitmap: Bitmap) {
+
+        val canvas = Canvas(bitmap)
+
+        val offset: Float = 5.0F
+
+        canvas.drawColor(Color.LTGRAY);
+        canvas.drawBitmap(
+            bitmap, // Bitmap
+            offset, // Left
+            offset, // Top
+            mPaint // Paint
+        );
+
+       // draw(canvas)
     }
 
     fun setStrokeWidth(newStrokeWidth: Float) {

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="Transparent">#00FFFFFF</color>
     <color name="Black">#000000</color>
     <color name="White">#FFFFFF</color>
     <color name="Grey">#888888</color>
-    <color name="Transparent">#00FFFFFF</color>
     <color name="Magenta">#EDF52E66</color>
     <color name="Pink">#c371f9</color>
     <color name="Orange">#F9A75D</color>
