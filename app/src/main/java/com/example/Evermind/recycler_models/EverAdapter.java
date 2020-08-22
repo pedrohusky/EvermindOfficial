@@ -3,7 +3,6 @@ package com.example.Evermind.recycler_models;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -35,7 +34,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static EvermindEditor WichLayoutIsActive;
-    private static List<Item> items;
+    private static List<Item> itemList;
     private static int ID;
     private static EverDataBase everDataBase;
     private static String contents_text;
@@ -51,11 +50,12 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public EverAdapter(Context context, List<Item> items, int id, EverDataBase dataBase, String strings) {
 
-        this.items = items;
+        itemList = items;
         ID = id;
         everDataBase = dataBase;
         contents = strings;
         EverAdapter.context = context;
+
 
     }
 
@@ -88,11 +88,11 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         if (getItemViewType(position) == 0) {
 
-            Content content = (Content) items.get(position).getObject();
+            Content content = (Content) itemList.get(position).getObject();
             ((ContentViewHolder)holder).setContentHTML(content);
 
         } else {
-            Draw draw = (Draw) items.get(position).getObject();
+            Draw draw = (Draw) itemList.get(position).getObject();
             ((DrawViewHolder)holder).setDrawContent(draw);
 
         }
@@ -100,12 +100,12 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return itemList.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        return items.get(position).getType();
+        return itemList.get(position).getType();
     }
 
 
@@ -127,7 +127,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                if (items.size() == 1) {
+                if (itemList.size() == 1) {
 
                     TransitionManager.beginDelayedTransition(linearlayout, new TransitionSet()
                             .addTransition(new ChangeBounds()));
@@ -190,7 +190,11 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     array.add("");
                 }
 
-                array.set(ActiveEditorPosition, transformToHexHTML + "┼");
+                if (transformToHexHTML.equals("")) {
+                    array.set(ActiveEditorPosition, transformToHexHTML);
+                } else {
+                    array.set(ActiveEditorPosition, transformToHexHTML + "┼");
+                }
 
                 System.out.println("New Array value is = " + array.get(ActiveEditorPosition) + " <-- is that right?");
 
@@ -376,7 +380,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         contents = content;
 
-        items = item;
+        itemList = item;
 
         notifyDataSetChanged();
     }

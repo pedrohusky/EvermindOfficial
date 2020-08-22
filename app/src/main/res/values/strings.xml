@@ -8,4 +8,7 @@
     <string name="menu_home">@string/app_name</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+
+    <string name="TitleHint">Create a title</string>
+    <string name="EditorHint">Im thinking about…</string>
 </resources>

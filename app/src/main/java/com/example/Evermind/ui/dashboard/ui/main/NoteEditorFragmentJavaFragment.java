@@ -1,6 +1,5 @@
 package com.example.Evermind.ui.dashboard.ui.main;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
@@ -46,11 +45,9 @@ import android.widget.Toast;
 
 import com.example.Evermind.EverDataBase;
 import com.example.Evermind.EverDraw;
-import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
 import com.example.Evermind.R;
 import com.example.Evermind.SoftInputAssist;
-import com.example.Evermind.TextAndDrawRecyclerAdapter;
 import com.example.Evermind.recycler_models.Content;
 import com.example.Evermind.recycler_models.Draw;
 import com.example.Evermind.recycler_models.EverAdapter;
@@ -70,7 +67,6 @@ import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static com.muehlemann.giphy.GiphyLibrary.API_KEY;
 
 public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdapter.ItemClickListener {
 
@@ -957,17 +953,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 startActivityForResult(intentGooglePhotos, 101);
 
 
-                new Handler(Looper.getMainLooper()).post(() -> {
-
-                    TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                            .addTransition(new ChangeBounds()));
-
-                    ViewGroup.LayoutParams params = cardView.getLayoutParams();
-
-                    params.height = WRAP_CONTENT;
-
-                    cardView.setLayoutParams(params);
-                });
+               ResizeCardViewToWrapContent();
 
                 break;
 
@@ -983,17 +969,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 intentFiles.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intentFiles, "Select Picture"), 101);
 
-                new Handler(Looper.getMainLooper()).post(() -> {
-
-                    TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                            .addTransition(new ChangeBounds()));
-
-                    ViewGroup.LayoutParams params = cardView.getLayoutParams();
-
-                    params.height = WRAP_CONTENT;
-
-                    cardView.setLayoutParams(params);
-                });
+                ResizeCardViewToWrapContent();
 
                 break;
 
@@ -1006,15 +982,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
     private void OpenOrCloseColors(Boolean highlight) {
 
-        new Thread(() -> {
-
-
             if (CloseOpenedColors) {
 
                 if (highlight) {
-
-
-                    new Handler(Looper.getMainLooper()).post(() -> {
 
                         BlackHighlight.setVisibility(View.GONE);
                         BlueHighlight.setVisibility(View.GONE);
@@ -1043,10 +1013,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                         CloseOpenedColorsHighlight = false;
 
-                    });
                 } else {
-
-                    new Handler(Looper.getMainLooper()).post(() -> {
 
                         Black.setVisibility(View.GONE);
                         Blue.setVisibility(View.GONE);
@@ -1077,12 +1044,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                         CloseOpenedColors = false;
 
-                    });
                 }
 
             } else {
                 if (highlight) {
-                    new Handler(Looper.getMainLooper()).post(() -> {
 
                         ChangeColor.setVisibility(View.GONE);
                         Bold.setVisibility(View.GONE);
@@ -1113,11 +1078,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                         }, 250);
 
                         CloseOpenedColorsHighlight = true;
-                    });
 
                 } else {
-                    new Handler(Looper.getMainLooper()).post(() -> {
-
 
                         BlackHighlight.setVisibility(View.GONE);
                         BlueHighlight.setVisibility(View.GONE);
@@ -1154,20 +1116,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                         }, 250);
 
                         CloseOpenedColors = true;
-                    });
                 }
             }
-
-        }).start();
     }
 
     private void OpenOrCloseDrawOptions() {
 
-        new Thread(() -> {
-
             if (CloseOpenedDrawOptions) {
-
-                new Handler(Looper.getMainLooper()).post(() -> {
 
                     ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
                     ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
@@ -1199,10 +1154,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                     CloseOpenedDrawOptions = false;
 
-                });
-
             } else {
-                new Handler(Looper.getMainLooper()).post(() -> {
 
                     everDraw.setVisibility(View.VISIBLE);
                     recyclerViewImage.setVisibility(View.GONE);
@@ -1211,7 +1163,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                     DrawOptions.setVisibility(View.VISIBLE);
 
-                    PrepareNoteToDraw();
+                    ResizeEverDrawToPrepareNoteToDraw();
 
                     DrawOptions.startAnimation(fadein);
 
@@ -1232,20 +1184,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     }, 100);
 
                     CloseOpenedDrawOptions = true;
-                });
             }
-
-        }).start();
     }
 
     private void OpenOrCloseDrawSize() {
 
-        new Thread(() -> {
-
-
             if (CloseOpenedDrawSize) {
-
-                new Handler(Looper.getMainLooper()).post(() -> {
 
                     DrawChangeColor.setVisibility(View.VISIBLE);
                     DrawChangeSize.setVisibility(View.VISIBLE);
@@ -1259,11 +1203,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                     CloseOpenedDrawSize = false;
 
-                });
-
             } else {
-
-                new Handler(Looper.getMainLooper()).post(() -> {
 
                     DrawChangeColor.setVisibility(View.GONE);
                     DrawChangeSize.setVisibility(View.VISIBLE);
@@ -1271,19 +1211,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     new Handler(Looper.getMainLooper()).postDelayed(() -> seekBarDrawSize.setVisibility(View.VISIBLE), 100);
 
                     CloseOpenedDrawSize = true;
-                });
             }
-
-        }).start();
     }
 
     private void OpenOrCloseDrawColors() {
 
-        new Thread(() -> {
-
             if (CloseOpenedDrawColors) {
-
-                new Handler(Looper.getMainLooper()).post(() -> {
 
                     BlackDraw.setVisibility(View.GONE);
                     BlueDraw.setVisibility(View.GONE);
@@ -1305,11 +1238,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                     CloseOpenedDrawColors = false;
 
-                });
-
             } else {
-
-                new Handler(Looper.getMainLooper()).post(() -> {
 
                     DrawChangeColor.setVisibility(View.GONE);
                     DrawChangeSize.setVisibility(View.GONE);
@@ -1330,25 +1259,16 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
 
                     CloseOpenedDrawColors = true;
-                });
             }
-
-        }).start();
     }
 
     private void ShowDrawSizeVisualizer() {
 
-        new Thread(() -> {
+        DrawVisualizerIsShowing = true;
+        // ChangeColor.setVisibility(View.GONE);
 
-            DrawVisualizerIsShowing = true;
-
-            new Handler(Looper.getMainLooper()).post(() -> {
-                // ChangeColor.setVisibility(View.GONE);
-
-                size_visualizer.setVisibility(View.VISIBLE);
-                size_visualizer.startAnimation(fadein);
-
-            });
+        size_visualizer.setVisibility(View.VISIBLE);
+        size_visualizer.startAnimation(fadein);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 // ChangeColor.setVisibility(View.GONE);
@@ -1373,18 +1293,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
 
             }, 1250);
-
-        }).start();
     }
 
     private void ModifyDrawSizeVisualizer(int value) {
 
-        new Thread(() -> {
+        ImageSizeView.setScaleX(value);
+        ImageSizeView.setScaleY(value);
 
-            ImageSizeView.setScaleX(value);
-            ImageSizeView.setScaleY(value);
-
-        }).start();
     }
 
     public void ColorClickedSwitcher(String color, boolean highlight) {
@@ -1699,11 +1614,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
     private void onBackPressed(Boolean delete) {
 
-        new Handler(Looper.getMainLooper()).post(() -> {
-
             if (delete) {
-
-                CloseAllButtons();
 
                 //Hide nav view \/ \/ \/
 
@@ -1714,23 +1625,23 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 ApplyChangesToSharedPreferences("athome", false, "", true, true, false, 0);
                 ApplyChangesToSharedPreferences("content", true, "", false, false, false, 0);
 
+                CloseAllButtons();
+
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_nav_note_to_nav_home);
-                CloseEditorButtonsSaveDelete();
+
             } else {
 
                 new Thread(() -> {
                     int id = GetIDFromSharedPreferences();
                     everDataBase.editTitle(Integer.toString(id), TitleTextBox.getText().toString());
 
-                    if (TitleTextBox.getText().length() <= 1 && items.size() <= 1) {
+                    if (TitleTextBox.getText().length() <= 1 && EverAdapter.GetContents().equals("") && items.size() <= 1) {
                         everDataBase.deleteNote(id);
                         System.out.println("Note with id = " + id + " deleted. <-- called from OnBackPress in NoteEditorFragmentJava, thx future pedro");
                     }
 
                     //Hide nav view \/ \/ \/
-
-                    note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
 
                     ApplyChangesToSharedPreferences("athome", false, "", true, true, false, 0);
                     ApplyChangesToSharedPreferences("content", true, "", false, false, false, 0);
@@ -1738,13 +1649,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                 }).start();
 
+                note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
+
                 CloseAllButtons();
 
-                CloseEditorButtonsSaveDelete();
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_nav_note_to_nav_home);
             }
-        });
     }
 
     private void CloseOrOpenFormatter() {
@@ -2005,7 +1916,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
             ImagesURLs = everDataBase.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
             adapter = new ImagesRecyclerGridAdapter(this.requireActivity(), ImagesURLs, preferences.getInt("position", -1), ImagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
-            recyclerViewImage.invalidate();
+            recyclerViewImage.removeAllViews();
             recyclerViewImage.setAdapter(adapter);
 
         }, 400);
@@ -2054,6 +1965,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     public void onLongPress(View view, int position) {
 
     }
+
     private void SetupNoteEditorRecycler(boolean clearAndAdd) {
 
         items = new ArrayList<>();
@@ -2117,7 +2029,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         }
 
     }
-    private void PrepareNoteToDraw() {
+    private void ResizeEverDrawToPrepareNoteToDraw() {
         //new Handler(Looper.getMainLooper()).postDelayed(() -> {
             TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
                     .addTransition(new ChangeBounds()));
@@ -2129,5 +2041,17 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             everDraw.setLayoutParams(params);
 
         //}, 500);
+    }
+
+    private void ResizeCardViewToWrapContent() {
+
+            TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                    .addTransition(new ChangeBounds()));
+
+            ViewGroup.LayoutParams params = cardView.getLayoutParams();
+
+            params.height = WRAP_CONTENT;
+
+            cardView.setLayoutParams(params);
     }
 }

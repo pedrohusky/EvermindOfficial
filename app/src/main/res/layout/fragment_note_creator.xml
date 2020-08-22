@@ -43,7 +43,7 @@
                         android:autofillHints=""
                         android:background="@color/Transparent"
                         android:gravity="center"
-                        android:hint="Create a new Title"
+                        android:hint="@string/TitleHint"
                         android:inputType="textShortMessage"
                         android:paddingLeft="12dp"
                         android:paddingTop="2dp"
