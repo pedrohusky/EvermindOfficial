@@ -79,24 +79,22 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
 
             ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
 
-            params.height = 600;
+            params.height = 450;
             params.width = MATCH_PARENT;
 
             holder.myImageView.setLayoutParams(params);
-        }
+        } else {
 
-
-        Ion.with(holder.myImageView)
-                .error(R.drawable.ic_baseline_clear_24)
-                .animateLoad(R.anim.grid_new_item_anim)
-                .animateIn(R.anim.grid_new_item_anim)
-                .smartSize(true)
-                .centerCrop()
-                .load(mImageURLs[position]); // was position
-
-
+            Ion.with(holder.myImageView)
+                    .error(R.drawable.ic_baseline_clear_24)
+                    .animateLoad(R.anim.grid_new_item_anim)
+                    .animateIn(R.anim.grid_new_item_anim)
+                    .smartSize(true)
+                    .centerCrop()
+                    .load(mImageURLs[position]); // was position
 
         }
+    }
 
 
 
@@ -136,8 +134,6 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
 
             myImageView.setOnClickListener(view -> {
 
-                new Thread(() -> {
-
                 for (String item: mImageURLs) {
 
                     File file = new File(item);
@@ -155,8 +151,6 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
                     });
 
                 uris.clear();
-
-            }).start();
 
             });
 

@@ -59,6 +59,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -163,7 +164,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     private int FinalYHeight;
     private GiphyLibrary giphyLibrary;
     private static final String GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos";
-    int size = 4;
+    private int size = 4;
     public List<Item> items;
     public List<String> bitmaps;
     private int i;
@@ -1974,9 +1975,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         String[] html = everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
 
-        for (String bitmap : html) {
-            bitmaps.add(bitmap);
-        }
+        bitmaps.addAll(Arrays.asList(html));
 
         String[] strings = everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
 

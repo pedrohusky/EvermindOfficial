@@ -21,6 +21,7 @@ import com.example.Evermind.EverDataBase;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapter;
+import com.example.Evermind.TestRecyclerGridAdapter;
 import com.muehlemann.giphy.GiphyLibrary;
 
 import org.jetbrains.annotations.NotNull;
@@ -30,10 +31,10 @@ import java.util.Collections;
 import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 import static android.content.Context.MODE_PRIVATE;
 
-public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemClickListener, AdapterView.OnItemLongClickListener {
+public class NotesScreen extends Fragment implements TestRecyclerGridAdapter.ItemClickListener, AdapterView.OnItemLongClickListener {
 
 
-    public RecyclerGridAdapter adapter;
+    public TestRecyclerGridAdapter adapter;
     public  EverDataBase databaseEver;
     public  ArrayList<String> notes = new ArrayList<>();
     public  ArrayList<String> titles = new ArrayList<>();
@@ -48,7 +49,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
 
     public static int fromPosition;
     public static int toPosition;
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -86,6 +86,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         MainViewModel mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT, 0) {
@@ -129,7 +130,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapter.ItemCli
             RecyclerView recyclerView = requireActivity().findViewById(R.id.rvNumbers);
 
             recyclerView.setLayoutManager(staggeredGridLayoutManager);
-            adapter = new RecyclerGridAdapter(this.getActivity(), data, title, date, id, databaseEver); //requireContext() works too
+            adapter = new TestRecyclerGridAdapter(this.getActivity(), data, title, date, id, databaseEver); //requireContext() works too
             recyclerView.setAdapter(adapter);
 
             itemTouchHelper.attachToRecyclerView(recyclerView);
