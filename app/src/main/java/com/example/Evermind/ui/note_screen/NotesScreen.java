@@ -11,30 +11,27 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import com.example.Evermind.EverDataBase;
-import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
-import com.example.Evermind.RecyclerGridAdapter;
-import com.example.Evermind.TestRecyclerGridAdapter;
-import com.muehlemann.giphy.GiphyLibrary;
+import com.example.Evermind.RecyclerGridAdapterNoteScreen;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+
 import static android.content.Context.MODE_PRIVATE;
 
-public class NotesScreen extends Fragment implements TestRecyclerGridAdapter.ItemClickListener, AdapterView.OnItemLongClickListener {
+public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScreen.ItemClickListener, AdapterView.OnItemLongClickListener {
 
 
-    public TestRecyclerGridAdapter adapter;
+    public RecyclerGridAdapterNoteScreen adapter;
     public  EverDataBase databaseEver;
     public  ArrayList<String> notes = new ArrayList<>();
     public  ArrayList<String> titles = new ArrayList<>();
@@ -130,10 +127,12 @@ public class NotesScreen extends Fragment implements TestRecyclerGridAdapter.Ite
             RecyclerView recyclerView = requireActivity().findViewById(R.id.rvNumbers);
 
             recyclerView.setLayoutManager(staggeredGridLayoutManager);
-            adapter = new TestRecyclerGridAdapter(this.getActivity(), data, title, date, id, databaseEver); //requireContext() works too
+            adapter = new RecyclerGridAdapterNoteScreen(this.getActivity(), data, title, date, id, databaseEver); //requireContext() works too
             recyclerView.setAdapter(adapter);
 
             itemTouchHelper.attachToRecyclerView(recyclerView);
+
+         OverScrollDecoratorHelper.setUpOverScroll(recyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
 
             adapter.setClickListener(this);
     }

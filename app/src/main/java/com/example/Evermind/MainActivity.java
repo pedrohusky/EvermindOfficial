@@ -6,15 +6,21 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ScrollView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -33,6 +39,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.muehlemann.giphy.GiphyLibrary;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 import java.util.ArrayList;
+
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -712,5 +720,40 @@ public class MainActivity extends AppCompatActivity {
                 */
                 break;
         }
+    }
+
+    public void onItemClickFromRecyclerAtNotescreen(View view, int position) {
+        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putInt("noteId", position);
+        editor.putBoolean("athome", false);
+        editor.putBoolean("newnote", false);
+        editor.putBoolean("DeleteNSave", false);
+        editor.putBoolean("UndoRedo", false);
+        editor.apply();
+
+
+        NavController navController = Navigation.findNavController(view);
+        navController.navigate(R.id.action_nav_home_to_nav_note);
+    }
+
+    public void focusOnView(ScrollView scroll, View view) {
+            //FOR HORIZONTAL SCROLL VIEW
+            ////      int vLeft = view.getLeft();
+            //    int vRight = view.getRight();
+            //     int sWidth = scroll.getWidth();
+            //     scroll.smoothScrollTo(((vLeft + vRight - sWidth) / 2), 0);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+            int vTop = view.getTop();
+            int vBottom = view.getBottom();
+            int height = vTop - vBottom;
+            int sHeight = scroll.getBottom();
+            //scroll.smoothScrollTo(((vTop + vBottom - sHeight) / 2), 0);
+          // scroll.smoothScrollTo(0, vBottom ); //+ 500);
+        }, 220);
     }
 }

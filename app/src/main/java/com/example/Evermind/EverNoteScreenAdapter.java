@@ -28,6 +28,7 @@ import com.example.Evermind.recycler_models.Draw;
 import com.example.Evermind.recycler_models.Item;
 import com.sysdata.kt.htmltextview.SDHtmlTextView;
 
+import java.net.IDN;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -37,21 +38,27 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static List<Item> itemList;
+    private List<Item> itemList;
 
-    private static EverNoteScreenAdapter.ItemClickListener mClickListener;
+    private EverNoteScreenAdapter.ItemClickListener mClickListener;
 
     private AdapterView.OnItemLongClickListener mLongClick;
 
-    public EverNoteScreenAdapter(List<Item> items, EverDataBase dataBase) {
+    private Context context;
+
+    private int ID;
+
+    public EverNoteScreenAdapter(List<Item> items, Context contexts, int id) {
 
         itemList = items;
 
-        System.out.println("ItemList size = " + items.size());
+        context = contexts;
+
+        ID = id;
+
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -101,10 +108,7 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
     }
 
 
-
-
-
-    static class ContentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+     class ContentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private SDHtmlTextView everTextView;
 
@@ -113,27 +117,22 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
 
             everTextView = itemView.findViewById(R.id.recycler_everEditor);
 
-            everTextView.setPadding(8, 15, 15, 8);
+            everTextView.setPadding(15, 15, 15, 25);
 
             //everTextView.setTextSize(22);
 
-            itemView.setOnClickListener(this);
+            everTextView.setOnClickListener(view -> { ((MainActivity) context).onItemClickFromRecyclerAtNotescreen(view, ID); });
 
-            //TODO IMPORTANT CODE \/ \/ \/ \/ \/
-
-            everTextView.setOnClickListener(this);
+           // TODO TO REMOVE -> itemView.setOnClickListener(this);
 
             everTextView.setOnLongClickListener(view -> {
                 int p = getLayoutPosition();
 
                 if (mClickListener != null)
                     mClickListener.onLongPress(view, p);
-                System.out.println(p);
+                System.out.println("XHUPAKI = " + p);
                 return false;
             });
-
-
-            ////TODO/////////////// /\ /\ /\ /\
 
             itemView.setOnLongClickListener(view -> {
                 int p = getLayoutPosition();
@@ -149,7 +148,16 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
 
         void setContentHTML(Content contentHTML) {
 
+            if (contentHTML.getContent().endsWith("<br>")) {
+
+                int start = contentHTML.getContent().length() - 4;
+                String substring = contentHTML.getContent().substring(0, start);
+                everTextView.setHtmlText(substring);
+
+            }  else {
+
                 everTextView.setHtmlText(contentHTML.getContent());
+            }
 
             if (contentHTML.getContent().length() <= 10) {
                 everTextView.setTextSize(19);
@@ -160,7 +168,7 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
             }
 
             if (contentHTML.getContent().length() >= 10) {
-                everTextView.setTextSize(12);
+                everTextView.setTextSize(16);
             }
 
         }
@@ -172,7 +180,7 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
-    static class DrawViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+     class DrawViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private ImageView everDraw;
 
@@ -181,9 +189,7 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
             everDraw = itemView.findViewById(R.id.recycler_imageView);
             itemView.setOnClickListener(this);
 
-            //TODO IMPORTANT CODE \/ \/ \/ \/ \/
-
-            everDraw.setOnClickListener(this);
+            everDraw.setOnClickListener(view -> ((MainActivity)context).onItemClickFromRecyclerAtNotescreen(view, ID));
 
             everDraw.setOnLongClickListener(view -> {
                 int p = getLayoutPosition();
@@ -193,9 +199,6 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
                 System.out.println(p);
                 return false;
             });
-
-
-            ////TODO/////////////// /\ /\ /\ /\
 
             itemView.setOnLongClickListener(view -> {
                 int p = getLayoutPosition();
@@ -224,7 +227,7 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
     }
 
     // allows clicks events to be caught
-    public static void setClickListener(EverNoteScreenAdapter.ItemClickListener itemClickListener) {
+    public  void setClickListener(EverNoteScreenAdapter.ItemClickListener itemClickListener) {
         mClickListener = itemClickListener;
     }
 

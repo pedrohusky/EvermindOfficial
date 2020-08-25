@@ -21,7 +21,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
@@ -39,10 +38,10 @@ import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.OverScroller;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
-import android.widget.Toast;
-
 import com.example.Evermind.EverDataBase;
 import com.example.Evermind.EverDraw;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
@@ -76,7 +75,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     public static EverAdapter everAdapter;
     private EverDataBase everDataBase;
     private RecyclerView textanddrawRecyclerView;
-    // private EvermindEditor evermindEditor;
     private static String ImagesURLs;
     private Boolean CloseFormatter = false;
     private Boolean CloseParagraph = false;
@@ -192,23 +190,16 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        //////////////////////////////////////// INICIAL VARIALBES \/
-
-        //evermindEditor = requireActivity().findViewById(R.id.ToSaveNoteText);
-
         SoftInputAssist softInputAssist = new SoftInputAssist(requireActivity());
 
-        //    evermindEditor.setEditorFontSize(22);
-        //    evermindEditor.setBackgroundColor(GetColor(R.color.Transparent));
-        //   evermindEditor.setPadding(15, 15, 15, 15);
-        // evermindEditor.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-
+        scrollView = requireActivity().findViewById(R.id.scrollview);
         TitleTextBox = requireActivity().findViewById(R.id.TitleTextBox);
         textanddrawRecyclerView = requireActivity().findViewById(R.id.TextAndDrawRecyclerView);
         Undo = requireActivity().findViewById(R.id.Undo);
         Redo = requireActivity().findViewById(R.id.Redo);
         Delete = requireActivity().findViewById(R.id.Delete);
         Save = requireActivity().findViewById(R.id.Save);
+        cardView = requireActivity().findViewById(R.id.card_note_creator);
 
         String title = everDataBase.getTitlesFromDatabaseWithID(GetIDFromSharedPreferences());
 
@@ -218,12 +209,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         boolean NewNote = GetNewNoteFromSharedPreferences();
 
-        // evermindEditor.setHtml(content);
-
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
             if (NewNote) {
-                // evermindEditor.focusEditor();
 
                 Undo.setVisibility(View.VISIBLE);
                 Redo.setVisibility(View.VISIBLE);
@@ -236,13 +224,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         }, 500);
 
-        //////////////////////////////////////// INICIAL VARIALBES /\
         //new Thread(() -> {
 
         note_bottom_bar = requireActivity().findViewById(R.id.note_bottom_bar);
         bottom_nav_anim = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim);
         bottom_nav_anim_reverse = AnimationUtils.loadAnimation(requireActivity(), R.anim.translate_up_anim_reverse);
-        scrollView = requireActivity().findViewById(R.id.scrollview);
         scrollView1 = requireActivity().findViewById(R.id.scroll_formatter);
         scrollView2 = requireActivity().findViewById(R.id.scroll_paragraph);
         scrollView3 = requireActivity().findViewById(R.id.scroll_import);
@@ -289,7 +275,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         OrangeHighlight = requireActivity().findViewById(R.id.orangehighlight);
         YellowHighlight = requireActivity().findViewById(R.id.yellowhighlight);
         GreenHighlight = requireActivity().findViewById(R.id.greenhighlight);
-        cardView = requireActivity().findViewById(R.id.card_note_creator);
         recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
         everDraw = requireActivity().findViewById(R.id.EverDraw);
         fadein = AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_in_formatter);
@@ -308,10 +293,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         Left = requireActivity().findViewById(R.id.AlignLeft);
         Right = requireActivity().findViewById(R.id.AlignRight);
         Center = requireActivity().findViewById(R.id.AlignCenter);
-
-
-        /////////////////////////////////////////////////////////////////////////// MainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-
 
         Black.setOnClickListener(view -> ColorClickedSwitcher("Black", false));
 
@@ -391,50 +372,28 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                     if (isOpen) {
 
-                    /*    new Handler(Looper.getMainLooper()).post(() -> {
-
-                            TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                                    .addTransition(new ChangeBounds()));
+                            //TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                            //        .addTransition(new ChangeBounds()));
 
                             // evermindEditor.setEditorHeight(250);
 
-                            ViewGroup.LayoutParams params = cardView.getLayoutParams();
+                           // ViewGroup.LayoutParams params = cardView.getLayoutParams();
 
-                            params.height = 1100;
+                            //params.height = 1100;
 
-                            cardView.setLayoutParams(params);
-                        });
-                  */  } else {
+                           // cardView.setLayoutParams(params);
 
-                        //      if (DrawOn) {
+                    } else {
 
-                        //         new Handler(Looper.getMainLooper()).post(() -> {
+                          //  TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                          //          .addTransition(new ChangeBounds()));
 
-                        //             TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                        //                    .addTransition(new ChangeBounds()));
+                           // ViewGroup.LayoutParams params = cardView.getLayoutParams();
 
-                        // evermindEditor.setEditorHeight(250);
+                            //params.height = WRAP_CONTENT;
 
-                        //           ViewGroup.LayoutParams params = cardView.getLayoutParams();
-
-                        //           params.height = 2000;
-
-                        //          cardView.setLayoutParams(params); });
-
-                        //    } else {
-
-                        new Handler(Looper.getMainLooper()).post(() -> {
-
-                            TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                                    .addTransition(new ChangeBounds()));
-
-                            ViewGroup.LayoutParams params = cardView.getLayoutParams();
-
-                            params.height = WRAP_CONTENT;
-
-                            cardView.setLayoutParams(params);
-                        });
-                    }// }
+                           // cardView.setLayoutParams(params);
+                    }
                 });
 
 
@@ -1829,8 +1788,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             int vTop = view.getTop();
             int vBottom = view.getBottom();
             int sHeight = scroll.getBottom();
-            //scroll.smoothScrollTo(((vTop + vBottom - sHeight) / 2), 0);
-            scroll.smoothScrollTo(0, vTop + vBottom - sHeight / 2);
+           // scroll.smoothScrollTo(((vTop + vBottom - sHeight) / 2), 0);
+          //  scroll.smoothScrollTo(0,  vTop + 100000);
         });
     }
 
@@ -1950,12 +1909,15 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
     @Override
     public void onItemClick(View view, int position) {
-        Toast.makeText(requireActivity(), ((ImageView) view).getDrawable().toString(), Toast.LENGTH_SHORT).show();
-        BitmapDrawable bitmapDrawable = (BitmapDrawable) ((ImageView) view).getDrawable();
-        Bitmap drawableBitmap = bitmapDrawable.getBitmap().copy(Bitmap.Config.ARGB_8888, true);
-        OpenOrCloseDrawOptions();
-        everDraw.setBitmap(drawableBitmap);
-       // everDraw.setBackground(((ImageView) view).getDrawable());
+
+        if (view != null) {
+
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) ((ImageView) view).getDrawable();
+            Bitmap drawableBitmap = bitmapDrawable.getBitmap().copy(Bitmap.Config.ARGB_8888, true);
+            OpenOrCloseDrawOptions();
+            everDraw.setBitmap(drawableBitmap);
+            // everDraw.setBackground(((ImageView) view).getDrawable());
+        }
     }
 
     @Override
@@ -1971,7 +1933,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         items = new ArrayList<>();
         bitmaps = new ArrayList<>();
+        ArrayList<String> toAdd = new ArrayList<>();
         i = 0;
+        boolean dontDivide = false;
 
         String[] html = everDataBase.getBackgroundFromDatabaseWithID(GetIDFromSharedPreferences()).replaceAll("[\\[\\](){}]", "").trim().split("┼");
 
@@ -1981,6 +1945,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         if (html.length == 0 && strings.length == 0) {
             Content content = new Content("");
+            toAdd.add("");
             items.add(new Item(0, content));
         }
 
@@ -1990,25 +1955,86 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             i++;
             if (i >= strings.length) {
                 Content content = new Content("");
+                toAdd.add("");
                 items.add(new Item(0, content));
             }
         } else {
 
             for (String text : strings) {
                 Content content1 = new Content(text);
+                toAdd.add(text);
                 items.add(new Item(0, content1));
 
                 if (i <= bitmaps.size() - 1) {
+
                     Draw draw1 = new Draw(bitmaps.get(i));
                     items.add(new Item(1, draw1));
                     i++;
-                    if (i >= strings.length) {
-                        Content content = new Content("");
+
+                    if (i >= strings.length && bitmaps.size() - 1 <= strings.length) {
+                        dontDivide = true;
+                        Content content = new Content("<br>");
+                        toAdd.add("<br>");
                         items.add(new Item(0, content));
+
+                    } else {
+                        if (i >= strings.length) {
+
+                            for (String string : bitmaps) {
+                                if (i <= bitmaps.size() - 1) {
+                                    Draw draw2 = new Draw(bitmaps.get(i));
+                                    items.add(new Item(1, draw2));
+                                    Content content = new Content("");
+                                    toAdd.add("");
+                                    items.add(new Item(0, content));
+                                    i++;
+                                }
+                            }
+
+                            dontDivide = true;
+                            Content content = new Content("<br>");
+                            toAdd.add("<br>");
+                            items.add(new Item(0, content));
+                        }
                     }
                 }
             }
-        }
+          /*  for (String text : strings) {
+                Content content1 = new Content(text);
+                items.add(new Item(0, content1));
+
+                if (i <= bitmaps.size() - 1) {
+
+                    Draw draw1 = new Draw(bitmaps.get(i));
+                    items.add(new Item(1, draw1));
+                    i++;
+
+                    if (i >= strings.length && bitmaps.size() - 1 <= strings.length) {
+                        dontDivide = true;
+                        Content content = new Content("<br>");
+                        items.add(new Item(0, content));
+
+                    } else {
+                        if (i >= strings.length) {
+
+                            for (String string: bitmaps) {
+                                if (i <= bitmaps.size() - 1) {
+                                    Draw draw2 = new Draw(bitmaps.get(i));
+                                    items.add(new Item(1, draw2));
+                                    Content content = new Content("");
+                                    items.add(new Item(0, content));
+                                    i++;
+                                }
+                            }
+
+                            dontDivide = true;
+                            Content content = new Content("<br>");
+                            items.add(new Item(0, content));
+                        }
+                    }
+                }
+           }
+       */ }
 
         if (clearAndAdd) {
 
@@ -2020,11 +2046,19 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
             textanddrawRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
-            everAdapter = new EverAdapter(requireActivity(), items, GetIDFromSharedPreferences(), everDataBase, everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()));
+            String[] arrayString = toAdd.toArray(new String[0]);
+
+            everAdapter = new EverAdapter(requireActivity(), items, GetIDFromSharedPreferences(), everDataBase, everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()), textanddrawRecyclerView, dontDivide,arrayString);
 
             textanddrawRecyclerView.setAdapter(everAdapter);
 
             EverAdapter.setClickListener(this);
+
+            //OverScrollDecoratorHelper.setUpOverScroll(textanddrawRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+
+          //  new Handler(Looper.getMainLooper()).postDelayed(() -> {
+          //      focusOnView(scrollView, scrollView);
+          //  }, 100);
         }
 
     }

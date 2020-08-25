@@ -17,9 +17,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.example.Evermind.recycler_models.Content;
 import com.example.Evermind.recycler_models.Draw;
-import com.example.Evermind.recycler_models.EverAdapter;
 import com.example.Evermind.recycler_models.Item;
-import com.sysdata.kt.htmltextview.SDHtmlTextView;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -27,27 +25,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGridAdapter.ViewHolder> {
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+
+public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<RecyclerGridAdapterNoteScreen.ViewHolder> {
 
     private String[] mData;
     private String[] mTitle;
     private String[] mDate;
     private Integer[] mIds;
-    private static Integer[] id;
     private Context context;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
     private EverDataBase mEverDataBase;
-    private ImagesRecyclerNoteScreenGridAdapter adapter;
-    private static EverNoteScreenAdapter everNoteScreenAdapter;
-    private List<Item> items;
-    private List<String> bitmaps;
-    private int i;
     private RecyclerView textanddrawRecyclerView;
 
-    // data is passed into the constructor
-    public TestRecyclerGridAdapter(Context contexts, String[] data, String[] title, String[] date, Integer[] ids, EverDataBase database) {
+    public RecyclerGridAdapterNoteScreen(Context contexts, String[] data, String[] title, String[] date, Integer[] ids, EverDataBase database) {
 
         mEverDataBase = database;
         context = contexts;
@@ -59,8 +52,6 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
 
     }
 
-
-    // inflates the cell layout from xml when needed
     @Override
     @NonNull
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -69,7 +60,6 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
         return new ViewHolder(view);
     }
 
-    // binds the data to the TextView in each cell
     @Override
     public void onBindViewHolder(@NotNull ViewHolder holder, int position) {
 
@@ -85,8 +75,10 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
 
             holder.myRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
-            adapter = new ImagesRecyclerNoteScreenGridAdapter(context, imagesURLs, position, imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
+            ImagesRecyclerNoteScreenGridAdapter adapter = new ImagesRecyclerNoteScreenGridAdapter(context, imagesURLs, position, imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
             holder.myRecyclerView.setAdapter(adapter);
+
+            OverScrollDecoratorHelper.setUpOverScroll(holder.myRecyclerView, OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
 
         }
 
@@ -97,7 +89,6 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
             params.height = 65;
 
             holder.myTitleView.setLayoutParams(params);
-           // holder.myTextView.setTextSize(18);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 holder.myTitleView.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#c371f9")));
             }
@@ -117,11 +108,6 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
 
     }
 
-
-    public void setClickListener(AdapterView.OnItemClickListener onItemClickListener) {
-    }
-
-
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -140,10 +126,6 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
 
             itemView.setOnClickListener(this);
 
-            //TODO IMPORTANT CODE \/ \/ \/ \/ \/
-
-            myRecyclerView.setOnClickListener(this);
-
             myRecyclerView.setOnLongClickListener(view -> {
                 int p = getLayoutPosition();
 
@@ -153,19 +135,6 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
                 return false;
             });
 
-            textanddrawRecyclerView.setOnClickListener(this);
-
-            textanddrawRecyclerView.setOnLongClickListener(view -> {
-                int p = getLayoutPosition();
-
-                if (mClickListener != null)
-                    mClickListener.onLongPress(view, p);
-                System.out.println(p);
-                return false;
-            });
-
-
-            ////TODO/////////////// /\ /\ /\ /\
 
             itemView.setOnLongClickListener(view -> {
                 int p = getLayoutPosition();
@@ -177,7 +146,6 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
                 return true;// returning true instead of false, works for me
             });
         }
-        ///////////////////////
 
         @Override
         public void onClick(View view) {
@@ -187,22 +155,20 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
 
     }
 
-    // convenience method for getting data at click position
-    public String getItem(int id) {
-        return mData[id];
-    }
-
-    // allows clicks events to be caught
     public void setClickListener(ItemClickListener itemClickListener) {
+
         this.mClickListener = itemClickListener;
+
     }
 
     public void setOnLongClickListener(AdapterView.OnItemLongClickListener onItemLongClickListener) {
+
         this.mLongClick = onItemLongClickListener;
+
     }
 
-    // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
+
         void onItemClick(View view, int position);
 
         void onClick(View view);
@@ -212,51 +178,51 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
 
     private void SetupNoteEditorRecycler(int position) {
 
-        items = new ArrayList<>();
-        bitmaps = new ArrayList<>();
-        i = 0;
+        List<Item> items = new ArrayList<>();
+        int i = 0;
 
         String[] html = mEverDataBase.getBackgroundFromDatabaseWithID(mIds[position]).replaceAll("[\\[\\](){}]", "").trim().split("┼");
 
-        bitmaps.addAll(Arrays.asList(html));
-
-        System.out.println("Note at position " + position + ", and the amount of bitmaps is = " + bitmaps.size());
+        List<String> bitmaps = new ArrayList<>(Arrays.asList(html));
 
         String[] strings = mEverDataBase.getContentsFromDatabaseWithID(mIds[position]).replaceAll("[\\[\\](){}]", "").split("┼");
 
         if (html.length == 0 && strings.length == 0) {
+
             Content content = new Content("");
             items.add(new Item(0, content));
-            System.out.println("Content added = " + content + " at position: " + position);
+
         }
 
         if (strings.length == 0 && html.length >= 1) {
 
             Draw draw1 = new Draw(bitmaps.get(i));
             items.add(new Item(1, draw1));
-            System.out.println("Draw added = " + draw1 + " at position: " + position);
             i++;
+
             if (i >= strings.length) {
+
                 Content content = new Content("");
                 items.add(new Item(0, content));
-                System.out.println("Content added = " + content + " at position: " + position);
+
             }
         } else {
 
             for (String text : strings) {
                 Content content1 = new Content(text);
                 items.add(new Item(0, content1));
-                System.out.println("Content added = " + content1 + " at position: " + position);
 
                 if (i <= bitmaps.size() - 1) {
+
                     Draw draw1 = new Draw(bitmaps.get(i));
                     items.add(new Item(1, draw1));
-                    System.out.println("Draw added = " + draw1 + " at position: " + position);
                     i++;
+
                     if (i >= strings.length) {
+
                         Content content = new Content("");
                         items.add(new Item(0, content));
-                        System.out.println("Content added = " + content + " at position: " + position);
+
                     }
                 }
             }
@@ -267,10 +233,9 @@ public class TestRecyclerGridAdapter extends RecyclerView.Adapter<TestRecyclerGr
 
         textanddrawRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
-        everNoteScreenAdapter = new EverNoteScreenAdapter(items, mEverDataBase);
+        EverNoteScreenAdapter everNoteScreenAdapter = new EverNoteScreenAdapter(items, context, mIds[position]);
 
         textanddrawRecyclerView.setAdapter(everNoteScreenAdapter);
 
-        EverNoteScreenAdapter.setClickListener((EverNoteScreenAdapter.ItemClickListener) mClickListener);
     }
 }

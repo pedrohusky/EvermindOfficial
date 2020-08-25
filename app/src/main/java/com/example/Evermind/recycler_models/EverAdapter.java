@@ -3,6 +3,7 @@ package com.example.Evermind.recycler_models;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -25,6 +27,7 @@ import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,18 +46,24 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static ArrayList<String> array = new ArrayList<>();
     private static Context context;
     private static int ActiveEditorPosition;
+    private static RecyclerView scrollView;
+    private static boolean divideBy2;
+    private static String[] arrayToAdd;
 
 
     private static EverAdapter.ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
 
-    public EverAdapter(Context context, List<Item> items, int id, EverDataBase dataBase, String strings) {
+    public EverAdapter(Context context, List<Item> items, int id, EverDataBase dataBase, String strings, RecyclerView recyclerView, boolean divide, String[] toAdd) {
 
         itemList = items;
         ID = id;
         everDataBase = dataBase;
         contents = strings;
         EverAdapter.context = context;
+        scrollView = recyclerView;
+        divideBy2 = divide;
+        arrayToAdd = toAdd;
 
 
     }
@@ -65,6 +74,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         if (viewType == 0) {
+            scrollView.smoothScrollToPosition(0);
             return new ContentViewHolder(
                     LayoutInflater.from(parent.getContext()).inflate(
                             R.layout.recyclerview_editor_layout,
@@ -73,6 +83,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     )
             );
         } else {
+            scrollView.smoothScrollToPosition(0);
             return new DrawViewHolder(
                     LayoutInflater.from(parent.getContext()).inflate(
                             R.layout.recyclerview_image_layout,
@@ -83,6 +94,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
@@ -120,99 +132,21 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public ContentViewHolder(@NonNull View itemView) {
             super(itemView);
             everEditor = itemView.findViewById(R.id.recycler_everEditor);
-            LinearLayout linearlayout = itemView.findViewById(R.id.editorLinearLayout);
+//            LinearLayout linearlayout = itemView.findViewById(R.id.editorLinearLayout);
 
             everEditor.setPadding(8, 15, 15, 8);
             everEditor.setEditorFontSize(22);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                if (itemList.size() == 1) {
-
-                    TransitionManager.beginDelayedTransition(linearlayout, new TransitionSet()
-                            .addTransition(new ChangeBounds()));
-
-                    ViewGroup.LayoutParams params = linearlayout.getLayoutParams();
-
-                    params.height = 800;
-
-                    everEditor.setEditorHeight(300);
-
-                    linearlayout.setLayoutParams(params);
-
-                } else {
-
-                    TransitionManager.beginDelayedTransition(linearlayout, new TransitionSet()
-                            .addTransition(new ChangeBounds()));
+            everEditor.setEditorBackgroundColor(Color.LTGRAY);
 
 
-                    ViewGroup.LayoutParams params = linearlayout.getLayoutParams();
 
-                    params.height = WRAP_CONTENT;
 
-                    linearlayout.setLayoutParams(params);
-                }
-
-            }, 500);
 
             itemView.setOnClickListener(this);
 
             //TODO IMPORTANT CODE \/ \/ \/ \/ \/
 
             everEditor.setOnClickListener(this);
-
-            everEditor.setOnFocusChangeListener((view, b) -> {
-
-                WichLayoutIsActive = ((EvermindEditor) view);
-                ActiveEditorPosition = getLayoutPosition() / 2;
-
-                ((MainActivity)context).OnFocusChangeEditor(view, GetActiveEditor(), b);
-            });
-
-            everEditor.setOnTextChangeListener(text -> {
-                System.out.println("Original string is " + contents.replaceAll("[\\[\\](){}]", "").trim());
-
-                String[] strings = contents.replaceAll("[\\[\\](){}]", "").trim().split("┼");
-
-                System.out.println(strings.length);
-
-                for (String splitted : strings) {
-                    array.add(splitted + "┼");
-                }
-
-                contents_text = GetActiveEditor().getHtml();
-
-                System.out.println("Contents transformed to " + contents_text);
-
-                String transformToHexHTML = replaceRGBColorsWithHex(contents_text);
-
-                if (ActiveEditorPosition >= array.size()) {
-                    array.add("");
-                }
-
-                if (transformToHexHTML.equals("")) {
-                    array.set(ActiveEditorPosition, transformToHexHTML);
-                } else {
-                    array.set(ActiveEditorPosition, transformToHexHTML + "┼");
-                }
-
-                System.out.println("New Array value is = " + array.get(ActiveEditorPosition) + " <-- is that right?");
-
-                contents_array = array.toArray(new String[0]);
-
-                String joined_arrayString = String.join("", contents_array);
-
-                System.out.println("Final array to string is = " + joined_arrayString);
-
-
-                // focusOnView(scrollView, mEditor);
-
-                everDataBase.editContent(Integer.toString(ID), joined_arrayString);
-
-                contents = joined_arrayString;
-
-                array.clear();
-            });
 
             everEditor.setOnLongClickListener(view -> {
                 int p = getLayoutPosition();
@@ -238,9 +172,74 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
         void setContentHTML(Content contentHTML) {
 
+          //  ((MainActivity)context).focusOnView(scrollView, scrollView);
+
+            scrollView.smoothScrollToPosition(0);
+
                 everEditor.setHtml(contentHTML.getContent());
+
+            if (everEditor.getHtml().equals("")) {
+                everEditor.setVisibility(View.GONE);
+            }
+
+          //  ((MainActivity)context).focusOnView(scrollView, scrollView);
+
+            everEditor.setOnFocusChangeListener((view, b) -> {
+
+                WichLayoutIsActive = ((EvermindEditor) view);
+
+                if (divideBy2) {
+                    ActiveEditorPosition = getLayoutPosition() / 2;
+                } else {
+                    ActiveEditorPosition = getLayoutPosition() / 2;
+                }
+
+                // ((MainActivity)context).focusOnView(scrollView, WichLayoutIsActive);
+
+                ((MainActivity)context).OnFocusChangeEditor(view, GetActiveEditor(), b);
+            });
+
+            everEditor.setOnTextChangeListener(text -> {
+
+               // String[] strings = contents.replaceAll("[\\[\\](){}]", "").trim().split("┼");
+
+                for (String splitted : arrayToAdd) {
+                    array.add(splitted + "┼");
+                }
+
+                System.out.println(Arrays.toString(arrayToAdd));
+
+                contents_text = GetActiveEditor().getHtml();
+
+                String transformToHexHTML = contents_text;
+
+                if (ActiveEditorPosition >= array.size()) {
+                    array.add("");
+                }
+
+                if (transformToHexHTML.equals("")) {
+                    array.set(ActiveEditorPosition, transformToHexHTML);
+                } else {
+                    array.set(ActiveEditorPosition, transformToHexHTML + "┼");
+                }
+
+                contents_array = array.toArray(new String[0]);
+
+                System.out.println(contents_text);
+
+                String joined_arrayString = String.join("", contents_array);
+
+                everDataBase.editContent(Integer.toString(ID), joined_arrayString);
+
+
+
+                contents = joined_arrayString;
+
+                array.clear();
+            });
 
         }
 
@@ -384,6 +383,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         notifyDataSetChanged();
     }
+
     public static String GetContents() {
         return contents;
     }
