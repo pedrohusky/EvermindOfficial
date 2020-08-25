@@ -47,14 +47,13 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static Context context;
     private static int ActiveEditorPosition;
     private static RecyclerView scrollView;
-    private static boolean divideBy2;
     private static String[] arrayToAdd;
 
 
     private static EverAdapter.ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
 
-    public EverAdapter(Context context, List<Item> items, int id, EverDataBase dataBase, String strings, RecyclerView recyclerView, boolean divide, String[] toAdd) {
+    public EverAdapter(Context context, List<Item> items, int id, EverDataBase dataBase, String strings, RecyclerView recyclerView, String[] toAdd) {
 
         itemList = items;
         ID = id;
@@ -62,7 +61,6 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         contents = strings;
         EverAdapter.context = context;
         scrollView = recyclerView;
-        divideBy2 = divide;
         arrayToAdd = toAdd;
 
 
@@ -74,7 +72,6 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         if (viewType == 0) {
-            scrollView.smoothScrollToPosition(0);
             return new ContentViewHolder(
                     LayoutInflater.from(parent.getContext()).inflate(
                             R.layout.recyclerview_editor_layout,
@@ -83,7 +80,6 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     )
             );
         } else {
-            scrollView.smoothScrollToPosition(0);
             return new DrawViewHolder(
                     LayoutInflater.from(parent.getContext()).inflate(
                             R.layout.recyclerview_image_layout,
@@ -102,6 +98,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             Content content = (Content) itemList.get(position).getObject();
             ((ContentViewHolder)holder).setContentHTML(content);
+
 
         } else {
             Draw draw = (Draw) itemList.get(position).getObject();
@@ -136,8 +133,12 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             everEditor.setPadding(8, 15, 15, 8);
             everEditor.setEditorFontSize(22);
-            everEditor.setEditorBackgroundColor(Color.LTGRAY);
+            scrollView.smoothScrollToPosition(arrayToAdd.length);
 
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                scrollView.smoothScrollToPosition(0);
+            }, 200);
 
 
 
@@ -177,9 +178,8 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
           //  ((MainActivity)context).focusOnView(scrollView, scrollView);
 
-            scrollView.smoothScrollToPosition(0);
-
                 everEditor.setHtml(contentHTML.getContent());
+                scrollView.smoothScrollToPosition(0);
 
             if (everEditor.getHtml().equals("")) {
                 everEditor.setVisibility(View.GONE);
@@ -190,12 +190,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             everEditor.setOnFocusChangeListener((view, b) -> {
 
                 WichLayoutIsActive = ((EvermindEditor) view);
-
-                if (divideBy2) {
-                    ActiveEditorPosition = getLayoutPosition() / 2;
-                } else {
-                    ActiveEditorPosition = getLayoutPosition() / 2;
-                }
+                ActiveEditorPosition = getLayoutPosition() / 2;
 
                 // ((MainActivity)context).focusOnView(scrollView, WichLayoutIsActive);
 

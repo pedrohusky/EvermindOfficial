@@ -158,7 +158,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
         NavController navController = Navigation.findNavController(view);
         navController.navigate(R.id.action_nav_home_to_nav_note);
 
-
     }
 
     //This start NoteEditor and send Array to

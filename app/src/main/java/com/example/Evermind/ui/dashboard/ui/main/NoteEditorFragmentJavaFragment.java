@@ -1972,7 +1972,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     i++;
 
                     if (i >= strings.length && bitmaps.size() - 1 <= strings.length) {
-                        dontDivide = true;
                         Content content = new Content("<br>");
                         toAdd.add("<br>");
                         items.add(new Item(0, content));
@@ -1991,7 +1990,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                                 }
                             }
 
-                            dontDivide = true;
                             Content content = new Content("<br>");
                             toAdd.add("<br>");
                             items.add(new Item(0, content));
@@ -2048,10 +2046,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
             String[] arrayString = toAdd.toArray(new String[0]);
 
-            everAdapter = new EverAdapter(requireActivity(), items, GetIDFromSharedPreferences(), everDataBase, everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()), textanddrawRecyclerView, dontDivide,arrayString);
+            everAdapter = new EverAdapter(requireActivity(), items, GetIDFromSharedPreferences(), everDataBase, everDataBase.getContentsFromDatabaseWithID(GetIDFromSharedPreferences()), textanddrawRecyclerView,arrayString);
 
             textanddrawRecyclerView.setAdapter(everAdapter);
-
             EverAdapter.setClickListener(this);
 
             //OverScrollDecoratorHelper.setUpOverScroll(textanddrawRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
