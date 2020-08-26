@@ -1,14 +1,23 @@
 package com.example.Evermind;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ComponentCallbacks2;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,30 +26,45 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.Evermind.recycler_models.EverAdapter;
-import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
-import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentMainViewModel;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.muehlemann.giphy.GiphyLibrary;
 import com.stfalcon.frescoimageviewer.ImageViewer;
-import java.util.ArrayList;
 
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.sql.Savepoint;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Objects;
+
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,18 +76,96 @@ public class MainActivity extends AppCompatActivity {
 
     public Integer ID;
 
+    private HorizontalScrollView scrollView1;
+    private HorizontalScrollView scrollView2;
+    private HorizontalScrollView scrollView3;
+    private HorizontalScrollView scrollView4;
     public Boolean CloseFormatter = false;
     public Boolean CloseParagraph = false;
     public Boolean CloseImporter = false;
+    public Boolean CloseOpenedColors = false;
+    public Boolean CloseOpenedDrawOptions = false;
+    public Boolean CloseOpenedDrawColors = false;
+    public Boolean CloseOpenedDrawSize = false;
+    public Boolean CloseOpenedColorsHighlight = false;
+    public Boolean DeleteSave = false;
+    public Boolean UndoRedo = false;
+    public Boolean bottomBarShowing = false;
+    public SeekBar seekBarDrawSize;
+    public ImageButton Undo;
+    public ImageButton Redo;
+    public ImageButton Delete;
+    public ImageButton Save;
+    private ImageButton ChangeColor;
+    private ImageButton Bold;
+    private ImageButton Italic;
+    private ImageButton Underline;
+    private ImageButton Striketrough;
+    private ImageButton HighlightText;
+    private ImageButton Black;
+    private ImageButton Blue;
+    private ImageButton Purple;
+    private ImageButton Magenta;
+    private ImageButton Orange;
+    private ImageButton Yellow;
+    private ImageButton Green;
+    public ImageButton BlackDraw;
+    public ImageButton BlueDraw;
+    public ImageButton PurpleDraw;
+    public ImageButton MagentaDraw;
+    public ImageButton OrangeDraw;
+    public ImageButton YellowDraw;
+    public ImageButton GreenDraw;
+    private ImageButton DrawChangeColor;
+    private ImageButton DrawChangeSize;
+    private CardView DrawOptions;
+    private ImageButton ClearHighlight;
+    private ImageButton BlackHighlight;
+    private ImageButton BlueHighlight;
+    private ImageButton PurpleHighlight;
+    private ImageButton MagentaHighlight;
+    private ImageButton OrangeHighlight;
+    private ImageButton YellowHighlight;
+    private ImageButton GreenHighlight;
+    private ImageButton Increase;
+    private ImageButton Decrease;
+    private ImageButton Left;
+    private ImageButton Center;
+    private ImageButton Right;
+    private ImageButton GooglePhotos;
+    private ImageButton Gallery;
+    private ImageButton Files;
+    public BottomNavigationView note_bottom_bar;
+    public Animation bottom_nav_anim;
+    public Animation bottom_nav_anim_reverse;
+    private Animation fadein;
+    private Animation fadeout;
+    public Boolean DrawVisualizerIsShowing = false;
+    public Boolean DrawOn = false;
+    private CardView size_visualizer;
+    private ImageView ImageSizeView;
+    private CardView format_selector;
+    private CardView paragraph_selector;
+    private CardView importer_selector;
+    private ImageButton Bullets;
+    private ImageButton Numbers;
+    private ImageView spacing;
+    private Toolbar toolbar;
+    private int size = 4;
+    private String ImagesURLs;
 
-    private SharedPreferences preferences;
-    private SharedPreferences.Editor editor;
 
-    private boolean deleteSave;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    private static final String GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos";
 
-    private  boolean drawOn;
+    public SharedPreferences preferences;
+    public SharedPreferences.Editor editor;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,18 +197,87 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean("athome", true);
         editor.apply();
 
+
         //////////CLEAR SHAREDPREFS
 
         new Thread(() -> {
             // a potentially time consuming task
 
-            Toolbar toolbar = findViewById(R.id.toolbar);
+            note_bottom_bar = findViewById(R.id.note_bottom_bar);
+            bottom_nav_anim = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim);
+            bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
+            ChangeColor = findViewById(R.id.ChangeColor);
+            DrawChangeColor = findViewById(R.id.DrawChangeColor);
+            DrawChangeSize = findViewById(R.id.DrawChangeSize);
+            size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
+            ImageSizeView = findViewById(R.id.draw_size_visualizer);
+            DrawOptions = findViewById(R.id.draw_options);
+            seekBarDrawSize = findViewById(R.id.draw_size_seekbar);
+            Italic = findViewById(R.id.Italic);
+            Bold = findViewById(R.id.Bold);
+            Underline = findViewById(R.id.Underline);
+            Striketrough = findViewById(R.id.Striketrough);
+            HighlightText = findViewById(R.id.HighlightText);
+            Black = findViewById(R.id.black);
+            Blue = findViewById(R.id.blue);
+            Purple = findViewById(R.id.purple);
+            Magenta = findViewById(R.id.magenta);
+            Orange = findViewById(R.id.orange);
+            Yellow = findViewById(R.id.yellow);
+            Green = findViewById(R.id.green);
+            BlackDraw = findViewById(R.id.Drawblack);
+            BlueDraw = findViewById(R.id.Drawblue);
+            PurpleDraw = findViewById(R.id.Drawpurple);
+            MagentaDraw = findViewById(R.id.Drawmagenta);
+            OrangeDraw = findViewById(R.id.Draworange);
+            YellowDraw = findViewById(R.id.Drawyellow);
+            GreenDraw = findViewById(R.id.Drawgreen);
+            ClearHighlight = findViewById(R.id.clearhighlight);
+            BlackHighlight = findViewById(R.id.blackhighlight);
+            BlueHighlight = findViewById(R.id.bluehighlight);
+            PurpleHighlight = findViewById(R.id.purplehighlight);
+            MagentaHighlight = findViewById(R.id.magentahighlight);
+            OrangeHighlight = findViewById(R.id.orangehighlight);
+            YellowHighlight = findViewById(R.id.yellowhighlight);
+            GreenHighlight = findViewById(R.id.greenhighlight);
+            DrawOptions = findViewById(R.id.draw_options);
+            size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
+            ImageSizeView = findViewById(R.id.draw_size_visualizer);
+            format_selector = findViewById(R.id.format_selector);
+            importer_selector = findViewById(R.id.import_options);
+            paragraph_selector = findViewById(R.id.format_paragraph);
+            Undo = findViewById(R.id.Undo);
+            Redo = findViewById(R.id.Redo);
+            Delete = findViewById(R.id.Delete);
+            Save = findViewById(R.id.Save);
+            Bullets = findViewById(R.id.Bullets);
+            Numbers = findViewById(R.id.Numbers);
+            spacing = findViewById(R.id.paragraph_spacing);
+            Increase = findViewById(R.id.IncreaseSize);
+            Decrease = findViewById(R.id.DecreaseSize);
+            Left = findViewById(R.id.AlignLeft);
+            Right = findViewById(R.id.AlignRight);
+            Center = findViewById(R.id.AlignCenter);
+            fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
+            fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
+            GooglePhotos = findViewById(R.id.GooglePhotos);
+            Gallery = findViewById(R.id.Gallery);
+            Files = findViewById(R.id.Files);
+            toolbar = findViewById(R.id.toolbar);
+            scrollView1 = findViewById(R.id.scroll_draw);
+            scrollView2 = findViewById(R.id.scroll_formatter);
+            scrollView3 = findViewById(R.id.scroll_import);
+            scrollView4 = findViewById(R.id.scroll_paragraph);
+            //OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
+            OverScrollDecoratorHelper.setUpOverScroll(scrollView2);
+            OverScrollDecoratorHelper.setUpOverScroll(scrollView3);
+            OverScrollDecoratorHelper.setUpOverScroll(scrollView4);
+
             setSupportActionBar(toolbar);
+
             //BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
 
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-            CardView format_text = findViewById(R.id.format_selector);
+            Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
 
             //  DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -125,18 +296,276 @@ public class MainActivity extends AppCompatActivity {
             NavigationUI.setupWithNavController(navigationView, navController);
 
 
-            //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT \/
+            Black.setOnClickListener(view -> ColorClickedSwitcher("Black", false));
+
+            Blue.setOnClickListener(view -> ColorClickedSwitcher("Blue", false));
+
+            Purple.setOnClickListener(view -> ColorClickedSwitcher("Purple", false));
+
+            Magenta.setOnClickListener(view -> ColorClickedSwitcher("Magenta", false));
+
+            Orange.setOnClickListener(view -> ColorClickedSwitcher("Orange", false));
+
+            Yellow.setOnClickListener(view -> ColorClickedSwitcher("Yellow", false));
+
+            Green.setOnClickListener(view -> ColorClickedSwitcher("Green", false));
+
+            ClearHighlight.setOnClickListener(view -> ColorClickedSwitcher("Clear", true));
+
+            BlackHighlight.setOnClickListener(view -> ColorClickedSwitcher("Black", true));
+
+            BlueHighlight.setOnClickListener(view -> ColorClickedSwitcher("Blue", true));
+
+            PurpleHighlight.setOnClickListener(view -> ColorClickedSwitcher("Purple", true));
+
+            MagentaHighlight.setOnClickListener(view -> ColorClickedSwitcher("Magenta", true));
+
+            OrangeHighlight.setOnClickListener(view -> ColorClickedSwitcher("Orange", true));
+
+            YellowHighlight.setOnClickListener(view -> ColorClickedSwitcher("Yellow", true));
+
+            GreenHighlight.setOnClickListener(view -> ColorClickedSwitcher("Green", true));
 
 
-            format_text.setOnClickListener(view -> {
+            KeyboardVisibilityEvent.setEventListener(
+                    this,
+                    isOpen -> {
+
+                        if (isOpen) {
+
+                            //TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                            //        .addTransition(new ChangeBounds()));
+
+                            // evermindEditor.setEditorHeight(250);
+
+                            // ViewGroup.LayoutParams params = cardView.getLayoutParams();
+
+                            //params.height = 1100;
+
+                            // cardView.setLayoutParams(params);
+
+                        } else {
+
+                            //  TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                            //          .addTransition(new ChangeBounds()));
+
+                            // ViewGroup.LayoutParams params = cardView.getLayoutParams();
+
+                            //params.height = WRAP_CONTENT;
+
+                            // cardView.setLayoutParams(params);
+                        }
+                    });
+
+
+            GooglePhotos.setOnClickListener(view -> {
+                requestPermissions(PERMISSIONS_STORAGE, 0);
+                openImageChooser("GooglePhotos");
+            });
+
+            Gallery.setOnClickListener(view -> {
+                requestPermissions(PERMISSIONS_STORAGE, 0);
+                openImageChooser("Gallery");
+            });
+
+            Files.setOnClickListener(view -> {
+                requestPermissions(PERMISSIONS_STORAGE, 0);
+                openImageChooser("Files");
+            });
+
+            ChangeColor.setOnClickListener(view -> {
+                if (CloseOpenedColors) {
+
+                    CloseOrOpenColors(false);
+
+
+                } else {
+
+                    CloseOrOpenColors(false);
+
+                }
+            });
+
+            DrawChangeColor.setOnClickListener(view -> CloseOrOpenDrawColors());
+
+            DrawChangeSize.setOnClickListener(view -> CloseOrOpenDrawSize());
+
+            HighlightText.setOnClickListener(view -> {
+                if (CloseOpenedColorsHighlight) {
+
+                    CloseOrOpenColors(true);
+
+
+                } else {
+
+                    CloseOrOpenColors(true);
+
+                }
+            });
+
+
+            findViewById(R.id.IncreaseSize).setOnClickListener(v -> {
+
+
+                if (size < 7) {
+
+                    size++;
+                    EverAdapter.GetActiveEditor().setFontSize(size);
+                }
 
             });
 
-            //TODO THIS IS TO MAKE SURE COLOR SELECTOR WONT CLICK BEHIND IT /\
+            findViewById(R.id.DecreaseSize).setOnClickListener(v -> {
+
+
+                if (size > 3) {
+
+                    size--;
+                    EverAdapter.GetActiveEditor().setFontSize(size);
+                }
+            });
+
+
+            note_bottom_bar.setOnNavigationItemSelectedListener(item -> {
+                int id_nav = item.getItemId();
+
+
+                switch (id_nav) {
+                    case R.id.nav_formatText:
+
+                        //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
+
+                        CloseOrOpenFormatter();
+
+                        //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
+
+                        break;
+
+                    case R.id.nav_paragraph:
+
+                        CloseOrOpenParagraph();
+
+                        break;
+
+                    case R.id.nav_checkbox:
+
+                        CloseOrOpenImporter();
+
+                        break;
+
+                    case R.id.nav_bullets:
+
+
+                        break;
+
+                    case R.id.nav_draw:
+
+                        CloseOrOpenDraWOptions();
+
+                        InputMethodManager keyboard = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                        keyboard.hideSoftInputFromWindow(seekBarDrawSize.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                    default:
+                        return true;
+                }
+                return true;
+            });
+
+            findViewById(R.id.Bold).setOnClickListener(v -> EverAdapter.GetActiveEditor().setBold());
+            findViewById(R.id.Italic).setOnClickListener(v -> EverAdapter.GetActiveEditor().setItalic());
+            findViewById(R.id.Striketrough).setOnClickListener(v -> EverAdapter.GetActiveEditor().setStrikeThrough());
+            findViewById(R.id.Underline).setOnClickListener(v -> EverAdapter.GetActiveEditor().setUnderline());
+
+            //     getActivity().findViewById(R.id.action_heading1).setOnClickListener(new View.OnClickListener() {
+            //          @Override public void onClick(View v) {
+            //              mEditor.setHeading(1);
+            //          }
+            //      });
+
+            //      getActivity().findViewById(R.id.action_heading2).setOnClickListener(new View.OnClickListener() {
+            //        @Override public void onClick(View v) {
+            //             mEditor.setHeading(2);
+            //         }
+            //      });
+
+            ///      getActivity().findViewById(R.id.action_heading3).setOnClickListener(new View.OnClickListener() {
+            //          @Override public void onClick(View v) {
+            //              mEditor.setHeading(3);
+            //            }
+            //     });
+
+            //     getActivity().findViewById(R.id.action_heading4).setOnClickListener(new View.OnClickListener() {
+            //         @Override public void onClick(View v) {
+            //             mEditor.setHeading(4);
+            //        }
+            //      });
+
+            //     getActivity().findViewById(R.id.action_heading5).setOnClickListener(new View.OnClickListener() {
+            //         @Override public void onClick(View v) {
+            //             mEditor.setHeading(5);
+            //        }
+            //    });
+
+            //      getActivity().findViewById(R.id.action_heading6).setOnClickListener(new View.OnClickListener() {
+            //          @Override public void onClick(View v) {
+            //              mEditor.setHeading(6);
+            //          }
+            //     });
+
+
+            findViewById(R.id.AlignLeft).setOnClickListener(v -> EverAdapter.GetActiveEditor().setAlignLeft());
+            findViewById(R.id.AlignCenter).setOnClickListener(v -> EverAdapter.GetActiveEditor().setAlignCenter());
+            findViewById(R.id.AlignRight).setOnClickListener(v -> EverAdapter.GetActiveEditor().setAlignRight());
+
+
+            //      getActivity().findViewById(R.id.action_insert_image).setOnClickListener(new View.OnClickListener() {
+            //          @Override public void onClick(View v) {
+            //              mEditor.insertImage("http://www.1honeywan.com/dachshund/image/7.21/7.21_3_thumb.JPG",
+            //                      "dachshund");
+            //          }
+            //     });
+
+            //     getActivity().findViewById(R.id.action_insert_link).setOnClickListener(new View.OnClickListener() {
+            ////         @Override public void onClick(View v) {
+            //             mEditor.insertLink("https://github.com/wasabeef", "wasabeef");
+            //         }
 
         }).start();
-
     }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+            new Thread(() -> {
+
+                if (CloseOpenedColorsHighlight) {
+
+                    if (resultCode != RESULT_OK) {
+
+                        Uri gif = data.getData();
+
+                        try {
+                            TransformUriToFile(gif, true, ".gif");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        ReloadImagesRecycler();
+                    } }
+
+                if (requestCode != RESULT_OK) {
+
+                    Uri imageUri = data.getData();
+
+                    try {
+                        TransformUriToFile(imageUri, true, ".jpg");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    ReloadImagesRecycler();
+                }
+                super.onActivityResult(requestCode, resultCode, data);
+            }).start();
+        }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -184,22 +613,12 @@ public class MainActivity extends AppCompatActivity {
 
 
             CloseAllButtons();
-            CloseEditorButtonsSaveDelete();
-
-
-            //Hide nav view \/ \/ \/
-            BottomNavigationView bottomNavigationView = findViewById(R.id.note_bottom_bar);
-            Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
-            bottomNavigationView.startAnimation(bottom_nav_anim_reverse);
-
-            //Hide nav view /\ /\ /\
 
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("athome", true);
-            editor.putString("content", "");
             editor.apply();
 
-        super.onBackPressed();
+        new Handler(Looper.getMainLooper()).postDelayed(super::onBackPressed, 190);
     }
 
     @Override
@@ -219,30 +638,11 @@ public class MainActivity extends AppCompatActivity {
 
                 mDatabaseEver.editTitle(Integer.toString(id), title_editText.getText().toString());
 
-                // TODO  /////////////////////////////////////////////////////
-
-              //  new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-            //        mDatabaseHelper.editTitle(Integer.toString(id), title_editText.getText().toString());
-
-            //    }, 250);
-
-                // TODO /////////////////////////////////////////////////////////////
-
                 new Handler(Looper.getMainLooper()).post(() -> {
 
                     //Hide nav view \/ \/ \/
-                    BottomNavigationView bottomNavigationView = findViewById(R.id.note_bottom_bar);
-                    Animation bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
-                    bottomNavigationView.startAnimation(bottom_nav_anim_reverse);
 
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-
-                        bottomNavigationView.setVisibility(View.GONE);
-
-                    }, 350);
-                    //Hide nav view /\ /\ /\
+                    note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
 
                     CloseAllButtons();
 
@@ -315,37 +715,314 @@ public class MainActivity extends AppCompatActivity {
             });
     }
 
-    private void CloseOrOpenFormatter() {
+    public void ShowDrawSizeVisualizer() {
 
-        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
-        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
-        CardView format_text = this.findViewById(R.id.format_selector);
+        DrawVisualizerIsShowing = true;
+        // ChangeColor.setVisibility(View.GONE);
 
-        ImageButton ChangeColor = this.findViewById(R.id.ChangeColor);
-        ImageButton Bold = this.findViewById(R.id.Bold);
-        ImageButton Italic = this.findViewById(R.id.Italic);
-        ImageButton Underline = this.findViewById(R.id.Underline);
-        ImageButton Striketrough = this.findViewById(R.id.Striketrough);
-        ImageButton HighlightText = this.findViewById(R.id.HighlightText);
+        size_visualizer.setVisibility(View.VISIBLE);
+        size_visualizer.startAnimation(fadein);
 
-        ImageButton Black = this.findViewById(R.id.black);
-        ImageButton Blue = this.findViewById(R.id.blue);
-        ImageButton Purple = this.findViewById(R.id.purple);
-        ImageButton Magenta = this.findViewById(R.id.magenta);
-        ImageButton Orange = this.findViewById(R.id.orange);
-        ImageButton Yellow = this.findViewById(R.id.yellow);
-        ImageButton Green = this.findViewById(R.id.green);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            // ChangeColor.setVisibility(View.GONE);
 
-        ImageButton BlackHighlight = this.findViewById(R.id.blackhighlight);
-        ImageButton BlueHighlight = this.findViewById(R.id.bluehighlight);
-        ImageButton PurpleHighlight = this.findViewById(R.id.purplehighlight);
-        ImageButton MagentaHighlight = this.findViewById(R.id.magentahighlight);
-        ImageButton OrangeHighlight = this.findViewById(R.id.orangehighlight);
-        ImageButton YellowHighlight = this.findViewById(R.id.yellowhighlight);
-        ImageButton GreenHighlight = this.findViewById(R.id.greenhighlight);
+            ImageSizeView.setVisibility(View.VISIBLE);
 
-        ImageButton Increase = this.findViewById(R.id.IncreaseSize);
-        ImageButton Decrease = this.findViewById(R.id.DecreaseSize);
+        }, 100);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+            DrawVisualizerIsShowing = false;
+
+            size_visualizer.startAnimation(fadeout);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                ImageSizeView.setVisibility(View.GONE);
+                size_visualizer.setVisibility(View.GONE);
+
+
+            }, 100);
+
+
+        }, 1250);
+    }
+
+    public void ModifyDrawSizeVisualizer(int value) {
+
+        ImageSizeView.setScaleX(value / 100F);
+        ImageSizeView.setScaleY(value / 100F);
+
+    }
+
+    public void OnFocusChangeEditor(boolean focused) {
+
+            if (focused) {
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+
+                    if (bottomBarShowing) {
+
+                    } else {
+                        CloseOrOpenBottomNoteBar(false);
+                    }
+
+                }, 450);
+
+            } else {
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+
+                    if (DrawOn) {
+
+                    } else {
+                        CloseOrOpenToolbarUndoRedo();
+                    }
+
+                });
+            }
+        }
+
+    private void TransformUriToFile(Uri uri, boolean addToDatabase, String fileType) throws
+            IOException {
+
+        ImagesURLs = mDatabaseEver.getImageURLFromDatabaseWithID(GetIDFromSharedPreferences());
+
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+
+        File directory = getDir("imageDir", Context.MODE_PRIVATE);
+
+        File file = new File(directory, "EverImage" + Calendar.getInstance().getTimeInMillis() + fileType);
+
+        if (!file.exists()) {
+            Log.d("path", file.toString());
+            FileOutputStream fos;
+
+            fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+
+
+            if (addToDatabase) {
+
+                mDatabaseEver.insertImageToDatabase(String.valueOf(GetIDFromSharedPreferences()), file.toString(), ImagesURLs.replaceAll("[\\[\\](){}]", ""));
+            }
+        }
+    }
+
+    public void ApplyChangesToSharedPreferences(String name, boolean string, String text, boolean bolean, boolean value, boolean integer, int id) {
+
+        if (string) {
+            editor.putString(name, text);
+            editor.apply();
+        }
+        if (integer) {
+            editor.putInt(name, id);
+            editor.apply();
+        }
+        if (bolean) {
+            editor.putBoolean(name, value);
+            editor.apply();
+        }
+
+    }
+
+    public void onItemClickFromRecyclerAtNotescreen(View view, int position) {
+        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putInt("noteId", position);
+        editor.putBoolean("athome", false);
+        editor.putBoolean("newnote", false);
+        editor.apply();
+
+
+        NavController navController = Navigation.findNavController(view);
+        navController.navigate(R.id.action_nav_home_to_nav_note);
+    }
+
+    public void ColorClickedSwitcher(String color, boolean highlight) {
+
+        if (highlight) {
+
+            switch (color) {
+
+                case "Clear":
+
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(Color.WHITE);
+
+                    CloseOrOpenColors(true);
+
+                    ClearHighlight.setVisibility(View.GONE);
+
+                    break;
+
+                case "Black":
+
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.PurpleHighlight));
+
+                    CloseOrOpenColors(true);
+
+
+                    break;
+
+                case "Blue":
+
+
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.SkyBlueHighlight));
+
+                    CloseOrOpenColors(true);
+
+
+                    break;
+
+                case "Purple":
+
+
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.PinkHighlight));
+
+                    CloseOrOpenColors(true);
+
+
+                    break;
+
+                case "Magenta":
+
+
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.MagentaHighlight));
+
+                    CloseOrOpenColors(true);
+
+
+                    break;
+
+                case "Orange":
+
+
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.OrangeHighlight));
+
+                    CloseOrOpenColors(true);
+
+
+                    break;
+
+                case "Yellow":
+
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.YellowSunHighlight));
+
+                    CloseOrOpenColors(true);
+
+
+                    break;
+
+                case "Green":
+
+                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.GrassGreen));
+
+                    CloseOrOpenColors(true);
+
+
+                    break;
+
+                default:
+
+
+                    break;
+            }
+        } else {
+            switch (color) {
+
+                case "Black":
+
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.Black)));
+
+                    CloseOrOpenColors(false);
+
+
+                    break;
+
+                case "Blue":
+
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.SkyBlue));
+
+                    //  Blue = !Blue;
+
+
+                    CloseOrOpenColors(false);
+
+
+                    break;
+
+                case "Purple":
+
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.Pink)));
+
+                    //  Purple = !Purple;
+
+                    CloseOrOpenColors(false);
+
+
+                    break;
+
+                case "Magenta":
+
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Magenta));
+
+                    //  Magenta = !Magenta;
+
+
+                    CloseOrOpenColors(false);
+
+
+                    break;
+
+                case "Orange":
+
+
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.Orange)));
+
+                    //  Orange = !Orange;
+
+                    CloseOrOpenColors(false);
+
+
+                    break;
+
+                case "Yellow":
+
+
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.YellowSun)));
+
+                    // Yellow = !Yellow;
+
+                    CloseOrOpenColors(false);
+
+
+                    break;
+
+                case "Green":
+
+
+                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.GrassGreen)));
+
+                    // Green = !Green;
+
+                    CloseOrOpenColors(false);
+
+
+                    break;
+
+                default:
+
+
+                    break;
+            }
+        }
+    }
+
+    public void CloseOrOpenFormatter() {
 
         if (CloseFormatter) {
 
@@ -378,9 +1055,9 @@ public class MainActivity extends AppCompatActivity {
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                format_text.startAnimation(fadeout);
+                format_selector.startAnimation(fadeout);
 
-                format_text.setVisibility(View.GONE);
+                format_selector.setVisibility(View.GONE);
 
             }, 150);
 
@@ -389,9 +1066,9 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
 
-            format_text.setVisibility(View.VISIBLE);
+            format_selector.setVisibility(View.VISIBLE);
 
-            format_text.startAnimation(fadein);
+            format_selector.startAnimation(fadein);
 
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -399,7 +1076,6 @@ public class MainActivity extends AppCompatActivity {
                 Increase.setVisibility(View.VISIBLE);
                 Decrease.setVisibility(View.VISIBLE);
                 ChangeColor.setVisibility(View.VISIBLE);
-                Bold.setVisibility(View.VISIBLE);
                 Italic.setVisibility(View.VISIBLE);
                 Bold.setVisibility(View.VISIBLE);
                 Underline.setVisibility(View.VISIBLE);
@@ -413,18 +1089,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void CloseOrOpenParagraph() {
-
-        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
-        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
-        CardView format_text = this.findViewById(R.id.format_paragraph);
-
-        ImageButton Bullets = this.findViewById(R.id.Bullets);
-        ImageButton Numbers = this.findViewById(R.id.Numbers);
-        ImageButton Left = this.findViewById(R.id.AlignLeft);
-        ImageView spacing = this.findViewById(R.id.paragraph_spacing);
-        ImageButton Center = this.findViewById(R.id.AlignCenter);
-        ImageButton Right = this.findViewById(R.id.AlignRight);
+    public void CloseOrOpenParagraph() {
 
         if (CloseParagraph) {
 
@@ -437,9 +1102,9 @@ public class MainActivity extends AppCompatActivity {
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                format_text.startAnimation(fadeout);
+                paragraph_selector.startAnimation(fadeout);
 
-                format_text.setVisibility(View.GONE);
+                paragraph_selector.setVisibility(View.GONE);
 
             }, 150);
 
@@ -448,9 +1113,9 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
 
-            format_text.setVisibility(View.VISIBLE);
+            paragraph_selector.setVisibility(View.VISIBLE);
 
-            format_text.startAnimation(fadein);
+            paragraph_selector.startAnimation(fadein);
 
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -469,26 +1134,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void CloseOrOpenImporter() {
-
-        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
-        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
-        CardView importer = this.findViewById(R.id.import_options);
-
-        ImageButton Google = this.findViewById(R.id.GooglePhotos);
-        ImageButton Gallery = this.findViewById(R.id.Gallery);
-        ImageButton Files = this.findViewById(R.id.Files);
+    public void CloseOrOpenImporter() {
 
         if (CloseImporter) {
 
-            Google.setVisibility(View.GONE);
+            GooglePhotos.setVisibility(View.GONE);
             Gallery.setVisibility(View.GONE);
             Files.setVisibility(View.GONE);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                importer.startAnimation(fadeout);
-                importer.setVisibility(View.GONE);
+                importer_selector.startAnimation(fadeout);
+
+                //  importer.setVisibility(View.GONE);
 
             }, 150);
 
@@ -497,14 +1155,14 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
 
-            importer.setVisibility(View.VISIBLE);
+            importer_selector.setVisibility(View.VISIBLE);
 
-            importer.startAnimation(fadein);
+            importer_selector.startAnimation(fadein);
 
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                Google.setVisibility(View.VISIBLE);
+                GooglePhotos.setVisibility(View.VISIBLE);
                 Gallery.setVisibility(View.VISIBLE);
                 Files.setVisibility(View.VISIBLE);
 
@@ -515,7 +1173,358 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void CloseAllButtons() {
+    public void CloseOrOpenToolbarUndoRedo() {
+
+        if (UndoRedo) {
+
+            Undo.setVisibility(View.GONE);
+            Redo.setVisibility(View.GONE);
+
+            UndoRedo = false;
+
+        } else {
+
+            Undo.setVisibility(View.VISIBLE);
+            Redo.setVisibility(View.VISIBLE);
+
+            UndoRedo = true;
+
+        }
+    }
+
+    public void CloseOrOpenBottomNoteBar(boolean inTitle) {
+
+        if (inTitle) {
+            if (bottomBarShowing) {
+
+
+                note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
+
+                bottomBarShowing = false;
+
+            } else {
+
+                toolbar.setVisibility(View.VISIBLE);
+                note_bottom_bar.startAnimation(bottom_nav_anim);
+
+                bottomBarShowing = true;
+
+            }
+        } else {
+
+            if (bottomBarShowing) {
+
+                toolbar.setVisibility(View.GONE);
+                Save.setVisibility(View.GONE);
+                Delete.setVisibility(View.GONE);
+                note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
+
+                bottomBarShowing = false;
+
+            } else {
+
+                toolbar.setVisibility(View.VISIBLE);
+                Save.setVisibility(View.VISIBLE);
+                Delete.setVisibility(View.VISIBLE);
+                note_bottom_bar.setVisibility(View.VISIBLE);
+                note_bottom_bar.startAnimation(bottom_nav_anim);
+
+                bottomBarShowing = true;
+
+            }
+        }
+    }
+
+    public void CloseOrOpenColors(Boolean highlight) {
+
+        if (CloseOpenedColors) {
+
+            if (highlight) {
+
+                BlackHighlight.setVisibility(View.GONE);
+                BlueHighlight.setVisibility(View.GONE);
+                PurpleHighlight.setVisibility(View.GONE);
+                MagentaHighlight.setVisibility(View.GONE);
+                OrangeHighlight.setVisibility(View.GONE);
+                YellowHighlight.setVisibility(View.GONE);
+                GreenHighlight.setVisibility(View.GONE);
+                ClearHighlight.setVisibility(View.GONE);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    ChangeColor.setVisibility(View.VISIBLE);
+                    Bold.setVisibility(View.VISIBLE);
+                    Italic.setVisibility(View.VISIBLE);
+                    Bold.setVisibility(View.VISIBLE);
+                    Underline.setVisibility(View.VISIBLE);
+                    Striketrough.setVisibility(View.VISIBLE);
+                    HighlightText.setVisibility(View.VISIBLE);
+
+                    Increase.setVisibility(View.VISIBLE);
+                    Decrease.setVisibility(View.VISIBLE);
+                    Left.setVisibility(View.VISIBLE);
+                    Center.setVisibility(View.VISIBLE);
+                    Right.setVisibility(View.VISIBLE);
+                }, 200);
+
+                CloseOpenedColorsHighlight = false;
+
+            } else {
+
+                Black.setVisibility(View.GONE);
+                Blue.setVisibility(View.GONE);
+                Purple.setVisibility(View.GONE);
+                Magenta.setVisibility(View.GONE);
+                Orange.setVisibility(View.GONE);
+                Yellow.setVisibility(View.GONE);
+                Green.setVisibility(View.GONE);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+
+                    //  ChangeColor.setVisibility(View.VISIBLE);
+                    Bold.setVisibility(View.VISIBLE);
+                    Italic.setVisibility(View.VISIBLE);
+                    Bold.setVisibility(View.VISIBLE);
+                    Underline.setVisibility(View.VISIBLE);
+                    Striketrough.setVisibility(View.VISIBLE);
+                    HighlightText.setVisibility(View.VISIBLE);
+
+                    Increase.setVisibility(View.VISIBLE);
+                    Decrease.setVisibility(View.VISIBLE);
+                    Left.setVisibility(View.VISIBLE);
+                    Center.setVisibility(View.VISIBLE);
+                    Right.setVisibility(View.VISIBLE);
+
+                }, 200);
+
+                CloseOpenedColors = false;
+
+            }
+
+        } else {
+            if (highlight) {
+
+                ChangeColor.setVisibility(View.GONE);
+                Bold.setVisibility(View.GONE);
+                Italic.setVisibility(View.GONE);
+                Bold.setVisibility(View.GONE);
+                Underline.setVisibility(View.GONE);
+                Striketrough.setVisibility(View.GONE);
+                HighlightText.setVisibility(View.GONE);
+                ClearHighlight.setVisibility(View.VISIBLE);
+
+                Increase.setVisibility(View.GONE);
+                Decrease.setVisibility(View.GONE);
+                Left.setVisibility(View.GONE);
+                Center.setVisibility(View.GONE);
+                Right.setVisibility(View.GONE);
+
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    // ChangeColor.setVisibility(View.GONE);
+
+                    BlackHighlight.setVisibility(View.VISIBLE);
+                    BlueHighlight.setVisibility(View.VISIBLE);
+                    PurpleHighlight.setVisibility(View.VISIBLE);
+                    MagentaHighlight.setVisibility(View.VISIBLE);
+                    OrangeHighlight.setVisibility(View.VISIBLE);
+                    YellowHighlight.setVisibility(View.VISIBLE);
+                    GreenHighlight.setVisibility(View.VISIBLE);
+                }, 250);
+
+                CloseOpenedColorsHighlight = true;
+
+            } else {
+
+                BlackHighlight.setVisibility(View.GONE);
+                BlueHighlight.setVisibility(View.GONE);
+                PurpleHighlight.setVisibility(View.GONE);
+                MagentaHighlight.setVisibility(View.GONE);
+                OrangeHighlight.setVisibility(View.GONE);
+                YellowHighlight.setVisibility(View.GONE);
+                GreenHighlight.setVisibility(View.GONE);
+
+                Bold.setVisibility(View.GONE);
+                Italic.setVisibility(View.GONE);
+                Bold.setVisibility(View.GONE);
+                Underline.setVisibility(View.GONE);
+                Striketrough.setVisibility(View.GONE);
+                HighlightText.setVisibility(View.GONE);
+
+                Increase.setVisibility(View.GONE);
+                Decrease.setVisibility(View.GONE);
+                Left.setVisibility(View.GONE);
+                Center.setVisibility(View.GONE);
+                Right.setVisibility(View.GONE);
+
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    // ChangeColor.setVisibility(View.GONE);
+
+                    Black.setVisibility(View.VISIBLE);
+                    Blue.setVisibility(View.VISIBLE);
+                    Purple.setVisibility(View.VISIBLE);
+                    Magenta.setVisibility(View.VISIBLE);
+                    Orange.setVisibility(View.VISIBLE);
+                    Yellow.setVisibility(View.VISIBLE);
+                    Green.setVisibility(View.VISIBLE);
+                }, 250);
+
+                CloseOpenedColors = true;
+            }
+        }
+    }
+
+    public void CloseOrOpenDraWOptions() {
+
+        if (CloseOpenedDrawOptions) {
+
+            ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
+            ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
+
+            CloseOrOpenToolbarUndoRedo();
+
+            DrawOptions.startAnimation(fadeout);
+
+            if (CloseOpenedDrawColors) {
+                CloseOrOpenDrawColors();
+            }
+            if (CloseOpenedDrawSize) {
+                CloseOrOpenDrawSize();
+            }
+
+            //  evermindEditor.setVisibility(View.VISIBLE);
+
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                DrawChangeSize.setVisibility(View.GONE);
+                DrawChangeColor.setVisibility(View.GONE);
+                DrawOptions.setVisibility(View.GONE);
+
+                DrawOn = false;
+
+                editor.putBoolean("DrawOn", false);
+                editor.apply();
+
+            }, 100);
+
+            CloseOpenedDrawOptions = false;
+
+        } else {
+
+            DrawOptions.setVisibility(View.VISIBLE);
+
+            DrawOptions.startAnimation(fadein);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                if (bottomBarShowing) {
+
+                } else {
+                    CloseOrOpenBottomNoteBar(false);
+                }
+                CloseOrOpenToolbarUndoRedo();
+
+                DrawChangeSize.setVisibility(View.VISIBLE);
+                DrawChangeColor.setVisibility(View.VISIBLE);
+
+                DrawOn = true;
+
+                editor.putBoolean("DrawOn", true);
+                editor.apply();
+
+            }, 100);
+
+            CloseOpenedDrawOptions = true;
+        }
+    }
+
+    public void CloseOrOpenDrawSize() {
+
+        if (CloseOpenedDrawSize) {
+
+            DrawChangeColor.setVisibility(View.VISIBLE);
+            DrawChangeSize.setVisibility(View.VISIBLE);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                // ChangeColor.setVisibility(View.GONE);
+
+                seekBarDrawSize.setVisibility(View.GONE);
+
+            }, 100);
+
+            CloseOpenedDrawSize = false;
+
+        } else {
+
+            DrawChangeColor.setVisibility(View.GONE);
+            DrawChangeSize.setVisibility(View.VISIBLE);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> seekBarDrawSize.setVisibility(View.VISIBLE), 100);
+
+            CloseOpenedDrawSize = true;
+        }
+    }
+
+    public void CloseOrOpenDrawColors() {
+
+        if (CloseOpenedDrawColors) {
+
+            BlackDraw.setVisibility(View.GONE);
+            BlueDraw.setVisibility(View.GONE);
+            PurpleDraw.setVisibility(View.GONE);
+            MagentaDraw.setVisibility(View.GONE);
+            OrangeDraw.setVisibility(View.GONE);
+            YellowDraw.setVisibility(View.GONE);
+            GreenDraw.setVisibility(View.GONE);
+
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                // ChangeColor.setVisibility(View.GONE);
+
+                DrawChangeColor.setVisibility(View.VISIBLE);
+                DrawChangeSize.setVisibility(View.VISIBLE);
+
+
+            }, 150);
+
+            CloseOpenedDrawColors = false;
+
+        } else {
+
+            DrawChangeColor.setVisibility(View.GONE);
+            DrawChangeSize.setVisibility(View.GONE);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                // ChangeColor.setVisibility(View.GONE);
+
+                BlackDraw.setVisibility(View.VISIBLE);
+                BlueDraw.setVisibility(View.VISIBLE);
+                PurpleDraw.setVisibility(View.VISIBLE);
+                MagentaDraw.setVisibility(View.VISIBLE);
+                OrangeDraw.setVisibility(View.VISIBLE);
+                YellowDraw.setVisibility(View.VISIBLE);
+                GreenDraw.setVisibility(View.VISIBLE);
+
+
+            }, 150);
+
+
+            CloseOpenedDrawColors = true;
+        }
+    }
+
+    public void CloseAllButtons() {
+        if(CloseOpenedDrawOptions) {
+            CloseOrOpenDraWOptions();
+        }
+        if (CloseOpenedDrawColors) {
+            CloseOrOpenDrawColors();
+        }
+        if (CloseOpenedDrawSize) {
+            CloseOrOpenDrawSize();
+        }
         if (CloseFormatter) {
             CloseOrOpenFormatter();
         }
@@ -525,235 +1534,76 @@ public class MainActivity extends AppCompatActivity {
         if (CloseParagraph) {
             CloseOrOpenParagraph();
         }
-    }
-
-    private void CloseEditorButtonsSaveDelete () {
-
-        ImageButton Delete = findViewById(R.id.Delete);
-        ImageButton Save = findViewById(R.id.Save);
-
-            Delete.setVisibility(View.GONE);
-            Save.setVisibility(View.GONE);
-
-    }
-
-    public void OpenNoteFromImage(int position, Uri[] uri) {
-
-        new Handler(Looper.getMainLooper()).post(() -> {
-
-            new ImageViewer.Builder(this, uri)
-                    .setStartPosition(position)
-                    .show();
-
-        });
-    }
-
-    public void OnFocusChangeEditor(View view, EvermindEditor editor, boolean focused) {
-
-        ImageButton Delete = findViewById(R.id.Delete);
-        ImageButton Save = findViewById(R.id.Save);
-        ImageButton Undo = findViewById(R.id.Undo);
-        ImageButton Redo = findViewById(R.id.Redo);
-
-        BottomNavigationView note_bottom_bar = findViewById(R.id.note_bottom_bar);
-
-        Animation  bottom_nav_anim = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim);
-
-
-            if (focused) {
-
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-
-                    note_bottom_bar.setVisibility(View.VISIBLE);
-                    note_bottom_bar.startAnimation(bottom_nav_anim);
-
-                    deleteSave = GetDeleteNSaveFromSharedPreferences();
-                    drawOn = GetDrawOnFromSharedPreferences();
-
-
-
-
-                    if (deleteSave) {
-
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                            Undo.setVisibility(View.VISIBLE);
-                            Redo.setVisibility(View.VISIBLE);
-
-
-
-                        }, 300);
-
-                    } else {
-
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                            Undo.setVisibility(View.VISIBLE);
-                            Redo.setVisibility(View.VISIBLE);
-                            Delete.setVisibility(View.VISIBLE);
-                            Save.setVisibility(View.VISIBLE);
-
-                        }, 200);
-
-                    }
-
-                    ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, true, false, 0);
-                    ApplyChangesToSharedPreferences("UndoRedo", false, "", true, true, false, 0);
-
-                }, 450);
-
-            } else {
-
-                new Handler(Looper.getMainLooper()).post(() -> {
-
-                    //      TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                    //              .addTransition(new ChangeBounds()));
-
-                    //    ViewGroup.LayoutParams params = cardView.getLayoutParams();
-
-                    //    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;;
-                    //     cardView.setLayoutParams(params);
-
-                    if (drawOn) {
-
-                    } else {
-
-                        ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
-                        ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
-
-                        Undo.setVisibility(View.GONE);
-                        Redo.setVisibility(View.GONE);
-
-                     //   InputMethodManager keyboard = (InputMethodManager) getSystemService(this.INPUT_METHOD_SERVICE);
-                     //   keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                    }
-
-                });
-            }
+        if (CloseImporter) {
+            CloseOrOpenImporter();
+        }
+        if (bottomBarShowing) {
+                CloseOrOpenBottomNoteBar(false);
+        }
+        if (UndoRedo) {
+            CloseOrOpenToolbarUndoRedo();
         }
 
-    private int GetIDFromSharedPreferences() {
+        InputMethodManager keyboard = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        keyboard.hideSoftInputFromWindow(toolbar.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+    }
+
+    private void openImageChooser (String name){
+
+        switch (name) {
+            case "GooglePhotos":
+
+                Intent intentGooglePhotos = new Intent();
+                intentGooglePhotos.setAction(Intent.ACTION_PICK);
+                intentGooglePhotos.setType("image/*");
+                intentGooglePhotos.setPackage(GOOGLE_PHOTOS_PACKAGE_NAME);
+                startActivityForResult(intentGooglePhotos, 101);
+
+                break;
+
+            case "Gallery":
+
+
+                break;
+
+            case "Files":
+
+                Intent intentFiles = new Intent();
+                intentFiles.setType("image/*");
+                intentFiles.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intentFiles, "Select Picture"), 101);
+
+                break;
+
+
+            default:
+                break;
+        }
+    }
+
+    public int GetIDFromSharedPreferences () {
         return preferences.getInt("noteId", -1);
     }
 
-    private Boolean GetNewNoteFromSharedPreferences() {
+    public Boolean GetNewNoteFromSharedPreferences () {
         return preferences.getBoolean("newnote", false);
     }
 
-    private Boolean GetDeleteNSaveFromSharedPreferences() {
-        return preferences.getBoolean("DeleteNSave", false);
+    private int GetColor ( int color){
+        return ResourcesCompat.getColor(getResources(), color, null);
     }
 
-    private Boolean GetDrawOnFromSharedPreferences() {
-        return preferences.getBoolean("DrawOn", false);
-    }
-
-    private void ApplyChangesToSharedPreferences(String name, boolean string, String text, boolean bolean, boolean value, boolean integer, int id) {
-
-        if (string) {
-            editor.putString(name, text);
-            editor.apply();
-        }
-        if (integer) {
-            editor.putInt(name, id);
-            editor.apply();
-        }
-        if (bolean) {
-            editor.putBoolean(name, value);
-            editor.apply();
-        }
-
-    }
-
-    public void onTrimMemory(int level) {
-
-        // Determine which lifecycle or system event was raised.
-        switch (level) {
-
-            case ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN:
-
-                /*
-                   Release any UI objects that currently hold memory.
-
-                   The user interface has moved to the background.
-                */
-
-                break;
-
-            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE:
-            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
-            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
-
-                /*
-                   Release any memory that your app doesn't need to run.
-
-                   The device is running low on memory while the app is running.
-                   The event raised indicates the severity of the memory-related event.
-                   If the event is TRIM_MEMORY_RUNNING_CRITICAL, then the system will
-                   begin killing background processes.
-                */
-
-                break;
-
-            case ComponentCallbacks2.TRIM_MEMORY_BACKGROUND:
-            case ComponentCallbacks2.TRIM_MEMORY_MODERATE:
-            case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
-
-                /*
-                   Release as much memory as the process can.
-
-                   The app is on the LRU list and the system is running low on memory.
-                   The event raised indicates where the app sits within the LRU list.
-                   If the event is TRIM_MEMORY_COMPLETE, the process will be one of
-                   the first to be terminated.
-                */
-
-                break;
-
-            default:
-                /*
-                  Release any non-critical data structures.
-
-                  The app received an unrecognized memory level value
-                  from the system. Treat this as a generic low-memory message.
-                */
-                break;
-        }
-    }
-
-    public void onItemClickFromRecyclerAtNotescreen(View view, int position) {
-        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = preferences.edit();
-
-        editor.putInt("noteId", position);
-        editor.putBoolean("athome", false);
-        editor.putBoolean("newnote", false);
-        editor.putBoolean("DeleteNSave", false);
-        editor.putBoolean("UndoRedo", false);
-        editor.apply();
-
-
-        NavController navController = Navigation.findNavController(view);
-        navController.navigate(R.id.action_nav_home_to_nav_note);
-    }
-
-    public void focusOnView(ScrollView scroll, View view) {
-            //FOR HORIZONTAL SCROLL VIEW
-            ////      int vLeft = view.getLeft();
-            //    int vRight = view.getRight();
-            //     int sWidth = scroll.getWidth();
-            //     scroll.smoothScrollTo(((vLeft + vRight - sWidth) / 2), 0);
+    private void ReloadImagesRecycler() {
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-            int vTop = view.getTop();
-            int vBottom = view.getBottom();
-            int height = vTop - vBottom;
-            int sHeight = scroll.getBottom();
-            //scroll.smoothScrollTo(((vTop + vBottom - sHeight) / 2), 0);
-          // scroll.smoothScrollTo(0, vBottom ); //+ 500);
-        }, 220);
+            RecyclerView recyclerViewImage = findViewById(R.id.ImagesRecycler);
+            ImagesURLs = mDatabaseEver.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
+            recyclerViewImage.removeAllViews();
+            recyclerViewImage.setAdapter(new ImagesRecyclerGridAdapter(this, ImagesURLs, preferences.getInt("position", -1), ImagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length));
+
+
+        }, 400);
     }
 }

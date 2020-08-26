@@ -25,6 +25,7 @@
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
             android:background="?attr/colorPrimary"
+            android:visibility="gone"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:theme="@style/ToolbarColoredBackArrow">
 
@@ -32,10 +33,11 @@
                 android:id="@+id/Undo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
                 android:background="@drawable/selected_background"
                 android:padding="3dp"
                 android:scaleType="fitCenter"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:srcCompat="@drawable/ic_baseline_undo_24" />
 
             <androidx.appcompat.widget.AppCompatImageButton
@@ -45,7 +47,7 @@
                 android:background="@drawable/selected_background"
                 android:padding="3dp"
                 android:scaleType="fitCenter"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:srcCompat="@drawable/ic_baseline_redo_24" />
 
             <androidx.appcompat.widget.AppCompatImageView
@@ -61,11 +63,13 @@
                 android:id="@+id/Save"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="255dp"
+                android:layout_marginEnd="10dp"
                 android:background="@drawable/selected_background"
                 android:padding="3dp"
                 android:scaleType="fitCenter"
                 android:tint="@color/Black"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:srcCompat="@drawable/ic_baseline_check_24" />
 
             <androidx.appcompat.widget.AppCompatImageButton
@@ -76,8 +80,8 @@
                 android:padding="3dp"
                 android:scaleType="fitCenter"
                 android:tint="@color/Black"
-                android:visibility="visible"
-                app:srcCompat="@drawable/ic_baseline_clear_24" />
+                android:visibility="gone"
+                app:srcCompat="@drawable/clear" />
 
         </androidx.appcompat.widget.Toolbar>
 

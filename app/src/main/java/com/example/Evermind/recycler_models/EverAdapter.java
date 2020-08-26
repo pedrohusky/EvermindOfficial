@@ -129,14 +129,13 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public ContentViewHolder(@NonNull View itemView) {
             super(itemView);
             everEditor = itemView.findViewById(R.id.recycler_everEditor);
-//            LinearLayout linearlayout = itemView.findViewById(R.id.editorLinearLayout);
 
             everEditor.setPadding(8, 15, 15, 8);
             everEditor.setEditorFontSize(22);
+
             scrollView.smoothScrollToPosition(arrayToAdd.length);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
                 scrollView.smoothScrollToPosition(0);
             }, 200);
 
@@ -176,30 +175,23 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         @RequiresApi(api = Build.VERSION_CODES.O)
         void setContentHTML(Content contentHTML) {
 
-          //  ((MainActivity)context).focusOnView(scrollView, scrollView);
-
-                everEditor.setHtml(contentHTML.getContent());
-                scrollView.smoothScrollToPosition(0);
+            everEditor.setHtml(contentHTML.getContent());
 
             if (everEditor.getHtml().equals("")) {
-                everEditor.setVisibility(View.GONE);
+                if (getLayoutPosition() != 0) {
+                    everEditor.setVisibility(View.GONE);
+                }
             }
-
-          //  ((MainActivity)context).focusOnView(scrollView, scrollView);
 
             everEditor.setOnFocusChangeListener((view, b) -> {
 
                 WichLayoutIsActive = ((EvermindEditor) view);
                 ActiveEditorPosition = getLayoutPosition() / 2;
 
-                // ((MainActivity)context).focusOnView(scrollView, WichLayoutIsActive);
-
-                ((MainActivity)context).OnFocusChangeEditor(view, GetActiveEditor(), b);
+                ((MainActivity)context).OnFocusChangeEditor(b);
             });
 
             everEditor.setOnTextChangeListener(text -> {
-
-               // String[] strings = contents.replaceAll("[\\[\\](){}]", "").trim().split("┼");
 
                 for (String splitted : arrayToAdd) {
                     array.add(splitted + "┼");
@@ -227,7 +219,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                 String joined_arrayString = String.join("", contents_array);
 
-                everDataBase.editContent(Integer.toString(ID), joined_arrayString);
+                everDataBase.editContent(Integer.toString(ID), replaceRGBColorsWithHex(joined_arrayString));
 
 
 
@@ -296,28 +288,6 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    public static EvermindEditor GetActiveEditor() {
-        return WichLayoutIsActive;
-    }
-
-    // allows clicks events to be caught
-    public static void setClickListener(EverAdapter.ItemClickListener itemClickListener) {
-        mClickListener = itemClickListener;
-    }
-
-    public void setOnLongClickListener(AdapterView.OnItemLongClickListener onItemLongClickListener) {
-        this.mLongClick = onItemLongClickListener;
-    }
-
-    // parent activity will implement this method to respond to click events
-    public interface ItemClickListener {
-        void onItemClick(View view, int position);
-
-        void onClick(View view);
-
-        void onLongPress(View view, int position);
-    }
-
     private static String replaceRGBColorsWithHex(String html) {
         // using regular expression to find all occurences of rgb(a,b,c) using
         // capturing groups to get separate numbers.
@@ -368,6 +338,28 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             }
         }
         return html;
+    }
+
+    public static EvermindEditor GetActiveEditor() {
+        return WichLayoutIsActive;
+    }
+
+    // allows clicks events to be caught
+    public static void setClickListener(EverAdapter.ItemClickListener itemClickListener) {
+        mClickListener = itemClickListener;
+    }
+
+    public void setOnLongClickListener(AdapterView.OnItemLongClickListener onItemLongClickListener) {
+        this.mLongClick = onItemLongClickListener;
+    }
+
+    // parent activity will implement this method to respond to click events
+    public interface ItemClickListener {
+        void onItemClick(View view, int position);
+
+        void onClick(View view);
+
+        void onLongPress(View view, int position);
     }
 
     public void UpdateAdapter(List<Item> item, String content) {
