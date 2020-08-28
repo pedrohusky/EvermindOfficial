@@ -95,15 +95,15 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
         val canvas = Canvas(bitmap)
 
-        val offset: Float = 5.0F
 
         canvas.drawColor(Color.LTGRAY);
         canvas.drawBitmap(
             bitmap, // Bitmap
-            offset, // Left
-            offset, // Top
-            mPaint // Paint
+            0f, // Left
+            0f, // Top
+          null // Paint
         );
+        draw(canvas)
 
        // draw(canvas)
     }

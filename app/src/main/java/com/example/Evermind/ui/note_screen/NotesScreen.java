@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import com.example.Evermind.EverDataBase;
+import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapterNoteScreen;
 
@@ -31,18 +32,17 @@ import static android.content.Context.MODE_PRIVATE;
 public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScreen.ItemClickListener, AdapterView.OnItemLongClickListener {
 
 
-    public RecyclerGridAdapterNoteScreen adapter;
-    public  EverDataBase databaseEver;
-    public  ArrayList<String> notes = new ArrayList<>();
-    public  ArrayList<String> titles = new ArrayList<>();
-    public  ArrayList<String> dates = new ArrayList<>();
-    public  ArrayList<Integer> ids = new ArrayList<>();
-    public  ArrayList<String> ImagesURLs = new ArrayList<>();
-    public  String[] ImageURL;
-    public  String[] data;
-    public  String[] title;
-    public  String[] date;
-    public  Integer[] id;
+    private RecyclerGridAdapterNoteScreen adapter;
+    private  EverDataBase databaseEver;
+    private  ArrayList<String> notes = new ArrayList<>();
+    private  ArrayList<String> titles = new ArrayList<>();
+    private  ArrayList<String> dates = new ArrayList<>();
+    private  ArrayList<Integer> ids = new ArrayList<>();
+    private  String[] data;
+    private  String[] title;
+    private  String[] date;
+    private  Integer[] id;
+
 
     public static int fromPosition;
     public static int toPosition;
@@ -51,7 +51,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        databaseEver = new EverDataBase(requireActivity());
+        databaseEver = ((MainActivity) requireActivity()).mDatabaseEver;
 
         ids = databaseEver.getIDFromDatabase();
 
@@ -68,12 +68,6 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
         dates = databaseEver.getDateFromDatabase();
 
         date = dates.toArray(new String[0]);
-
-        ImagesURLs = databaseEver.getImageURLFromDatabase();
-
-        ImagesURLs.removeAll(Collections.singletonList(""));
-
-        ImageURL = ImagesURLs.toArray(new String[0]);
 
         return inflater.inflate(R.layout.home_screen_notes, container, false);
 
@@ -140,9 +134,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
     @Override
     public void onItemClick(View view, int position) {
 
-        SharedPreferences preferences = requireActivity().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = preferences.edit();
+        SharedPreferences.Editor editor = ((MainActivity) requireActivity()).editor;
 
 
         Integer id = ids.get(position);

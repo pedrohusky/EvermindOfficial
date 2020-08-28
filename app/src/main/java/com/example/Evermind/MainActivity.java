@@ -62,9 +62,12 @@ import java.io.IOException;
 import java.sql.Savepoint;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Objects;
 
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -91,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
     public Boolean DeleteSave = false;
     public Boolean UndoRedo = false;
     public Boolean bottomBarShowing = false;
+    public Boolean showNoteContents = false;
     public SeekBar seekBarDrawSize;
     public ImageButton Undo;
     public ImageButton Redo;
@@ -152,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView spacing;
     private Toolbar toolbar;
     private int size = 4;
-    private String ImagesURLs;
+    private String ImagesUrls;
 
 
     private static String[] PERMISSIONS_STORAGE = {
@@ -165,17 +169,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint({"ClickableViewAccessibility", "CommitPrefEdits"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        mDatabaseEver = new EverDataBase(this);
 
         preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
         editor = preferences.edit();
+
+        mDatabaseEver = new EverDataBase(this);
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         new Handler(Looper.getMainLooper()).post(() -> {
 
@@ -460,7 +465,7 @@ public class MainActivity extends AppCompatActivity {
 
                     case R.id.nav_draw:
 
-                        CloseOrOpenDraWOptions();
+                        CloseOrOpenDraWOptions(1400);
 
                         InputMethodManager keyboard = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                         keyboard.hideSoftInputFromWindow(seekBarDrawSize.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
@@ -664,13 +669,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View v) {
 
-        SharedPreferences preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = preferences.edit();
-
-            mDatabaseEver.AddNoteContent("", "");
-
-            new Handler(Looper.getMainLooper()).post(() -> {
+            mDatabaseEver.AddNoteContent("",  "");
 
                 ArrayList<Integer> arrayList = mDatabaseEver.getIDFromDatabase();
 
@@ -686,9 +685,6 @@ public class MainActivity extends AppCompatActivity {
                     editor.putBoolean("UndoRedo", false);
                     editor.apply();
 
-                    BottomNavigationView bottomNavigationView = findViewById(R.id.note_bottom_bar);
-                    bottomNavigationView.setVisibility(View.VISIBLE);
-
 
                 } else {
 
@@ -701,18 +697,11 @@ public class MainActivity extends AppCompatActivity {
                     editor.putBoolean("DeleteNSave", false);
                     editor.putBoolean("UndoRedo", false);
                     editor.apply();
-
-                    EditText editText = findViewById(R.id.TitleTextBox);
-                    editText.setVisibility(View.VISIBLE);
-
-                    BottomNavigationView bottomNavigationView = findViewById(R.id.note_bottom_bar);
-                    bottomNavigationView.setVisibility(View.VISIBLE);
                 }
 
-                NavController navController = Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment);
+                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
                 navController.navigate(R.id.action_nav_home_to_nav_note);
 
-            });
     }
 
     public void ShowDrawSizeVisualizer() {
@@ -721,14 +710,8 @@ public class MainActivity extends AppCompatActivity {
         // ChangeColor.setVisibility(View.GONE);
 
         size_visualizer.setVisibility(View.VISIBLE);
-        size_visualizer.startAnimation(fadein);
-
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // ChangeColor.setVisibility(View.GONE);
-
-            ImageSizeView.setVisibility(View.VISIBLE);
-
-        }, 100);
+        size_visualizer.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter));
+        ImageSizeView.setVisibility(View.VISIBLE);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
@@ -736,22 +719,14 @@ public class MainActivity extends AppCompatActivity {
 
             size_visualizer.startAnimation(fadeout);
 
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                ImageSizeView.setVisibility(View.GONE);
-                size_visualizer.setVisibility(View.GONE);
-
-
-            }, 100);
-
 
         }, 1250);
     }
 
     public void ModifyDrawSizeVisualizer(int value) {
 
-        ImageSizeView.setScaleX(value / 100F);
-        ImageSizeView.setScaleY(value / 100F);
+        ImageSizeView.setScaleX(value / 80F);
+        ImageSizeView.setScaleY(value / 80F);
 
     }
 
@@ -787,7 +762,7 @@ public class MainActivity extends AppCompatActivity {
     private void TransformUriToFile(Uri uri, boolean addToDatabase, String fileType) throws
             IOException {
 
-        ImagesURLs = mDatabaseEver.getImageURLFromDatabaseWithID(GetIDFromSharedPreferences());
+        ImagesUrls = mDatabaseEver.getImageURLFromDatabaseWithID(GetIDFromSharedPreferences());
 
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
@@ -806,7 +781,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (addToDatabase) {
 
-                mDatabaseEver.insertImageToDatabase(String.valueOf(GetIDFromSharedPreferences()), file.toString(), ImagesURLs.replaceAll("[\\[\\](){}]", ""));
+                mDatabaseEver.insertImageToDatabase(String.valueOf(GetIDFromSharedPreferences()), file.toString(), ImagesUrls.replaceAll("[\\[\\](){}]", ""));
             }
         }
     }
@@ -1057,9 +1032,7 @@ public class MainActivity extends AppCompatActivity {
 
                 format_selector.startAnimation(fadeout);
 
-                format_selector.setVisibility(View.GONE);
-
-            }, 150);
+            }, 250);
 
             CloseFormatter = false;
 
@@ -1082,7 +1055,7 @@ public class MainActivity extends AppCompatActivity {
                 Striketrough.setVisibility(View.VISIBLE);
                 HighlightText.setVisibility(View.VISIBLE);
 
-            }, 150);
+            }, 130);
 
             CloseFormatter = true;
 
@@ -1103,8 +1076,6 @@ public class MainActivity extends AppCompatActivity {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
                 paragraph_selector.startAnimation(fadeout);
-
-                paragraph_selector.setVisibility(View.GONE);
 
             }, 150);
 
@@ -1145,8 +1116,6 @@ public class MainActivity extends AppCompatActivity {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
                 importer_selector.startAnimation(fadeout);
-
-                //  importer.setVisibility(View.GONE);
 
             }, 150);
 
@@ -1375,14 +1344,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void CloseOrOpenDraWOptions() {
+    public void CloseOrOpenDraWOptions(int height) {
 
         if (CloseOpenedDrawOptions) {
 
             ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
             ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
 
+            ResizeCardViewToWrapContent();
+
             CloseOrOpenToolbarUndoRedo();
+
+            CloseOrOpenNoteContents();
 
             DrawOptions.startAnimation(fadeout);
 
@@ -1400,7 +1373,6 @@ public class MainActivity extends AppCompatActivity {
 
                 DrawChangeSize.setVisibility(View.GONE);
                 DrawChangeColor.setVisibility(View.GONE);
-                DrawOptions.setVisibility(View.GONE);
 
                 DrawOn = false;
 
@@ -1424,7 +1396,12 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     CloseOrOpenBottomNoteBar(false);
                 }
+
+                ResizeEverDrawToPrepareNoteToDraw(height);
+
                 CloseOrOpenToolbarUndoRedo();
+
+                CloseOrOpenNoteContents();
 
                 DrawChangeSize.setVisibility(View.VISIBLE);
                 DrawChangeColor.setVisibility(View.VISIBLE);
@@ -1517,7 +1494,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void CloseAllButtons() {
         if(CloseOpenedDrawOptions) {
-            CloseOrOpenDraWOptions();
+            CloseOrOpenDraWOptions(0);
         }
         if (CloseOpenedDrawColors) {
             CloseOrOpenDrawColors();
@@ -1599,11 +1576,70 @@ public class MainActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
             RecyclerView recyclerViewImage = findViewById(R.id.ImagesRecycler);
-            ImagesURLs = mDatabaseEver.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
+            ImagesUrls = mDatabaseEver.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
             recyclerViewImage.removeAllViews();
-            recyclerViewImage.setAdapter(new ImagesRecyclerGridAdapter(this, ImagesURLs, preferences.getInt("position", -1), ImagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length));
+            recyclerViewImage.setAdapter(new ImagesRecyclerGridAdapter(this, ImagesUrls, preferences.getInt("position", -1), ImagesUrls.replaceAll("[\\[\\](){}]", "").split("┼").length));
 
 
         }, 400);
+    }
+
+    private void CloseOrOpenNoteContents() {
+
+        EditText TitleTextBox = findViewById(R.id.TitleTextBox);
+        RecyclerView recyclerViewImage = findViewById(R.id.ImagesRecycler);
+        RecyclerView textanddrawRecyclerView = findViewById(R.id.TextAndDrawRecyclerView);
+        EverDraw everDraw = findViewById(R.id.EverDraw);
+
+
+        if (showNoteContents) {
+
+            TitleTextBox.setVisibility(View.VISIBLE);
+            recyclerViewImage.setVisibility(View.VISIBLE);
+            textanddrawRecyclerView.setVisibility(View.VISIBLE);
+            everDraw.setVisibility(View.GONE);
+
+            showNoteContents = false;
+
+        } else {
+
+            TitleTextBox.setVisibility(View.GONE);
+            recyclerViewImage.setVisibility(View.GONE);
+            textanddrawRecyclerView.setVisibility(View.GONE);
+            everDraw.setVisibility(View.VISIBLE);
+
+            showNoteContents = true;
+        }
+    }
+
+    private void ResizeEverDrawToPrepareNoteToDraw(int height) {
+
+        CardView cardView = findViewById(R.id.card_note_creator);
+
+        EverDraw everDraw = findViewById(R.id.EverDraw);
+
+        TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                .addTransition(new ChangeBounds()));
+
+        ViewGroup.LayoutParams params = everDraw.getLayoutParams();
+
+        params.height = height;
+        everDraw.setVisibility(View.VISIBLE);
+
+        everDraw.setLayoutParams(params);
+    }
+
+    private void ResizeCardViewToWrapContent() {
+
+        CardView cardView = findViewById(R.id.card_note_creator);
+
+        TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                .addTransition(new ChangeBounds()));
+
+        ViewGroup.LayoutParams params = cardView.getLayoutParams();
+
+        params.height = WRAP_CONTENT;
+
+        cardView.setLayoutParams(params);
     }
 }

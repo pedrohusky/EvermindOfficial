@@ -177,9 +177,14 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             everEditor.setHtml(contentHTML.getContent());
 
+
             if (everEditor.getHtml().equals("")) {
+
                 if (getLayoutPosition() != 0) {
                     everEditor.setVisibility(View.GONE);
+                }
+                if (itemList.size() - 1 == getLayoutPosition()) {
+                    everEditor.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -188,34 +193,36 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 WichLayoutIsActive = ((EvermindEditor) view);
                 ActiveEditorPosition = getLayoutPosition() / 2;
 
+
                 ((MainActivity)context).OnFocusChangeEditor(b);
             });
 
             everEditor.setOnTextChangeListener(text -> {
 
                 for (String splitted : arrayToAdd) {
-                    array.add(splitted + "┼");
+
+                    if (splitted.endsWith("┼")) {
+                        array.add(splitted);
+                    } else {
+                        array.add(splitted + "┼");
+                    }
                 }
 
-                System.out.println(Arrays.toString(arrayToAdd));
-
                 contents_text = GetActiveEditor().getHtml();
-
-                String transformToHexHTML = contents_text;
 
                 if (ActiveEditorPosition >= array.size()) {
                     array.add("");
                 }
 
-                if (transformToHexHTML.equals("")) {
-                    array.set(ActiveEditorPosition, transformToHexHTML);
+                if (GetActiveEditor().getHtml().equals("")) {
+                    array.set(ActiveEditorPosition, GetActiveEditor().getHtml());
                 } else {
-                    array.set(ActiveEditorPosition, transformToHexHTML + "┼");
+                    array.set(ActiveEditorPosition, GetActiveEditor().getHtml() + "┼");
                 }
 
                 contents_array = array.toArray(new String[0]);
 
-                System.out.println(contents_text);
+                System.out.println(Arrays.toString(contents_array));
 
                 String joined_arrayString = String.join("", contents_array);
 
@@ -225,7 +232,9 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                 contents = joined_arrayString;
 
-                array.clear();
+                arrayToAdd = array.toArray(new String[0]);
+
+               array.clear();
             });
 
         }
@@ -247,6 +256,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             itemView.setOnClickListener(this);
 
             //TODO IMPORTANT CODE \/ \/ \/ \/ \/
+
 
             everDraw.setOnClickListener(this);
 
@@ -362,13 +372,16 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         void onLongPress(View view, int position);
     }
 
-    public void UpdateAdapter(List<Item> item, String content) {
+    public void UpdateAdapter(List<Item> item, String content, String[] toAdd) {
 
         contents = content;
 
         itemList = item;
 
-        notifyDataSetChanged();
+        arrayToAdd = toAdd;
+
+       notifyItemInserted(1);
+
     }
 
     public static String GetContents() {
