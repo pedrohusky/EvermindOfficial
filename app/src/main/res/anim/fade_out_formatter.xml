@@ -5,7 +5,8 @@
     <alpha
         android:duration="70"
         android:fromAlpha="1"
-        android:toAlpha="0" />
+        android:toAlpha="0"
+        android:interpolator="@android:anim/decelerate_interpolator"/>
     <scale
         android:duration="75"
         android:fromXScale="1"
@@ -13,12 +14,14 @@
         android:toXScale="0"
         android:toYScale="0"
         android:pivotX="-100"
-        android:pivotY="-0"/>
+        android:pivotY="-0"
+        android:interpolator="@android:anim/decelerate_interpolator"/>
 
     <translate
         android:duration="125"
         android:fromYDelta="25"
-        android:toYDelta="0" />
+        android:toYDelta="0"
+        android:interpolator="@android:anim/decelerate_interpolator"/>
 
 
 </set>

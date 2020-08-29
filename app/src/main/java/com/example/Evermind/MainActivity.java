@@ -142,8 +142,6 @@ public class MainActivity extends AppCompatActivity {
     public BottomNavigationView note_bottom_bar;
     public Animation bottom_nav_anim;
     public Animation bottom_nav_anim_reverse;
-    private Animation fadein;
-    private Animation fadeout;
     public Boolean DrawVisualizerIsShowing = false;
     public Boolean DrawOn = false;
     private CardView size_visualizer;
@@ -263,8 +261,6 @@ public class MainActivity extends AppCompatActivity {
             Left = findViewById(R.id.AlignLeft);
             Right = findViewById(R.id.AlignRight);
             Center = findViewById(R.id.AlignCenter);
-            fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
-            fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
             GooglePhotos = findViewById(R.id.GooglePhotos);
             Gallery = findViewById(R.id.Gallery);
             Files = findViewById(R.id.Files);
@@ -706,6 +702,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void ShowDrawSizeVisualizer() {
 
+        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
+
         DrawVisualizerIsShowing = true;
         // ChangeColor.setVisibility(View.GONE);
 
@@ -999,6 +997,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void CloseOrOpenFormatter() {
 
+        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
+
+        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
+
         if (CloseFormatter) {
 
             ChangeColor.setVisibility(View.GONE);
@@ -1064,6 +1066,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void CloseOrOpenParagraph() {
 
+        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
+
+        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
+
         if (CloseParagraph) {
 
             spacing.setVisibility(View.GONE);
@@ -1077,7 +1083,7 @@ public class MainActivity extends AppCompatActivity {
 
                 paragraph_selector.startAnimation(fadeout);
 
-            }, 150);
+            }, 250);
 
             CloseParagraph = false;
 
@@ -1098,7 +1104,7 @@ public class MainActivity extends AppCompatActivity {
                 Center.setVisibility(View.VISIBLE);
                 Right.setVisibility(View.VISIBLE);
 
-            }, 150);
+            }, 130);
 
             CloseParagraph = true;
 
@@ -1106,6 +1112,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void CloseOrOpenImporter() {
+
+        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
+
+        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
 
         if (CloseImporter) {
 
@@ -1345,6 +1355,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void CloseOrOpenDraWOptions(int height) {
+
+        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
+
+        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
 
         if (CloseOpenedDrawOptions) {
 

@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
@@ -46,21 +47,20 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static ArrayList<String> array = new ArrayList<>();
     private static Context context;
     private static int ActiveEditorPosition;
-    private static RecyclerView scrollView;
+    private static RelativeLayout relativeLayout;
+    private static ImageView imageView;
     private static String[] arrayToAdd;
-
 
     private static EverAdapter.ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
 
-    public EverAdapter(Context context, List<Item> items, int id, EverDataBase dataBase, String strings, RecyclerView recyclerView, String[] toAdd) {
+    public EverAdapter(Context context, List<Item> items, int id, EverDataBase dataBase, String strings, String[] toAdd) {
 
         itemList = items;
         ID = id;
         everDataBase = dataBase;
         contents = strings;
         EverAdapter.context = context;
-        scrollView = recyclerView;
         arrayToAdd = toAdd;
 
 
@@ -129,18 +129,11 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public ContentViewHolder(@NonNull View itemView) {
             super(itemView);
             everEditor = itemView.findViewById(R.id.recycler_everEditor);
+             relativeLayout = itemView.findViewById(R.id.editorLinearLayout);
+             imageView = itemView.findViewById(R.id.editorImage);
 
             everEditor.setPadding(8, 15, 15, 8);
             everEditor.setEditorFontSize(22);
-
-            scrollView.smoothScrollToPosition(arrayToAdd.length);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                scrollView.smoothScrollToPosition(0);
-            }, 200);
-
-
-
 
             itemView.setOnClickListener(this);
 
@@ -148,27 +141,27 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             everEditor.setOnClickListener(this);
 
-            everEditor.setOnLongClickListener(view -> {
-                int p = getLayoutPosition();
+           // everEditor.setOnLongClickListener(view -> {
+           //     int p = getLayoutPosition();
 
-                if (mClickListener != null)
-                    mClickListener.onLongPress(view, p);
-                System.out.println(p);
-                return false;
-            });
+            //    if (mClickListener != null)
+            //        mClickListener.onLongPress(view, p);
+            ////    System.out.println(p);
+           //     return false;
+           // });
 
 
             ////TODO/////////////// /\ /\ /\ /\
 
-            itemView.setOnLongClickListener(view -> {
-                int p = getLayoutPosition();
+           // itemView.setOnLongClickListener(view -> {
+          //      int p = getLayoutPosition();
 
-                if (mClickListener != null)
-                    mClickListener.onLongPress(view, p);
-                System.out.println(p);
+            //    if (mClickListener != null)
+            //        mClickListener.onLongPress(view, p);
+             //   System.out.println(p);
 
-                return true;// returning true instead of false, works for me
-            });
+             //   return true;// returning true instead of false, works for me
+           // });
 
         }
 
@@ -181,10 +174,14 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             if (everEditor.getHtml().equals("")) {
 
                 if (getLayoutPosition() != 0) {
+                    imageView.setVisibility(View.GONE);
                     everEditor.setVisibility(View.GONE);
+                    System.out.println("Position = " + getLayoutPosition() + " GONE");
                 }
                 if (itemList.size() - 1 == getLayoutPosition()) {
                     everEditor.setVisibility(View.VISIBLE);
+                    imageView.setVisibility(View.VISIBLE);
+                    System.out.println("Position = " + getLayoutPosition() + " inicially was gone but turned visibler");
                 }
             }
 
@@ -194,49 +191,50 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 ActiveEditorPosition = getLayoutPosition() / 2;
 
 
-                ((MainActivity)context).OnFocusChangeEditor(b);
+                ((MainActivity) context).OnFocusChangeEditor(b);
             });
 
             everEditor.setOnTextChangeListener(text -> {
 
-                for (String splitted : arrayToAdd) {
+                new Thread(() -> {
 
-                    if (splitted.endsWith("┼")) {
-                        array.add(splitted);
-                    } else {
-                        array.add(splitted + "┼");
+                    for (String splitted : arrayToAdd) {
+
+                        if (splitted.endsWith("┼")) {
+                            array.add(splitted);
+                        } else {
+                            array.add(splitted + "┼");
+                        }
                     }
-                }
 
-                contents_text = GetActiveEditor().getHtml();
+                    contents_text = GetActiveEditor().getHtml();
 
-                if (ActiveEditorPosition >= array.size()) {
-                    array.add("");
-                }
+                    if (ActiveEditorPosition >= array.size()) {
+                        array.add("");
+                    }
 
-                if (GetActiveEditor().getHtml().equals("")) {
-                    array.set(ActiveEditorPosition, GetActiveEditor().getHtml());
-                } else {
-                    array.set(ActiveEditorPosition, GetActiveEditor().getHtml() + "┼");
-                }
+                    if (GetActiveEditor().getHtml().equals("")) {
+                        array.set(ActiveEditorPosition, GetActiveEditor().getHtml());
+                    } else {
+                        array.set(ActiveEditorPosition, GetActiveEditor().getHtml() + "┼");
+                    }
 
-                contents_array = array.toArray(new String[0]);
-
-                System.out.println(Arrays.toString(contents_array));
-
-                String joined_arrayString = String.join("", contents_array);
-
-                everDataBase.editContent(Integer.toString(ID), replaceRGBColorsWithHex(joined_arrayString));
+                    contents_array = array.toArray(new String[0]);
 
 
 
-                contents = joined_arrayString;
+                    String joined_arrayString = String.join("", contents_array);
 
-                arrayToAdd = array.toArray(new String[0]);
+                    everDataBase.editContent(Integer.toString(ID), replaceRGBColorsWithHex(joined_arrayString));
 
-               array.clear();
+
+                    contents = joined_arrayString;
+
+                    arrayToAdd = array.toArray(new String[0]);
+
+                    array.clear();
+                }).start();
             });
-
         }
 
         @Override
@@ -254,6 +252,8 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             super(itemView);
             everDraw = itemView.findViewById(R.id.recycler_imageView);
             itemView.setOnClickListener(this);
+
+
 
             //TODO IMPORTANT CODE \/ \/ \/ \/ \/
 
@@ -380,8 +380,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         arrayToAdd = toAdd;
 
-       notifyItemInserted(1);
-
+        notifyDataSetChanged();
     }
 
     public static String GetContents() {

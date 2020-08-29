@@ -181,11 +181,11 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
         List<Item> items = new ArrayList<>();
         int i = 0;
 
-        String[] html = mEverDataBase.getBackgroundFromDatabaseWithID(mIds[position]).replaceAll("[\\[\\](){}]", "").trim().split("┼");
+        String[] html = mEverDataBase.getBackgroundFromDatabaseWithID(mIds[position]).split("┼");
 
         List<String> bitmaps = new ArrayList<>(Arrays.asList(html));
 
-        String[] strings = mEverDataBase.getContentsFromDatabaseWithID(mIds[position]).replaceAll("[\\[\\](){}]", "").split("┼");
+        String[] strings = mEverDataBase.getContentsFromDatabaseWithID(mIds[position]).split("┼");
 
         if (html.length == 0 && strings.length == 0) {
 

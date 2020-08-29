@@ -22,19 +22,20 @@ import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.example.Evermind.EverDraw;
-import com.example.Evermind.EverDrawPaintOptions;
-import com.example.Evermind.EverDrawPath;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
@@ -49,32 +50,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.LinkedHashMap;
 import java.util.List;
 
+import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdapter.ItemClickListener {
 
     private NoteEditorFragmentMainViewModel mViewModel;
-    private ImagesRecyclerGridAdapter adapter;
     private EverAdapter everAdapter;
     private RecyclerView textanddrawRecyclerView;
-    private static String ImagesURLs;
     private boolean showNoteContents = false;
     private EditText TitleTextBox;
-    private ScrollView scrollView;
     private CardView cardView;
-    private ImageButton BlackDraw;
-    private ImageButton BlueDraw;
-    private ImageButton PurpleDraw;
-    private ImageButton MagentaDraw;
-    private ImageButton OrangeDraw;
-    private ImageButton YellowDraw;
-    private ImageButton GreenDraw;
-    private RecyclerView recyclerViewImage;
     private List<Item> items;
-    private List<String> bitmaps;
     private  ArrayList<String> toAdd;
     private int i;
     private int realID;
@@ -103,7 +92,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         realID = ((MainActivity) requireActivity()).GetIDFromSharedPreferences();
 
         everDraw = requireActivity().findViewById(R.id.EverDraw);
-        scrollView = requireActivity().findViewById(R.id.scrollview);
+        ScrollView scrollView = requireActivity().findViewById(R.id.scrollview);
         TitleTextBox = requireActivity().findViewById(R.id.TitleTextBox);
         textanddrawRecyclerView = requireActivity().findViewById(R.id.TextAndDrawRecyclerView);
         cardView = requireActivity().findViewById(R.id.card_note_creator);
@@ -131,7 +120,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         OverScrollDecoratorHelper.setUpOverScroll(scrollView);
 
-        recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
+        RecyclerView recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
 
         everDraw.setOnTouchListener((view, motionEvent) -> {
 
@@ -189,13 +178,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         mViewModel = ViewModelProviders.of(this).get(NoteEditorFragmentMainViewModel.class);
 
-        BlackDraw = ((MainActivity) requireActivity()).BlackDraw;
-        BlueDraw = ((MainActivity) requireActivity()).BlueDraw;
-        PurpleDraw = ((MainActivity) requireActivity()).PurpleDraw;
-        MagentaDraw = ((MainActivity) requireActivity()).MagentaDraw;
-        OrangeDraw = ((MainActivity) requireActivity()).OrangeDraw;
-        YellowDraw = ((MainActivity) requireActivity()).YellowDraw;
-        GreenDraw = ((MainActivity) requireActivity()).GreenDraw;
+        ImageButton blackDraw = ((MainActivity) requireActivity()).BlackDraw;
+        ImageButton blueDraw = ((MainActivity) requireActivity()).BlueDraw;
+        ImageButton purpleDraw = ((MainActivity) requireActivity()).PurpleDraw;
+        ImageButton magentaDraw = ((MainActivity) requireActivity()).MagentaDraw;
+        ImageButton orangeDraw = ((MainActivity) requireActivity()).OrangeDraw;
+        ImageButton yellowDraw = ((MainActivity) requireActivity()).YellowDraw;
+        ImageButton greenDraw = ((MainActivity) requireActivity()).GreenDraw;
 
         TitleTextBox.setOnFocusChangeListener((view, b) -> {
 
@@ -219,19 +208,19 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             }
         });
 
-        BlackDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Black"));
+        blackDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Black"));
 
-        BlueDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Blue"));
+        blueDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Blue"));
 
-        PurpleDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Purple"));
+        purpleDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Purple"));
 
-        MagentaDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Magenta"));
+        magentaDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Magenta"));
 
-        OrangeDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Orange"));
+        orangeDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Orange"));
 
-        YellowDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Yellow"));
+        yellowDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Yellow"));
 
-        GreenDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Green"));
+        greenDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Green"));
 
         ((MainActivity) requireActivity()).Delete.setOnClickListener(view -> {
             if (((MainActivity) requireActivity()).DrawOn) {
@@ -268,14 +257,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     try {
                         TransformBitmapToFile(resizedBitmap, true, ".jpeg");
 
-                        toAdd = new ArrayList<>();
-
-                        String[] html = ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).replaceAll("[\\[\\](){}]", "").trim().split("┼");
-
-                        for (String string : html) {
-                            toAdd.add("");
-                            items.add(new Item(0, new Content("")));
-                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -287,6 +268,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     FinalYHeight = 0;
 
                     SetupNoteEditorRecycler(true);
+
+
                 } else {
 
                     CloseOrOpenDraWOptions(0);
@@ -320,13 +303,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         //////////////////////////////////////////// HANDLE IMAGES \/
 
 
-        ImagesURLs = ((MainActivity) requireActivity()).mDatabaseEver.getImageURLFromDatabaseWithID(realID);
+        String imagesURLs = ((MainActivity) requireActivity()).mDatabaseEver.getImageURLFromDatabaseWithID(realID);
 
         StaggeredGridLayoutManager staggeredGridLayoutManagerImage = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 
         //ImagesURLs.removeAll(Collections.singletonList(""));
 
-        if (ImagesURLs.length() > 0) {
+        if (imagesURLs.length() > 0) {
 
             staggeredGridLayoutManagerImage.setSpanCount(2);
 
@@ -335,7 +318,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
             recyclerViewImage.setLayoutManager(staggeredGridLayoutManagerImage);
 
-            adapter = new ImagesRecyclerGridAdapter(requireActivity(), ImagesURLs, ((MainActivity) requireActivity()).preferences.getInt("position", -1), ImagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
+            ImagesRecyclerGridAdapter adapter = new ImagesRecyclerGridAdapter(requireActivity(), imagesURLs, ((MainActivity) requireActivity()).preferences.getInt("position", -1), imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
 
             recyclerViewImage.setVisibility(View.VISIBLE);
             recyclerViewImage.setAdapter(adapter);
@@ -471,6 +454,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             Bitmap drawableBitmap = bitmapDrawable.getBitmap().copy(Bitmap.Config.ARGB_8888, true);
             CloseOrOpenDraWOptions(drawableBitmap.getHeight());
             everDraw.setBitmap(drawableBitmap);
+
+
+
             // everDraw.setBackground(((ImageView) view).getDrawable());
         }
     }
@@ -481,31 +467,38 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
     @Override
     public void onLongPress(View view, int position) {
-        new AlertDialog.Builder(requireActivity())
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle("Are you sure?")
-                .setMessage("Do you want to delete this drawed image?")
-                .setPositiveButton("Yes", (dialogInterface, i) -> {
 
-                    String selectedImage = ((Draw) items.get(position).getObject()).getFileLocation();
+        PopupWindowHelper popupWindowHelper;
+        View popView;
+        popView = LayoutInflater.from(getActivity()).inflate(R.layout.options_attached, null);
+        popupWindowHelper = new PopupWindowHelper(popView);
+        popupWindowHelper.showAsDropDown(view, 350, -25);
 
-                    ArrayList<String> newArray = new ArrayList<>();
-                    String[] drawedImages = ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).split("┼");
-                           for (String image: drawedImages) {
-                               System.out.println(image);
-                               if (!image.equals(selectedImage)) {
-                                   newArray.add(image + "┼");
-                               }
-                           }
+        String selectedDrawPath = ((Draw) items.get(position).getObject()).getFileLocation();
 
-                           drawedImages = newArray.toArray(new String[0]);
-                           ((MainActivity) requireActivity()).mDatabaseEver.insertNoteBackgroundToDatabase(String.valueOf(realID), Arrays.toString(drawedImages).replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", ""), "┼");
+        ImageButton imageView = popView.findViewById(R.id.DeleteAttached);
 
-                    onBackPressed(true);
-                        }
-                )
-                .setNegativeButton("No", null)
-                .show();
+        ArrayList<String> arrayList = new ArrayList<>();
+
+        imageView.setOnClickListener(view1 -> {
+            String[] htmls =  ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).split("┼");
+
+            for (String html: htmls) {
+                if (!html.equals(selectedDrawPath)) {
+                    arrayList.add(html + "┼");
+                }
+            }
+            String[]  finalArray = arrayList.toArray(new String[0]);
+             ((MainActivity) requireActivity()).mDatabaseEver.insertNoteBackgroundToDatabase(String.valueOf(realID), Arrays.toString(finalArray).replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", ""), "┼");
+
+           view.startAnimation(AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter));
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                view.setVisibility(View.GONE);
+            }, 150);
+            popupWindowHelper.dismiss();
+        });
+
 
     }
 
@@ -591,15 +584,15 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     private void SetupNoteEditorRecycler(boolean clearAndAdd) {
 
         items = new ArrayList<>();
-        bitmaps = new ArrayList<>();
+        List<String> bitmaps = new ArrayList<>();
         toAdd = new ArrayList<>();
         i = 0;
 
-        String[] html = ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).replaceAll("[\\[\\](){}]", "").trim().split("┼");
+        String[] html = ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).split("┼");
 
         bitmaps.addAll(Arrays.asList(html));
 
-        String[] strings = ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID).replaceAll("[\\[\\](){}]", "").trim().split("┼");
+        String[] strings = ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID).split("┼");
 
         if (html.length == 0 && strings.length == 0) {
             Content content = new Content("<br>");
@@ -676,18 +669,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
             String[] arrayString = toAdd.toArray(new String[0]);
 
-            everAdapter = new EverAdapter(requireActivity(), items, realID, ((MainActivity) requireActivity()).mDatabaseEver, ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID), textanddrawRecyclerView, arrayString);
+            everAdapter = new EverAdapter(requireActivity(), items, realID, ((MainActivity) requireActivity()).mDatabaseEver, ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID), arrayString);
 
             textanddrawRecyclerView.setAdapter(everAdapter);
             EverAdapter.setClickListener(this);
 
-            //OverScrollDecoratorHelper.setUpOverScroll(textanddrawRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
-
-            //  new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            //      focusOnView(scrollView, scrollView);
-            //  }, 100);
         }
     }
 }
 
-// TODO FIX FIRST EDITOR NOT SAVING AFTER A LOT DRAWS DONE
+// TODO FIX NOT SHOWING FIRST AND LAST ITEMS
