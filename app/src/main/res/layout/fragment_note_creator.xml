@@ -60,13 +60,19 @@
                         android:paddingBottom="2dp"
                         android:textSize="25sp" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/TextAndDrawRecyclerView"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:animationCache="true"
-                        android:background="@color/Transparent"
-                        android:layoutAnimation="@anim/grid_appear_layout_animation" />
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/TextAndDrawRecyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:animationCache="true"
+                            android:background="@color/Transparent"
+                            android:layoutAnimation="@anim/grid_appear_layout_animation" />
+                    </LinearLayout>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/ImagesRecycler"
@@ -86,6 +92,18 @@
                     android:layout_height="wrap_content"
                     android:background="@color/Transparent"
                     android:visibility="gone" />
+
+                <com.rm.freedrawview.FreeDrawView
+                    android:id="@+id/TestDraw"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/White"
+                    android:visibility="gone"
+
+                    app:paintAlpha="255"
+                    app:paintColor="@color/Black"
+                    app:paintWidth="4dp"
+                    app:resizeBehaviour="crop"/>
 
 
             </RelativeLayout>

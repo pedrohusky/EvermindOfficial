@@ -1431,6 +1431,75 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void CloseOrOpenDraWOptionsFromRecycler() {
+
+        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
+
+        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
+
+        if (CloseOpenedDrawOptions) {
+
+            ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
+            ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
+
+            CloseOrOpenToolbarUndoRedo();
+
+            DrawOptions.startAnimation(fadeout);
+
+            if (CloseOpenedDrawColors) {
+                CloseOrOpenDrawColors();
+            }
+            if (CloseOpenedDrawSize) {
+                CloseOrOpenDrawSize();
+            }
+
+            //  evermindEditor.setVisibility(View.VISIBLE);
+
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                DrawChangeSize.setVisibility(View.GONE);
+                DrawChangeColor.setVisibility(View.GONE);
+
+                DrawOn = false;
+
+                editor.putBoolean("DrawOn", false);
+                editor.apply();
+
+            }, 100);
+
+            CloseOpenedDrawOptions = false;
+
+        } else {
+
+            DrawOptions.setVisibility(View.VISIBLE);
+
+            DrawOptions.startAnimation(fadein);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                if (bottomBarShowing) {
+
+                } else {
+                    CloseOrOpenBottomNoteBar(false);
+                }
+
+                CloseOrOpenToolbarUndoRedo();
+
+                DrawChangeSize.setVisibility(View.VISIBLE);
+                DrawChangeColor.setVisibility(View.VISIBLE);
+
+                DrawOn = true;
+
+                editor.putBoolean("DrawOn", true);
+                editor.apply();
+
+            }, 100);
+
+            CloseOpenedDrawOptions = true;
+        }
+    }
+
     public void CloseOrOpenDrawSize() {
 
         if (CloseOpenedDrawSize) {

@@ -22,7 +22,6 @@ import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;;
@@ -33,9 +32,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 import com.example.Evermind.EverDraw;
+import com.example.Evermind.EverDrawPaintOptions;
+import com.example.Evermind.EverDrawPath;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
@@ -45,11 +45,13 @@ import com.example.Evermind.recycler_models.Draw;
 import com.example.Evermind.recycler_models.EverAdapter;
 import com.example.Evermind.recycler_models.Item;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
@@ -63,6 +65,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     private boolean showNoteContents = false;
     private EditText TitleTextBox;
     private CardView cardView;
+    private ImageView decoyImage;
     private List<Item> items;
     private  ArrayList<String> toAdd;
     private int i;
@@ -223,30 +226,36 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         greenDraw.setOnClickListener(view -> DrawColorClickedSwitcher("Green"));
 
         ((MainActivity) requireActivity()).Delete.setOnClickListener(view -> {
-            if (((MainActivity) requireActivity()).DrawOn) {
-                everDraw.clearCanvas();
-                CloseOrOpenDraWOptions(0);
-                FinalYHeight = 0;
-            } else {
-                new AlertDialog.Builder(requireActivity())
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTitle("Are you sure?")
-                        .setMessage("Do you want to delete this note?")
-                        .setPositiveButton("Yes", (dialogInterface, i) -> {
 
-                                    int id1 = ((MainActivity) requireActivity()).preferences.getInt("noteId", -1);
+            new Thread(() -> {
+                if (((MainActivity) requireActivity()).DrawOn) {
+                    everDraw.clearCanvas();
+                    CloseOrOpenDraWOptions(0);
+                    FinalYHeight = 0;
+                } else {
+                    new AlertDialog.Builder(requireActivity())
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setTitle("Are you sure?")
+                            .setMessage("Do you want to delete this note?")
+                            .setPositiveButton("Yes", (dialogInterface, i) -> {
 
-                            ((MainActivity) requireActivity()).mDatabaseEver.deleteNote(id1);
+                                        int id1 = ((MainActivity) requireActivity()).preferences.getInt("noteId", -1);
 
-                                    onBackPressed(true);
-                                }
-                        )
-                        .setNegativeButton("No", null)
-                        .show();
-            }
+                                        ((MainActivity) requireActivity()).mDatabaseEver.deleteNote(id1);
+
+                                        onBackPressed(true);
+                                    }
+                            )
+                            .setNegativeButton("No", null)
+                            .show();
+                }
+
+            }).start();
         });
 
         ((MainActivity) requireActivity()).Save.setOnClickListener(view -> {
+
+
             if (((MainActivity) requireActivity()).DrawOn) {
 
                 Bitmap bitmap = everDraw.getBitmap();
@@ -254,21 +263,15 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                 if (!everDraw.getMPaths().isEmpty()) {
 
-                    try {
-                        TransformBitmapToFile(resizedBitmap, true, ".jpeg");
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    TransformBitmapToFile(resizedBitmap, true, ".jpeg");
 
                     everDraw.clearCanvas();
 
-                    CloseOrOpenDraWOptions(0);
-
                     FinalYHeight = 0;
 
-                    SetupNoteEditorRecycler(true);
+                    CloseOrOpenDraWOptions(0);
 
+                    SetupNoteEditorRecycler(true);
 
                 } else {
 
@@ -279,7 +282,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 }
 
             } else {
+
                 onBackPressed(false);
+
+
             }
         });
 
@@ -344,6 +350,18 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         } else {
 
             ((MainActivity) requireActivity()).CloseOrOpenDraWOptions(height);
+        }
+    }
+
+    private void CloseOrOpenDraWOptionsFromRecycler() {
+
+        if (((MainActivity) requireActivity()).CloseOpenedDrawOptions) {
+
+            ((MainActivity) requireActivity()).CloseOrOpenDraWOptionsFromRecycler();
+
+        } else {
+
+            ((MainActivity) requireActivity()).CloseOrOpenDraWOptionsFromRecycler();
         }
     }
 
@@ -414,27 +432,32 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         ((MainActivity) requireActivity()).CloseOrOpenBottomNoteBar(inTitle);
     }
 
-    private void TransformBitmapToFile(Bitmap bitmap, boolean addToDatabase, String fileType) throws
-            IOException {
+    private void TransformBitmapToFile(Bitmap bitmap, boolean addToDatabase, String fileType) {
 
-        File directory = requireActivity().getDir("imageDir", Context.MODE_PRIVATE);
+            File directory = requireActivity().getDir("imageDir", Context.MODE_PRIVATE);
 
-        File file = new File(directory, "EverImage" + Calendar.getInstance().getTimeInMillis() + fileType);
+            File file = new File(directory, "EverImage" + Calendar.getInstance().getTimeInMillis() + fileType);
 
-        if (!file.exists()) {
-            Log.d("path", file.toString());
-            FileOutputStream fos;
+            if (!file.exists()) {
+                Log.d("path", file.toString());
+                FileOutputStream fos;
 
-            fos = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            fos.flush();
+                try {
+                    fos = new FileOutputStream(file);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                    fos.flush();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
+                if (addToDatabase) {
+                    ((MainActivity) requireActivity()).mDatabaseEver.insertNoteBackgroundToDatabase(String.valueOf(((MainActivity) requireActivity()).preferences.getInt("noteId", -1)), file.toString(), ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID));
 
-            if (addToDatabase) {
-                ((MainActivity) requireActivity()).mDatabaseEver.insertNoteBackgroundToDatabase(String.valueOf(((MainActivity) requireActivity()).preferences.getInt("noteId", -1)), file.toString(), ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID));
-
+                }
             }
-        }
+
     }
 
     private void CloseAllButtons() {
@@ -448,16 +471,14 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     @Override
     public void onItemClick(View view, int position) {
 
-        if (view != null) {
+        if (view == ((ImageView) view)) {
 
             BitmapDrawable bitmapDrawable = (BitmapDrawable) ((ImageView) view).getDrawable();
+
             Bitmap drawableBitmap = bitmapDrawable.getBitmap().copy(Bitmap.Config.ARGB_8888, true);
-            CloseOrOpenDraWOptions(drawableBitmap.getHeight());
-            everDraw.setBitmap(drawableBitmap);
-
-
-
-            // everDraw.setBackground(((ImageView) view).getDrawable());
+           // CloseOrOpenDraWOptions(drawableBitmap.getHeight());
+            CloseOrOpenDraWOptionsFromRecycler();
+            ////////////////TODO////////// TODO MAKE A IMAEGVIEW SHOW SAVED BITMAP WHEN USER CLICKS TO DRAW AGAIN AND SET AS " BACGKGROUND DECOY " SO USER CAN RESIZE THE DRAWING AND THEN WE WANT TO MERGE THE DRAWING WITH THE SAVED BITMAP
         }
     }
 
@@ -489,9 +510,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 }
             }
             String[]  finalArray = arrayList.toArray(new String[0]);
-             ((MainActivity) requireActivity()).mDatabaseEver.insertNoteBackgroundToDatabase(String.valueOf(realID), Arrays.toString(finalArray).replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", ""), "┼");
+            ((MainActivity) requireActivity()).mDatabaseEver.insertNoteBackgroundToDatabase(String.valueOf(realID), Arrays.toString(finalArray).replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", ""), "┼");
 
-           view.startAnimation(AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter));
+            view.startAnimation(AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter));
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 view.setVisibility(View.GONE);
@@ -586,6 +607,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         items = new ArrayList<>();
         List<String> bitmaps = new ArrayList<>();
         toAdd = new ArrayList<>();
+
         i = 0;
 
         String[] html = ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).split("┼");
@@ -594,88 +616,95 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         String[] strings = ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID).split("┼");
 
-        if (html.length == 0 && strings.length == 0) {
-            Content content = new Content("<br>");
-            toAdd.add("<br>");
-            items.add(new Item(0, content));
-            System.out.println("Added with 0 in both contents.");
-        }
+        String contents =  ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID);
 
-        if (strings.length == 0 && html.length >= 1) {
-            Draw draw1 = new Draw(bitmaps.get(i));
-            items.add(new Item(1, draw1));
-            i++;
-            System.out.println("Added draw");
-            if (i >= strings.length) {
-                Content content = new Content("");
-                toAdd.add("");
+
+            if (html.length == 0 && strings.length == 0) {
+                Content content = new Content("<br>");
+                toAdd.add("<br>");
                 items.add(new Item(0, content));
-                System.out.println("Added with i >= strings.lengh");
+                System.out.println("Added with 0 in both contents.");
             }
-        } else {
 
-            for (String text : strings) {
-                Content content1 = new Content(text);
-                toAdd.add(text);
-                items.add(new Item(0, content1));
-                System.out.println("Added contents." + "contents is " + text);
-
-                if (i <= bitmaps.size() - 1) {
-
-                    Draw draw1 = new Draw(bitmaps.get(i));
-                    items.add(new Item(1, draw1));
-                    i++;
-                    System.out.println("Added draws.");
-                    Content content3 = new Content("");
+            if (strings.length == 0 && html.length >= 1) {
+                Draw draw1 = new Draw(bitmaps.get(i));
+                items.add(new Item(1, draw1));
+                i++;
+                System.out.println("Added draw");
+                if (i >= strings.length) {
+                    Content content = new Content("");
                     toAdd.add("");
-                    items.add(new Item(0, content3));
+                    items.add(new Item(0, content));
+                    System.out.println("Added with i >= strings.lengh");
+                }
+            } else {
 
-                    if (i >= strings.length && bitmaps.size() - 1 < strings.length) {
-                        Content content = new Content("");
+                for (String text : strings) {
+                    Content content1 = new Content(text);
+                    toAdd.add(text);
+                    items.add(new Item(0, content1));
+                    System.out.println("Added contents." + "contents is " + text);
+
+                    if (i <= bitmaps.size() - 1) {
+
+                        Draw draw1 = new Draw(bitmaps.get(i));
+                        items.add(new Item(1, draw1));
+                        i++;
+                        System.out.println("Added draws.");
+                        Content content3 = new Content("");
                         toAdd.add("");
-                        items.add(new Item(0, content));
-                        System.out.println("Added with i >= strrings.lengh && bitmap.size - 1 <= strings.lengh AND ADDED BR.");
+                        items.add(new Item(0, content3));
 
-                    } else {
-                        if (i >= strings.length) {
-                            for (String string : bitmaps) {
-                                if (i <= bitmaps.size() - 1) {
-                                    Draw draw2 = new Draw(bitmaps.get(i));
-                                    items.add(new Item(1, draw2));
-                                    Content content = new Content("");
-                                    toAdd.add("");
-                                    items.add(new Item(0, content));
-                                    i++;
-                                    System.out.println("Added with bitmaps in a row. Added blank to contents.");
+                        if (i >= strings.length && bitmaps.size() - 1 < strings.length) {
+                            Content content = new Content("");
+                            toAdd.add("");
+                            items.add(new Item(0, content));
+                            System.out.println("Added with i >= strrings.lengh && bitmap.size - 1 <= strings.lengh AND ADDED BR.");
+
+                        } else {
+                            if (i >= strings.length) {
+                                for (String string : bitmaps) {
+                                    if (i <= bitmaps.size() - 1) {
+                                        Draw draw2 = new Draw(bitmaps.get(i));
+                                        items.add(new Item(1, draw2));
+                                        Content content = new Content("");
+                                        toAdd.add("");
+                                        items.add(new Item(0, content));
+                                        i++;
+                                        System.out.println("Added with bitmaps in a row. Added blank to contents.");
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
 
-        if (clearAndAdd) {
+            if (clearAndAdd) {
 
-            String[] arrayString = toAdd.toArray(new String[0]);
+                String[] arrayString = toAdd.toArray(new String[0]);
 
-            everAdapter.UpdateAdapter(items, ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID), arrayString);
+                everAdapter.UpdateAdapter(items, contents, arrayString);
 
-        } else {
+            } else {
 
-            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+                StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
 
-            textanddrawRecyclerView.setLayoutManager(staggeredGridLayoutManager);
+                textanddrawRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
-            String[] arrayString = toAdd.toArray(new String[0]);
+                String[] arrayString = toAdd.toArray(new String[0]);
 
-            everAdapter = new EverAdapter(requireActivity(), items, realID, ((MainActivity) requireActivity()).mDatabaseEver, ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID), arrayString);
+              //  new Handler(Looper.getMainLooper()).post(() -> {
 
-            textanddrawRecyclerView.setAdapter(everAdapter);
-            EverAdapter.setClickListener(this);
+                    everAdapter = new EverAdapter(requireActivity(), items, realID, ((MainActivity) requireActivity()).mDatabaseEver, contents, arrayString);
 
-        }
+                    textanddrawRecyclerView.setAdapter(everAdapter);
+
+                    EverAdapter.setClickListener(this);
+
+             //   });
+            }
+
+      //  }).start();
     }
 }
-
-// TODO FIX NOT SHOWING FIRST AND LAST ITEMS

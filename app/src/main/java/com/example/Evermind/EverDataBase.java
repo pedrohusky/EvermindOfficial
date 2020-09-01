@@ -388,9 +388,10 @@ public class EverDataBase extends SQLiteOpenHelper {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_BACKGROUND, newURL + "┼" + oldURL);
+        contentValues.put(NOTE_BACKGROUND, oldURL + newURL  + "┼");
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
+        System.out.println("Added = " + oldURL + newURL  + "┼");
 
         sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
         sqLiteDatabase.close();

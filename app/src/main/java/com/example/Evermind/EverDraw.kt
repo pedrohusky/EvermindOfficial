@@ -2,18 +2,17 @@ package com.example.Evermind
 
 
 import android.content.Context
-import android.graphics.*
-import android.transition.ChangeBounds
-import android.transition.TransitionManager
-import android.transition.TransitionSet
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
-import androidx.core.view.drawToBitmap
 import java.util.*
+
 
 class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
     var mPaths = LinkedHashMap<EverDrawPath, EverDrawPaintOptions>()
@@ -33,6 +32,8 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private var mStartY = 0f
     private var mIsSaving = false
     private var mIsStrokeWidthBarEnabled = false
+    private val paths = ArrayList<LinkedHashMap<EverDrawPath, EverDrawPaintOptions>>()
+    private val options = ArrayList<String>()
 
     init {
         mPaint.apply {
@@ -89,23 +90,6 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
         val alpha = (newAlpha*255)/100
         mPaintOptions.alpha = alpha
         setColor(mPaintOptions.color)
-    }
-
-    fun setBitmap(bitmap: Bitmap) {
-
-        val canvas = Canvas(bitmap)
-
-
-        canvas.drawColor(Color.LTGRAY);
-        canvas.drawBitmap(
-            bitmap, // Bitmap
-            0f, // Left
-            0f, // Top
-          null // Paint
-        );
-        draw(canvas)
-
-       // draw(canvas)
     }
 
     fun setStrokeWidth(newStrokeWidth: Float) {
@@ -177,9 +161,14 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
             mPath.lineTo(mCurX + 1, mCurY)
         }
 
-        mPaths.put(mPath, mPaintOptions)
+      mPaths.put(mPath, mPaintOptions)
+
         mPath = EverDrawPath()
-        mPaintOptions = EverDrawPaintOptions(mPaintOptions.color, mPaintOptions.strokeWidth, mPaintOptions.alpha)
+        mPaintOptions = EverDrawPaintOptions(
+            mPaintOptions.color,
+            mPaintOptions.strokeWidth,
+            mPaintOptions.alpha
+        )
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
