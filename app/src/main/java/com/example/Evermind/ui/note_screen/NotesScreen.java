@@ -126,7 +126,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
 
             itemTouchHelper.attachToRecyclerView(recyclerView);
 
-         OverScrollDecoratorHelper.setUpOverScroll(recyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+        // OverScrollDecoratorHelper.setUpOverScroll(recyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
 
             adapter.setClickListener(this);
     }

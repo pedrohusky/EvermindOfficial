@@ -99,10 +99,10 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
     }
 
-    fun getBitmap(): Bitmap {
+    fun getBitmap(color: Int): Bitmap {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        canvas.drawColor(Color.WHITE)
+        canvas.drawColor(color)
         mIsSaving = true
         draw(canvas)
         mIsSaving = false

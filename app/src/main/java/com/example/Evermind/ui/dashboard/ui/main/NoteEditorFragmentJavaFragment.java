@@ -7,6 +7,9 @@ import androidx.lifecycle.ViewModelProviders;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -33,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 
+import com.example.Evermind.EverBitmapMerger;
 import com.example.Evermind.EverDraw;
 import com.example.Evermind.EverDrawPaintOptions;
 import com.example.Evermind.EverDrawPath;
@@ -72,6 +76,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     private int realID;
     private EverDraw everDraw;
     private int FinalYHeight;
+    private Bitmap savedbitmap;
+    private Bitmap newDrawedbitmap;
+    private Bitmap finalBitmap;
+    private EverBitmapMerger everBitmapMerger;
     public static NoteEditorFragmentJavaFragment newInstance() {
         return new NoteEditorFragmentJavaFragment();
     }
@@ -253,41 +261,24 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             }).start();
         });
 
+
+
+
         ((MainActivity) requireActivity()).Save.setOnClickListener(view -> {
 
 
-            if (((MainActivity) requireActivity()).DrawOn) {
-
-                Bitmap bitmap = everDraw.getBitmap();
-                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), FinalYHeight + 75);
-
-                if (!everDraw.getMPaths().isEmpty()) {
-
-                    TransformBitmapToFile(resizedBitmap, true, ".jpeg");
-
-                    everDraw.clearCanvas();
-
-                    FinalYHeight = 0;
-
-                    CloseOrOpenDraWOptions(0);
-
-                    SetupNoteEditorRecycler(true);
-
-                } else {
-
-                    CloseOrOpenDraWOptions(0);
-
-                    FinalYHeight = 0;
-
-                }
-
+            if (EverAdapter.getSelectedDraw(EverAdapter.getSelectedDrawPosition()) != null) {
+                Bitmap toResizeBitmap = EverAdapter.getSelectedDraw(EverAdapter.getSelectedDrawPosition()).getBitmap(Color.TRANSPARENT);
+                newDrawedbitmap = Bitmap.createBitmap(toResizeBitmap, 0, 0, toResizeBitmap.getWidth(), EverAdapter.getFinalYHeight() + 75);
+                SaveBitmapFromDraw(true);
             } else {
-
-                onBackPressed(false);
-
-
+                SaveBitmapFromDraw(false);
             }
         });
+
+
+
+
 
         ((MainActivity) requireActivity()).Undo.setOnClickListener(view -> {
             if (((MainActivity) requireActivity()).DrawOn) {
@@ -343,7 +334,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
     private void CloseOrOpenDraWOptions(int height) {
 
-        if (((MainActivity) requireActivity()).CloseOpenedDrawOptions) {
+        if (height == 0) {
 
             ((MainActivity) requireActivity()).CloseOrOpenDraWOptions(0);
 
@@ -355,14 +346,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
     private void CloseOrOpenDraWOptionsFromRecycler() {
 
-        if (((MainActivity) requireActivity()).CloseOpenedDrawOptions) {
+        ((MainActivity) requireActivity()).CloseOrOpenDraWOptionsFromRecycler();
 
-            ((MainActivity) requireActivity()).CloseOrOpenDraWOptionsFromRecycler();
-
-        } else {
-
-            ((MainActivity) requireActivity()).CloseOrOpenDraWOptionsFromRecycler();
-        }
     }
 
     private void CloseOrOpenDrawColors() {
@@ -474,6 +459,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         if (view == ((ImageView) view)) {
 
             BitmapDrawable bitmapDrawable = (BitmapDrawable) ((ImageView) view).getDrawable();
+
+            savedbitmap = ((BitmapDrawable) ((ImageView) view).getDrawable()).getBitmap();
+
+            System.out.println("Saved bitmap from database to saved bitmaap successfull = " + savedbitmap.toString());
 
             Bitmap drawableBitmap = bitmapDrawable.getBitmap().copy(Bitmap.Config.ARGB_8888, true);
            // CloseOrOpenDraWOptions(drawableBitmap.getHeight());
@@ -606,6 +595,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         items = new ArrayList<>();
         List<String> bitmaps = new ArrayList<>();
+        List<String> contentsSplitted = new ArrayList<>();
         toAdd = new ArrayList<>();
 
         i = 0;
@@ -615,6 +605,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         bitmaps.addAll(Arrays.asList(html));
 
         String[] strings = ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID).split("┼");
+
+        contentsSplitted.addAll(Arrays.asList(html));
 
         String contents =  ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID);
 
@@ -696,7 +688,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
               //  new Handler(Looper.getMainLooper()).post(() -> {
 
-                    everAdapter = new EverAdapter(requireActivity(), items, realID, ((MainActivity) requireActivity()).mDatabaseEver, contents, arrayString);
+                    everAdapter = new EverAdapter(requireActivity(), items, realID, ((MainActivity) requireActivity()).mDatabaseEver, contents, arrayString, cardView);
 
                     textanddrawRecyclerView.setAdapter(everAdapter);
 
@@ -707,4 +699,73 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
       //  }).start();
     }
+
+    private void SaveBitmapFromDraw(boolean fromRecycler) {
+        if (fromRecycler) {
+            if (((MainActivity) requireActivity()).DrawOn) {
+
+                if (!EverAdapter.getSelectedDraw(EverAdapter.getSelectedDrawPosition()).getMPaths().isEmpty()) {
+
+                    mergeBitmaps(savedbitmap, newDrawedbitmap);
+
+                    EverAdapter.getSelectedDraw(EverAdapter.getSelectedDrawPosition()).clearCanvas();
+
+                    CloseOrOpenDraWOptionsFromRecycler();
+
+                    SetupNoteEditorRecycler(true);
+
+                } else {
+
+                    CloseOrOpenDraWOptionsFromRecycler();
+                }
+            } else {
+                onBackPressed(false);
+            }
+        } else {
+            if (((MainActivity) requireActivity()).DrawOn) {
+
+                Bitmap bitmap = everDraw.getBitmap(Color.WHITE);
+                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), FinalYHeight + 75);
+
+                if (!everDraw.getMPaths().isEmpty()) {
+
+                    TransformBitmapToFile(resizedBitmap, true, ".jpeg");
+
+                    everDraw.clearCanvas();
+
+                    FinalYHeight = 0;
+
+                    CloseOrOpenDraWOptions(0);
+
+                    SetupNoteEditorRecycler(true);
+
+                } else {
+
+                    CloseOrOpenDraWOptions(0);
+
+                    FinalYHeight = 0;
+
+                }
+
+            } else {
+
+                onBackPressed(false);
+
+
+            }
+        }
+    }
+
+    private void mergeBitmaps(Bitmap baseBitmap, Bitmap mergeBitmap) {
+
+        EverBitmapMerger task = new EverBitmapMerger();
+        task.setBaseBitmap(baseBitmap)
+                .setMergeBitmap(mergeBitmap)
+                .setMergeListener((task1, mergedBitmap) -> {
+                  finalBitmap = mergedBitmap;
+                    TransformBitmapToFile(finalBitmap, true, ".jpeg");
+                })
+                .merge();
+    }
 }
+//TODO MAYBE WE POSSIBILY CAN MERGE THE BITMAPS OVER ONE ANOTER AND WE NEED TO MAKE THE LAST EDITOR DISAPPEAR IF WE REMOVE IMAGES AND WE NEED TO MAKE THE TEXT IF THERE IS ONE MERGE WITH THE FIRST EDITOR THX FUTURE PEDRO

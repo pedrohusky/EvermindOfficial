@@ -1,10 +1,17 @@
 package com.example.Evermind.recycler_models;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -13,6 +20,7 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.Evermind.EverDataBase;
@@ -22,6 +30,7 @@ import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,11 +52,13 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static EverDraw selectedDraw;
     private static int SelectedDrawPosition;
     private static ArrayList<EverDraw> everDraws = new ArrayList<>();
+    private static int FinalYHeight;
+    private static CardView cardView;
 
     private static EverAdapter.ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
 
-    public EverAdapter(Context context, List<Item> items, int id, EverDataBase dataBase, String strings, String[] toAdd) {
+    public EverAdapter(Context context, List<Item> items, int id, EverDataBase dataBase, String strings, String[] toAdd, CardView card) {
 
         itemList = items;
         ID = id;
@@ -55,6 +66,9 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         contents = strings;
         EverAdapter.context = context;
         arrayToAdd = toAdd;
+        cardView = card;
+
+        FinalYHeight = 0;
 
         everDraws = new ArrayList<>();
 
@@ -88,8 +102,6 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-
-        everDraws.add(selectedDraw);
 
         if (getItemViewType(position) == 0) {
 
@@ -129,6 +141,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 everEditor = itemView.findViewById(R.id.recycler_everEditor);
                 relativeLayout = itemView.findViewById(R.id.editorLinearLayout);
                 imageView = itemView.findViewById(R.id.editorImage);
+            everDraws.add(selectedDraw);
 
                 everEditor.setPadding(8, 15, 15, 8);
                 everEditor.setEditorFontSize(22);
@@ -226,15 +239,47 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         private ImageView everDraw;
 
+        @SuppressLint("ClickableViewAccessibility")
         public DrawViewHolder(@NonNull View itemView) {
             super(itemView);
                 everDraw = itemView.findViewById(R.id.recycler_imageView);
                 selectedDraw = itemView.findViewById(R.id.draw_imageLayout);
+            everDraws.add(selectedDraw);
 
                 itemView.setOnClickListener(this);
 
 
 
+            selectedDraw.setOnTouchListener((view, motionEvent) -> {
+
+
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    int y = (int) motionEvent.getY();
+
+                    if (y >= FinalYHeight) {
+                        FinalYHeight = y;
+                    }
+
+                    if (y >= everDraw.getHeight() - 75) {
+
+                        new Handler(Looper.getMainLooper()).post(() -> {
+
+                            TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                                    .addTransition(new ChangeBounds()));
+
+                            ViewGroup.LayoutParams params = selectedDraw.getLayoutParams();
+
+                            params.height = FinalYHeight + 100;
+
+                            selectedDraw.setLayoutParams(params);
+
+                        });
+
+                    }
+                    return false;
+                }
+                return false;
+            });
 
 
                 //TODO IMPORTANT CODE \/ \/ \/ \/ \/
@@ -270,24 +315,29 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             Bitmap bitmap = BitmapFactory.decodeFile(draw.getFileLocation());
 
             everDraw.setImageBitmap(bitmap);
+            selectedDraw = null;
 
         }
 
         @Override
         public void onClick(View view) {
 
-            SelectedDrawPosition = getLayoutPosition();
-            selectedDraw = everDraws.get(SelectedDrawPosition);
-            System.out.println(selectedDraw.toString());
+            if (selectedDraw != null && selectedDraw.getVisibility() == View.VISIBLE) {
+                selectedDraw.setVisibility(View.GONE);
+            }
 
-            selectedDraw.setVisibility(View.VISIBLE);
+                SelectedDrawPosition = getLayoutPosition();
+                selectedDraw = everDraws.get(SelectedDrawPosition);
 
-            ViewGroup.LayoutParams params = selectedDraw.getLayoutParams();
+                selectedDraw.setVisibility(View.VISIBLE);
 
-            params.height = everDraw.getHeight();
+                ViewGroup.LayoutParams params = selectedDraw.getLayoutParams();
 
-            selectedDraw.setLayoutParams(params);
-            System.out.println("DEU");
+                params.height = everDraw.getHeight();
+
+                selectedDraw.setLayoutParams(params);
+
+
             if (mClickListener != null)
                 mClickListener.onItemClick(view, getAdapterPosition());
         }
@@ -368,10 +418,6 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         void onLongPress(View view, int position);
     }
 
-    public void growDraw(int position) {
-
-    }
-
     public void UpdateAdapter(List<Item> item, String content, String[] toAdd) {
 
             contents = content;
@@ -385,5 +431,16 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public static String GetContents() {
         return contents;
+    }
+
+    public static EverDraw getSelectedDraw(int position) {
+        return everDraws.get(position);
+    }
+    public static int getSelectedDrawPosition() {
+        return SelectedDrawPosition;
+    }
+
+    public static int getFinalYHeight() {
+        return FinalYHeight;
     }
 }

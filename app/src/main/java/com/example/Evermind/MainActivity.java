@@ -1453,8 +1453,6 @@ public class MainActivity extends AppCompatActivity {
                 CloseOrOpenDrawSize();
             }
 
-            //  evermindEditor.setVisibility(View.VISIBLE);
-
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
