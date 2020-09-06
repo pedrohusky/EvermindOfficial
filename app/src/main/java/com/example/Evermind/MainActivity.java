@@ -274,27 +274,34 @@ public class MainActivity extends AppCompatActivity {
             OverScrollDecoratorHelper.setUpOverScroll(scrollView3);
             OverScrollDecoratorHelper.setUpOverScroll(scrollView4);
 
-            setSupportActionBar(toolbar);
+            new Handler(Looper.getMainLooper()).post(() -> {
+
+                setSupportActionBar(toolbar);
+
+                Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+
+
+                //  DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                NavigationView navigationView = findViewById(R.id.nav_view);
+
+                // Passing each menu ID as a set of Ids because each
+                // menu should be considered as top level destinations.
+
+                mAppBarConfiguration = new AppBarConfiguration.Builder(
+                        R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_note)
+                        // .setDrawerLayout(drawer)
+                        .build();
+
+                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+                NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+                NavigationUI.setupWithNavController(navigationView, navController);
+
+            });
+
 
             //BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
 
-            Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
-
-            //  DrawerLayout drawer = findViewById(R.id.drawer_layout);
-            NavigationView navigationView = findViewById(R.id.nav_view);
-
-            // Passing each menu ID as a set of Ids because each
-            // menu should be considered as top level destinations.
-
-            mAppBarConfiguration = new AppBarConfiguration.Builder(
-                    R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_note)
-                    // .setDrawerLayout(drawer)
-                    .build();
-
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-            NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-            NavigationUI.setupWithNavController(navigationView, navController);
 
 
             Black.setOnClickListener(view -> ColorClickedSwitcher("Black", false));
@@ -1431,7 +1438,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void CloseOrOpenDraWOptionsFromRecycler() {
+    public void CloseOrOpenDraWOptionsFromRecycler(EverFlowScrollView scroll, RecyclerView recyclerView) {
 
         Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
 
@@ -1461,6 +1468,9 @@ public class MainActivity extends AppCompatActivity {
 
                 DrawOn = false;
 
+                scroll.setCanScroll(true);
+                recyclerView.suppressLayout(false);
+
                 editor.putBoolean("DrawOn", false);
                 editor.apply();
 
@@ -1488,6 +1498,9 @@ public class MainActivity extends AppCompatActivity {
                 DrawChangeColor.setVisibility(View.VISIBLE);
 
                 DrawOn = true;
+
+                scroll.setCanScroll(false);
+                recyclerView.suppressLayout(true);
 
                 editor.putBoolean("DrawOn", true);
                 editor.apply();

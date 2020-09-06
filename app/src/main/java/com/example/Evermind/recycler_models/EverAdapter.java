@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,7 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -28,9 +30,10 @@ import com.example.Evermind.EverDraw;
 import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,7 +41,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private static EvermindEditor WichLayoutIsActive;
     private static int ActiveEditorPosition;
-    private static List<Item> itemList;
+    private static List<EverLinkedMap> itemList;
     private static int ID;
     private static EverDataBase everDataBase;
     private static String contents_text;
@@ -46,19 +49,22 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static String[] contents_array;
     private static ArrayList<String> array = new ArrayList<>();
     private static Context context;
-    private static RelativeLayout relativeLayout;
+    private static LinearLayout relativeLayout;
     private static ImageView imageView;
     private static String[] arrayToAdd;
     private static EverDraw selectedDraw;
     private static int SelectedDrawPosition;
     private static ArrayList<EverDraw> everDraws = new ArrayList<>();
+    private static ArrayList<ImageView> images = new ArrayList<>();
     private static int FinalYHeight;
     private static CardView cardView;
+    private static ArrayList<EvermindEditor> editors = new ArrayList<>();
+    private static RecyclerView recyclerView;
 
     private static EverAdapter.ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
 
-    public EverAdapter(Context context, List<Item> items, int id, EverDataBase dataBase, String strings, String[] toAdd, CardView card) {
+    public EverAdapter(Context context, List<EverLinkedMap> items, int id, EverDataBase dataBase, String strings, String[] toAdd, CardView card, RecyclerView recyclerView) {
 
         itemList = items;
         ID = id;
@@ -67,11 +73,12 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         EverAdapter.context = context;
         arrayToAdd = toAdd;
         cardView = card;
-
+        EverAdapter.recyclerView = recyclerView;
         FinalYHeight = 0;
-
         everDraws = new ArrayList<>();
-
+        editors = new ArrayList<>();
+        images.clear();
+        everDraws.clear();
 
     }
 
@@ -80,40 +87,21 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        if (viewType == 0) {
-            return new ContentViewHolder(
-                    LayoutInflater.from(parent.getContext()).inflate(
-                            R.layout.recyclerview_editor_layout,
-                            parent,
-                            false
-                    )
-            );
-        } else {
-            return new DrawViewHolder(
-                    LayoutInflater.from(parent.getContext()).inflate(
-                            R.layout.recyclerview_image_layout,
-                            parent,
-                            false
-                    )
-            );
-        }
+        return new ContentViewHolder(
+                LayoutInflater.from(parent.getContext()).inflate(
+                        R.layout.testrecyclerview_editor_layout,
+                        parent,
+                        false
+                )
+        );
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
-        if (getItemViewType(position) == 0) {
-
-            Content content = (Content) itemList.get(position).getObject();
-            ((ContentViewHolder)holder).setContentHTML(content);
-
-
-        } else {
-            Draw draw = (Draw) itemList.get(position).getObject();
-            ((DrawViewHolder)holder).setDrawContent(draw);
-
-        }
+        ((ContentViewHolder)holder).setContentHTML(itemList.get(position).getContent());
+        ((ContentViewHolder)holder).setDrawContent(itemList.get(position).getDrawLocation());
     }
 
     @Override
@@ -123,146 +111,56 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        return itemList.get(position).getType();
+        // return itemList.get(position).getType();
+        return 1;
     }
+    //TODO MAYBE WE NEED TO TURN EVERLINKEDMAP TO USE LINKEDHASHMAP TO GET TYPE OF VIEW future pedro thx <3
 
 
-
-
-
-    static class ContentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    static class ContentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         private EvermindEditor everEditor;
+        private ImageView everDraw;
 
+        @SuppressLint("ClickableViewAccessibility")
         @RequiresApi(api = Build.VERSION_CODES.O)
         public ContentViewHolder(@NonNull View itemView) {
             super(itemView);
 
-                everEditor = itemView.findViewById(R.id.recycler_everEditor);
-                relativeLayout = itemView.findViewById(R.id.editorLinearLayout);
-                imageView = itemView.findViewById(R.id.editorImage);
-            everDraws.add(selectedDraw);
-
-                everEditor.setPadding(8, 15, 15, 8);
-                everEditor.setEditorFontSize(22);
-
-                itemView.setOnClickListener(this);
-
-                //TODO IMPORTANT CODE \/ \/ \/ \/ \/
-
-                everEditor.setOnClickListener(this);
-
-        }
-
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        void setContentHTML(Content contentHTML) {
-
-
-                everEditor.setHtml(contentHTML.getContent());
-
-
-                if (everEditor.getHtml().equals("")) {
-
-                    if (getLayoutPosition() != 0) {
-                        imageView.setVisibility(View.GONE);
-                        everEditor.setVisibility(View.GONE);
-                        System.out.println("Position = " + getLayoutPosition() + " GONE");
-                    }
-                    if (itemList.size() - 1 == getLayoutPosition()) {
-                        everEditor.setVisibility(View.VISIBLE);
-                        imageView.setVisibility(View.VISIBLE);
-                        System.out.println("Position = " + getLayoutPosition() + " inicially was gone but turned visibler");
-                    }
-                }
-
-
-            everEditor.setOnFocusChangeListener((view, b) -> {
-
-                WichLayoutIsActive = ((EvermindEditor) view);
-                ActiveEditorPosition = getLayoutPosition() / 2;
-
-
-                ((MainActivity) context).OnFocusChangeEditor(b);
-            });
-
-            everEditor.setOnTextChangeListener(text -> {
-
-                new Thread(() -> {
-
-                    for (String splitted : arrayToAdd) {
-
-                        if (splitted.endsWith("┼")) {
-                            array.add(splitted);
-                        } else {
-                            array.add(splitted + "┼");
-                        }
-                    }
-
-                    contents_text = GetActiveEditor().getHtml();
-
-                    if (ActiveEditorPosition >= array.size()) {
-                        array.add("");
-                    }
-
-                    if (GetActiveEditor().getHtml().equals("")) {
-                        array.set(ActiveEditorPosition, GetActiveEditor().getHtml());
-                    } else {
-                        array.set(ActiveEditorPosition, GetActiveEditor().getHtml() + "┼");
-                    }
-
-                    contents_array = array.toArray(new String[0]);
+            everEditor = itemView.findViewById(R.id.recycler_everEditor);
+            imageView = itemView.findViewById(R.id.editorImage);
+            everDraw = itemView.findViewById(R.id.recycler_imageView);
+            selectedDraw = itemView.findViewById(R.id.draw_imageLayout);
 
 
 
-                    String joined_arrayString = String.join("", contents_array);
+            everEditor.setPadding(8, 15, 15, 8);
+            everEditor.setEditorFontSize(22);
+            //everEditor.setEditorBackgroundColor(Color.LTGRAY);
 
-                    everDataBase.editContent(Integer.toString(ID), replaceRGBColorsWithHex(joined_arrayString));
-
-
-                    contents = joined_arrayString;
-
-                    arrayToAdd = array.toArray(new String[0]);
-
-                    array.clear();
-                }).start();
-            });
-        }
-
-        @Override
-        public void onClick(View view) {
-            if (mClickListener != null)
-                mClickListener.onItemClick(view, getAdapterPosition());
-        }
-    }
-
-    static class DrawViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        private ImageView everDraw;
-
-        @SuppressLint("ClickableViewAccessibility")
-        public DrawViewHolder(@NonNull View itemView) {
-            super(itemView);
-                everDraw = itemView.findViewById(R.id.recycler_imageView);
-                selectedDraw = itemView.findViewById(R.id.draw_imageLayout);
-            everDraws.add(selectedDraw);
-
-                itemView.setOnClickListener(this);
-
-
+            itemView.setOnClickListener(this);
 
             selectedDraw.setOnTouchListener((view, motionEvent) -> {
 
+                recyclerView.suppressLayout(true);
 
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    int y = (int) motionEvent.getY();
+                int y = (int) motionEvent.getY();
 
-                    if (y >= FinalYHeight) {
-                        FinalYHeight = y;
-                    }
+                if (y >= FinalYHeight) {
+                    FinalYHeight = y;
+                }
+
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+
+
+                    System.out.println("Final Height =" + FinalYHeight);
+
 
                     if (y >= everDraw.getHeight() - 75) {
 
                         new Handler(Looper.getMainLooper()).post(() -> {
+
+                            recyclerView.suppressLayout(false);
 
                             TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
                                     .addTransition(new ChangeBounds()));
@@ -273,49 +171,101 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                             selectedDraw.setLayoutParams(params);
 
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                                recyclerView.suppressLayout(true);
+
+                            }, 150);
+
                         });
 
+                        return false;
                     }
-                    return false;
                 }
                 return false;
             });
 
 
-                //TODO IMPORTANT CODE \/ \/ \/ \/ \/
 
+            itemView.setOnLongClickListener(view -> {
+                int p = getLayoutPosition();
 
-                everDraw.setOnClickListener(this);
+                if (mClickListener != null)
+                    mClickListener.onLongPress(view, p);
+                System.out.println(p);
 
-                everDraw.setOnLongClickListener(view -> {
-                    int p = getLayoutPosition();
+                return true;// returning true instead of false, works for me
+            });
+            //TODO IMPORTANT CODE \/ \/ \/ \/ \/
 
-                    if (mClickListener != null)
-                        mClickListener.onLongPress(view, p);
-                    System.out.println(p);
-                    return false;
-                });
+            everEditor.setOnClickListener(this);
 
-
-                ////TODO/////////////// /\ /\ /\ /\
-
-                itemView.setOnLongClickListener(view -> {
-                    int p = getLayoutPosition();
-
-                    if (mClickListener != null)
-                        mClickListener.onLongPress(view, p);
-                    System.out.println(p);
-
-                    return true;// returning true instead of false, works for me
-                });
         }
 
-        void setDrawContent(Draw draw) {
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        void setContentHTML(String contentHTML) {
 
-            Bitmap bitmap = BitmapFactory.decodeFile(draw.getFileLocation());
+            everEditor.setHtml(contentHTML);
 
-            everDraw.setImageBitmap(bitmap);
-            selectedDraw = null;
+            //editors.add(everEditor);
+
+            if (everEditor.getHtml().equals("")) {
+
+                if (getLayoutPosition() != 0) {
+                    imageView.setVisibility(View.GONE);
+                    everEditor.setVisibility(View.GONE);
+                    System.out.println("Position = " + getLayoutPosition() + " GONE");
+                }
+                if (itemList.size() - 1 == getLayoutPosition()) {
+                    everEditor.setVisibility(View.VISIBLE);
+                    imageView.setVisibility(View.VISIBLE);
+                    System.out.println("Position = " + getLayoutPosition() + " inicially was gone but turned visibler");
+                }
+            } else if (everEditor.getHtml().equals("▓")) {
+                imageView.setVisibility(View.GONE);
+                everEditor.setVisibility(View.GONE);
+                System.out.println("Position = " + getLayoutPosition() + " GONE");
+            }
+
+
+            everEditor.setOnFocusChangeListener((view, b) -> {
+
+                WichLayoutIsActive = ((EvermindEditor) view);
+                ActiveEditorPosition = getLayoutPosition();
+
+
+                ((MainActivity) context).OnFocusChangeEditor(b);
+            });
+
+            everEditor.setOnTextChangeListener(text -> {
+
+               // new Thread(() -> {
+
+                    System.out.println("Arrays = " +Arrays.toString(arrayToAdd));
+
+                    updateContents();
+               // }).start();
+            });
+        }
+
+
+
+        void setDrawContent(String draw) {
+
+            if (!draw.equals("")) {
+
+                everDraws.add(selectedDraw);
+
+                if (!draw.equals("▓")) {
+
+                    Bitmap bitmap = BitmapFactory.decodeFile(draw);
+
+                    everDraw.setImageBitmap(bitmap);
+
+                    images.add(everDraw);
+                }
+            }
+            //selectedDraw = null;
 
         }
 
@@ -324,25 +274,32 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             if (selectedDraw != null && selectedDraw.getVisibility() == View.VISIBLE) {
                 selectedDraw.setVisibility(View.GONE);
+                System.out.println("Draw gone.");
             }
 
-                SelectedDrawPosition = getLayoutPosition();
-                selectedDraw = everDraws.get(SelectedDrawPosition);
+            FinalYHeight = 0;
 
-                selectedDraw.setVisibility(View.VISIBLE);
+            SelectedDrawPosition = getLayoutPosition();
+            selectedDraw = everDraws.get(SelectedDrawPosition);
+            System.out.println("amount = " + everDraws.size() + "And they are = " +  everDraws.toString());
 
-                ViewGroup.LayoutParams params = selectedDraw.getLayoutParams();
+            selectedDraw.setVisibility(View.VISIBLE);
 
-                params.height = everDraw.getHeight();
+            ViewGroup.LayoutParams params = selectedDraw.getLayoutParams();
 
-                selectedDraw.setLayoutParams(params);
+            params.height = everDraw.getHeight();
 
+            selectedDraw.setLayoutParams(params);
 
             if (mClickListener != null)
                 mClickListener.onItemClick(view, getAdapterPosition());
         }
-    }
 
+        @Override
+        public boolean onLongClick(View view) {
+            return false;
+        }
+    }
     private static String replaceRGBColorsWithHex(String html) {
         // using regular expression to find all occurences of rgb(a,b,c) using
         // capturing groups to get separate numbers.
@@ -396,6 +353,16 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return html;
     }
 
+    public static  BitmapDrawable getDrawBitmap(int position) {
+        return (BitmapDrawable) images.get(position).getDrawable();
+    }
+
+
+
+    public static  String getImagePath(int position) {
+        return itemList.get(position).getDrawLocation();
+    }
+
     public static EvermindEditor GetActiveEditor() {
         return WichLayoutIsActive;
     }
@@ -418,15 +385,24 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         void onLongPress(View view, int position);
     }
 
-    public void UpdateAdapter(List<Item> item, String content, String[] toAdd) {
+    public void UpdateAdapter(List<EverLinkedMap> item, String content, String[] toAdd, boolean notifyChange) {
 
-            contents = content;
+        array.clear();
 
-            itemList = item;
+        contents = content;
 
-            arrayToAdd = toAdd;
+        itemList = item;
 
+        arrayToAdd = toAdd;
+
+        if (notifyChange) {
+            notifyItemChanged(getSelectedDrawPosition());
+            System.out.println("item notified.");
+        } else {
             notifyDataSetChanged();
+        }
+
+
     }
 
     public static String GetContents() {
@@ -442,5 +418,42 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public static int getFinalYHeight() {
         return FinalYHeight;
+    }
+
+    public static void setFinalYHeight(int height) { FinalYHeight = height; }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private static void updateContents() {
+
+        for (String strg: arrayToAdd) {
+            if (strg.equals("")) {
+               // array.add("");
+            } else {
+                if (strg.endsWith("┼")) {
+                    array.add(strg);
+                } else {
+                    array.add(strg + "┼");
+                }
+            }
+
+        }
+        arrayToAdd = null;
+
+        if (ActiveEditorPosition > array.size() - 1) {
+            array.add(WichLayoutIsActive.getHtml() + "┼");
+        } else {
+            array.set(ActiveEditorPosition, WichLayoutIsActive.getHtml() + "┼");
+        }
+
+
+
+        String joined_arrayString = String.join("", array);
+
+        System.out.println("Updated content = " + joined_arrayString);
+
+        everDataBase.editContent(Integer.toString(ID), replaceRGBColorsWithHex(joined_arrayString));
+        contents = joined_arrayString;
+        arrayToAdd = array.toArray(new String[0]);
+        array.clear();
     }
 }

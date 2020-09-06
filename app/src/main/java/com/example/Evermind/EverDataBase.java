@@ -60,7 +60,7 @@ public class EverDataBase extends SQLiteOpenHelper {
         contentValues.put(NOTE_CONTENT, content);
         contentValues.put(NOTE_TITLE, title);
         contentValues.put(NOTE_IMAGEURL, "┼");
-        contentValues.put(NOTE_BACKGROUND, "┼");
+        contentValues.put(NOTE_BACKGROUND, "");
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
@@ -363,6 +363,19 @@ public class EverDataBase extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(NOTE_CONTENT, content);
+        Date currentTime = Calendar.getInstance().getTime();
+        contentValues.put(NOTE_DATE, currentTime.toString());
+
+        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
+        sqLiteDatabase.close();
+
+    }
+
+    public void editDraw(String id, String draws) {
+
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(NOTE_BACKGROUND, draws);
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
