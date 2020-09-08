@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
@@ -51,7 +50,6 @@
                 app:srcCompat="@drawable/ic_baseline_redo_24" />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/titletest2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingRight="18dp"
@@ -109,7 +107,7 @@
         app:cardCornerRadius="30dp"
         app:cardElevation="9dp"
         app:contentPadding="5dp"
-        app:layout_constraintBottom_toTopOf="@id/note_bottom_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -469,7 +467,7 @@
         app:contentPadding="5dp"
         app:contentPaddingLeft="20dp"
         app:contentPaddingRight="20dp"
-        app:layout_constraintBottom_toTopOf="@id/note_bottom_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -561,7 +559,7 @@
         app:contentPadding="5dp"
         app:contentPaddingLeft="20dp"
         app:contentPaddingRight="20dp"
-        app:layout_constraintBottom_toTopOf="@id/note_bottom_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -697,7 +695,7 @@
         app:cardCornerRadius="30dp"
         app:cardElevation="9dp"
         app:contentPadding="5dp"
-        app:layout_constraintBottom_toTopOf="@id/note_bottom_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 

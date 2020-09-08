@@ -13,7 +13,6 @@
     app:cardElevation="0dp">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/color_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -33,7 +32,6 @@
             android:paddingBottom="5dp">
 
             <ImageView
-                android:id="@+id/Black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="TODO"
@@ -42,7 +40,6 @@
                 app:tint="@color/Black" />
 
             <ImageView
-                android:id="@+id/Blue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -50,7 +47,6 @@
                 app:tint="@color/White" />
 
             <ImageView
-                android:id="@+id/Purple"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -58,7 +54,6 @@
                 app:tint="@color/Magenta" />
 
             <ImageView
-                android:id="@+id/Magenta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -66,7 +61,6 @@
                 app:tint="@color/Pink" />
 
             <ImageView
-                android:id="@+id/Orange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -74,7 +68,6 @@
                 app:tint="@color/Orange" />
 
             <ImageView
-                android:id="@+id/Yellow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -82,7 +75,6 @@
                 app:tint="@color/SkyBlue" />
 
             <ImageView
-                android:id="@+id/Green"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -90,7 +82,6 @@
                 app:tint="@color/YellowSun" />
 
             <ImageView
-                android:id="@+id/White"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"

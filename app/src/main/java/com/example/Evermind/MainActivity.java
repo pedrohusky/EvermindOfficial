@@ -2,7 +2,6 @@ package com.example.Evermind;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,14 +28,10 @@ import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.SeekBar;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -46,27 +41,20 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.Evermind.recycler_models.EverAdapter;
+import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.muehlemann.giphy.GiphyLibrary;
-import com.stfalcon.frescoimageviewer.ImageViewer;
-
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Savepoint;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Objects;
-
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
-
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class MainActivity extends AppCompatActivity {
@@ -136,9 +124,9 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton Left;
     private ImageButton Center;
     private ImageButton Right;
-    private ImageButton GooglePhotos;
-    private ImageButton Gallery;
-    private ImageButton Files;
+    public ImageButton GooglePhotos;
+    public ImageButton Gallery;
+    public ImageButton Files;
     public BottomNavigationView note_bottom_bar;
     public Animation bottom_nav_anim;
     public Animation bottom_nav_anim_reverse;
@@ -155,13 +143,6 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private int size = 4;
     private String ImagesUrls;
-
-
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    private static final String GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos";
-
     public SharedPreferences preferences;
     public SharedPreferences.Editor editor;
 
@@ -171,11 +152,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        mDatabaseEver = new EverDataBase(this);
+
         preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
         editor = preferences.edit();
-
-        mDatabaseEver = new EverDataBase(this);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -187,10 +168,6 @@ public class MainActivity extends AppCompatActivity {
             Fresco.initialize(this);
 
         });
-
-        // Transitioner transition = Transitioner(this, )
-
-        //////////CLEAR SHAREDPREFS
 
         SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
@@ -299,9 +276,6 @@ public class MainActivity extends AppCompatActivity {
             });
 
 
-            //BottomNavigationView bottomNavigationView1 = findViewById(R.id.navigation_note);
-
-
 
 
             Black.setOnClickListener(view -> ColorClickedSwitcher("Black", false));
@@ -366,20 +340,7 @@ public class MainActivity extends AppCompatActivity {
                     });
 
 
-            GooglePhotos.setOnClickListener(view -> {
-                requestPermissions(PERMISSIONS_STORAGE, 0);
-                openImageChooser("GooglePhotos");
-            });
 
-            Gallery.setOnClickListener(view -> {
-                requestPermissions(PERMISSIONS_STORAGE, 0);
-                openImageChooser("Gallery");
-            });
-
-            Files.setOnClickListener(view -> {
-                requestPermissions(PERMISSIONS_STORAGE, 0);
-                openImageChooser("Files");
-            });
 
             ChangeColor.setOnClickListener(view -> {
                 if (CloseOpenedColors) {
@@ -541,40 +502,6 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
-            new Thread(() -> {
-
-                if (CloseOpenedColorsHighlight) {
-
-                    if (resultCode != RESULT_OK) {
-
-                        Uri gif = data.getData();
-
-                        try {
-                            TransformUriToFile(gif, true, ".gif");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        ReloadImagesRecycler();
-                    } }
-
-                if (requestCode != RESULT_OK) {
-
-                    Uri imageUri = data.getData();
-
-                    try {
-                        TransformUriToFile(imageUri, true, ".jpg");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    ReloadImagesRecycler();
-                }
-                super.onActivityResult(requestCode, resultCode, data);
-            }).start();
-        }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -730,8 +657,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void ModifyDrawSizeVisualizer(int value) {
 
-        ImageSizeView.setScaleX(value / 80F);
-        ImageSizeView.setScaleY(value / 80F);
+        ImageSizeView.setScaleX(value / 85F);
+        ImageSizeView.setScaleY(value / 85F);
 
     }
 
@@ -764,7 +691,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-    private void TransformUriToFile(Uri uri, boolean addToDatabase, String fileType) throws
+    public void TransformUriToFile(Uri uri, boolean addToDatabase, String fileType) throws
             IOException {
 
         ImagesUrls = mDatabaseEver.getImageURLFromDatabaseWithID(GetIDFromSharedPreferences());
@@ -1355,7 +1282,6 @@ public class MainActivity extends AppCompatActivity {
                     Yellow.setVisibility(View.VISIBLE);
                     Green.setVisibility(View.VISIBLE);
                 }, 250);
-
                 CloseOpenedColors = true;
             }
         }
@@ -1433,7 +1359,6 @@ public class MainActivity extends AppCompatActivity {
                 editor.apply();
 
             }, 100);
-
             CloseOpenedDrawOptions = true;
         }
     }
@@ -1506,7 +1431,6 @@ public class MainActivity extends AppCompatActivity {
                 editor.apply();
 
             }, 100);
-
             CloseOpenedDrawOptions = true;
         }
     }
@@ -1580,8 +1504,6 @@ public class MainActivity extends AppCompatActivity {
 
 
             }, 150);
-
-
             CloseOpenedDrawColors = true;
         }
     }
@@ -1598,9 +1520,6 @@ public class MainActivity extends AppCompatActivity {
         }
         if (CloseFormatter) {
             CloseOrOpenFormatter();
-        }
-        if (CloseImporter) {
-            CloseOrOpenImporter();
         }
         if (CloseParagraph) {
             CloseOrOpenParagraph();
@@ -1620,39 +1539,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void openImageChooser (String name){
-
-        switch (name) {
-            case "GooglePhotos":
-
-                Intent intentGooglePhotos = new Intent();
-                intentGooglePhotos.setAction(Intent.ACTION_PICK);
-                intentGooglePhotos.setType("image/*");
-                intentGooglePhotos.setPackage(GOOGLE_PHOTOS_PACKAGE_NAME);
-                startActivityForResult(intentGooglePhotos, 101);
-
-                break;
-
-            case "Gallery":
-
-
-                break;
-
-            case "Files":
-
-                Intent intentFiles = new Intent();
-                intentFiles.setType("image/*");
-                intentFiles.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intentFiles, "Select Picture"), 101);
-
-                break;
-
-
-            default:
-                break;
-        }
-    }
-
     public int GetIDFromSharedPreferences () {
         return preferences.getInt("noteId", -1);
     }
@@ -1663,19 +1549,6 @@ public class MainActivity extends AppCompatActivity {
 
     private int GetColor ( int color){
         return ResourcesCompat.getColor(getResources(), color, null);
-    }
-
-    private void ReloadImagesRecycler() {
-
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-            RecyclerView recyclerViewImage = findViewById(R.id.ImagesRecycler);
-            ImagesUrls = mDatabaseEver.getImageURLFromDatabaseWithID(preferences.getInt("noteId", -1));
-            recyclerViewImage.removeAllViews();
-            recyclerViewImage.setAdapter(new ImagesRecyclerGridAdapter(this, ImagesUrls, preferences.getInt("position", -1), ImagesUrls.replaceAll("[\\[\\](){}]", "").split("┼").length));
-
-
-        }, 400);
     }
 
     private void CloseOrOpenNoteContents() {

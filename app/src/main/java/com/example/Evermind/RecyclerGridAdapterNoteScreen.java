@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.example.Evermind.recycler_models.Content;
 import com.example.Evermind.recycler_models.Draw;
+import com.example.Evermind.recycler_models.EverAdapter;
+import com.example.Evermind.recycler_models.EverLinkedMap;
 import com.example.Evermind.recycler_models.Item;
 
 import org.jetbrains.annotations.NotNull;
@@ -37,12 +39,10 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
-    private EverDataBase mEverDataBase;
     private RecyclerView textanddrawRecyclerView;
 
-    public RecyclerGridAdapterNoteScreen(Context contexts, String[] data, String[] title, String[] date, Integer[] ids, EverDataBase database) {
+    public RecyclerGridAdapterNoteScreen(Context contexts, String[] data, String[] title, String[] date, Integer[] ids) {
 
-        mEverDataBase = database;
         context = contexts;
         this.mData = data;
         this.mTitle = title;
@@ -67,7 +67,7 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
 
         SetupNoteEditorRecycler(position);
 
-        String imagesURLs = mEverDataBase.getImageURLFromDatabaseWithID(mIds[position]);
+        String imagesURLs = ((MainActivity) context).mDatabaseEver.getImageURLFromDatabaseWithID(mIds[position]);
 
         if (imagesURLs.length() > 0) {
 
@@ -161,81 +161,59 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
 
     }
 
-    public void setOnLongClickListener(AdapterView.OnItemLongClickListener onItemLongClickListener) {
-
-        this.mLongClick = onItemLongClickListener;
-
-    }
-
     public interface ItemClickListener {
 
         void onItemClick(View view, int position);
 
-        void onClick(View view);
-
         void onLongPress(View view, int position);
+    }
+
+    private String IfContentIsBiggerReturnNothing(int content, int bitmap, List<String> string, Integer i) {
+        if (content > bitmap && i == content - 1) {
+            return "";
+        }
+        return string.get(i);
     }
 
     private void SetupNoteEditorRecycler(int position) {
 
-        List<Item> items = new ArrayList<>();
+        List<EverLinkedMap> items = new ArrayList<>();
         int i = 0;
 
-        String[] html = mEverDataBase.getBackgroundFromDatabaseWithID(mIds[position]).split("┼");
+        String[] html = ((MainActivity) context).mDatabaseEver.getBackgroundFromDatabaseWithID(mIds[position]).split("┼");
 
         List<String> bitmaps = new ArrayList<>(Arrays.asList(html));
 
-        String[] strings = mEverDataBase.getContentsFromDatabaseWithID(mIds[position]).split("┼");
+        String[] strings = ((MainActivity) context).mDatabaseEver.getContentsFromDatabaseWithID(mIds[position]).split("┼");
 
-        if (html.length == 0 && strings.length == 0) {
+        List<String> contentsSplitted = new ArrayList<>(Arrays.asList(strings));
 
-            Content content = new Content("");
-            items.add(new Item(0, content));
+        System.out.println(contentsSplitted.toString());
 
-        }
-
-        if (strings.length == 0 && html.length >= 1) {
-
-            Draw draw1 = new Draw(bitmaps.get(i));
-            items.add(new Item(1, draw1));
-            i++;
-
-            if (i >= strings.length) {
-
-                Content content = new Content("");
-                items.add(new Item(0, content));
-
+        if (contentsSplitted.size() != bitmaps.size()) {
+            for (i = contentsSplitted.size(); i < bitmaps.size(); i++) {
+                contentsSplitted.add(contentsSplitted.size(), "▓");
+                System.out.println("added = " + i + " times.");
             }
-        } else {
-
-            for (String text : strings) {
-                Content content1 = new Content(text);
-                items.add(new Item(0, content1));
-
-                if (i <= bitmaps.size() - 1) {
-
-                    Draw draw1 = new Draw(bitmaps.get(i));
-                    items.add(new Item(1, draw1));
-                    i++;
-
-                    if (i >= strings.length) {
-
-                        Content content = new Content("");
-                        items.add(new Item(0, content));
-
-                    }
-                }
+        }
+        if (bitmaps.size() != contentsSplitted.size()) {
+            for (i = bitmaps.size(); i < contentsSplitted.size(); i++) {
+                bitmaps.add(bitmaps.size(), "");
+                System.out.println("added bit = " + i + " times.");
             }
         }
 
+        int size = bitmaps.size() - 1;
 
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+        for (i = 0; i <= size ; i++) {
+            items.add(new EverLinkedMap(contentsSplitted.get(i), IfContentIsBiggerReturnNothing(contentsSplitted.size(), bitmaps.size(), bitmaps, i)));
+        }
 
-        textanddrawRecyclerView.setLayoutManager(staggeredGridLayoutManager);
+            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
 
-        EverNoteScreenAdapter everNoteScreenAdapter = new EverNoteScreenAdapter(items, context, mIds[position]);
+            textanddrawRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
-        textanddrawRecyclerView.setAdapter(everNoteScreenAdapter);
+            textanddrawRecyclerView.setAdapter( new EverNoteScreenAdapter(items, context,mIds[position]));
 
     }
 }

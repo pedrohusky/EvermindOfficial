@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Handler;
@@ -18,42 +17,36 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.Evermind.EverDataBase;
 import com.example.Evermind.EverDraw;
 import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static EvermindEditor WichLayoutIsActive;
+    private static EvermindEditor ActiveEditor;
     private static int ActiveEditorPosition;
     private static List<EverLinkedMap> itemList;
     private static int ID;
     private static EverDataBase everDataBase;
-    private static String contents_text;
     private static String contents;
-    private static String[] contents_array;
     private static ArrayList<String> array = new ArrayList<>();
     private static Context context;
-    private static LinearLayout relativeLayout;
     private static ImageView imageView;
     private static String[] arrayToAdd;
     private static EverDraw selectedDraw;
-    private static int SelectedDrawPosition;
+    public static int SelectedDrawPosition;
     private static ArrayList<EverDraw> everDraws = new ArrayList<>();
     private static ArrayList<ImageView> images = new ArrayList<>();
     private static int FinalYHeight;
@@ -131,6 +124,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             imageView = itemView.findViewById(R.id.editorImage);
             everDraw = itemView.findViewById(R.id.recycler_imageView);
             selectedDraw = itemView.findViewById(R.id.draw_imageLayout);
+            editors.add(everEditor);
 
 
 
@@ -171,11 +165,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                             selectedDraw.setLayoutParams(params);
 
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                                recyclerView.suppressLayout(true);
-
-                            }, 150);
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> recyclerView.suppressLayout(true), 150);
 
                         });
 
@@ -205,32 +195,18 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         @RequiresApi(api = Build.VERSION_CODES.O)
         void setContentHTML(String contentHTML) {
 
-            everEditor.setHtml(contentHTML);
-
-            //editors.add(everEditor);
-
-            if (everEditor.getHtml().equals("")) {
-
-                if (getLayoutPosition() != 0) {
-                    imageView.setVisibility(View.GONE);
-                    everEditor.setVisibility(View.GONE);
-                    System.out.println("Position = " + getLayoutPosition() + " GONE");
-                }
-                if (itemList.size() - 1 == getLayoutPosition()) {
-                    everEditor.setVisibility(View.VISIBLE);
-                    imageView.setVisibility(View.VISIBLE);
-                    System.out.println("Position = " + getLayoutPosition() + " inicially was gone but turned visibler");
-                }
-            } else if (everEditor.getHtml().equals("▓")) {
-                imageView.setVisibility(View.GONE);
+            if (contentHTML.equals("▓")) {
                 everEditor.setVisibility(View.GONE);
+                imageView.setVisibility(View.GONE);
                 System.out.println("Position = " + getLayoutPosition() + " GONE");
+            } else {
+                everEditor.setHtml(contentHTML);
             }
 
 
             everEditor.setOnFocusChangeListener((view, b) -> {
 
-                WichLayoutIsActive = ((EvermindEditor) view);
+                ActiveEditor = ((EvermindEditor) view);
                 ActiveEditorPosition = getLayoutPosition();
 
 
@@ -259,6 +235,14 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 if (!draw.equals("▓")) {
 
                     Bitmap bitmap = BitmapFactory.decodeFile(draw);
+
+                  //  Ion.with(everDraw)
+                   //         .error(R.drawable.ic_baseline_clear_24)
+                   //         .animateLoad(R.anim.grid_new_item_anim)
+                    //        .animateIn(R.anim.grid_new_item_anim)
+                    //        .smartSize(true)
+                    //        .centerCrop()
+                    //        .load(draw); // was position
 
                     everDraw.setImageBitmap(bitmap);
 
@@ -324,9 +308,9 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             //   System.out.println(" separated b value: " + bString);
 
             // converting numbers from string to int
-            int rInt = Integer.parseInt(rString);
-            int gInt = Integer.parseInt(gString);
-            int bInt = Integer.parseInt(bString);
+            int rInt = Integer.parseInt(Objects.requireNonNull(rString));
+            int gInt = Integer.parseInt(Objects.requireNonNull(gString));
+            int bInt = Integer.parseInt(Objects.requireNonNull(bString));
 
             // converting int to hex value
             String rHex = Integer.toHexString(rInt);
@@ -360,11 +344,12 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
 
     public static  String getImagePath(int position) {
+
         return itemList.get(position).getDrawLocation();
     }
 
     public static EvermindEditor GetActiveEditor() {
-        return WichLayoutIsActive;
+        return ActiveEditor;
     }
 
     // allows clicks events to be caught
@@ -372,20 +357,14 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         mClickListener = itemClickListener;
     }
 
-    public void setOnLongClickListener(AdapterView.OnItemLongClickListener onItemLongClickListener) {
-        this.mLongClick = onItemLongClickListener;
-    }
-
     // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
 
-        void onClick(View view);
-
         void onLongPress(View view, int position);
     }
 
-    public void UpdateAdapter(List<EverLinkedMap> item, String content, String[] toAdd, boolean notifyChange) {
+    public void UpdateAdapter(List<EverLinkedMap> item, String content, String[] toAdd, boolean notifyChange, boolean removed) {
 
         array.clear();
 
@@ -396,10 +375,23 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         arrayToAdd = toAdd;
 
         if (notifyChange) {
-            notifyItemChanged(getSelectedDrawPosition());
-            System.out.println("item notified.");
+            if (removed) {
+                notifyItemRemoved(getSelectedDrawPosition());
+            } else {
+                notifyItemChanged(getSelectedDrawPosition());
+                System.out.println("item notified.");
+            }
         } else {
-            notifyDataSetChanged();
+
+            if (everDraws.size()-1 >= 0) {
+                notifyItemChanged(everDraws.size());
+            } else {
+                notifyItemChanged(editors.size()-1);
+            }
+
+               // notifyDataSetChanged();
+
+
         }
 
 
@@ -426,23 +418,20 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static void updateContents() {
 
         for (String strg: arrayToAdd) {
-            if (strg.equals("")) {
-               // array.add("");
-            } else {
+            if (!strg.equals("")) {
                 if (strg.endsWith("┼")) {
                     array.add(strg);
                 } else {
                     array.add(strg + "┼");
                 }
             }
-
         }
         arrayToAdd = null;
 
         if (ActiveEditorPosition > array.size() - 1) {
-            array.add(WichLayoutIsActive.getHtml() + "┼");
+            array.add(ActiveEditor.getHtml() + "┼");
         } else {
-            array.set(ActiveEditorPosition, WichLayoutIsActive.getHtml() + "┼");
+            array.set(ActiveEditorPosition, ActiveEditor.getHtml() + "┼");
         }
 
 

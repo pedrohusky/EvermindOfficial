@@ -397,6 +397,19 @@ public class EverDataBase extends SQLiteOpenHelper {
 
     }
 
+    public void editImages(String id, String newURL) {
+
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(NOTE_IMAGEURL, newURL);
+        Date currentTime = Calendar.getInstance().getTime();
+        contentValues.put(NOTE_DATE, currentTime.toString());
+
+        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
+        sqLiteDatabase.close();
+
+    }
+
     public void insertNoteBackgroundToDatabase(String id, String newURL, String oldURL) {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();

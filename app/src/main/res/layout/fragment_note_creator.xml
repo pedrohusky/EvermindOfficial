@@ -30,7 +30,6 @@
             app:cardElevation="8dp">
 
             <RelativeLayout
-                android:id="@+id/relativeLayoutNotecreator"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
@@ -38,7 +37,6 @@
                 android:layoutAnimation="@anim/grid_appear_layout_animation">
 
                 <LinearLayout
-                    android:id="@+id/linearLayoutNoteCreator"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:animateLayoutChanges="true"
@@ -94,7 +92,6 @@
                     android:visibility="gone" />
 
                 <com.rm.freedrawview.FreeDrawView
-                    android:id="@+id/TestDraw"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/White"

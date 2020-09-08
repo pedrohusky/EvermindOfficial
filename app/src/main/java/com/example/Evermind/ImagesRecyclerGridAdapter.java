@@ -2,15 +2,19 @@ package com.example.Evermind;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.koushikdutta.ion.Ion;
@@ -19,7 +23,9 @@ import com.stfalcon.frescoimageviewer.ImageViewer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 import pl.droidsonroids.gif.GifImageView;
 
 public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecyclerGridAdapter.ViewHolder>  {
@@ -28,6 +34,7 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
     private Integer mID;
     private int count;
     private String[] SplittedURLs;
+    private Context context;
 
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
@@ -42,6 +49,8 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
         new Thread(() -> {
 
         SplittedURLs = ImageURLs.replaceAll("[\\[\\](){}]","").split("┼");
+
+        this.context = context;
 
             this.mInflater = LayoutInflater.from(context);
             this.mImageURLs = SplittedURLs;
@@ -68,31 +77,33 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
 
         if ((position % 2) == 0 && (position + 1) == getItemCount()) {
 
-            Ion.with(holder.myImageView)
-                    .error(R.drawable.ic_baseline_clear_24)
-                    .animateLoad(R.anim.grid_new_item_anim)
-                    .animateIn(R.anim.grid_new_item_anim)
-                    .load(mImageURLs[position]); // was position
+            if (!mImageURLs[position].equals("")) {
+                Ion.with(holder.myImageView)
+                        .error(R.drawable.ic_baseline_clear_24)
+                        .animateLoad(R.anim.grid_new_item_anim)
+                        .animateIn(R.anim.grid_new_item_anim)
+                        .load(mImageURLs[position]); // was position
 
-            ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
+                ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
 
-            params.height = 800;
-            params.width = 1300;
+                params.height = 800;
+                params.width = 1300;
 
-            holder.myImageView.setLayoutParams(params);
-
+                holder.myImageView.setLayoutParams(params);
+            }
         }
 
         else {
 
-            Ion.with(holder.myImageView)
-                    .error(R.drawable.ic_baseline_clear_24)
-                    .animateLoad(R.anim.grid_new_item_anim)
-                    .animateIn(R.anim.grid_new_item_anim)
-                    .smartSize(true)
-                    .centerCrop()
-                    .load(mImageURLs[position]); // was position
-
+            if (!mImageURLs[position].equals("")) {
+                Ion.with(holder.myImageView)
+                        .error(R.drawable.ic_baseline_clear_24)
+                        .animateLoad(R.anim.grid_new_item_anim)
+                        .animateIn(R.anim.grid_new_item_anim)
+                        .smartSize(true)
+                        .centerCrop()
+                        .load(mImageURLs[position]); // was position
+            }
         }
 
         }
@@ -113,7 +124,6 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         GifImageView myImageView;
-        LinearLayout myLinearLayout;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -150,27 +160,20 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
                         }).start();
                     });
 
-            myImageView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        int p = getLayoutPosition();
 
-                        if (mClickListener != null)
-                            mClickListener.onLongPress(view, p);
-                        System.out.println(p);
-                        return false;
-                    }
-                });
 
                 ////TODO/////////////// /\ /\ /\ /\
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
                 @Override
                 public boolean onLongClick(View view) {
                     int p = getLayoutPosition();
 
                     if (mClickListener != null)
-                        mClickListener.onLongPress(view, p);
+
+                        mClickListener.onImageLongPress(view, p);
+                    //popupWindow(view, p);
                     System.out.println(p);
 
                     return true;// returning true instead of false, works for me
@@ -182,7 +185,7 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
         @Override
         public void onClick(View view) {
             if (mClickListener != null)
-                mClickListener.onItemClick(view, getAdapterPosition());
+                mClickListener.onImageClick(view, getAdapterPosition());
         }
 
     }
@@ -200,11 +203,25 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
 
     // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
-        void onItemClick(View view, int position);
+        void onImageClick(View view, int position);
 
-        void onClick(View view);
-
-        void onLongPress(View view, int position);
+        void onImageLongPress(View view, int position);
     }
+    public void updateAdapter(String urls, int position) {
+        SplittedURLs = urls.split("┼");
+        mImageURLs = SplittedURLs;
+        count = SplittedURLs.length;
+        System.out.println("URLS IS =" + urls + "mImage is = " + Arrays.toString(mImageURLs));
 
+            notifyItemRemoved(position);
+
+            if (SplittedURLs.length < 1) {
+
+            }
+
+         //   if (position == 0) {
+          //      notifyDataSetChanged();
+          //  }
+
+    }
 }

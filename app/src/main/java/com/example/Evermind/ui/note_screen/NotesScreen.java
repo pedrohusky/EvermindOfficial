@@ -121,7 +121,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
             RecyclerView recyclerView = requireActivity().findViewById(R.id.rvNumbers);
 
             recyclerView.setLayoutManager(staggeredGridLayoutManager);
-            adapter = new RecyclerGridAdapterNoteScreen(this.getActivity(), data, title, date, id, databaseEver); //requireContext() works too
+            adapter = new RecyclerGridAdapterNoteScreen(this.getActivity(), data, title, date, id); //requireContext() works too
             recyclerView.setAdapter(adapter);
 
             itemTouchHelper.attachToRecyclerView(recyclerView);
