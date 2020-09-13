@@ -144,8 +144,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         OverScrollDecoratorHelper.setUpOverScroll(scrollView);
 
-        RecyclerView recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
-
         everDraw.setOnTouchListener((view, motionEvent) -> {
 
             int y = (int) motionEvent.getY();
@@ -337,18 +335,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         });
 
 
-        //////////////////////////////////////////// HANDLE IMAGES \/
-
-
          reloadImages();
 
 
         // }).start();
 
     }
-
-
-    //////////////////////////////////////////// HANDLE IMAGES /\ /\ /\ /\ /\
 
     private void onBackPressed(Boolean delete) {
 
@@ -555,10 +547,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     @Override
     public void onItemClick(View view, int position) {
 
-
-        //System.out.println(view.toString());
-         //   BitmapDrawable bitmapDrawable = (BitmapDrawable) ((ImageView)  ((LinearLayout) view).getChildAt(position)).getDrawable();
-
            EverAdapter.setFinalYHeight(0);
            savedbitmap = EverAdapter.getDrawBitmap(position).getBitmap();
            savedBitmapPath = EverAdapter.getImagePath(position);
@@ -566,10 +554,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
            System.out.println("Selected position of draw is =" + drawPosition);
            drawFromRecycler = true;
 
-        //    System.out.println("Saved bitmap from database to saved bitmaap successfull = " + savedbitmap.toString());
-
-         //   Bitmap drawableBitmap = bitmapDrawable.getBitmap().copy(Bitmap.Config.ARGB_8888, true);
-           // CloseOrOpenDraWOptions(drawableBitmap.getHeight());
         CloseOrOpenDraWOptionsFromRecycler();
            }
 
@@ -744,7 +728,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     private void SetupNoteEditorRecycler(boolean clearAndAdd, boolean notifyChange, boolean removed) {
 
         items = new ArrayList<>();
-       // List<String> bitmaps = new ArrayList<>();
         bitmaps.clear();
         toAdd = new ArrayList<>();
 
