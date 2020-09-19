@@ -37,6 +37,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Toast;
+
 import com.example.Evermind.EverBitmapMerger;
 import com.example.Evermind.EverDraw;
 import com.example.Evermind.EverFlowScrollView;
@@ -65,10 +67,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     private EverAdapter everAdapter;
     private RecyclerView textanddrawRecyclerView;
     private EverFlowScrollView scrollView;
-    private boolean showNoteContents = false;
     private EditText TitleTextBox;
     private CardView cardView;
-    private ImageView decoyImage;
     private List<EverLinkedMap> items = new ArrayList<>();
     private  ArrayList<String> toAdd ;
     private int i;
@@ -80,7 +80,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     private Bitmap finalBitmap;
     private int drawPosition = 0;
     private boolean drawFromRecycler = false;
-    private EverBitmapMerger everBitmapMerger;
     private String savedBitmapPath;
     List<String> bitmaps = new ArrayList<>();
     private boolean openedFromButton = false;
@@ -104,6 +103,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         return inflater.inflate(R.layout.fragment_note_creator, container, false);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -125,7 +125,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         new HorizontalOverScrollBounceEffectDecorator(new StaticOverScrollDecorAdapter(TitleTextBox));
 
-        SetupNoteEditorRecycler(false, false, false);
+        SetupNoteEditorRecycler(false, false, false, false);
 
         boolean NewNote = ((MainActivity) requireActivity()).GetNewNoteFromSharedPreferences();
 
@@ -309,6 +309,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                 ((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), content + "┼");
 
+                Toast.makeText(requireActivity(),"AAAAAAAAAA = " + content + "┼", Toast.LENGTH_SHORT).show();
+
                 SaveBitmapFromDraw(false);
 
             }
@@ -410,6 +412,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void UpdateBitmapToFile(Bitmap bitmap) {
 
         File toDelete = new File(savedBitmapPath);
@@ -443,7 +446,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     }
                     ((MainActivity) requireActivity()).mDatabaseEver.editDraw(String.valueOf(realID), strings.toString().replaceAll("[()\\[\\]]", "").replaceAll(",", "").replaceAll(" ", ""));
 
-                    SetupNoteEditorRecycler(true, true, false);
+                    SetupNoteEditorRecycler(true, true, false, false);
     }
 
     @Override
@@ -594,19 +597,29 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                             toReplace = strings[i];
                             positionToReplace = i;
                         }
+                        stringsList.add("");
                     }
                 }
             if (!toReplace.isEmpty()) {
-                if (positionToReplace != (stringsList.size()) && positionToReplace < (stringsList.size())) {
+                if (positionToReplace != (stringsList.size()-1) && positionToReplace < (stringsList.size()-1)) {
                     String s = stringsList.get(positionToReplace);
-                    stringsList.set(positionToReplace, toReplace + "<br>" + s);
-                } else if (positionToReplace == stringsList.size()) {
-                    String s1 = stringsList.get(stringsList.size()-1);
-                    stringsList.set(stringsList.size()-1, s1 + "<br>" + toReplace);
+                    if (s.equals("") && !toReplace.equals("")) {
+                        stringsList.set(positionToReplace, toReplace);
+                    } else {
+                        stringsList.set(positionToReplace, toReplace + "<br>" + s);
+                    }
+                    System.out.println(1);
+                } else if (positionToReplace == stringsList.size() && stringsList.size() > 0) {
+                    String s1 = stringsList.get(stringsList.size()+1);
+                    stringsList.set(stringsList.size()+1, s1 + "<br>" + toReplace);
+                    System.out.println(2);
                 } else {
+                    //TODO \/ MAYBE WE NEED TO REMOVE THIS BECAUSE IT MAY NEVER BE CALLED
                     String s2 = stringsList.get(positionToReplace--);
                     stringsList.set(positionToReplace--, toReplace + "<br>" + s2);
+                    System.out.println(3);
                 }
+                //TODO ////////////////////// WE NEED TO HIDE EDITORS IN NOTE SCREEN ADAPTER AND WE NMEED TO REMOVE THE EXTRA "EDITOR"? OR IMAGE OF IT I GUESS AND FIX DELETE DRAW IF THERE IS NONE TEXT IN LAST EDITOR THX FUTURE PREDO
             }
             for (String html: htmls) {
                 if (!html.equals(selectedDrawPath)) {
@@ -623,6 +636,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             String[] finalString = stringsList.toArray(new String[0]);
             String joined_arrayString = String.join("", finalString);
             String joined_arrayPath = String.join("", finalArray);
+            Toast.makeText(requireActivity(), "OLHA ISSO =  " + joined_arrayString, Toast.LENGTH_SHORT).show();
 
             ((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), joined_arrayString.replaceAll("▓", ""));
             ((MainActivity) requireActivity()).mDatabaseEver.editDraw(String.valueOf(realID), joined_arrayPath);
@@ -632,9 +646,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                view.setVisibility(View.GONE);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                   SetupNoteEditorRecycler(true, true, true);
+                   SetupNoteEditorRecycler(false, true, true, false);
                 }, 100);
             }, 150);
+            stringsList.clear();
             popupWindowHelper.dismiss();
         });
 
@@ -725,7 +740,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         }
     }
 
-    private void SetupNoteEditorRecycler(boolean clearAndAdd, boolean notifyChange, boolean removed) {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void SetupNoteEditorRecycler(boolean clearAndAdd, boolean notifyChange, boolean removed, boolean add) {
 
         items = new ArrayList<>();
         bitmaps.clear();
@@ -756,19 +772,29 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 bitmaps.add(bitmaps.size(), "");
                 System.out.println("added bit = " + i + " times.");
             }
-        }
+        }//TODO SAVE TO DATABASR
+       // String joined_arrayString = String.join("", contentsSplitted);
+        //((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), joined_arrayString);
+       // Toast.makeText(requireActivity(), Arrays.toString(strings), Toast.LENGTH_SHORT).show();
 
         int size = bitmaps.size() - 1;
+
+
+
 
         for (i = 0; i <= size ; i++) {
             items.add(new EverLinkedMap(contentsSplitted.get(i), IfContentIsBiggerReturnNothing(contentsSplitted.size(), bitmaps.size(), bitmaps, i)));
             toAdd.add(contentsSplitted.get(i));
         }
+
+
+
+
         if (items.size() == 0) {
             items.add(new EverLinkedMap("<br>", ""));
             //toAdd.add("");
         }
-        if (items.size() != 0 && !items.get(items.size()-1).getDrawLocation().equals("")) {
+         if (items.size() != 0 && !items.get(items.size()-1).getDrawLocation().equals("")) {
             items.add(new EverLinkedMap("<br>", ""));
         }
 
@@ -778,7 +804,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                 String[] arrayString = toAdd.toArray(new String[0]);
 
-                everAdapter.UpdateAdapter(items, contents, arrayString, notifyChange, removed);
+                everAdapter.UpdateAdapter(items, contents, arrayString, notifyChange, removed, add);
 
             } else {
 
@@ -810,6 +836,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         return Math.max(base, toCalc);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void SaveBitmapFromDraw(boolean fromRecycler) {
         if (fromRecycler) {
             if (((MainActivity) requireActivity()).DrawOn) {
@@ -848,7 +875,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                     CloseOrOpenDraWOptions(0);
 
-                    SetupNoteEditorRecycler(true, false, false);
+                    SetupNoteEditorRecycler(true, false, false, true);
 
                 } else {
 
@@ -867,6 +894,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void mergeBitmaps(Bitmap baseBitmap, Bitmap mergeBitmap) {
 
         EverBitmapMerger task = new EverBitmapMerger();
@@ -1010,4 +1038,3 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     }
 
 }
-//TODO MAYBE WE POSSIBILY CAN MERGE THE BITMAPS OVER ONE ANOTER AND WE NEED TO MAKE THE LAST EDITOR DISAPPEAR IF WE REMOVE IMAGES AND WE NEED TO MAKE THE TEXT IF THERE IS ONE MERGE WITH THE FIRST EDITOR THX FUTURE PEDRO

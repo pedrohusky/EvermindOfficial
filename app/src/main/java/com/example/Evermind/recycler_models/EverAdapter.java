@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
@@ -124,7 +126,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             imageView = itemView.findViewById(R.id.editorImage);
             everDraw = itemView.findViewById(R.id.recycler_imageView);
             selectedDraw = itemView.findViewById(R.id.draw_imageLayout);
-            editors.add(everEditor);
+
 
 
 
@@ -194,6 +196,8 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         @RequiresApi(api = Build.VERSION_CODES.O)
         void setContentHTML(String contentHTML) {
+
+            editors.add(everEditor);
 
             if (contentHTML.equals("▓")) {
                 everEditor.setVisibility(View.GONE);
@@ -364,7 +368,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         void onLongPress(View view, int position);
     }
 
-    public void UpdateAdapter(List<EverLinkedMap> item, String content, String[] toAdd, boolean notifyChange, boolean removed) {
+    public void UpdateAdapter(List<EverLinkedMap> item, String content, String[] toAdd, boolean notifyChange, boolean removed, boolean add) {
 
         array.clear();
 
@@ -373,6 +377,8 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         itemList = item;
 
         arrayToAdd = toAdd;
+
+
 
         if (notifyChange) {
             if (removed) {
@@ -383,15 +389,12 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             }
         } else {
 
-            if (everDraws.size()-1 >= 0) {
-                notifyItemChanged(everDraws.size());
+            if (add) {
+                notifyItemChanged(itemList.size()-2);
+                Toast.makeText(context, String.valueOf(itemList.size()), Toast.LENGTH_SHORT).show();
             } else {
-                notifyItemChanged(editors.size()-1);
+                notifyDataSetChanged();
             }
-
-               // notifyDataSetChanged();
-
-
         }
 
 
