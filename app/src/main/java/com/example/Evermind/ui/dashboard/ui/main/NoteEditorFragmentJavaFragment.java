@@ -814,7 +814,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             items.add(new EverLinkedMap("<br>", ""));
             toAdd.add("");
         }
-         if (items.size()-1 != 0 && !items.get(items.size()-1).getDrawLocation().equals("")) {
+         if (items.size() != 0 && !items.get(items.size()-1).getDrawLocation().equals("")) {
             items.add(new EverLinkedMap("<br>", ""));
             toAdd.add("");
         }

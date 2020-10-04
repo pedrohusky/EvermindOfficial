@@ -403,13 +403,14 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 notifyItemRemoved(position);
             } else {
                 notifyItemChanged(position);
-                System.out.println("item notified.");
+                System.out.println("item notified at position " + position);
             }
         } else if (add) {
                 notifyItemInserted(itemList.size()-2);
                 notifyItemChanged(itemList.size()-1);
             } else {
                 notifyItemChanged(itemList.size()-1);
+                System.out.println("itemlist size = " + String.valueOf(itemList.size()-1));
         }
 
 

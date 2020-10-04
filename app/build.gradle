@@ -80,4 +80,5 @@ dependencies {
     implementation 'com.rm:freedrawview:1.1.2'
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
     implementation 'jp.wasabeef:recyclerview-animators:4.0.1'
+    implementation 'com.klinkerapps:sliding-activity:1.5.2'
 }
