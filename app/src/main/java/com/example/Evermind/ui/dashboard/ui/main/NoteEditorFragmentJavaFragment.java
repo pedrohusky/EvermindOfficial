@@ -32,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;;
 import android.view.animation.AnimationUtils;
+import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -51,10 +52,14 @@ import com.example.Evermind.recycler_models.EverLinkedMap;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.animators.LandingAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 import me.everything.android.ui.overscroll.HorizontalOverScrollBounceEffectDecorator;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 import me.everything.android.ui.overscroll.adapters.StaticOverScrollDecorAdapter;
@@ -84,6 +89,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     List<String> bitmaps = new ArrayList<>();
     private boolean openedFromButton = false;
     private ImagesRecyclerGridAdapter imageAdapter;
+    private String originalString;
 
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -125,7 +131,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         new HorizontalOverScrollBounceEffectDecorator(new StaticOverScrollDecorAdapter(TitleTextBox));
 
-        SetupNoteEditorRecycler(false, false, false, false);
+        SetupNoteEditorRecycler(false, false, false, false, 0);
 
         boolean NewNote = ((MainActivity) requireActivity()).GetNewNoteFromSharedPreferences();
 
@@ -309,8 +315,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                 ((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), content + "┼");
 
-                Toast.makeText(requireActivity(),"AAAAAAAAAA = " + content + "┼", Toast.LENGTH_SHORT).show();
-
                 SaveBitmapFromDraw(false);
 
             }
@@ -446,7 +450,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     }
                     ((MainActivity) requireActivity()).mDatabaseEver.editDraw(String.valueOf(realID), strings.toString().replaceAll("[()\\[\\]]", "").replaceAll(",", "").replaceAll(" ", ""));
 
-                    SetupNoteEditorRecycler(true, true, false, false);
+                    SetupNoteEditorRecycler(true, true, false, false, 0);
     }
 
     @Override
@@ -572,6 +576,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         String selectedDrawPath = items.get(position).getDrawLocation();
 
+        int positionToRemove = position;
+
         ImageButton imageView = popView.findViewById(R.id.DeleteAttached);
 
         ArrayList<String> arrayList = new ArrayList<>();
@@ -581,6 +587,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             String[] htmls =  ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).split("┼");
             String[] strings =  ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID).split("┼");
             String toReplace = "";
+            System.out.println("Strings is = " + Arrays.toString(strings));
             int positionToReplace = -1;
 
             for (int i = 0; i < strings.length ; i++) {
@@ -601,12 +608,26 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     }
                 }
             if (!toReplace.isEmpty()) {
+                if (toReplace.equals("▓")) {
+                    toReplace = "";
+                }
+                //TODO FIX THIS SHIT WHEN DELETING DRAWS, REMOVE <BR> IF CONTENT IS ▓, thx future pedro
                 if (positionToReplace != (stringsList.size()-1) && positionToReplace < (stringsList.size()-1)) {
-                    String s = stringsList.get(positionToReplace);
-                    if (s.equals("") && !toReplace.equals("")) {
+                    originalString = stringsList.get(positionToReplace);
+                    if (originalString.equals("") && !toReplace.equals("")) {
                         stringsList.set(positionToReplace, toReplace);
                     } else {
-                        stringsList.set(positionToReplace, toReplace + "<br>" + s);
+                        if (toReplace.equals("")) {
+                            if (originalString.equals("▓")) {
+                                originalString = "";
+                            }
+                            stringsList.set(positionToReplace, toReplace + originalString);
+                        } else {
+                            if (originalString.equals("▓")) {
+                                originalString = "";
+                            }
+                            stringsList.set(positionToReplace, toReplace + "<br>" + originalString);
+                        }
                     }
                     System.out.println(1);
                 } else if (positionToReplace == stringsList.size() && stringsList.size() > 0) {
@@ -632,23 +653,22 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 }
             }
 
-            String[]  finalArray = arrayList.toArray(new String[0]);
+            String[] finalArray = arrayList.toArray(new String[0]);
             String[] finalString = stringsList.toArray(new String[0]);
             String joined_arrayString = String.join("", finalString);
             String joined_arrayPath = String.join("", finalArray);
-            Toast.makeText(requireActivity(), "OLHA ISSO =  " + joined_arrayString, Toast.LENGTH_SHORT).show();
 
-            ((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), joined_arrayString.replaceAll("▓", ""));
+            ((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), joined_arrayString);
             ((MainActivity) requireActivity()).mDatabaseEver.editDraw(String.valueOf(realID), joined_arrayPath);
 
-           view.startAnimation(AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter));
+          // view.startAnimation(AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter));
 
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-               view.setVisibility(View.GONE);
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                   SetupNoteEditorRecycler(false, true, true, false);
-                }, 100);
-            }, 150);
+          //  new Handler(Looper.getMainLooper()).postDelayed(() -> {
+          //     view.setVisibility(View.GONE);
+          //      new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                   SetupNoteEditorRecycler(true, true, true, false, positionToRemove);
+           //     }, 100);
+          //  }, 150);
             stringsList.clear();
             popupWindowHelper.dismiss();
         });
@@ -741,7 +761,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void SetupNoteEditorRecycler(boolean clearAndAdd, boolean notifyChange, boolean removed, boolean add) {
+    private void SetupNoteEditorRecycler(boolean clearAndAdd, boolean notifyChange, boolean removed, boolean add, int position) {
 
         items = new ArrayList<>();
         bitmaps.clear();
@@ -772,7 +792,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 bitmaps.add(bitmaps.size(), "");
                 System.out.println("added bit = " + i + " times.");
             }
-        }//TODO SAVE TO DATABASR
+        }
        // String joined_arrayString = String.join("", contentsSplitted);
         //((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), joined_arrayString);
        // Toast.makeText(requireActivity(), Arrays.toString(strings), Toast.LENGTH_SHORT).show();
@@ -792,10 +812,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         if (items.size() == 0) {
             items.add(new EverLinkedMap("<br>", ""));
-            //toAdd.add("");
+            toAdd.add("");
         }
-         if (items.size() != 0 && !items.get(items.size()-1).getDrawLocation().equals("")) {
+         if (items.size()-1 != 0 && !items.get(items.size()-1).getDrawLocation().equals("")) {
             items.add(new EverLinkedMap("<br>", ""));
+            toAdd.add("");
         }
 
 
@@ -804,7 +825,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                 String[] arrayString = toAdd.toArray(new String[0]);
 
-                everAdapter.UpdateAdapter(items, contents, arrayString, notifyChange, removed, add);
+                everAdapter.UpdateAdapter(items, contents, arrayString, notifyChange, removed, add, position);
 
             } else {
 
@@ -816,7 +837,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                 everAdapter = new EverAdapter(requireActivity(), items, realID, ((MainActivity) requireActivity()).mDatabaseEver, contents, arrayString, cardView, textanddrawRecyclerView);
 
-                    textanddrawRecyclerView.setAdapter(everAdapter);
+                textanddrawRecyclerView.setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
+                 //   textanddrawRecyclerView.setAdapter(everAdapter);
+                textanddrawRecyclerView.setAdapter(new AlphaInAnimationAdapter(everAdapter));
 
                     EverAdapter.setClickListener(this);
 
@@ -875,7 +898,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                     CloseOrOpenDraWOptions(0);
 
-                    SetupNoteEditorRecycler(true, false, false, true);
+                    SetupNoteEditorRecycler(true, false, false, true, drawPosition);
 
                 } else {
 

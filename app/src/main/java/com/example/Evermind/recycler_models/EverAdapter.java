@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Handler;
@@ -131,8 +132,9 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
 
             everEditor.setPadding(8, 15, 15, 8);
+            everEditor.setEditorHeight(20);
             everEditor.setEditorFontSize(22);
-            //everEditor.setEditorBackgroundColor(Color.LTGRAY);
+            everEditor.setEditorBackgroundColor(Color.LTGRAY);
 
             itemView.setOnClickListener(this);
 
@@ -202,9 +204,15 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             if (contentHTML.equals("▓")) {
                 everEditor.setVisibility(View.GONE);
                 imageView.setVisibility(View.GONE);
-                System.out.println("Position = " + getLayoutPosition() + " GONE");
+                System.out.println("Position = " + getLayoutPosition() + " GONE1");
+            } else if (contentHTML.equals("<br>") && getLayoutPosition() != 0 && getLayoutPosition() != itemList.size()-1){
+                everEditor.setVisibility(View.GONE);
+                imageView.setVisibility(View.GONE);
+                System.out.println("Position = " + getLayoutPosition() + " GONE2");
+
             } else {
                 everEditor.setHtml(contentHTML);
+                //imageView.setVisibility(View.GONE);
             }
 
 
@@ -251,7 +259,17 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     everDraw.setImageBitmap(bitmap);
 
                     images.add(everDraw);
+                } else if (getLayoutPosition() != 0 && getLayoutPosition() != itemList.size()){
+                    everEditor.setVisibility(View.GONE);
+                    imageView.setVisibility(View.GONE);
+                    everDraw.setVisibility(View.GONE);
+                    System.out.println("GONE BY DRAW FUNCTION 1");
                 }
+            } else if (getLayoutPosition() != 0 && getLayoutPosition() != itemList.size() - 1){
+                everEditor.setVisibility(View.GONE);
+                everDraw.setVisibility(View.GONE);
+                imageView.setVisibility(View.GONE);
+                System.out.println("GONE BY DRAW FUNCTION 2");
             }
             //selectedDraw = null;
 
@@ -368,7 +386,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         void onLongPress(View view, int position);
     }
 
-    public void UpdateAdapter(List<EverLinkedMap> item, String content, String[] toAdd, boolean notifyChange, boolean removed, boolean add) {
+    public void UpdateAdapter(List<EverLinkedMap> item, String content, String[] toAdd, boolean notifyChange, boolean removed, boolean add, int position) {
 
         array.clear();
 
@@ -382,19 +400,16 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         if (notifyChange) {
             if (removed) {
-                notifyItemRemoved(getSelectedDrawPosition());
+                notifyItemRemoved(position);
             } else {
-                notifyItemChanged(getSelectedDrawPosition());
+                notifyItemChanged(position);
                 System.out.println("item notified.");
             }
-        } else {
-
-            if (add) {
-                notifyItemChanged(itemList.size()-2);
-                Toast.makeText(context, String.valueOf(itemList.size()), Toast.LENGTH_SHORT).show();
+        } else if (add) {
+                notifyItemInserted(itemList.size()-2);
+                notifyItemChanged(itemList.size()-1);
             } else {
-                notifyDataSetChanged();
-            }
+                notifyItemChanged(itemList.size()-1);
         }
 
 

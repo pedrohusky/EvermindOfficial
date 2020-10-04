@@ -13,6 +13,7 @@
             android:id="@+id/editorImage"
             android:layout_width="match_parent"
             android:layout_height="40dp"
+            android:background="#C33535"
             android:contentDescription="decoy" />
 
         <com.example.Evermind.EvermindEditor

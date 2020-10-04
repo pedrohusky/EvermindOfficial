@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "533166960736",
+    "firebase_url": "https://evermemo-b7337.firebaseio.com",
+    "project_id": "evermemo-b7337",
+    "storage_bucket": "evermemo-b7337.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:533166960736:android:d6f01340d0ceaf69d51305",
+        "android_client_info": {
+          "package_name": "com.evermemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "533166960736-048e4ooac3nkfr7mr546fi5gbm7vdfee.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1yNUBWPVykZrleBL0moETv3gwrNMHdew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "533166960736-048e4ooac3nkfr7mr546fi5gbm7vdfee.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
