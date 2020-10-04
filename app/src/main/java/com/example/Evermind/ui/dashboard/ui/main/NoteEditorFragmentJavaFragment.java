@@ -450,7 +450,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     }
                     ((MainActivity) requireActivity()).mDatabaseEver.editDraw(String.valueOf(realID), strings.toString().replaceAll("[()\\[\\]]", "").replaceAll(",", "").replaceAll(" ", ""));
 
-                    SetupNoteEditorRecycler(true, true, false, false, 0);
+                    SetupNoteEditorRecycler(true, true, false, false, drawPosition);
     }
 
     @Override
@@ -661,14 +661,15 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             ((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), joined_arrayString);
             ((MainActivity) requireActivity()).mDatabaseEver.editDraw(String.valueOf(realID), joined_arrayPath);
 
-          // view.startAnimation(AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter));
+           //view.startAnimation(AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter));
 
-          //  new Handler(Looper.getMainLooper()).postDelayed(() -> {
-          //     view.setVisibility(View.GONE);
-          //      new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                   SetupNoteEditorRecycler(true, true, true, false, positionToRemove);
-           //     }, 100);
-          //  }, 150);
+
+                SetupNoteEditorRecycler(true, true, true, false, positionToRemove);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                   SetupNoteEditorRecycler(true, true, false, false, positionToRemove);
+                }, 250);
+
             stringsList.clear();
             popupWindowHelper.dismiss();
         });
@@ -861,6 +862,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void SaveBitmapFromDraw(boolean fromRecycler) {
+        textanddrawRecyclerView.suppressLayout(false);
         if (fromRecycler) {
             if (((MainActivity) requireActivity()).DrawOn) {
 
@@ -873,6 +875,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     FinalYHeight = 0;
 
                     CloseOrOpenDraWOptionsFromRecycler();
+
+                    SetupNoteEditorRecycler(true, true, false, false, drawPosition);
 
                 } else {
 
