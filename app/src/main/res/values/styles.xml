@@ -5,7 +5,7 @@
         <item name="colorPrimary">@color/White</item>
         <item name="colorPrimaryDark">@color/Grey</item>
         <item name="colorAccent">@color/Black</item>
-
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
 

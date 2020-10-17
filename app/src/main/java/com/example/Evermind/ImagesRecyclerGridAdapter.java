@@ -31,7 +31,7 @@ import pl.droidsonroids.gif.GifImageView;
 public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecyclerGridAdapter.ViewHolder>  {
 
     private String[] mImageURLs;
-    private Integer mID;
+  //  private Integer mID;
     private int count;
     private String[] SplittedURLs;
     private Context context;
@@ -44,20 +44,20 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
     public static Uri[] uri;
 
     // data is passed into the constructor
-    public ImagesRecyclerGridAdapter(Context context, String ImageURLs, Integer ID, int countURLs) {
+    public ImagesRecyclerGridAdapter(Context context, String ImageURLs, int countURLs) {
 
-        new Thread(() -> {
+       // new Thread(() -> {
 
-        SplittedURLs = ImageURLs.replaceAll("[\\[\\](){}]","").split("┼");
+        SplittedURLs = ImageURLs.split("┼");
 
         this.context = context;
 
             this.mInflater = LayoutInflater.from(context);
             this.mImageURLs = SplittedURLs;
-            this.mID = ID;
+           // this.mID = ID;
             this.count = countURLs;
 
-    }).start();
+   // }).start();
     }
 
 
@@ -137,7 +137,7 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
 
             myImageView.setOnClickListener(view -> {
 
-                        new Thread(() -> {
+
 
                             for (String item : mImageURLs) {
 
@@ -157,7 +157,7 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
 
                             uris.clear();
 
-                        }).start();
+
                     });
 
 

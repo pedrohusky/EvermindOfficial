@@ -7,10 +7,16 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -25,30 +31,31 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.animators.LandingAnimator;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<RecyclerGridAdapterNoteScreen.ViewHolder> {
 
-    private String[] mData;
-    private String[] mTitle;
-    private String[] mDate;
-    private Integer[] mIds;
     private Context context;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
     private RecyclerView textanddrawRecyclerView;
+    private TextView myTitleView;
+    private LinearLayout myLinearLayout;
+    private RecyclerView myRecyclerView;
+    private CardView myCardView;
+    private ArrayList<Note_Model> models = new ArrayList<>();
 
-    public RecyclerGridAdapterNoteScreen(Context contexts, String[] data, String[] title, String[] date, Integer[] ids) {
+    public RecyclerGridAdapterNoteScreen(Context contexts, ArrayList<Note_Model> noteModels) {
 
         context = contexts;
-        this.mData = data;
-        this.mTitle = title;
-        this.mDate = date;
-        this.mIds = ids;
-       this.mInflater = LayoutInflater.from(context);
+        this.models = noteModels;
+        this.mInflater = LayoutInflater.from(context);
 
     }
 
@@ -63,56 +70,63 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
     @Override
     public void onBindViewHolder(@NotNull ViewHolder holder, int position) {
 
-        holder.myTitleView.setText(mTitle[position]);
+        ViewCompat.setTransitionName(textanddrawRecyclerView, "textRecycler"+position);
+        ViewCompat.setTransitionName(myCardView, "card"+position);
+        ViewCompat.setTransitionName(myRecyclerView, "imageRecycler"+position);
+        ViewCompat.setTransitionName(myTitleView, "title"+position);
+
+        myTitleView.setBackgroundTintList(ColorStateList.valueOf(Integer.parseInt(models.get(position).getNoteColor())));
 
         SetupNoteEditorRecycler(position);
 
-        String imagesURLs = ((MainActivity) context).mDatabaseEver.getImageURLFromDatabaseWithID(mIds[position]);
+        myTitleView.setText(models.get(position).getTitle());
+
+      //  textanddrawRecyclerView.setBackgroundColor(Integer.parseInt(models.get(position).getNoteColor()));
+
+        String imagesURLs = models.get(position).getImageURLS();
+
+
 
         if (imagesURLs.length() > 0) {
 
             StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
 
-            holder.myRecyclerView.setLayoutManager(staggeredGridLayoutManager);
+            myRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
-            ImagesRecyclerNoteScreenGridAdapter adapter = new ImagesRecyclerNoteScreenGridAdapter(context, imagesURLs, position, imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
-            holder.myRecyclerView.setAdapter(adapter);
+          //  ImagesRecyclerNoteScreenGridAdapter adapter = new ImagesRecyclerNoteScreenGridAdapter(context, imagesURLs, position, imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
+            myRecyclerView.setAdapter(new ImagesRecyclerNoteScreenGridAdapter(context, imagesURLs, position, imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length));
 
-            OverScrollDecoratorHelper.setUpOverScroll(holder.myRecyclerView, OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
+            OverScrollDecoratorHelper.setUpOverScroll(myRecyclerView, OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
 
         }
 
 
-        if (holder.myTitleView.length() < 1) {
-            ViewGroup.LayoutParams params = holder.myTitleView.getLayoutParams();
+        if (myTitleView.length() < 1) {
+            ViewGroup.LayoutParams params = myTitleView.getLayoutParams();
 
             params.height = 65;
 
-            holder.myTitleView.setLayoutParams(params);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                holder.myTitleView.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#c371f9")));
-            }
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                holder.myTitleView.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFCCF4")));
-            }
+            myTitleView.setLayoutParams(params);
+
+
         }
 
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 
     // total number of cells
     @Override
     public int getItemCount() {
-        return mData.length;
+        return models.size();
 
     }
 
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        TextView myTitleView;
-        RecyclerView myRecyclerView;
 
 
         ViewHolder(View itemView) {
@@ -120,37 +134,19 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
 
             myTitleView = itemView.findViewById(R.id.info_title);
 
+            myCardView = itemView.findViewById(R.id.mainCard);
+
             myRecyclerView = itemView.findViewById(R.id.RecyclerNoteScren);
 
             textanddrawRecyclerView = itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler);
 
-            itemView.setOnClickListener(this);
-
-            myRecyclerView.setOnLongClickListener(view -> {
-                int p = getLayoutPosition();
-
-                if (mClickListener != null)
-                    mClickListener.onLongPress(view, p);
-                System.out.println(p);
-                return false;
-            });
-
-
-            itemView.setOnLongClickListener(view -> {
-                int p = getLayoutPosition();
-
-                if (mClickListener != null)
-                    mClickListener.onLongPress(view, p);
-                System.out.println(p);
-
-                return true;// returning true instead of false, works for me
-            });
         }
 
         @Override
         public void onClick(View view) {
             if (mClickListener != null)
-                mClickListener.onItemClick(view, getAdapterPosition());
+               // Toast.makeText(context, "adapter position = " + getAdapterPosition(), Toast.LENGTH_SHORT).show();
+                mClickListener.onItemClick(textanddrawRecyclerView, myCardView, textanddrawRecyclerView, getAdapterPosition());
         }
 
     }
@@ -163,7 +159,7 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
 
     public interface ItemClickListener {
 
-        void onItemClick(View view, int position);
+        void onItemClick(RecyclerView view, CardView view2, View view4, int position);
 
         void onLongPress(View view, int position);
     }
@@ -180,11 +176,11 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
         List<EverLinkedMap> items = new ArrayList<>();
         int i = 0;
 
-        String[] html = ((MainActivity) context).mDatabaseEver.getBackgroundFromDatabaseWithID(mIds[position]).split("┼");
+        String[] html = models.get(position).getDrawLocation().split("┼");
 
         List<String> bitmaps = new ArrayList<>(Arrays.asList(html));
 
-        String[] strings = ((MainActivity) context).mDatabaseEver.getContentsFromDatabaseWithID(mIds[position]).split("┼");
+        String[] strings = models.get(position).getContent().split("┼");
 
         List<String> contentsSplitted = new ArrayList<>(Arrays.asList(strings));
 
@@ -213,7 +209,15 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
 
             textanddrawRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
-            textanddrawRecyclerView.setAdapter( new EverNoteScreenAdapter(items, context,mIds[position]));
+            EverNoteScreenAdapter adapter = new EverNoteScreenAdapter(items, context, models.get(position).getId(), position, textanddrawRecyclerView, myCardView, myRecyclerView, myTitleView);
 
+           //
+            textanddrawRecyclerView.setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
+            textanddrawRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
+
+    }
+    public void update(int position, ArrayList<Note_Model> nmodels) {
+        models = nmodels;
+        notifyItemChanged(position, models.get(position).getNoteColor());
     }
 }

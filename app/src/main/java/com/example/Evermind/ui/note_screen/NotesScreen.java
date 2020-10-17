@@ -1,22 +1,28 @@
 package com.example.Evermind.ui.note_screen;
+import androidx.cardview.widget.CardView;
 import androidx.lifecycle.ViewModelProviders;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
-import com.example.Evermind.EverDataBase;
+import android.widget.Toast;
+
+import com.example.Evermind.EverRecyclerContentsNoteScreen;
 import com.example.Evermind.MainActivity;
+import com.example.Evermind.Note_Model;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapterNoteScreen;
 
@@ -24,24 +30,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
-import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
-import static android.content.Context.MODE_PRIVATE;
+import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
+import jp.wasabeef.recyclerview.animators.LandingAnimator;
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScreen.ItemClickListener, AdapterView.OnItemLongClickListener {
 
 
-    private RecyclerGridAdapterNoteScreen adapter;
-    private  EverDataBase databaseEver;
-    private  ArrayList<String> notes = new ArrayList<>();
-    private  ArrayList<String> titles = new ArrayList<>();
-    private  ArrayList<String> dates = new ArrayList<>();
+    public RecyclerGridAdapterNoteScreen adapter;
+    private EverRecyclerContentsNoteScreen recyclerView;
     private  ArrayList<Integer> ids = new ArrayList<>();
-    private  String[] data;
-    private  String[] title;
-    private  String[] date;
-    private  Integer[] id;
+    private ArrayList<Note_Model> noteModels = new ArrayList<>();
 
 
     public static int fromPosition;
@@ -51,23 +53,32 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        databaseEver = ((MainActivity) requireActivity()).mDatabaseEver;
+       postponeEnterTransition();
 
-        ids = databaseEver.getIDFromDatabase();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setSharedElementEnterTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
+            setSharedElementReturnTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
+        }
 
-        id = ids.toArray(new Integer[0]);
-
-        notes = databaseEver.getContentsFromDatabase();
-
-        data = notes.toArray(new String[0]);
-
-        titles = databaseEver.getTitlesFromDatabase();
-
-        title = titles.toArray(new String[0]);
-
-        dates = databaseEver.getDateFromDatabase();
-
-        date = dates.toArray(new String[0]);
+      // noteModels.clear();
+        //
+        //      //  databaseEver = ((MainActivity) requireActivity()).mDatabaseEver;
+        //
+        //      //  ids = databaseEver.getIDFromDatabase();
+        //
+        //      //  notes = databaseEver.getContentsFromDatabase();
+        //
+        //      //  titles = databaseEver.getTitlesFromDatabase();
+        //
+        //      //  dates = databaseEver.getDateFromDatabase();
+        //
+        //       // imageURL = databaseEver.getImageURLFromDatabase();
+        //
+        //      //  for  (int i = 0; i < ids.size() ; i++) {
+        //       //     noteModels.add(new Note_Model(ids.get(i), titles.get(i), notes.get(i), dates.get(i), imageURL.get(i)));
+        //       // }
+        //
+        //      // OrganizeInDescendingOrderByInteger();
 
         return inflater.inflate(R.layout.home_screen_notes, container, false);
 
@@ -78,6 +89,10 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        ((MainActivity) requireActivity()).noteScreen = this;
+
+
+
         MainViewModel mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT, 0) {
@@ -87,11 +102,11 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
                 toPosition = target.getAdapterPosition();
                 if (fromPosition < toPosition) {
                     for (int i = fromPosition; i < toPosition; i++) {
-                        Collections.swap(ids, i, i + 1);
+                        Collections.swap(((MainActivity) requireActivity()).notesModels, i, i + 1);
                     }
                 } else {
                     for (int i = fromPosition; i > toPosition; i--) {
-                        Collections.swap(ids, i, i - 1);
+                        Collections.swap(((MainActivity) requireActivity()).notesModels, i, i - 1);
                     }
                 }
                 adapter.notifyItemMoved(fromPosition, toPosition);
@@ -102,7 +117,7 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 ids.remove(viewHolder.getAdapterPosition());
                 adapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                databaseEver.deleteNote(viewHolder.getAdapterPosition());
+               // databaseEver.deleteNote(viewHolder.getAdapterPosition());
             }
 
             @Override
@@ -118,37 +133,63 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
 
 
         // set up the RecyclerView
-            RecyclerView recyclerView = requireActivity().findViewById(R.id.rvNumbers);
+        recyclerView = requireActivity().findViewById(R.id.notesRecycler);
 
-            recyclerView.setLayoutManager(staggeredGridLayoutManager);
-            adapter = new RecyclerGridAdapterNoteScreen(this.getActivity(), data, title, date, id); //requireContext() works too
-            recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+        adapter = new RecyclerGridAdapterNoteScreen(requireActivity(), ((MainActivity)requireActivity()).notesModels); //requireContext() works too
+        recyclerView.setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
+        recyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
+        OverScrollDecoratorHelper.setUpOverScroll(recyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+        ((MainActivity)requireActivity()).recyclertest = recyclerView;
+        recyclerView.scrollToPosition(((MainActivity)requireActivity()).selectedPosition);
+        ((MainActivity)requireActivity()).selectedPosition = 0;
 
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+
+
+             //   NotifyModel notifyModel = NotesScreenArgs.fromBundle(getArguments()).getNotifyModel();
+
+             //   Toast.makeText(requireActivity(), "victory", Toast.LENGTH_SHORT).show();
+               // NotifyChangesInNotes(notifyModel.isAdded(), notifyModel.isRemoved(), notifyModel.getPosition());
+
+          //  NotifyChangesInNotes(arguments.getBoolean("added"), arguments.getBoolean("removed"), arguments.getInt("ID"));
+        }
             itemTouchHelper.attachToRecyclerView(recyclerView);
 
-        // OverScrollDecoratorHelper.setUpOverScroll(recyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+
 
             adapter.setClickListener(this);
+
+             recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+
+            @Override
+            public boolean onPreDraw() {
+                recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                startPostponedEnterTransition();
+                return true;
+            }
+        });
     }
 
+
+
+
     @Override
-    public void onItemClick(View view, int position) {
+    public void onItemClick(RecyclerView view, CardView view2, View view4, int position) {
 
         SharedPreferences.Editor editor = ((MainActivity) requireActivity()).editor;
 
+        int id = ((MainActivity)requireActivity()).notesModels.get(position).getId();
 
-        Integer id = ids.get(position);
+        Toast.makeText(requireActivity(), String.valueOf(position), Toast.LENGTH_SHORT).show();
 
         editor.putInt("noteId", id);
-        editor.putBoolean("athome", false);
-        editor.putBoolean("newnote", false);
-        editor.putBoolean("DeleteNSave", false);
-        editor.putBoolean("UndoRedo", false);
+      //  editor.putBoolean("athome", false);
+      //  editor.putBoolean("newnote", false);
+      //  editor.putBoolean("DeleteNSave", false);
+      //  editor.putBoolean("UndoRedo", false);
         editor.apply();
-
-
-        NavController navController = Navigation.findNavController(view);
-        navController.navigate(R.id.action_nav_home_to_nav_note);
 
     }
 

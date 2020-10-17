@@ -9,29 +9,41 @@
     android:background="@color/Transparent"
     android:fillViewport="true"
     android:orientation="vertical"
+    android:tag="first"
     tools:context=".MainActivity">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/note_creator_constraint"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:animateLayoutChanges="true">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:background="@color/Transparent"
+        android:backgroundTint="@color/Transparent"
+        android:foregroundTint="@color/Transparent">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_note_creator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="21dp"
-            android:layout_marginBottom="110dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="397dp"
             android:animateLayoutChanges="true"
             android:layoutAnimation="@anim/grid_appear_layout_animation"
+            android:tag="second"
+            android:transitionName="card"
             android:translationY="30dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="15dp"
-            app:cardElevation="8dp">
+            app:cardElevation="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:animateLayoutChanges="true"
                 android:gravity="top"
                 android:layoutAnimation="@anim/grid_appear_layout_animation">
@@ -56,30 +68,26 @@
                         android:paddingTop="2dp"
                         android:paddingRight="12dp"
                         android:paddingBottom="2dp"
-                        android:textSize="25sp" />
+                        android:textSize="25sp"
+                        android:transitionName="title" />
 
-                    <LinearLayout
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/TextAndDrawRecyclerView"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/TextAndDrawRecyclerView"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:animationCache="true"
-                            android:background="@color/Transparent"
-                            android:layoutAnimation="@anim/grid_appear_layout_animation" />
-                    </LinearLayout>
+                        android:layout_height="wrap_content"
+                        android:animationCache="true"
+                        android:background="@color/Transparent"
+                        android:layoutAnimation="@anim/grid_appear_layout_animation"
+                        android:transitionName="textRecycler" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/ImagesRecycler"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
                         android:animationCache="true"
                         android:background="@color/Transparent"
                         android:layoutAnimation="@anim/grid_appear_layout_animation"
+                        android:transitionName="imageRecycler"
                         android:visibility="gone" />
 
                 </LinearLayout>
@@ -87,25 +95,14 @@
                 <com.example.Evermind.EverDraw
                     android:id="@+id/EverDraw"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:background="@color/Transparent"
                     android:visibility="gone" />
-
-                <com.rm.freedrawview.FreeDrawView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/White"
-                    android:visibility="gone"
-
-                    app:paintAlpha="255"
-                    app:paintColor="@color/Black"
-                    app:paintWidth="4dp"
-                    app:resizeBehaviour="crop"/>
 
 
             </RelativeLayout>
 
         </androidx.cardview.widget.CardView>
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.example.Evermind.EverFlowScrollView>

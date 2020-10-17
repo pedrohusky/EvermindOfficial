@@ -3,13 +3,18 @@ package com.example.Evermind.ui.dashboard.ui.main;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.SharedElementCallback;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -25,12 +30,15 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.transition.ChangeBounds;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;;
+import android.view.ViewTreeObserver;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -43,19 +51,31 @@ import android.widget.Toast;
 import com.example.Evermind.EverBitmapMerger;
 import com.example.Evermind.EverDraw;
 import com.example.Evermind.EverFlowScrollView;
+import com.example.Evermind.EverTransition;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
 import com.example.Evermind.MainActivity;
+import com.example.Evermind.Note_Model;
 import com.example.Evermind.R;
 import com.example.Evermind.SoftInputAssist;
 import com.example.Evermind.recycler_models.EverAdapter;
 import com.example.Evermind.recycler_models.EverLinkedMap;
+import com.example.Evermind.ui.note_screen.NotesScreen;
+import com.yalantis.ucrop.UCrop;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.LandingAnimator;
@@ -65,31 +85,35 @@ import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 import me.everything.android.ui.overscroll.adapters.StaticOverScrollDecorAdapter;
 
 import static android.app.Activity.RESULT_OK;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdapter.ItemClickListener, ImagesRecyclerGridAdapter.ItemClickListener {
 
     private NoteEditorFragmentMainViewModel mViewModel;
     private EverAdapter everAdapter;
-    private RecyclerView textanddrawRecyclerView;
+    public RecyclerView textanddrawRecyclerView;
     private EverFlowScrollView scrollView;
     private EditText TitleTextBox;
     private CardView cardView;
     private List<EverLinkedMap> items = new ArrayList<>();
     private  ArrayList<String> toAdd ;
     private int i;
-    private int realID;
+  //  private int realID;
     private EverDraw everDraw;
     private int FinalYHeight;
     private Bitmap savedbitmap;
     private Bitmap newDrawedbitmap;
     private Bitmap finalBitmap;
     private int drawPosition = 0;
-    private boolean drawFromRecycler = false;
+    public boolean drawFromRecycler = false;
     private String savedBitmapPath;
     List<String> bitmaps = new ArrayList<>();
     private boolean openedFromButton = false;
     private ImagesRecyclerGridAdapter imageAdapter;
     private String originalString;
+    private Note_Model actualNote;
+
+    private RecyclerView recyclerViewImage;
 
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -105,6 +129,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
+       postponeEnterTransition();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setSharedElementEnterTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
+            setSharedElementReturnTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
+        }
+
 
         return inflater.inflate(R.layout.fragment_note_creator, container, false);
     }
@@ -115,25 +146,42 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        SoftInputAssist softInputAssist = new SoftInputAssist(requireActivity());
+        ((MainActivity)requireActivity()).noteCreator = this;
 
-        realID = ((MainActivity) requireActivity()).GetIDFromSharedPreferences();
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            actualNote = (Note_Model)arguments.getSerializable("noteModel");
+//             textanddrawRecyclerView.setBackgroundColor(Integer.parseInt(actualNote.getNoteColor()));
+            ((MainActivity)requireActivity()).arrays=arguments.getStringArray("arrays");
+            arguments.clear();
+        }
 
+
+        recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
+        if (actualNote.getImageURLS().length() > 1) {
+            recyclerViewImage.setVisibility(View.VISIBLE);
+        }
         everDraw = requireActivity().findViewById(R.id.EverDraw);
         scrollView = requireActivity().findViewById(R.id.scrollview);
         TitleTextBox = requireActivity().findViewById(R.id.TitleTextBox);
         textanddrawRecyclerView = requireActivity().findViewById(R.id.TextAndDrawRecyclerView);
         cardView = requireActivity().findViewById(R.id.card_note_creator);
 
-        String title = ((MainActivity) requireActivity()).mDatabaseEver.getTitlesFromDatabaseWithID(realID);
+        SetupNoteEditorRecycler(false, false, false, false, 0);
 
-        TitleTextBox.setText(title);
+        reloadImages();
+
+        if (actualNote != null) {
+            TitleTextBox.setText(actualNote.getTitle());
+            TitleTextBox.setBackgroundColor(Integer.parseInt(actualNote.getNoteColor()));
+        }
+        ((MainActivity) requireActivity()).title = TitleTextBox;
 
         new HorizontalOverScrollBounceEffectDecorator(new StaticOverScrollDecorAdapter(TitleTextBox));
 
-        SetupNoteEditorRecycler(false, false, false, false, 0);
+        SoftInputAssist softInputAssist = new SoftInputAssist(requireActivity());
 
-        boolean NewNote = ((MainActivity) requireActivity()).GetNewNoteFromSharedPreferences();
+        boolean NewNote = ((MainActivity) requireActivity()).newNote;
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
@@ -279,9 +327,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                             .setMessage("Do you want to delete this note?")
                             .setPositiveButton("Yes", (dialogInterface, i) -> {
 
-                                        int id1 = ((MainActivity) requireActivity()).preferences.getInt("noteId", -1);
+                                      //TODO maybe fix it? // int id1 = ((MainActivity) requireActivity()).preferences.getInt("noteId", -1);
 
-                                        ((MainActivity) requireActivity()).mDatabaseEver.deleteNote(id1);
+                                        ((MainActivity) requireActivity()).mDatabaseEver.deleteNote(actualNote.getId());
+
+                                ((MainActivity)requireActivity()).notesModels.remove(actualNote.getActualPosition());
 
                                         onBackPressed(true);
                                     }
@@ -311,9 +361,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 drawFromRecycler = false;
             } else {
 
-                String content = ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID);
+                String content = actualNote.getContent();
 
-                ((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), content + "┼");
+                ((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(actualNote.getId()), content + "┼");
 
                 SaveBitmapFromDraw(false);
 
@@ -339,9 +389,18 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 EverAdapter.GetActiveEditor().redo();
             }
         });
+       // TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+       //         .addTransition(new ChangeBounds()));
 
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            ConstraintLayout constraintLayout = requireActivity().findViewById(R.id.note_creator_constraint);
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            constraintSet.connect(R.id.card_note_creator,ConstraintSet.BOTTOM,R.id.card_note_creator,ConstraintSet.BOTTOM,300);
+            constraintSet.applyTo(constraintLayout);
+        }, 450);
 
-         reloadImages();
+        startPostponedEnterTransition();
 
 
         // }).start();
@@ -352,44 +411,26 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         if (delete) {
 
-            ((MainActivity) requireActivity()).note_bottom_bar.startAnimation(((MainActivity) requireActivity()).bottom_nav_anim_reverse);
+           // CloseAllButtons();
 
-            ((MainActivity) requireActivity()).ApplyChangesToSharedPreferences("athome", false, "", true, true, false, 0);
-            ((MainActivity) requireActivity()).ApplyChangesToSharedPreferences("content", true, "", false, false, false, 0);
-
-            CloseAllButtons();
-
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-            navController.navigate(R.id.action_nav_note_to_nav_home);
+            ((MainActivity) requireActivity()).mDatabaseEver.deleteNote(actualNote.getId());
+            ((MainActivity) requireActivity()).notesModels.remove(actualNote.getActualPosition());
 
         } else {
 
             new Thread(() -> {
-                ((MainActivity) requireActivity()).mDatabaseEver.editTitle(Integer.toString(realID), TitleTextBox.getText().toString());
-
-                if (TitleTextBox.getText().length() <= 1 && EverAdapter.GetContents().equals("") && items.size() <= 1) {
-                    ((MainActivity) requireActivity()).mDatabaseEver.deleteNote(realID);
-                    System.out.println("Note with id = " + realID + " deleted. <-- called from OnBackPress in NoteEditorFragmentJava, thx future pedro");
-                }
-
-                //Hide nav view \/ \/ \/
-
-                ((MainActivity) requireActivity()).ApplyChangesToSharedPreferences("athome", false, "", true, true, false, 0);
-                ((MainActivity) requireActivity()).ApplyChangesToSharedPreferences("content", true, "", false, false, false, 0);
-
-
+                actualNote.setTitle(TitleTextBox.getText().toString());
             }).start();
 
-            ((MainActivity) requireActivity()).note_bottom_bar.startAnimation(((MainActivity) requireActivity()).bottom_nav_anim_reverse);
+          //  CloseAllButtons();
 
-            CloseAllButtons();
-
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-            navController.navigate(R.id.action_nav_note_to_nav_home);
         }
+        ((MainActivity) requireActivity()).addedNote = false;
+        ((MainActivity)requireActivity()).onBackPressed();
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void TransformBitmapToFile(Bitmap bitmap, String fileType) {
 
         File directory = requireActivity().getDir("imageDir", Context.MODE_PRIVATE);
@@ -398,7 +439,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         System.out.println("Draw at position = " + drawPosition);
 
-        File file = new File(directory, "Draw" + "RealID" + realID + "WithID" + drawPosition + fileType);
+        File file = new File(directory, "Draw" + "RealID" + actualNote.getId() + "WithID" + drawPosition + fileType);
         System.out.println(file.toString());
 
             if (!file.exists()) {
@@ -412,7 +453,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                ((MainActivity) requireActivity()).mDatabaseEver.insertNoteBackgroundToDatabase(String.valueOf(((MainActivity) requireActivity()).preferences.getInt("noteId", -1)), file.toString(), ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID));
+                ((MainActivity) requireActivity()).mDatabaseEver.insertNoteBackgroundToDatabase(String.valueOf(actualNote.getId()), file.toString(), actualNote.getDrawLocation());
+                actualNote.setDrawLocation(file.toString() + "┼" + actualNote.getDrawLocation());
+                ((MainActivity) requireActivity()).notesModels.get(actualNote.getActualPosition()).setDrawLocation(actualNote.getDrawLocation());
+                SetupNoteEditorRecycler(true, false, false, true, actualNote.getDrawLocation().split("┼").length);
+
             }
     }
 
@@ -437,7 +482,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 e.printStackTrace();
             }
 
-                    String[] list = ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).split("┼");
+                //TODO FIX IT    String[] list = ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).split("┼");
+            String[] list = actualNote.getDrawLocation().split("┼");
                     ArrayList<String> strings = new ArrayList<>();
                     for (String item : list) {
                         if (item.contains("DrawID" + drawPosition)) {
@@ -448,7 +494,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                             }
                         }
                     }
-                    ((MainActivity) requireActivity()).mDatabaseEver.editDraw(String.valueOf(realID), strings.toString().replaceAll("[()\\[\\]]", "").replaceAll(",", "").replaceAll(" ", ""));
+                    String editDraw = strings.toString().replaceAll("[()\\[\\]]", "").replaceAll(",", "").replaceAll(" ", "");
+                    actualNote.setDrawLocation(editDraw);
+        ((MainActivity)requireActivity()).notesModels.get(actualNote.getActualPosition()).setDrawLocation(editDraw);
+                    ((MainActivity) requireActivity()).mDatabaseEver.editDraw(String.valueOf(actualNote.getId()), editDraw);
 
                     SetupNoteEditorRecycler(true, true, false, false, drawPosition);
     }
@@ -465,24 +514,43 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                     Uri gif = data.getData();
 
                     try {
-                        ((MainActivity) requireActivity()).TransformUriToFile(gif, true, ".gif");
+                        ((MainActivity) requireActivity()).TransformUriToFile(gif, true, ".gif", actualNote.getImageURLS(), actualNote.getId(), actualNote.getActualPosition());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     reloadImages();
                 } }
 
-            if (requestCode != RESULT_OK) {
+            if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+                final Uri resultUri = UCrop.getOutput(Objects.requireNonNull(data));
+                if (resultUri != null) {
+                    try {
+                        ((MainActivity) requireActivity()).TransformUriToFile(resultUri, true, ".jpg", actualNote.getImageURLS(), actualNote.getId(), actualNote.getActualPosition());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-                Uri imageUri = data.getData();
-
-                try {
-                    ((MainActivity) requireActivity()).TransformUriToFile(imageUri, true, ".jpg");
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
                 reloadImages();
-            }
+            } else if (resultCode == UCrop.RESULT_ERROR) {
+                final Throwable cropError = UCrop.getError(Objects.requireNonNull(data));
+            } else {
+            if (requestCode != RESULT_OK) {
+
+                File directory = requireActivity().getDir("imageDir", Context.MODE_PRIVATE);
+
+               // File file = new File(directory, "EverImage" + Calendar.getInstance().getTimeInMillis() + ".jpg");
+
+                Uri uri = Uri.fromFile(new File(directory, "EverImage" + Calendar.getInstance().getTimeInMillis() + ".jpg"));
+
+                if (data != null) {
+                    UCrop.of(Objects.requireNonNull(data.getData()), uri)
+                           // .withAspectRatio(16, 9)
+                          //  .withMaxResultSize(cardView.getWidth(), 300)
+                            .start(requireActivity(), this);
+                }
+            } }
+
             super.onActivityResult(requestCode, resultCode, data);
         }).start();
     }
@@ -505,7 +573,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         popupWindowHelper = new PopupWindowHelper(popView);
         popupWindowHelper.showAsDropDown(view, 350, -25);
 
-        String[] htmls =  ((MainActivity) requireActivity()).mDatabaseEver.getImageURLFromDatabaseWithID(realID).split("┼");
+       // String[] htmls =  ((MainActivity) requireActivity()).mDatabaseEver.getImageURLFromDatabaseWithID(realID).split("┼");
+        String[] htmls = actualNote.getImageURLS().split("┼");
 
         String selectedImagePath = htmls[position];
 
@@ -534,7 +603,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             String[]  finalArray = images.toArray(new String[0]);
             String joined_arrayPath = String.join("", finalArray);
 
-            ((MainActivity) requireActivity()).mDatabaseEver.editImages(String.valueOf(realID), joined_arrayPath);
+            ((MainActivity) requireActivity()).mDatabaseEver.editImages(String.valueOf(actualNote.getId()), joined_arrayPath);
+            ((MainActivity) requireActivity()).notesModels.get(actualNote.getActualPosition()).setImageURLS(joined_arrayPath);
 
             view.startAnimation(AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter));
 
@@ -584,8 +654,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         ArrayList<String> stringsList = new ArrayList<>();
 
         imageView.setOnClickListener(view1 -> {
-            String[] htmls =  ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).split("┼");
-            String[] strings =  ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID).split("┼");
+         // TODO  String[] htmls =  ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).split("┼");
+          //  String[] strings =  ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID).split("┼");
+            String[] htmls = actualNote.getDrawLocation().split("┼");
+            String[] strings = actualNote.getContent().split("┼");
+
             String toReplace = "";
             System.out.println("Strings is = " + Arrays.toString(strings));
             int positionToReplace = -1;
@@ -629,16 +702,13 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                             stringsList.set(positionToReplace, toReplace + "<br>" + originalString);
                         }
                     }
-                    System.out.println(1);
                 } else if (positionToReplace == stringsList.size() && stringsList.size() > 0) {
                     String s1 = stringsList.get(stringsList.size()+1);
                     stringsList.set(stringsList.size()+1, s1 + "<br>" + toReplace);
-                    System.out.println(2);
                 } else {
                     //TODO \/ MAYBE WE NEED TO REMOVE THIS BECAUSE IT MAY NEVER BE CALLED
                     String s2 = stringsList.get(positionToReplace--);
-                    stringsList.set(positionToReplace--, toReplace + "<br>" + s2);
-                    System.out.println(3);
+                    stringsList.set(0, toReplace + "<br>" + s2);
                 }
                 //TODO ////////////////////// WE NEED TO HIDE EDITORS IN NOTE SCREEN ADAPTER AND WE NMEED TO REMOVE THE EXTRA "EDITOR"? OR IMAGE OF IT I GUESS AND FIX DELETE DRAW IF THERE IS NONE TEXT IN LAST EDITOR THX FUTURE PREDO
             }
@@ -657,18 +727,18 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             String[] finalString = stringsList.toArray(new String[0]);
             String joined_arrayString = String.join("", finalString);
             String joined_arrayPath = String.join("", finalArray);
-
-            ((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), joined_arrayString);
-            ((MainActivity) requireActivity()).mDatabaseEver.editDraw(String.valueOf(realID), joined_arrayPath);
+            System.out.println("Strings is = " + joined_arrayString);
+            System.out.println("draws is = " + joined_arrayPath);
+            ((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(actualNote.getId()), joined_arrayString);
+            ((MainActivity) requireActivity()).notesModels.get(actualNote.getActualPosition()).setContent(joined_arrayString);
+            ((MainActivity) requireActivity()).mDatabaseEver.editDraw(String.valueOf(actualNote.getId()), joined_arrayPath);
+            ((MainActivity) requireActivity()).notesModels.get(actualNote.getActualPosition()).setDrawLocation(joined_arrayPath);
+            actualNote.setDrawLocation(joined_arrayPath);
+            actualNote.setContent(joined_arrayString);
 
            //view.startAnimation(AnimationUtils.loadAnimation(requireActivity(), R.anim.fade_out_formatter));
 
-
-                SetupNoteEditorRecycler(true, true, true, false, positionToRemove);
-
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                   SetupNoteEditorRecycler(true, true, false, false, positionToRemove);
-                }, 250);
+            SetupNoteEditorRecycler(true, true, true, false, positionToRemove);
 
             stringsList.clear();
             popupWindowHelper.dismiss();
@@ -770,17 +840,16 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         i = 0;
 
-        String[] html = ((MainActivity) requireActivity()).mDatabaseEver.getBackgroundFromDatabaseWithID(realID).split("┼");
+      String[] html = actualNote.getDrawLocation().split("┼");
+        Collections.reverse(Arrays.asList(html));
 
         bitmaps.addAll(Arrays.asList(html));
 
-        String[] strings = ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID).split("┼");
+       // String[] strings = ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID).split("┼");
 
-        List<String> contentsSplitted = new ArrayList<>(Arrays.asList(strings));
+        List<String> contentsSplitted = new ArrayList<>(Arrays.asList(actualNote.getContent().split("┼")));
 
-        System.out.println(contentsSplitted.toString());
-
-        String contents =  ((MainActivity) requireActivity()).mDatabaseEver.getContentsFromDatabaseWithID(realID);
+       String contents = actualNote.getContent();
 
         if (contentsSplitted.size() != bitmaps.size()) {
             for (i = contentsSplitted.size(); i < bitmaps.size(); i++) {
@@ -794,22 +863,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 System.out.println("added bit = " + i + " times.");
             }
         }
-       // String joined_arrayString = String.join("", contentsSplitted);
-        //((MainActivity) requireActivity()).mDatabaseEver.editContent(String.valueOf(realID), joined_arrayString);
-       // Toast.makeText(requireActivity(), Arrays.toString(strings), Toast.LENGTH_SHORT).show();
-
         int size = bitmaps.size() - 1;
-
-
-
 
         for (i = 0; i <= size ; i++) {
             items.add(new EverLinkedMap(contentsSplitted.get(i), IfContentIsBiggerReturnNothing(contentsSplitted.size(), bitmaps.size(), bitmaps, i)));
             toAdd.add(contentsSplitted.get(i));
         }
-
-
-
 
         if (items.size() == 0) {
             items.add(new EverLinkedMap("<br>", ""));
@@ -836,11 +895,22 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                 String[] arrayString = toAdd.toArray(new String[0]);
 
-                everAdapter = new EverAdapter(requireActivity(), items, realID, ((MainActivity) requireActivity()).mDatabaseEver, contents, arrayString, cardView, textanddrawRecyclerView);
-
+                everAdapter = new EverAdapter(requireActivity(), items, actualNote.getId(), actualNote.getActualPosition(), ((MainActivity) requireActivity()).mDatabaseEver, contents, arrayString, cardView, textanddrawRecyclerView);
                 textanddrawRecyclerView.setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
                  //   textanddrawRecyclerView.setAdapter(everAdapter);
                 textanddrawRecyclerView.setAdapter(new AlphaInAnimationAdapter(everAdapter));
+                ((MainActivity)requireActivity()).contentRecycler = textanddrawRecyclerView;
+                ((MainActivity)requireActivity()).cardNoteCreator = cardView;
+                textanddrawRecyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+
+
+                    @Override
+                    public boolean onPreDraw() {
+                        textanddrawRecyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        startPostponedEnterTransition();
+                        return true;
+                    }
+                });
 
                     EverAdapter.setClickListener(this);
 
@@ -876,7 +946,9 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                     CloseOrOpenDraWOptionsFromRecycler();
 
-                    SetupNoteEditorRecycler(true, true, false, false, drawPosition);
+                    Toast.makeText(requireActivity(), String.valueOf(drawPosition), Toast.LENGTH_SHORT).show();
+
+                   // SetupNoteEditorRecycler(true, true, false, false, drawPosition);
 
                 } else {
 
@@ -902,7 +974,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                     CloseOrOpenDraWOptions(0);
 
-                    SetupNoteEditorRecycler(true, false, false, true, drawPosition);
 
                 } else {
 
@@ -1004,12 +1075,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     }
 
     public void reloadImages() {
-        String imagesURLs = ((MainActivity) requireActivity()).mDatabaseEver.getImageURLFromDatabaseWithID(realID);
+      //TODO  String imagesURLs = ((MainActivity) requireActivity()).mDatabaseEver.getImageURLFromDatabaseWithID(realID);
+        String imagesURLs = actualNote.getImageURLS();
         StaggeredGridLayoutManager staggeredGridLayoutManagerImage = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-            RecyclerView recyclerViewImage = requireActivity().findViewById(R.id.ImagesRecycler);
 
             if (!imagesURLs.equals("")) {
 
@@ -1017,15 +1087,18 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
                 recyclerViewImage.setLayoutManager(staggeredGridLayoutManagerImage);
 
-                imageAdapter = new ImagesRecyclerGridAdapter(requireActivity(), imagesURLs, ((MainActivity) requireActivity()).preferences.getInt("position", -1), imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
+                imageAdapter = new ImagesRecyclerGridAdapter(requireActivity(), imagesURLs, imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
 
                 recyclerViewImage.setVisibility(View.VISIBLE);
                 recyclerViewImage.setAdapter(imageAdapter);
 
                 imageAdapter.setClickListener(this);
 
+                ((MainActivity) requireActivity()).imageRecycler = recyclerViewImage;
+
             } else {
                 recyclerViewImage.setVisibility(View.GONE);
+                ((MainActivity) requireActivity()).imageRecycler = recyclerViewImage;
             }
 
         }, 200);

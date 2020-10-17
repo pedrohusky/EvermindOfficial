@@ -2,9 +2,12 @@ package com.example.Evermind;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import androidx.core.app.SharedElementCallback;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -14,9 +17,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.transition.ChangeBounds;
+import android.transition.Fade;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,13 +34,19 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -43,17 +54,30 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.Evermind.recycler_models.EverAdapter;
 import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
+import com.example.Evermind.ui.note_screen.NotesScreen;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.muehlemann.giphy.GiphyLibrary;
+import com.sysdata.kt.htmltextview.SDHtmlTextView;
+
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+
+import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -66,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
     public EverDataBase mDatabaseEver;
 
     public Integer ID;
+
+    public RecyclerView recyclertest;
 
     private HorizontalScrollView scrollView1;
     private HorizontalScrollView scrollView2;
@@ -143,8 +169,23 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private int size = 4;
     private String ImagesUrls;
+    public Boolean addedNote;
+    public NotesScreen noteScreen;
     public SharedPreferences preferences;
     public SharedPreferences.Editor editor;
+    public boolean atHome = true;
+    public boolean newNote = false;
+    public int selectedPosition;
+    public int selectedID;
+    public CardView cardNoteCreator;
+    private PopupWindowHelper popupWindowHelperColor;
+    private PopupWindowHelper popupWindowHelper;
+    public NoteEditorFragmentJavaFragment noteCreator;
+    public RecyclerView contentRecycler;
+    public TextView title;
+    public RecyclerView imageRecycler;
+    public String[] arrays = new String[0];
+    public ArrayList<Note_Model> notesModels = new ArrayList<>();
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -154,6 +195,13 @@ public class MainActivity extends AppCompatActivity {
 
         mDatabaseEver = new EverDataBase(this);
 
+        //TODO: optimize performance a little more and make sure everything that we changed is working as intended
+
+        notesModels = (ArrayList<Note_Model>) getIntent().getSerializableExtra("notes");
+        noteScreen = new NotesScreen();
+
+
+        System.out.println(notesModels.toString());
         preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
         editor = preferences.edit();
@@ -174,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.clear();
-        editor.putBoolean("athome", true);
+        atHome = true;
         editor.apply();
 
 
@@ -276,8 +324,6 @@ public class MainActivity extends AppCompatActivity {
             });
 
 
-
-
             Black.setOnClickListener(view -> ColorClickedSwitcher("Black", false));
 
             Blue.setOnClickListener(view -> ColorClickedSwitcher("Blue", false));
@@ -338,8 +384,6 @@ public class MainActivity extends AppCompatActivity {
                             // cardView.setLayoutParams(params);
                         }
                     });
-
-
 
 
             ChangeColor.setOnClickListener(view -> {
@@ -519,50 +563,58 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        EditText editText = findViewById(R.id.TitleTextBox);
-
-        if (mDatabaseEver.getBackgroundFromDatabaseWithID(preferences.getInt("noteId", -1)).equals("┼")) {
-
-            if (EverAdapter.GetContents().equals("┼") && editText.getText().length() < 1) {
-
-                mDatabaseEver.deleteNote(preferences.getInt("noteId", -1));
-
-                System.out.println("Note with id = " + preferences.getInt("noteId", -1) + " deleted. <-- called from OnBackPress in MainActivity, thx future pedro");
-            }
+        if (bottomBarShowing) {
+            note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
         }
 
-            SharedPreferences preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
-            if (!preferences.getBoolean("athome", false)) {
-                new Thread(() -> {
-
-                    int id = preferences.getInt("noteId", -1);
-
-                    mDatabaseEver.editTitle(Integer.toString(id), editText.getText().toString());
+        if (!notesModels.get(selectedPosition).getTitle().equals("") && !notesModels.get(selectedPosition).getContent().equals("") && !notesModels.get(selectedPosition).getDrawLocation().equals("") && !notesModels.get(selectedPosition).getImageURLS().equals("")) {
+            mDatabaseEver.deleteNote(notesModels.get(selectedPosition).getId());
+            notesModels.remove(notesModels.get(selectedPosition).getActualPosition());
+            System.out.println("Note with id = " + notesModels.get(selectedPosition).getId() + " deleted. <-- called from OnBackPress in NoteEditorFragmentJava, thx future pedro");
+        }
 
 
+        if (!atHome) {
+            new Thread(() -> { mDatabaseEver.setNoteModel(String.valueOf(notesModels.get(selectedPosition).getId()), notesModels.get(selectedPosition).getTitle(), notesModels.get(selectedPosition).getContent(), notesModels.get(selectedPosition).getDrawLocation(), notesModels.get(selectedPosition).getImageURLS(), notesModels.get(selectedPosition).getNoteColor()); }).start();
 
-                }).start();
-            }
+            FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
+            TransitionManager.beginDelayedTransition(cardNoteCreator, new TransitionSet()
+                    .addTransition(new ChangeBounds()));
+            transaction.setReorderingAllowed(true);
+            cardNoteCreator.setTransitionName("card" + selectedPosition);
+            contentRecycler.setTransitionName("textRecycler" + selectedPosition);
+            title.setTransitionName("title" + selectedPosition);
+            imageRecycler.setTransitionName("imageRecycler" + selectedPosition);
+            transaction.addSharedElement(cardNoteCreator, "card" + selectedPosition);
+            transaction.addSharedElement(contentRecycler, "textRecycler" + selectedPosition);
+            transaction.addSharedElement(title, "title" + selectedPosition);
+            transaction.addSharedElement(imageRecycler, "imageRecycler" + selectedPosition);
+            transaction.hide(noteCreator);
+            transaction.replace(R.id.nav_host_fragment, noteScreen);
+            transaction.show(noteScreen);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }
 
 
+        CloseAllButtons();
 
-            CloseAllButtons();
+        atHome = true;
 
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putBoolean("athome", true);
-            editor.apply();
+        newNote = false;
 
-        new Handler(Looper.getMainLooper()).postDelayed(super::onBackPressed, 190);
+        addedNote = false;
+
+
+        // new Handler(Looper.getMainLooper()).postDelayed(super::onBackPressed, 190);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         SharedPreferences preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-        boolean athome = preferences.getBoolean("athome", true);
         SharedPreferences.Editor editor = preferences.edit();
 
-        if (athome) {
+        if (atHome) {
             return super.onOptionsItemSelected(item);
         } else {
 
@@ -583,7 +635,7 @@ public class MainActivity extends AppCompatActivity {
 
                 });
 
-                editor.putBoolean("athome", true);
+                atHome = true;
                 editor.apply();
 
             }).start();
@@ -599,38 +651,50 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View v) {
 
-            mDatabaseEver.AddNoteContent("",  "");
+        mDatabaseEver.AddNoteContent("", "");
+        if (notesModels.isEmpty()) {
+            ID = 1;
+        } else {
+            ID = notesModels.get(0).getId() + 1;
+        }
+        Note_Model newNoteModel = new Note_Model(ID, 0, "", "", "", "", "", "000000");
+        notesModels.add(0, newNoteModel);
 
-                ArrayList<Integer> arrayList = mDatabaseEver.getIDFromDatabase();
+        addedNote = true;
 
-                if (!arrayList.isEmpty()) {
+        if (!notesModels.isEmpty()) {
+            editor.putInt("noteId", ID);
+            atHome = false;
+            newNote = true;
+            DeleteSave = false;
+            UndoRedo = false;
+            editor.apply();
 
-                    ID = arrayList.get(arrayList.size() - 1);
-                    System.out.println(ID);
+        } else {
+            editor.putInt("noteId", ID);
+            atHome = false;
+            newNote = true;
+            DeleteSave = false;
+            UndoRedo = false;
+            editor.apply();
+        }
 
-                    editor.putInt("noteId", ID);
-                    editor.putBoolean("athome", false);
-                    editor.putBoolean("newnote", true);
-                    editor.putBoolean("DeleteNSave", false);
-                    editor.putBoolean("UndoRedo", false);
-                    editor.apply();
+        NoteEditorFragmentJavaFragment fragment = NoteEditorFragmentJavaFragment.newInstance();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("noteModel", newNoteModel);
+        fragment.setArguments(bundle);
 
-
-                } else {
-
-                    ID = 1;
-
-
-                    editor.putInt("noteId", ID);
-                    editor.putBoolean("athome", false);
-                    editor.putBoolean("newnote", true);
-                    editor.putBoolean("DeleteNSave", false);
-                    editor.putBoolean("UndoRedo", false);
-                    editor.apply();
-                }
-
-                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-                navController.navigate(R.id.action_nav_home_to_nav_note);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            fragment.setEnterTransition(new Fade());
+            noteScreen.setExitTransition(new Fade());
+        }
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setReorderingAllowed(true);
+        v.setTransitionName("card" + (ID) + 1);
+        transaction.addSharedElement(v, "card");
+        transaction.replace(R.id.nav_host_fragment, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
 
     }
 
@@ -664,37 +728,37 @@ public class MainActivity extends AppCompatActivity {
 
     public void OnFocusChangeEditor(boolean focused) {
 
-            if (focused) {
+        if (focused) {
 
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
 
-                    if (bottomBarShowing) {
+                if (bottomBarShowing) {
 
-                    } else {
-                        CloseOrOpenBottomNoteBar(false);
-                    }
+                } else {
+                    CloseOrOpenBottomNoteBar(false);
+                }
 
-                }, 450);
+            }, 450);
 
-            } else {
+        } else {
 
-                new Handler(Looper.getMainLooper()).post(() -> {
+            new Handler(Looper.getMainLooper()).post(() -> {
 
-                    if (DrawOn) {
+                if (DrawOn) {
 
-                    } else {
-                        CloseOrOpenToolbarUndoRedo();
-                    }
+                } else {
+                    CloseOrOpenToolbarUndoRedo();
+                }
 
-                });
-            }
+            });
         }
+    }
 
-    public void TransformUriToFile(Uri uri, boolean addToDatabase, String fileType) throws
+    public void TransformUriToFile(Uri uri, boolean addToDatabase, String fileType, String imagesUrls, int ID, int position) throws
             IOException {
 
-        ImagesUrls = mDatabaseEver.getImageURLFromDatabaseWithID(GetIDFromSharedPreferences());
+        ImagesUrls = imagesUrls;
 
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
@@ -713,41 +777,45 @@ public class MainActivity extends AppCompatActivity {
 
             if (addToDatabase) {
 
-                mDatabaseEver.insertImageToDatabase(String.valueOf(GetIDFromSharedPreferences()), file.toString(), ImagesUrls.replaceAll("[\\[\\](){}]", ""));
+                notesModels.get(position).setImageURLS(file.toString() + "┼" + ImagesUrls.replaceAll("[\\[\\](){}]", ""));
+                mDatabaseEver.insertImageToDatabase(String.valueOf(ID), file.toString(), ImagesUrls.replaceAll("[\\[\\](){}]", ""));
             }
         }
     }
+    //TODO ADD OPTION TO CHANGE COLOR IN NOTE SCREEN LONG PRESS
 
-    public void ApplyChangesToSharedPreferences(String name, boolean string, String text, boolean bolean, boolean value, boolean integer, int id) {
+    public void onItemClickFromRecyclerAtNotescreen(View view, View view2, View view3, View view4, int position, int ID) {
+        //    SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
-        if (string) {
-            editor.putString(name, text);
-            editor.apply();
+        //   SharedPreferences.Editor editor = preferences.edit();
+        NoteEditorFragmentJavaFragment fragment = NoteEditorFragmentJavaFragment.newInstance();
+        Bundle bundle = new Bundle();
+
+
+
+        bundle.putSerializable("noteModel", notesModels.get(position));
+        bundle.putInt("noteID", ID);
+        atHome = false;
+        newNote = false;
+        fragment.setArguments(bundle);
+        selectedPosition = position;
+
+        editor.putInt("noteId", ID);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            fragment.setEnterTransition(new Fade());
+            noteScreen.setExitTransition(new Fade());
         }
-        if (integer) {
-            editor.putInt(name, id);
-            editor.apply();
-        }
-        if (bolean) {
-            editor.putBoolean(name, value);
-            editor.apply();
-        }
-
-    }
-
-    public void onItemClickFromRecyclerAtNotescreen(View view, int position) {
-        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = preferences.edit();
-
-        editor.putInt("noteId", position);
-        editor.putBoolean("athome", false);
-        editor.putBoolean("newnote", false);
-        editor.apply();
-
-
-        NavController navController = Navigation.findNavController(view);
-        navController.navigate(R.id.action_nav_home_to_nav_note);
+        System.out.println("ID = " + ID + " position = " + position);
+        FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
+        transaction.setReorderingAllowed(true);
+        transaction.addSharedElement(view, "textRecycler");
+        transaction.addSharedElement(view2, "card");
+        transaction.addSharedElement(view3, "title");
+        transaction.addSharedElement(view4, "imageRecycler");
+        transaction.hide(noteScreen);
+        transaction.replace(R.id.nav_host_fragment, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     public void ColorClickedSwitcher(String color, boolean highlight) {
@@ -1289,14 +1357,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void CloseOrOpenDraWOptions(int height) {
 
+        noteCreator.drawFromRecycler = false;
+
         Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
 
         Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
 
         if (CloseOpenedDrawOptions) {
 
-            ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
-            ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
+            DeleteSave = false;
+            UndoRedo = false;
 
             ResizeCardViewToWrapContent();
 
@@ -1371,8 +1441,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (CloseOpenedDrawOptions) {
 
-            ApplyChangesToSharedPreferences("DeleteNSave", false, "", true, false, false, 0);
-            ApplyChangesToSharedPreferences("UndoRedo", false, "", true, false, false, 0);
+            DeleteSave = false;
+            UndoRedo = false;
 
             CloseOrOpenToolbarUndoRedo();
 
@@ -1509,7 +1579,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void CloseAllButtons() {
-        if(CloseOpenedDrawOptions) {
+        if (CloseOpenedDrawOptions) {
             CloseOrOpenDraWOptions(0);
         }
         if (CloseOpenedDrawColors) {
@@ -1528,7 +1598,7 @@ public class MainActivity extends AppCompatActivity {
             CloseOrOpenImporter();
         }
         if (bottomBarShowing) {
-                CloseOrOpenBottomNoteBar(false);
+            CloseOrOpenBottomNoteBar(false);
         }
         if (UndoRedo) {
             CloseOrOpenToolbarUndoRedo();
@@ -1539,15 +1609,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public int GetIDFromSharedPreferences () {
-        return preferences.getInt("noteId", -1);
-    }
-
-    public Boolean GetNewNoteFromSharedPreferences () {
-        return preferences.getBoolean("newnote", false);
-    }
-
-    private int GetColor ( int color){
+    private int GetColor(int color) {
         return ResourcesCompat.getColor(getResources(), color, null);
     }
 
@@ -1609,4 +1671,87 @@ public class MainActivity extends AppCompatActivity {
 
         cardView.setLayoutParams(params);
     }
+
+    public void OpenCustomizationPopup(View view, int id, int position) {
+
+        View popView = LayoutInflater.from(this).inflate(R.layout.note_customization_layout, null);
+        popupWindowHelper = new PopupWindowHelper(popView);
+        popupWindowHelper.showAsDropDown(view);
+        selectedID = id;
+        Toast.makeText(this, "id is = " + id + "position = " + position, Toast.LENGTH_SHORT).show();
+        selectedPosition = position;
+    }
+
+    public void clickToOpenCustomize(View view) {
+
+
+        View popView = LayoutInflater.from(this).inflate(R.layout.note_customization_color_layout, null);
+        popupWindowHelperColor = new PopupWindowHelper(popView);
+        popupWindowHelperColor.showAsDropDown(view, 0, 10);
+
+    }
+
+    public void clickToCustomize(View view) {
+        switch (view.getTag().toString()) {
+            case "black":
+                ChangeNoteColor(GetColor(R.color.Black));
+                break;
+
+            case "white":
+                ChangeNoteColor(GetColor(R.color.White));
+                break;
+
+            case "magenta":
+                ChangeNoteColor(GetColor(R.color.Magenta));
+                break;
+
+            case "pink":
+                ChangeNoteColor(GetColor(R.color.Pink));
+                break;
+
+            case "orange":
+                ChangeNoteColor(GetColor(R.color.Orange));
+                break;
+
+            case "blue":
+                ChangeNoteColor(GetColor(R.color.SkyBlue));
+                break;
+
+            case "yellow":
+                ChangeNoteColor(GetColor(R.color.YellowSun));
+                break;
+
+            case "green":
+                ChangeNoteColor(GetColor(R.color.GrassGreen));
+                break;
+        }
+        popupWindowHelperColor.dismiss();
+    }
+
+    public void deleteNote(View view) {
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Are you sure?")
+                .setMessage("Do you want to delete this note?")
+                .setPositiveButton("Yes", (dialogInterface, i) -> {
+
+                            popupWindowHelper.dismiss();
+
+                            mDatabaseEver.deleteNote(selectedID);
+
+                            notesModels.remove(selectedPosition);
+                            noteScreen.adapter.notifyItemRemoved(selectedPosition);
+                        }
+                )
+                .setNegativeButton("No", null)
+                .show();
+
+    }
+
+    public void ChangeNoteColor(int color) {
+        mDatabaseEver.editColor(String.valueOf(selectedID), String.valueOf(color));
+        notesModels.get(selectedPosition).setNoteColor(String.valueOf(color));
+        recyclertest.removeViewAt(selectedPosition);
+    }
 }
+

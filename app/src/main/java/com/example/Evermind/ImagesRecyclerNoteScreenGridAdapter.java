@@ -2,8 +2,6 @@ package com.example.Evermind;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.koushikdutta.ion.Ion;
 import com.stfalcon.frescoimageviewer.ImageViewer;
-
 import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.util.ArrayList;
 import pl.droidsonroids.gif.GifImageView;
@@ -23,7 +19,6 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<ImagesRecyclerNoteScreenGridAdapter.ViewHolder>  {
 
     private String[] mImageURLs;
-    private Integer mID;
     private int count;
     private String[] SplittedURLs;
 
@@ -39,17 +34,12 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
     // data is passed into the constructor
     public ImagesRecyclerNoteScreenGridAdapter(Context context, String ImageURLs, Integer ID, int countURLs) {
 
-        new Thread(() -> {
-
-        SplittedURLs = ImageURLs.replaceAll("[\\[\\](){}]","").trim().split("┼");
+        SplittedURLs = ImageURLs.split("┼");
 
             this.mInflater = LayoutInflater.from(context);
             this.mImageURLs = SplittedURLs;
-            this.mID = ID;
             this.count = countURLs;
             this.context = context;
-
-        }).start();
     }
 
 
@@ -66,7 +56,6 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
     // binds the data to the TextView in each cell
     @Override
     public void onBindViewHolder(@NotNull ViewHolder holder, int position) {
-
 
         if (position == 0 && getItemCount() <= 1) {
             Ion.with(holder.myImageView)
@@ -143,16 +132,12 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
 
                 uri = uris.toArray(new Uri[0]);
 
-                    new Handler(Looper.getMainLooper()).post(() -> {
-
-                        new ImageViewer.Builder(context, uri)
-                                .setStartPosition(getLayoutPosition())
-                                .show();
-                    });
+                new ImageViewer.Builder(context, uri)
+                        .setStartPosition(getLayoutPosition())
+                        .show();
+            });
 
                 uris.clear();
-
-            });
 
 
            // myImageView.setOnClickListener(this);

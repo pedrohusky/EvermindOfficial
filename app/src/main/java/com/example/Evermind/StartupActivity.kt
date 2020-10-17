@@ -16,15 +16,26 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.startup_activity.*
 import java.util.*
-import kotlin.concurrent.schedule
+
 class StartupActivity : AppCompatActivity() {
+
+    private var notes = java.util.ArrayList<String>()
+    private var titles = java.util.ArrayList<String>()
+    private var dates = java.util.ArrayList<String>()
+    private var ids = java.util.ArrayList<Int>()
+    private var imageURL = java.util.ArrayList<String>()
+    private var draws = java.util.ArrayList<String>()
+    private var colors = java.util.ArrayList<String>()
+    private val noteModels = java.util.ArrayList<Note_Model>()
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.startup_activity)
 
-            fun setWindowFlag(bits: Int, on: Boolean) {
+        val everDataBase: EverDataBase = EverDataBase(this)
+
+        fun setWindowFlag(bits: Int, on: Boolean) {
                 val win = window
                 val winParams = win.attributes
                 if (on) {
@@ -99,6 +110,49 @@ class StartupActivity : AppCompatActivity() {
                     circle5.startAnimation(scaleup5)
                     startButton.startAnimation(fadebutton)
 
+                    noteModels.clear()
+
+                    everDataBase.getAllContentsFromAllNotes()
+
+                    ids = everDataBase.idFromDatabase
+
+                    notes = everDataBase.contentsFromDatabase
+
+                    titles = everDataBase.titlesFromDatabase
+
+                    dates = everDataBase.dateFromDatabase
+
+                    imageURL = everDataBase.imageURLFromDatabase
+
+                    draws = everDataBase.drawLocationFromDatabase
+
+                    colors = everDataBase.noteColorsFromDatabase
+
+
+                    for (i in ids.indices) {
+                        noteModels.add(
+                            Note_Model(
+                                ids[i],
+                                i,
+                                titles[i],
+                                notes[i],
+                                dates[i],
+                                imageURL[i],
+                                draws[i],
+                                colors[i]
+                            )
+                        )
+                    }
+
+                    noteModels.sortWith(Comparator { obj1: Note_Model, obj2: Note_Model ->
+                        obj2.id.compareTo(obj1.id)
+                    })
+                    var p = 0
+                    for (i in noteModels) {
+                        i.actualPosition = p;
+                        p++
+                    }
+
                     Handler(Looper.getMainLooper()).postDelayed({
                         circle1.visibility = View.GONE
                         circle2.visibility = View.GONE
@@ -107,6 +161,7 @@ class StartupActivity : AppCompatActivity() {
                         circle5.visibility = View.GONE
 
                         val intent = Intent(applicationContext, MainActivity::class.java)
+                        intent.putExtra("notes", noteModels)
 
                         startActivity(intent)
                     }, 1300)

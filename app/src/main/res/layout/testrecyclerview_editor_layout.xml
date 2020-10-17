@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,14 +14,19 @@
             android:id="@+id/editorImage"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:background="#C33535"
-            android:contentDescription="decoy" />
+            android:background="@color/Transparent"
+            android:backgroundTint="@color/Transparent"
+            android:contentDescription="decoy"
+            android:foregroundTint="@color/Transparent"
+            android:visibility="visible"
+            app:tint="@color/Transparent" />
 
         <com.example.Evermind.EvermindEditor
             android:id="@+id/recycler_everEditor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:animateLayoutChanges="true" />
+            android:animateLayoutChanges="true"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -32,10 +38,15 @@
         <ImageView
             android:id="@+id/recycler_imageView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@color/Transparent"
+            android:backgroundTint="@color/Transparent"
+            android:contentDescription="decoy"
+            android:foregroundTint="@color/Transparent"
+            android:visibility="gone"/>
 
         <com.example.Evermind.EverDraw
-            android:id="@+id/draw_imageLayout"
+            android:id="@+id/everDraw"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone" />

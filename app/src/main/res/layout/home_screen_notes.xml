@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
 
     <ImageButton
         android:layout_width="match_parent"
@@ -15,10 +15,11 @@
         android:onClick="onClick"
         android:scaleType="center"
         android:src="@drawable/note_plus_button_rectangle"
+        android:transitionName="card"
         android:visibility="visible" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvNumbers"
+    <com.example.Evermind.EverRecyclerContentsNoteScreen
+        android:id="@+id/notesRecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="28dp"

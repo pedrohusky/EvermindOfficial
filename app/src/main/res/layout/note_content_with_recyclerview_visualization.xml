@@ -1,75 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
     android:animateLayoutChanges="true"
     android:background="@color/Transparent"
+    android:backgroundTint="@color/Transparent"
     android:clipToPadding="false"
     android:orientation="vertical"
-    app:cardBackgroundColor="@color/Transparent"
-    app:cardCornerRadius="10dp"
-    app:cardElevation="10dp">
+    android:tag="first">
 
 
     <androidx.cardview.widget.CardView
-        android:layout_width="wrap_content"
+        android:id="@+id/mainCard"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="15dp"
+        android:animateLayoutChanges="true"
+        android:tag="second"
+        android:transitionName="card"
         app:cardCornerRadius="10dp"
-        app:cardElevation="10dp">
+        app:cardElevation="8dp">
 
         <LinearLayout
+            android:id="@+id/noteLinearLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/info_title"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:orientation="vertical">
+                android:layout_gravity="bottom"
+                android:background="@drawable/title_note_rectangle"
+                android:backgroundTint="#ffffff"
+                android:gravity="center"
+                android:includeFontPadding="false"
 
+                android:maxLength="20"
+                android:paddingHorizontal="10dp"
+                android:singleLine="true"
+                android:textColor="@color/Black"
+                android:textSize="22dp"
+                android:transitionName="title"
+                android:visibility="visible"
+                app:autoSizeMaxTextSize="18dp"
+                app:autoSizeMinTextSize="14dp"
+                app:autoSizeTextType="uniform" />
 
-                <TextView
-                    android:id="@+id/info_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:background="@drawable/title_note_rectangle"
-                    android:backgroundTint="#ffffff"
-                    android:gravity="center"
-                    android:includeFontPadding="false"
-                    android:maxLength="20"
-
-                    android:paddingHorizontal="10dp"
-                    android:singleLine="true"
-                    android:text="puta"
-                    android:textColor="@color/Black"
-                    android:textSize="22dp"
-                    android:visibility="visible"
-                    app:autoSizeMaxTextSize="18dp"
-                    app:autoSizeMinTextSize="14dp"
-                    app:autoSizeTextType="uniform" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/DrawAndTextNoteScreenRecycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/Transparent"
-                    android:layoutAnimation="@anim/grid_appear_layout_animation" />
-
-            </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/DrawAndTextNoteScreenRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:layoutAnimation="@anim/grid_appear_layout_animation"
+                android:transitionName="textRecycler" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/RecyclerNoteScren"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/Transparent"
-                android:layoutAnimation="@anim/grid_appear_layout_animation" />
+                android:layoutAnimation="@anim/grid_appear_layout_animation"
+                android:transitionName="imageRecycler" />
+
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 
-</androidx.cardview.widget.CardView>
+</LinearLayout>
