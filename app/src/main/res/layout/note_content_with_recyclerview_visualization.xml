@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
+    android:id="@+id/frameLayoutNotescreen"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true"
@@ -18,10 +19,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="13dp"
         android:animateLayoutChanges="true"
+        android:minWidth="150dp"
         android:tag="second"
         android:transitionName="card"
         app:cardCornerRadius="10dp"
@@ -32,6 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
+            android:minWidth="150dp"
             android:orientation="vertical">
 
             <TextView
@@ -39,12 +42,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:background="@drawable/title_note_rectangle"
-                android:backgroundTint="#ffffff"
+                android:background="@color/Transparent"
+                android:backgroundTint="@color/Transparent"
                 android:gravity="center"
-                android:includeFontPadding="false"
 
+                android:includeFontPadding="false"
                 android:maxLength="20"
+                android:minWidth="150dp"
                 android:paddingHorizontal="10dp"
                 android:singleLine="true"
                 android:textColor="@color/Black"
@@ -59,8 +63,8 @@
                 android:id="@+id/DrawAndTextNoteScreenRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/Transparent"
                 android:layoutAnimation="@anim/grid_appear_layout_animation"
+                android:minWidth="150dp"
                 android:transitionName="textRecycler" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -69,10 +73,11 @@
                 android:layout_height="wrap_content"
                 android:background="@color/Transparent"
                 android:layoutAnimation="@anim/grid_appear_layout_animation"
+                android:minWidth="150dp"
                 android:transitionName="imageRecycler" />
 
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 
-</LinearLayout>
+</FrameLayout>

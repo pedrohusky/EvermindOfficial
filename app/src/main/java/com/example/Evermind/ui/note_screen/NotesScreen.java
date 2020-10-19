@@ -25,6 +25,7 @@ import com.example.Evermind.MainActivity;
 import com.example.Evermind.Note_Model;
 import com.example.Evermind.R;
 import com.example.Evermind.RecyclerGridAdapterNoteScreen;
+import com.koushikdutta.ion.Ion;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -89,9 +90,42 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+
+
+
+
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+
+
+        // set up the RecyclerView
+        recyclerView = requireActivity().findViewById(R.id.notesRecycler);
+
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+        adapter = new RecyclerGridAdapterNoteScreen(requireActivity(), ((MainActivity)requireActivity()).notesModels); //requireContext() works too
+        recyclerView.setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
+        recyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
+        OverScrollDecoratorHelper.setUpOverScroll(recyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+        ((MainActivity)requireActivity()).recyclertest = recyclerView;
+        recyclerView.scrollToPosition(((MainActivity)requireActivity()).selectedPosition);
+        ((MainActivity)requireActivity()).selectedPosition = 0;
+
+        Bundle arguments = getArguments();
+
+
+
+        adapter.setClickListener(this);
+
+        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+
+            @Override
+            public boolean onPreDraw() {
+                startPostponedEnterTransition();
+                recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                return true;
+            }
+        });
+
         ((MainActivity) requireActivity()).noteScreen = this;
-
-
 
         MainViewModel mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
@@ -125,51 +159,8 @@ public class NotesScreen extends Fragment implements RecyclerGridAdapterNoteScre
                 super.clearView(recyclerView, viewHolder);
             }
         };
-
-
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
-
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-
-
-        // set up the RecyclerView
-        recyclerView = requireActivity().findViewById(R.id.notesRecycler);
-
-        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-        adapter = new RecyclerGridAdapterNoteScreen(requireActivity(), ((MainActivity)requireActivity()).notesModels); //requireContext() works too
-        recyclerView.setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
-        recyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
-        OverScrollDecoratorHelper.setUpOverScroll(recyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
-        ((MainActivity)requireActivity()).recyclertest = recyclerView;
-        recyclerView.scrollToPosition(((MainActivity)requireActivity()).selectedPosition);
-        ((MainActivity)requireActivity()).selectedPosition = 0;
-
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-
-
-             //   NotifyModel notifyModel = NotesScreenArgs.fromBundle(getArguments()).getNotifyModel();
-
-             //   Toast.makeText(requireActivity(), "victory", Toast.LENGTH_SHORT).show();
-               // NotifyChangesInNotes(notifyModel.isAdded(), notifyModel.isRemoved(), notifyModel.getPosition());
-
-          //  NotifyChangesInNotes(arguments.getBoolean("added"), arguments.getBoolean("removed"), arguments.getInt("ID"));
-        }
-            itemTouchHelper.attachToRecyclerView(recyclerView);
-
-
-
-            adapter.setClickListener(this);
-
-             recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-
-            @Override
-            public boolean onPreDraw() {
-                recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
-                startPostponedEnterTransition();
-                return true;
-            }
-        });
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
 

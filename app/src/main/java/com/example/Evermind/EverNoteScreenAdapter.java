@@ -89,7 +89,9 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
-        everTextView.setPadding(15, 15, 15, 25);
+        everTextView.setPadding(15, 15, 15, 15);
+
+        everTextView.setTransitionName("htmltext"+position);
 
             ((ContentViewHolder)holder).setContentHTML(itemList.get(position).getContent());
             ((ContentViewHolder)holder).setDrawContent(itemList.get(position).getDrawLocation());
@@ -109,8 +111,9 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
 
             everTextView = itemView.findViewById(R.id.recycler_everEditor);
             everImage = itemView.findViewById(R.id.recycler_Image);
+
          //   everTextView.setBackgroundColor(Integer.parseInt(((MainActivity)context).notesModels.get(actualPosition).getNoteColor()));
-            recyclerView.setOnClickListener(view -> { ((MainActivity) context).onItemClickFromRecyclerAtNotescreen(recyclerView, cardView, textView, imageRecyclerView,  actualPosition, ID); });
+            recyclerView.setOnClickListener(view -> { ((MainActivity) context).onItemClickFromRecyclerAtNotescreen(recyclerView, cardView, textView, imageRecyclerView, everTextView,  actualPosition, ID); });
             everTextView.setOnClickListener(view -> { recyclerView.callOnClick(); });
             textView.setOnClickListener(view -> { recyclerView.callOnClick(); });
             everImage.setOnClickListener(view -> { recyclerView.callOnClick(); });
@@ -133,6 +136,8 @@ public class EverNoteScreenAdapter extends  RecyclerView.Adapter<RecyclerView.Vi
                                 .error(R.drawable.ic_baseline_clear_24)
                                 .animateLoad(R.anim.grid_new_item_anim)
                                 .animateIn(R.anim.grid_new_item_anim)
+                                .centerCrop()
+                                .smartSize(true)
                                 .load(draw); // was position
                         //  everImage.setImageBitmap(bitmap);
                     }

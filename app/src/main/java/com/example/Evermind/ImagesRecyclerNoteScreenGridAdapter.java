@@ -32,9 +32,9 @@ public class ImagesRecyclerNoteScreenGridAdapter extends RecyclerView.Adapter<Im
 
 
     // data is passed into the constructor
-    public ImagesRecyclerNoteScreenGridAdapter(Context context, String ImageURLs, Integer ID, int countURLs) {
+    public ImagesRecyclerNoteScreenGridAdapter(Context context, String[] ImageURLs, Integer ID, int countURLs) {
 
-        SplittedURLs = ImageURLs.split("┼");
+        SplittedURLs = ImageURLs;
 
             this.mInflater = LayoutInflater.from(context);
             this.mImageURLs = SplittedURLs;

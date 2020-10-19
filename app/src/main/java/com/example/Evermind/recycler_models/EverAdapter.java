@@ -3,8 +3,6 @@ package com.example.Evermind.recycler_models;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -22,14 +20,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.Evermind.EverDataBase;
 import com.example.Evermind.EverDraw;
 import com.example.Evermind.EvermindEditor;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
+import com.koushikdutta.ion.Ion;
+import com.sysdata.kt.htmltextview.SDHtmlTextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -46,7 +46,6 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static String contents;
     private static ArrayList<String> array = new ArrayList<>();
     private static Context context;
-    private static ImageView imageView;
     private static String[] arrayToAdd;
     private static EverDraw everDraw;
     public static int SelectedDrawPosition;
@@ -58,6 +57,7 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static RecyclerView recyclerView;
     private static EvermindEditor everEditor;
     private static ImageView everDrawImage;
+    private static SDHtmlTextView editorDecoy;
     private static EverAdapter.ItemClickListener mClickListener;
     private AdapterView.OnItemLongClickListener mLongClick;
 
@@ -98,9 +98,10 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
+        //everEditor.setHideToolbar(false);
      //   everEditor.setEditorBackgroundColor(Integer.parseInt(((MainActivity)context).notesModels.get(Position).getNoteColor()));
-        everEditor.setPadding(8, 15, 15, 8);
-        everEditor.setEditorHeight(20);
+        everEditor.setPadding(8, 8, 8, 8);
+      //  everEditor.setEditorHeight(20);
         everEditor.setEditorFontSize(22);
         ((ContentViewHolder)holder).setContentHTML(itemList.get(position).getContent());
         ((ContentViewHolder)holder).setDrawContent(itemList.get(position).getDrawLocation());
@@ -127,10 +128,11 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public ContentViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            everEditor = itemView.findViewById(R.id.recycler_everEditor);
-            imageView = itemView.findViewById(R.id.editorImage);
+            everEditor = itemView.findViewById(R.id.evermindEditor);
             everDrawImage = itemView.findViewById(R.id.recycler_imageView);
             everDraw = itemView.findViewById(R.id.everDraw);
+            editorDecoy = itemView.findViewById(R.id.editorDecoy);
+
 
 
 
@@ -209,30 +211,27 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 System.out.println("Position = " + getLayoutPosition() + " GONE2");
 
             } else {
+                editorDecoy.setVisibility(View.VISIBLE);
+                editorDecoy.setHtmlText(contentHTML);
                 everEditor.setHtml(contentHTML);
                 everEditor.setVisibility(View.VISIBLE);
+                if (contentHTML.equals("<br>")) {
+                    editorDecoy.setVisibility(View.GONE);
+                }
                 //imageView.setVisibility(View.GONE);
             }
 
-
             everEditor.setOnFocusChangeListener((view, b) -> {
 
-                ActiveEditor = ((EvermindEditor) view);
+                //TODO CLICK LISTENER WORKS, IT RETURN EDITTEXTRICH, NEXT WE NEED TO MAKE WORK THE TOOLBAR ITEMS IN OUR LAYOUT
+                ActiveEditor = ((EvermindEditor)view);
                 ActiveEditorPosition = getLayoutPosition();
 
 
                 ((MainActivity) context).OnFocusChangeEditor(b);
             });
 
-            everEditor.setOnTextChangeListener(text -> {
-
-               // new Thread(() -> {
-
-                    System.out.println("Arrays = " +Arrays.toString(arrayToAdd));
-
-                    updateContents();
-               // }).start();
-            });
+            everEditor.setOnTextChangeListener(text -> { updateContents(); });
         }
 
 
@@ -247,21 +246,21 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                 if (!draw.equals("▓")) {
 
-                    Bitmap bitmap = BitmapFactory.decodeFile(draw);
+                  //  Bitmap bitmap = BitmapFactory.decodeFile(draw);
 
-                  //  Ion.with(everDraw)
-                  //          .error(R.drawable.ic_baseline_clear_24)
-                   //         .animateLoad(R.anim.grid_new_item_anim)
-                   //         .animateIn(R.anim.grid_new_item_anim)
-                   //         .smartSize(true)
-                   //        .centerCrop()
-                    //        .load(draw); // was position
+                    Ion.with(everDrawImage)
+                              .error(R.drawable.ic_baseline_clear_24)
+                            .animateLoad(R.anim.grid_new_item_anim)
+                            .animateIn(R.anim.grid_new_item_anim)
+                            .smartSize(true)
+                           .centerCrop()
+                            .load(draw); // was position
 
                     everDrawImage.setVisibility(View.VISIBLE);
 
                    // selectedDraw.setVisibility(View.VISIBLE);
 
-                    everDrawImage.setImageBitmap(bitmap);
+                  //  everDrawImage.setImageBitmap(bitmap);
 
 
 
@@ -365,8 +364,8 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return html;
     }
 
-    public static  BitmapDrawable getDrawBitmap(int position) {
-        return (BitmapDrawable) images.get(position).getDrawable();
+    public static  Bitmap getDrawBitmap(int position) {
+        return (Bitmap) Ion.with(images.get(position)).getBitmap();
     }
 
 
@@ -463,7 +462,11 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (ActiveEditorPosition > array.size() - 1) {
             array.add(ActiveEditor.getHtml() + "┼");
         } else {
-            array.set(ActiveEditorPosition, ActiveEditor.getHtml() + "┼");
+            if (ActiveEditor.getHtml().endsWith("<br>")) {
+                array.set(ActiveEditorPosition, ActiveEditor.getHtml().substring(0, ActiveEditor.getHtml().length()-4) + "┼");
+            } else {
+                array.set(ActiveEditorPosition, ActiveEditor.getHtml() + "┼");
+            }
         }
 
 

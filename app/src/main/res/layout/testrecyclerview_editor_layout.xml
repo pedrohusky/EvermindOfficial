@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:are="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,25 +9,23 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/editorImage"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@color/Transparent"
-            android:backgroundTint="@color/Transparent"
-            android:contentDescription="decoy"
-            android:foregroundTint="@color/Transparent"
-            android:visibility="visible"
-            app:tint="@color/Transparent" />
-
-        <com.example.Evermind.EvermindEditor
-            android:id="@+id/recycler_everEditor"
+        <com.sysdata.kt.htmltextview.SDHtmlTextView
+            android:id="@+id/editorDecoy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:visibility="gone" />
+            android:padding="8dp"
+            android:visibility="gone"
+            android:textSize="22sp"
+            android:transitionName="htmltext"/>
+
+        <com.example.Evermind.EvermindEditor
+            android:id="@+id/evermindEditor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            are:hideToolbar="true"/>
+
     </RelativeLayout>
 
     <RelativeLayout

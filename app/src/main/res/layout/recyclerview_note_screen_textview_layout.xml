@@ -12,12 +12,10 @@
         android:id="@+id/recycler_everEditor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/Transparent"
-        android:backgroundTint="@color/Transparent"
-        android:foregroundTint="@color/Transparent"
+        android:background="@color/White"
+        android:backgroundTint="@color/White"
         android:maxLines="7"
         android:minLines="1"
-        android:shadowColor="@color/Transparent"
         android:textSize="24sp"
         android:visibility="gone" />
 

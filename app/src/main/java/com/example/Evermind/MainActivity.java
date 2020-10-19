@@ -1,15 +1,13 @@
 package com.example.Evermind;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import androidx.core.app.SharedElementCallback;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,45 +36,34 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.Evermind.recycler_models.EverAdapter;
 import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
 import com.example.Evermind.ui.note_screen.NotesScreen;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.koushikdutta.ion.Ion;
 import com.muehlemann.giphy.GiphyLibrary;
-import com.sysdata.kt.htmltextview.SDHtmlTextView;
-
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
-
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-
 import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -114,19 +101,6 @@ public class MainActivity extends AppCompatActivity {
     public ImageButton Redo;
     public ImageButton Delete;
     public ImageButton Save;
-    private ImageButton ChangeColor;
-    private ImageButton Bold;
-    private ImageButton Italic;
-    private ImageButton Underline;
-    private ImageButton Striketrough;
-    private ImageButton HighlightText;
-    private ImageButton Black;
-    private ImageButton Blue;
-    private ImageButton Purple;
-    private ImageButton Magenta;
-    private ImageButton Orange;
-    private ImageButton Yellow;
-    private ImageButton Green;
     public ImageButton BlackDraw;
     public ImageButton BlueDraw;
     public ImageButton PurpleDraw;
@@ -137,22 +111,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton DrawChangeColor;
     private ImageButton DrawChangeSize;
     private CardView DrawOptions;
-    private ImageButton ClearHighlight;
-    private ImageButton BlackHighlight;
-    private ImageButton BlueHighlight;
-    private ImageButton PurpleHighlight;
-    private ImageButton MagentaHighlight;
-    private ImageButton OrangeHighlight;
-    private ImageButton YellowHighlight;
-    private ImageButton GreenHighlight;
-    private ImageButton Increase;
-    private ImageButton Decrease;
-    private ImageButton Left;
-    private ImageButton Center;
-    private ImageButton Right;
-    public ImageButton GooglePhotos;
-    public ImageButton Gallery;
-    public ImageButton Files;
     public BottomNavigationView note_bottom_bar;
     public Animation bottom_nav_anim;
     public Animation bottom_nav_anim_reverse;
@@ -160,9 +118,6 @@ public class MainActivity extends AppCompatActivity {
     public Boolean DrawOn = false;
     private CardView size_visualizer;
     private ImageView ImageSizeView;
-    private CardView format_selector;
-    private CardView paragraph_selector;
-    private CardView importer_selector;
     private ImageButton Bullets;
     private ImageButton Numbers;
     private ImageView spacing;
@@ -234,25 +189,13 @@ public class MainActivity extends AppCompatActivity {
             note_bottom_bar = findViewById(R.id.note_bottom_bar);
             bottom_nav_anim = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim);
             bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
-            ChangeColor = findViewById(R.id.ChangeColor);
+           // new ARE_BackgroundColor(ChangeColor, R.color.Magenta);
             DrawChangeColor = findViewById(R.id.DrawChangeColor);
             DrawChangeSize = findViewById(R.id.DrawChangeSize);
             size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
             ImageSizeView = findViewById(R.id.draw_size_visualizer);
             DrawOptions = findViewById(R.id.draw_options);
             seekBarDrawSize = findViewById(R.id.draw_size_seekbar);
-            Italic = findViewById(R.id.Italic);
-            Bold = findViewById(R.id.Bold);
-            Underline = findViewById(R.id.Underline);
-            Striketrough = findViewById(R.id.Striketrough);
-            HighlightText = findViewById(R.id.HighlightText);
-            Black = findViewById(R.id.black);
-            Blue = findViewById(R.id.blue);
-            Purple = findViewById(R.id.purple);
-            Magenta = findViewById(R.id.magenta);
-            Orange = findViewById(R.id.orange);
-            Yellow = findViewById(R.id.yellow);
-            Green = findViewById(R.id.green);
             BlackDraw = findViewById(R.id.Drawblack);
             BlueDraw = findViewById(R.id.Drawblue);
             PurpleDraw = findViewById(R.id.Drawpurple);
@@ -260,20 +203,9 @@ public class MainActivity extends AppCompatActivity {
             OrangeDraw = findViewById(R.id.Draworange);
             YellowDraw = findViewById(R.id.Drawyellow);
             GreenDraw = findViewById(R.id.Drawgreen);
-            ClearHighlight = findViewById(R.id.clearhighlight);
-            BlackHighlight = findViewById(R.id.blackhighlight);
-            BlueHighlight = findViewById(R.id.bluehighlight);
-            PurpleHighlight = findViewById(R.id.purplehighlight);
-            MagentaHighlight = findViewById(R.id.magentahighlight);
-            OrangeHighlight = findViewById(R.id.orangehighlight);
-            YellowHighlight = findViewById(R.id.yellowhighlight);
-            GreenHighlight = findViewById(R.id.greenhighlight);
             DrawOptions = findViewById(R.id.draw_options);
             size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
             ImageSizeView = findViewById(R.id.draw_size_visualizer);
-            format_selector = findViewById(R.id.format_selector);
-            importer_selector = findViewById(R.id.import_options);
-            paragraph_selector = findViewById(R.id.format_paragraph);
             Undo = findViewById(R.id.Undo);
             Redo = findViewById(R.id.Redo);
             Delete = findViewById(R.id.Delete);
@@ -281,23 +213,10 @@ public class MainActivity extends AppCompatActivity {
             Bullets = findViewById(R.id.Bullets);
             Numbers = findViewById(R.id.Numbers);
             spacing = findViewById(R.id.paragraph_spacing);
-            Increase = findViewById(R.id.IncreaseSize);
-            Decrease = findViewById(R.id.DecreaseSize);
-            Left = findViewById(R.id.AlignLeft);
-            Right = findViewById(R.id.AlignRight);
-            Center = findViewById(R.id.AlignCenter);
-            GooglePhotos = findViewById(R.id.GooglePhotos);
-            Gallery = findViewById(R.id.Gallery);
-            Files = findViewById(R.id.Files);
             toolbar = findViewById(R.id.toolbar);
             scrollView1 = findViewById(R.id.scroll_draw);
-            scrollView2 = findViewById(R.id.scroll_formatter);
-            scrollView3 = findViewById(R.id.scroll_import);
-            scrollView4 = findViewById(R.id.scroll_paragraph);
             //OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
-            OverScrollDecoratorHelper.setUpOverScroll(scrollView2);
-            OverScrollDecoratorHelper.setUpOverScroll(scrollView3);
-            OverScrollDecoratorHelper.setUpOverScroll(scrollView4);
+
 
             new Handler(Looper.getMainLooper()).post(() -> {
 
@@ -322,37 +241,6 @@ public class MainActivity extends AppCompatActivity {
                 NavigationUI.setupWithNavController(navigationView, navController);
 
             });
-
-
-            Black.setOnClickListener(view -> ColorClickedSwitcher("Black", false));
-
-            Blue.setOnClickListener(view -> ColorClickedSwitcher("Blue", false));
-
-            Purple.setOnClickListener(view -> ColorClickedSwitcher("Purple", false));
-
-            Magenta.setOnClickListener(view -> ColorClickedSwitcher("Magenta", false));
-
-            Orange.setOnClickListener(view -> ColorClickedSwitcher("Orange", false));
-
-            Yellow.setOnClickListener(view -> ColorClickedSwitcher("Yellow", false));
-
-            Green.setOnClickListener(view -> ColorClickedSwitcher("Green", false));
-
-            ClearHighlight.setOnClickListener(view -> ColorClickedSwitcher("Clear", true));
-
-            BlackHighlight.setOnClickListener(view -> ColorClickedSwitcher("Black", true));
-
-            BlueHighlight.setOnClickListener(view -> ColorClickedSwitcher("Blue", true));
-
-            PurpleHighlight.setOnClickListener(view -> ColorClickedSwitcher("Purple", true));
-
-            MagentaHighlight.setOnClickListener(view -> ColorClickedSwitcher("Magenta", true));
-
-            OrangeHighlight.setOnClickListener(view -> ColorClickedSwitcher("Orange", true));
-
-            YellowHighlight.setOnClickListener(view -> ColorClickedSwitcher("Yellow", true));
-
-            GreenHighlight.setOnClickListener(view -> ColorClickedSwitcher("Green", true));
 
 
             KeyboardVisibilityEvent.setEventListener(
@@ -386,57 +274,14 @@ public class MainActivity extends AppCompatActivity {
                     });
 
 
-            ChangeColor.setOnClickListener(view -> {
-                if (CloseOpenedColors) {
-
-                    CloseOrOpenColors(false);
-
-
-                } else {
-
-                    CloseOrOpenColors(false);
-
-                }
-            });
 
             DrawChangeColor.setOnClickListener(view -> CloseOrOpenDrawColors());
 
             DrawChangeSize.setOnClickListener(view -> CloseOrOpenDrawSize());
 
-            HighlightText.setOnClickListener(view -> {
-                if (CloseOpenedColorsHighlight) {
-
-                    CloseOrOpenColors(true);
 
 
-                } else {
 
-                    CloseOrOpenColors(true);
-
-                }
-            });
-
-
-            findViewById(R.id.IncreaseSize).setOnClickListener(v -> {
-
-
-                if (size < 7) {
-
-                    size++;
-                    EverAdapter.GetActiveEditor().setFontSize(size);
-                }
-
-            });
-
-            findViewById(R.id.DecreaseSize).setOnClickListener(v -> {
-
-
-                if (size > 3) {
-
-                    size--;
-                    EverAdapter.GetActiveEditor().setFontSize(size);
-                }
-            });
 
 
             note_bottom_bar.setOnNavigationItemSelectedListener(item -> {
@@ -446,23 +291,25 @@ public class MainActivity extends AppCompatActivity {
                 switch (id_nav) {
                     case R.id.nav_formatText:
 
-                        //TODO TO USE LATER THIS CODE TO SWITCH ANIM \/
-
-                        CloseOrOpenFormatter();
-
-                        //TODO TO USE LATER THIS CODE TO SWITCH ANIM /\
+                        View popView = LayoutInflater.from(this).inflate(R.layout.format_popup, null);
+                        popupWindowHelper = new PopupWindowHelper(popView);
+                        popupWindowHelper.showAsPopUp(note_bottom_bar);
 
                         break;
 
                     case R.id.nav_paragraph:
 
-                        CloseOrOpenParagraph();
+                        View popView2 = LayoutInflater.from(this).inflate(R.layout.paragraph_popup, null);
+                        popupWindowHelper = new PopupWindowHelper(popView2);
+                        popupWindowHelper.showAsPopUp(note_bottom_bar, -50, 0);
 
                         break;
 
                     case R.id.nav_checkbox:
 
-                        CloseOrOpenImporter();
+                        View popView3 = LayoutInflater.from(this).inflate(R.layout.importer_popup, null);
+                        popupWindowHelper = new PopupWindowHelper(popView3);
+                        popupWindowHelper.showAsPopUp(note_bottom_bar, -100, 0);
 
                         break;
 
@@ -484,10 +331,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             });
 
-            findViewById(R.id.Bold).setOnClickListener(v -> EverAdapter.GetActiveEditor().setBold());
-            findViewById(R.id.Italic).setOnClickListener(v -> EverAdapter.GetActiveEditor().setItalic());
-            findViewById(R.id.Striketrough).setOnClickListener(v -> EverAdapter.GetActiveEditor().setStrikeThrough());
-            findViewById(R.id.Underline).setOnClickListener(v -> EverAdapter.GetActiveEditor().setUnderline());
 
             //     getActivity().findViewById(R.id.action_heading1).setOnClickListener(new View.OnClickListener() {
             //          @Override public void onClick(View v) {
@@ -526,9 +369,6 @@ public class MainActivity extends AppCompatActivity {
             //     });
 
 
-            findViewById(R.id.AlignLeft).setOnClickListener(v -> EverAdapter.GetActiveEditor().setAlignLeft());
-            findViewById(R.id.AlignCenter).setOnClickListener(v -> EverAdapter.GetActiveEditor().setAlignCenter());
-            findViewById(R.id.AlignRight).setOnClickListener(v -> EverAdapter.GetActiveEditor().setAlignRight());
 
 
             //      getActivity().findViewById(R.id.action_insert_image).setOnClickListener(new View.OnClickListener() {
@@ -688,7 +528,7 @@ public class MainActivity extends AppCompatActivity {
             fragment.setEnterTransition(new Fade());
             noteScreen.setExitTransition(new Fade());
         }
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
         transaction.setReorderingAllowed(true);
         v.setTransitionName("card" + (ID) + 1);
         transaction.addSharedElement(v, "card");
@@ -784,7 +624,7 @@ public class MainActivity extends AppCompatActivity {
     }
     //TODO ADD OPTION TO CHANGE COLOR IN NOTE SCREEN LONG PRESS
 
-    public void onItemClickFromRecyclerAtNotescreen(View view, View view2, View view3, View view4, int position, int ID) {
+    public void onItemClickFromRecyclerAtNotescreen(View view, View view2, View view3, View view4, View view5, int position, int ID) {
         //    SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
 
         //   SharedPreferences.Editor editor = preferences.edit();
@@ -812,347 +652,13 @@ public class MainActivity extends AppCompatActivity {
         transaction.addSharedElement(view2, "card");
         transaction.addSharedElement(view3, "title");
         transaction.addSharedElement(view4, "imageRecycler");
+        transaction.addSharedElement(view5, "htmltext");
         transaction.hide(noteScreen);
         transaction.replace(R.id.nav_host_fragment, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }
 
-    public void ColorClickedSwitcher(String color, boolean highlight) {
-
-        if (highlight) {
-
-            switch (color) {
-
-                case "Clear":
-
-                    EverAdapter.GetActiveEditor().setTextBackgroundColor(Color.WHITE);
-
-                    CloseOrOpenColors(true);
-
-                    ClearHighlight.setVisibility(View.GONE);
-
-                    break;
-
-                case "Black":
-
-                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.PurpleHighlight));
-
-                    CloseOrOpenColors(true);
-
-
-                    break;
-
-                case "Blue":
-
-
-                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.SkyBlueHighlight));
-
-                    CloseOrOpenColors(true);
-
-
-                    break;
-
-                case "Purple":
-
-
-                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.PinkHighlight));
-
-                    CloseOrOpenColors(true);
-
-
-                    break;
-
-                case "Magenta":
-
-
-                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.MagentaHighlight));
-
-                    CloseOrOpenColors(true);
-
-
-                    break;
-
-                case "Orange":
-
-
-                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.OrangeHighlight));
-
-                    CloseOrOpenColors(true);
-
-
-                    break;
-
-                case "Yellow":
-
-                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.YellowSunHighlight));
-
-                    CloseOrOpenColors(true);
-
-
-                    break;
-
-                case "Green":
-
-                    EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.GrassGreen));
-
-                    CloseOrOpenColors(true);
-
-
-                    break;
-
-                default:
-
-
-                    break;
-            }
-        } else {
-            switch (color) {
-
-                case "Black":
-
-                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.Black)));
-
-                    CloseOrOpenColors(false);
-
-
-                    break;
-
-                case "Blue":
-
-                    EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.SkyBlue));
-
-                    //  Blue = !Blue;
-
-
-                    CloseOrOpenColors(false);
-
-
-                    break;
-
-                case "Purple":
-
-                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.Pink)));
-
-                    //  Purple = !Purple;
-
-                    CloseOrOpenColors(false);
-
-
-                    break;
-
-                case "Magenta":
-
-                    EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Magenta));
-
-                    //  Magenta = !Magenta;
-
-
-                    CloseOrOpenColors(false);
-
-
-                    break;
-
-                case "Orange":
-
-
-                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.Orange)));
-
-                    //  Orange = !Orange;
-
-                    CloseOrOpenColors(false);
-
-
-                    break;
-
-                case "Yellow":
-
-
-                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.YellowSun)));
-
-                    // Yellow = !Yellow;
-
-                    CloseOrOpenColors(false);
-
-
-                    break;
-
-                case "Green":
-
-
-                    EverAdapter.GetActiveEditor().setTextColor(GetColor((R.color.GrassGreen)));
-
-                    // Green = !Green;
-
-                    CloseOrOpenColors(false);
-
-
-                    break;
-
-                default:
-
-
-                    break;
-            }
-        }
-    }
-
-    public void CloseOrOpenFormatter() {
-
-        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
-
-        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
-
-        if (CloseFormatter) {
-
-            ChangeColor.setVisibility(View.GONE);
-            Bold.setVisibility(View.GONE);
-            Italic.setVisibility(View.GONE);
-            Bold.setVisibility(View.GONE);
-            Underline.setVisibility(View.GONE);
-            Striketrough.setVisibility(View.GONE);
-            HighlightText.setVisibility(View.GONE);
-
-            Black.setVisibility(View.GONE);
-            Blue.setVisibility(View.GONE);
-            Purple.setVisibility(View.GONE);
-            Magenta.setVisibility(View.GONE);
-            Orange.setVisibility(View.GONE);
-            Yellow.setVisibility(View.GONE);
-            Green.setVisibility(View.GONE);
-
-            BlackHighlight.setVisibility(View.GONE);
-            BlueHighlight.setVisibility(View.GONE);
-            PurpleHighlight.setVisibility(View.GONE);
-            MagentaHighlight.setVisibility(View.GONE);
-            OrangeHighlight.setVisibility(View.GONE);
-            YellowHighlight.setVisibility(View.GONE);
-            GreenHighlight.setVisibility(View.GONE);
-
-            Increase.setVisibility(View.GONE);
-            Decrease.setVisibility(View.GONE);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                format_selector.startAnimation(fadeout);
-
-            }, 250);
-
-            CloseFormatter = false;
-
-
-        } else {
-
-            format_selector.setVisibility(View.VISIBLE);
-
-            format_selector.startAnimation(fadein);
-
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                Increase.setVisibility(View.VISIBLE);
-                Decrease.setVisibility(View.VISIBLE);
-                ChangeColor.setVisibility(View.VISIBLE);
-                Italic.setVisibility(View.VISIBLE);
-                Bold.setVisibility(View.VISIBLE);
-                Underline.setVisibility(View.VISIBLE);
-                Striketrough.setVisibility(View.VISIBLE);
-                HighlightText.setVisibility(View.VISIBLE);
-
-            }, 130);
-
-            CloseFormatter = true;
-
-        }
-    }
-
-    public void CloseOrOpenParagraph() {
-
-        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
-
-        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
-
-        if (CloseParagraph) {
-
-            spacing.setVisibility(View.GONE);
-            Bullets.setVisibility(View.GONE);
-            Numbers.setVisibility(View.GONE);
-            Left.setVisibility(View.GONE);
-            Center.setVisibility(View.GONE);
-            Right.setVisibility(View.GONE);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                paragraph_selector.startAnimation(fadeout);
-
-            }, 250);
-
-            CloseParagraph = false;
-
-
-        } else {
-
-            paragraph_selector.setVisibility(View.VISIBLE);
-
-            paragraph_selector.startAnimation(fadein);
-
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                spacing.setVisibility(View.VISIBLE);
-                Bullets.setVisibility(View.VISIBLE);
-                Numbers.setVisibility(View.VISIBLE);
-                Left.setVisibility(View.VISIBLE);
-                Center.setVisibility(View.VISIBLE);
-                Right.setVisibility(View.VISIBLE);
-
-            }, 130);
-
-            CloseParagraph = true;
-
-        }
-    }
-
-    public void CloseOrOpenImporter() {
-
-        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
-
-        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
-
-        if (CloseImporter) {
-
-            GooglePhotos.setVisibility(View.GONE);
-            Gallery.setVisibility(View.GONE);
-            Files.setVisibility(View.GONE);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                importer_selector.startAnimation(fadeout);
-
-            }, 150);
-
-            CloseImporter = false;
-
-
-        } else {
-
-            importer_selector.setVisibility(View.VISIBLE);
-
-            importer_selector.startAnimation(fadein);
-
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                GooglePhotos.setVisibility(View.VISIBLE);
-                Gallery.setVisibility(View.VISIBLE);
-                Files.setVisibility(View.VISIBLE);
-
-            }, 150);
-
-            CloseImporter = true;
-
-        }
-    }
 
     public void CloseOrOpenToolbarUndoRedo() {
 
@@ -1212,145 +718,6 @@ public class MainActivity extends AppCompatActivity {
 
                 bottomBarShowing = true;
 
-            }
-        }
-    }
-
-    public void CloseOrOpenColors(Boolean highlight) {
-
-        if (CloseOpenedColors) {
-
-            if (highlight) {
-
-                BlackHighlight.setVisibility(View.GONE);
-                BlueHighlight.setVisibility(View.GONE);
-                PurpleHighlight.setVisibility(View.GONE);
-                MagentaHighlight.setVisibility(View.GONE);
-                OrangeHighlight.setVisibility(View.GONE);
-                YellowHighlight.setVisibility(View.GONE);
-                GreenHighlight.setVisibility(View.GONE);
-                ClearHighlight.setVisibility(View.GONE);
-
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    ChangeColor.setVisibility(View.VISIBLE);
-                    Bold.setVisibility(View.VISIBLE);
-                    Italic.setVisibility(View.VISIBLE);
-                    Bold.setVisibility(View.VISIBLE);
-                    Underline.setVisibility(View.VISIBLE);
-                    Striketrough.setVisibility(View.VISIBLE);
-                    HighlightText.setVisibility(View.VISIBLE);
-
-                    Increase.setVisibility(View.VISIBLE);
-                    Decrease.setVisibility(View.VISIBLE);
-                    Left.setVisibility(View.VISIBLE);
-                    Center.setVisibility(View.VISIBLE);
-                    Right.setVisibility(View.VISIBLE);
-                }, 200);
-
-                CloseOpenedColorsHighlight = false;
-
-            } else {
-
-                Black.setVisibility(View.GONE);
-                Blue.setVisibility(View.GONE);
-                Purple.setVisibility(View.GONE);
-                Magenta.setVisibility(View.GONE);
-                Orange.setVisibility(View.GONE);
-                Yellow.setVisibility(View.GONE);
-                Green.setVisibility(View.GONE);
-
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-
-                    //  ChangeColor.setVisibility(View.VISIBLE);
-                    Bold.setVisibility(View.VISIBLE);
-                    Italic.setVisibility(View.VISIBLE);
-                    Bold.setVisibility(View.VISIBLE);
-                    Underline.setVisibility(View.VISIBLE);
-                    Striketrough.setVisibility(View.VISIBLE);
-                    HighlightText.setVisibility(View.VISIBLE);
-
-                    Increase.setVisibility(View.VISIBLE);
-                    Decrease.setVisibility(View.VISIBLE);
-                    Left.setVisibility(View.VISIBLE);
-                    Center.setVisibility(View.VISIBLE);
-                    Right.setVisibility(View.VISIBLE);
-
-                }, 200);
-
-                CloseOpenedColors = false;
-
-            }
-
-        } else {
-            if (highlight) {
-
-                ChangeColor.setVisibility(View.GONE);
-                Bold.setVisibility(View.GONE);
-                Italic.setVisibility(View.GONE);
-                Bold.setVisibility(View.GONE);
-                Underline.setVisibility(View.GONE);
-                Striketrough.setVisibility(View.GONE);
-                HighlightText.setVisibility(View.GONE);
-                ClearHighlight.setVisibility(View.VISIBLE);
-
-                Increase.setVisibility(View.GONE);
-                Decrease.setVisibility(View.GONE);
-                Left.setVisibility(View.GONE);
-                Center.setVisibility(View.GONE);
-                Right.setVisibility(View.GONE);
-
-
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    // ChangeColor.setVisibility(View.GONE);
-
-                    BlackHighlight.setVisibility(View.VISIBLE);
-                    BlueHighlight.setVisibility(View.VISIBLE);
-                    PurpleHighlight.setVisibility(View.VISIBLE);
-                    MagentaHighlight.setVisibility(View.VISIBLE);
-                    OrangeHighlight.setVisibility(View.VISIBLE);
-                    YellowHighlight.setVisibility(View.VISIBLE);
-                    GreenHighlight.setVisibility(View.VISIBLE);
-                }, 250);
-
-                CloseOpenedColorsHighlight = true;
-
-            } else {
-
-                BlackHighlight.setVisibility(View.GONE);
-                BlueHighlight.setVisibility(View.GONE);
-                PurpleHighlight.setVisibility(View.GONE);
-                MagentaHighlight.setVisibility(View.GONE);
-                OrangeHighlight.setVisibility(View.GONE);
-                YellowHighlight.setVisibility(View.GONE);
-                GreenHighlight.setVisibility(View.GONE);
-
-                Bold.setVisibility(View.GONE);
-                Italic.setVisibility(View.GONE);
-                Bold.setVisibility(View.GONE);
-                Underline.setVisibility(View.GONE);
-                Striketrough.setVisibility(View.GONE);
-                HighlightText.setVisibility(View.GONE);
-
-                Increase.setVisibility(View.GONE);
-                Decrease.setVisibility(View.GONE);
-                Left.setVisibility(View.GONE);
-                Center.setVisibility(View.GONE);
-                Right.setVisibility(View.GONE);
-
-
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    // ChangeColor.setVisibility(View.GONE);
-
-                    Black.setVisibility(View.VISIBLE);
-                    Blue.setVisibility(View.VISIBLE);
-                    Purple.setVisibility(View.VISIBLE);
-                    Magenta.setVisibility(View.VISIBLE);
-                    Orange.setVisibility(View.VISIBLE);
-                    Yellow.setVisibility(View.VISIBLE);
-                    Green.setVisibility(View.VISIBLE);
-                }, 250);
-                CloseOpenedColors = true;
             }
         }
     }
@@ -1588,15 +955,6 @@ public class MainActivity extends AppCompatActivity {
         if (CloseOpenedDrawSize) {
             CloseOrOpenDrawSize();
         }
-        if (CloseFormatter) {
-            CloseOrOpenFormatter();
-        }
-        if (CloseParagraph) {
-            CloseOrOpenParagraph();
-        }
-        if (CloseImporter) {
-            CloseOrOpenImporter();
-        }
         if (bottomBarShowing) {
             CloseOrOpenBottomNoteBar(false);
         }
@@ -1691,6 +1049,188 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void formatClick(View view) {
+        switch (view.getTag().toString()) {
+            case "increaseSize":
+                if (size < 7) {
+
+                    size++;
+                    EverAdapter.GetActiveEditor().setEditorFontSize(size);
+                }
+                break;
+
+            case "decreaseSize":
+                if (size > 3) {
+
+                    size--;
+                    EverAdapter.GetActiveEditor().setEditorFontSize(size);
+                }
+                break;
+
+            case "changeColor":
+                View popView = LayoutInflater.from(this).inflate(R.layout.color_change_popup, null);
+                popupWindowHelperColor = new PopupWindowHelper(popView);
+                popupWindowHelperColor.showAsPopUp(note_bottom_bar, 50, -180);
+                break;
+
+            case "bold":
+                EverAdapter.GetActiveEditor().setBold();
+                break;
+
+            case "italic":
+                EverAdapter.GetActiveEditor().setItalic();
+                break;
+
+            case "underline":
+                EverAdapter.GetActiveEditor().setUnderline();
+                break;
+
+            case "striketrough":
+                EverAdapter.GetActiveEditor().setStrikeThrough();
+                break;
+
+            case "highlight":
+                View popView2 = LayoutInflater.from(this).inflate(R.layout.highlight_color_change_popup, null);
+                popupWindowHelperColor = new PopupWindowHelper(popView2);
+                popupWindowHelperColor.showAsPopUp(note_bottom_bar, 50, -180);
+                break;
+            case "clearHighlight":
+               EverAdapter.GetActiveEditor().setTextBackgroundColor(Color.WHITE);
+                break;
+        }
+       // popupWindowHelper.dismiss();
+    }
+
+    public void colorChangeClick(View view) {
+        switch (view.getTag().toString()) {
+            case "black":
+                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Black));
+                break;
+
+            case "white":
+                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.White));
+                break;
+
+            case "magenta":
+                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Magenta));
+                break;
+
+            case "purple":
+                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Pink));
+                break;
+
+            case "orange":
+                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Orange));
+                break;
+
+            case "blue":
+                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.SkyBlue));
+                break;
+
+            case "yellow":
+                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.YellowSun));
+                break;
+
+            case "green":
+                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.GrassGreen));
+                break;
+
+        }
+        popupWindowHelperColor.dismiss();
+    }
+
+    public void highlightColorChangeClick(View view) {
+        switch (view.getTag().toString()) {
+            case "blackHighlight":
+                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.Black));
+                break;
+
+            case "whiteHighlight":
+                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.White));
+                break;
+
+            case "magentaHighlight":
+                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.Magenta));
+                break;
+
+            case "purpleHighlight":
+                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.Pink));
+                break;
+
+            case "orangeHighlight":
+                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.Orange));
+                break;
+
+            case "blueHighlight":
+                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.SkyBlue));
+                break;
+
+            case "yellowHighlight":
+                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.YellowSun));
+                break;
+
+            case "greenHighlight":
+                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.GrassGreen));
+                break;
+
+            case "clearHighlight":
+                EverAdapter.GetActiveEditor().setTextBackgroundColor(Color.WHITE);
+                break;
+
+        }
+        popupWindowHelperColor.dismiss();
+    }
+
+    public void paragraphClick(View view) {
+        switch (view.getTag().toString()) {
+            case "numbers":
+                EverAdapter.GetActiveEditor().setNumbers();
+                break;
+
+            case "bullets":
+                EverAdapter.GetActiveEditor().setBullets();
+                break;
+
+            case "alignLeft":
+                EverAdapter.GetActiveEditor().setAlignLeft();
+                break;
+
+            case "alignCenter":
+                EverAdapter.GetActiveEditor().setAlignCenter();
+                break;
+
+            case "alignRight":
+                EverAdapter.GetActiveEditor().setAlignRight();
+                break;
+
+        }
+        popupWindowHelper.dismiss();
+    }
+
+    public void importerClick(View view) {
+        switch (view.getTag().toString()) {
+            case "gallery":
+                // TODO
+                break;
+
+            case "googlePhotos":
+                Intent intentGooglePhotos = new Intent();
+                intentGooglePhotos.setAction(Intent.ACTION_PICK);
+                intentGooglePhotos.setType("image/*");
+                intentGooglePhotos.setPackage("com.google.android.apps.photos");
+                startActivityForResult(intentGooglePhotos, 101);
+                break;
+
+            case "files":
+                Intent intentFiles = new Intent();
+                intentFiles.setType("image/*");
+                intentFiles.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intentFiles, "Select Picture"), 101);
+                break;
+        }
+        popupWindowHelper.dismiss();
+    }
+
     public void clickToCustomize(View view) {
         switch (view.getTag().toString()) {
             case "black":
@@ -1752,6 +1292,32 @@ public class MainActivity extends AppCompatActivity {
         mDatabaseEver.editColor(String.valueOf(selectedID), String.valueOf(color));
         notesModels.get(selectedPosition).setNoteColor(String.valueOf(color));
         recyclertest.removeViewAt(selectedPosition);
+    }
+    public @NonNull static Bitmap createBitmapFromView(@NonNull View view, int width, int height) {
+        if (width > 0 && height > 0) {
+            view.measure(View.MeasureSpec.makeMeasureSpec(DynamicUnitUtils
+                            .convertDpToPixels(width), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(DynamicUnitUtils
+                            .convertDpToPixels(height), View.MeasureSpec.EXACTLY));
+        }
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(),
+                view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        Drawable background = view.getBackground();
+
+        if (background != null) {
+            background.draw(canvas);
+        }
+        view.draw(canvas);
+
+        return bitmap;
+    }
+
+    public void ClearIonCache() {
+        Ion.getDefault(this).getBitmapCache().clear();
+        Ion.getDefault(this).getCache().clear();
     }
 }
 

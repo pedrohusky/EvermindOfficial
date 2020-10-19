@@ -1,111 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
-    tools:context=".MainActivity">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:layout_constraintBottom_toTopOf="@+id/include"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:background="?attr/colorPrimary"
-            android:visibility="gone"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:theme="@style/ToolbarColoredBackArrow">
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/Undo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/selected_background"
-                android:padding="3dp"
-                android:scaleType="fitCenter"
-                android:visibility="gone"
-                app:srcCompat="@drawable/ic_baseline_undo_24" />
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/Redo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/selected_background"
-                android:padding="3dp"
-                android:scaleType="fitCenter"
-                android:visibility="gone"
-                app:srcCompat="@drawable/ic_baseline_redo_24" />
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="9dp"
-                android:paddingRight="9dp"
-                android:scaleType="fitCenter"
-                android:visibility="gone"
-                app:srcCompat="@drawable/evermindblack_cropped" />
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/Save"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="255dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/selected_background"
-                android:padding="3dp"
-                android:scaleType="fitCenter"
-                android:tint="@color/Black"
-                android:visibility="gone"
-                app:srcCompat="@drawable/ic_baseline_check_24" />
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/Delete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/selected_background"
-                android:padding="3dp"
-                android:scaleType="fitCenter"
-                android:tint="@color/Black"
-                android:visibility="gone"
-                app:srcCompat="@drawable/clear" />
-
-        </androidx.appcompat.widget.Toolbar>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <include
-        android:id="@+id/include"
-        layout="@layout/content_main"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/draw_options"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="15dp"
         android:animateLayoutChanges="true"
         android:paddingBottom="5dp"
-        android:translationY="-70dp"
-        android:visibility="gone"
+        android:visibility="visible"
         app:cardBackgroundColor="@color/White"
         app:cardCornerRadius="30dp"
         app:cardElevation="9dp"
@@ -119,7 +25,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
-            android:scrollbars="none">
+            android:scrollbars="none"
+            android:visibility="visible">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -129,7 +36,8 @@
                 android:paddingLeft="0dp"
                 android:paddingTop="0dp"
                 android:paddingRight="0dp"
-                android:paddingBottom="0dp">
+                android:paddingBottom="0dp"
+                android:visibility="visible">
 
                 <ImageButton
                     android:id="@+id/DrawChangeSize"
@@ -144,7 +52,7 @@
                     android:scaleType="center"
                     android:scaleX="1.35"
                     android:scaleY="1.35"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:srcCompat="@drawable/circle_draw_size" />
 
                 <ImageButton
@@ -159,7 +67,7 @@
                     android:scaleX="1.35"
                     android:scaleY="1.35"
                     android:tint="@color/Black"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:srcCompat="@drawable/color_selector_icon" />
 
                 <ImageButton
@@ -173,7 +81,7 @@
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Black"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
@@ -187,7 +95,7 @@
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/SkyBlue"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
@@ -201,7 +109,7 @@
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Pink"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
@@ -215,7 +123,7 @@
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Magenta"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
@@ -229,7 +137,7 @@
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Orange"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
@@ -243,7 +151,7 @@
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/YellowSun"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
@@ -257,7 +165,7 @@
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/GrassGreen"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <androidx.appcompat.widget.AppCompatSeekBar
@@ -269,54 +177,9 @@
                     android:background="@drawable/selected_background"
                     android:max="50"
                     android:padding="4dp"
-                    android:visibility="gone" />
+                    android:visibility="visible" />
 
             </LinearLayout>
         </HorizontalScrollView>
     </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/draw_sizeVisualizerCardView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="120dp"
-        android:animateLayoutChanges="true"
-        android:paddingBottom="5dp"
-        android:translationY="-130dp"
-        android:visibility="gone"
-        app:cardBackgroundColor="@color/White"
-        app:cardCornerRadius="30dp"
-        app:cardElevation="9dp"
-        app:contentPadding="5dp"
-        app:layout_constraintBottom_toBottomOf="@+id/draw_options"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <ImageView
-            android:id="@+id/draw_size_visualizer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/selected_background"
-            android:padding="4dp"
-            android:scaleType="fitCenter"
-            android:visibility="gone"
-            app:srcCompat="@drawable/circle_colors_border"
-            app:tint="@color/Black" />
-
-    </androidx.cardview.widget.CardView>
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/note_bottom_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
-        android:background="?android:attr/windowBackground"
-        android:visibility="gone"
-        app:itemIconTint="@color/Black"
-        app:itemTextColor="@color/Black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/note_bottom_options" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

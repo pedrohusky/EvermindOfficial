@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/format_selector"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:animateLayoutChanges="true"
+        android:paddingBottom="5dp"
+        android:visibility="visible"
+        app:cardBackgroundColor="@color/White"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="9dp"
+        app:contentPadding="5dp">
+
+        <HorizontalScrollView
+            android:id="@+id/scroll_formatter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:scrollbars="none"
+            android:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:gravity="bottom|center_horizontal"
+                android:paddingLeft="0dp"
+                android:paddingTop="0dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="0dp"
+                android:visibility="visible">
+
+                <ImageButton
+                    android:id="@+id/black1"
+                    android:tag="black"
+                    android:onClick="colorChangeClick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Black"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/circle_colors_border" />
+
+                <ImageButton
+                    android:id="@+id/blue1"
+                    android:tag="blue"
+                    android:onClick="colorChangeClick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/SkyBlue"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/circle_colors_border" />
+
+                <ImageButton
+                    android:id="@+id/purple1"
+                    android:tag="purple"
+                    android:onClick="colorChangeClick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Pink"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/circle_colors_border" />
+
+                <ImageButton
+                    android:id="@+id/magenta1"
+                    android:tag="magenta"
+                    android:onClick="colorChangeClick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Magenta"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/circle_colors_border" />
+
+                <ImageButton
+                    android:id="@+id/orange1"
+                    android:tag="orange"
+                    android:onClick="colorChangeClick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Orange"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/circle_colors_border" />
+
+                <ImageButton
+                    android:id="@+id/yellow1"
+                    android:tag="yellow"
+                    android:onClick="colorChangeClick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/YellowSun"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/circle_colors_border" />
+
+                <ImageButton
+                    android:id="@+id/green1"
+                    android:tag="green"
+                    android:onClick="colorChangeClick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:padding="4dp"
+                    android:scaleType="center"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/GrassGreen"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/circle_colors_border" />
+
+            </LinearLayout>
+        </HorizontalScrollView>
+    </androidx.cardview.widget.CardView>
+</FrameLayout>

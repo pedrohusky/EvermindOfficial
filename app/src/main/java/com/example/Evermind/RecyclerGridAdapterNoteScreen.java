@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +21,9 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.transition.ChangeBounds;
+import androidx.transition.TransitionManager;
+import androidx.transition.TransitionSet;
 
 import com.example.Evermind.recycler_models.Content;
 import com.example.Evermind.recycler_models.Draw;
@@ -50,6 +54,7 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
     private RecyclerView myRecyclerView;
     private CardView myCardView;
     private ArrayList<Note_Model> models = new ArrayList<>();
+    private ImageView decoy;
 
     public RecyclerGridAdapterNoteScreen(Context contexts, ArrayList<Note_Model> noteModels) {
 
@@ -75,11 +80,24 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
         ViewCompat.setTransitionName(myRecyclerView, "imageRecycler"+position);
         ViewCompat.setTransitionName(myTitleView, "title"+position);
 
-        myTitleView.setBackgroundTintList(ColorStateList.valueOf(Integer.parseInt(models.get(position).getNoteColor())));
+        if (!models.get(position).getNoteColor().equals("000000")) {
+            myCardView.setBackgroundTintList(ColorStateList.valueOf(Integer.parseInt(models.get(position).getNoteColor())));
+        }
 
         SetupNoteEditorRecycler(position);
 
         myTitleView.setText(models.get(position).getTitle());
+
+        if (models.get(position).getTitle().length() < 1) {
+            TransitionManager.beginDelayedTransition(myCardView, new TransitionSet()
+                    .addTransition(new ChangeBounds()));
+            ViewGroup.LayoutParams params = myTitleView.getLayoutParams();
+
+            params.height = 30;
+
+            myTitleView.setLayoutParams(params);
+
+        }
 
       //  textanddrawRecyclerView.setBackgroundColor(Integer.parseInt(models.get(position).getNoteColor()));
 
@@ -94,22 +112,14 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerView.Adapter<Recycler
             myRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
           //  ImagesRecyclerNoteScreenGridAdapter adapter = new ImagesRecyclerNoteScreenGridAdapter(context, imagesURLs, position, imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length);
-            myRecyclerView.setAdapter(new ImagesRecyclerNoteScreenGridAdapter(context, imagesURLs, position, imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼").length));
+            String[] images = imagesURLs.replaceAll("[\\[\\](){}]", "").split("┼");
+            int length = images.length;
+            myRecyclerView.setAdapter(new ImagesRecyclerNoteScreenGridAdapter(context, images, position, length));
 
             OverScrollDecoratorHelper.setUpOverScroll(myRecyclerView, OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
 
         }
 
-
-        if (myTitleView.length() < 1) {
-            ViewGroup.LayoutParams params = myTitleView.getLayoutParams();
-
-            params.height = 65;
-
-            myTitleView.setLayoutParams(params);
-
-
-        }
 
     }
 
