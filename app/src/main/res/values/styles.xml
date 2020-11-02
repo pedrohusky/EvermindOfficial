@@ -3,7 +3,6 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/White</item>
-        <item name="colorPrimaryDark">@color/Grey</item>
         <item name="colorAccent">@color/Black</item>
         <item name="android:windowContentTransitions">true</item>
     </style>

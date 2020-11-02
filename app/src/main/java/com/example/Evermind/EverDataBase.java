@@ -67,7 +67,7 @@ public class EverDataBase extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(NOTE_CONTENT, content);
         contentValues.put(NOTE_TITLE, title);
-        contentValues.put(NOTE_IMAGEURL, "┼");
+        contentValues.put(NOTE_IMAGEURL, "");
         contentValues.put(NOTE_BACKGROUND, "");
         contentValues.put(NOTE_COLOR, "000000");
         Date currentTime = Calendar.getInstance().getTime();
@@ -250,8 +250,6 @@ public class EverDataBase extends SQLiteOpenHelper {
 
     public void deleteNote(Integer id) {
 
-        new Thread(() -> {
-
             SQLiteDatabase db = this.getWritableDatabase();
             String query = "DELETE FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + id + "'";
             Cursor cursor = db.rawQuery(query, null);
@@ -259,7 +257,6 @@ public class EverDataBase extends SQLiteOpenHelper {
 
             } else {
             }
-        }).start();
     }
 
     public void setNoteModel(String id, String title, String content, String draws, String images, String color) {

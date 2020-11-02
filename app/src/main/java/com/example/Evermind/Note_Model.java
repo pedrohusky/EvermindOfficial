@@ -5,6 +5,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Note_Model implements Serializable {
 
@@ -15,19 +19,10 @@ public class Note_Model implements Serializable {
     private String date;
     private String ImageURLS;
     private String drawLocation;
-
     private String noteColor;
-
-    public Note_Model(int id, int actualPosition, String title, String content, String date, String imageURLS, String drawLocation, String color) {
-        this.id = id;
-        this.actualPosition = actualPosition;
-        this.title = title;
-        this.content = content;
-        this.date = date;
-        ImageURLS = imageURLS;
-        this.drawLocation = drawLocation;
-        noteColor = color;
-    }
+    private final ArrayList<String> contents = new ArrayList<>();
+    private final ArrayList<String> draws = new ArrayList<>();
+    private final ArrayList<String> images = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -40,7 +35,37 @@ public class Note_Model implements Serializable {
                 ", ImageURLS='" + ImageURLS + '\'' +
                 ", drawLocation='" + drawLocation + '\'' +
                 ", noteColor='" + noteColor + '\'' +
+                ", contents=" + contents +
+                ", draws=" + draws +
+                ", images=" + images +
                 '}';
+    }
+
+    public Note_Model(int id, int actualPosition, String title, String content, String date, String imageURLS, String drawLocation, String color) {
+        this.id = id;
+        this.actualPosition = actualPosition;
+        this.title = title;
+        this.content = content;
+        this.date = date;
+        ImageURLS = imageURLS;
+        this.drawLocation = drawLocation;
+        noteColor = color;
+
+      Collections.addAll(contents, this.content.split("┼"));
+      Collections.addAll(draws, this.drawLocation.split("┼"));
+      Collections.addAll(images, ImageURLS.split("┼"));
+    }
+
+    public ArrayList<String> getContents() {
+        return contents;
+    }
+
+    public ArrayList<String> getDraws() {
+        return draws;
+    }
+
+    public ArrayList<String> getImages() {
+        return images;
     }
 
     public String getNoteColor() {
@@ -73,6 +98,8 @@ public class Note_Model implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+        contents.clear();
+        Collections.addAll(contents, this.content.split("┼"));
     }
 
     public String getDate() {
@@ -89,6 +116,8 @@ public class Note_Model implements Serializable {
 
     public void setImageURLS(String imageURLS) {
         ImageURLS = imageURLS;
+        images.clear();
+        Collections.addAll(images, ImageURLS.split("┼"));
     }
     public int getActualPosition() {
         return actualPosition;
@@ -104,5 +133,7 @@ public class Note_Model implements Serializable {
 
     public void setDrawLocation(String drawLocation) {
         this.drawLocation = drawLocation;
+        draws.clear();
+        Collections.addAll(draws,  this.drawLocation.split("┼"));
     }
 }

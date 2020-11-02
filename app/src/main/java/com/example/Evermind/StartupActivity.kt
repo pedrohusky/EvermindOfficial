@@ -144,6 +144,7 @@ class StartupActivity : AppCompatActivity() {
                         )
                     }
 
+
                     noteModels.sortWith(Comparator { obj1: Note_Model, obj2: Note_Model ->
                         obj2.id.compareTo(obj1.id)
                     })

@@ -40,38 +40,9 @@
                 android:visibility="visible">
 
                 <ImageButton
-                    android:id="@+id/DrawChangeSize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="7dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/selected_background"
-                    android:elevation="2dp"
-                    android:padding="4dp"
-                    android:scaleType="center"
-                    android:scaleX="1.35"
-                    android:scaleY="1.35"
-                    android:visibility="visible"
-                    app:srcCompat="@drawable/circle_draw_size" />
-
-                <ImageButton
-                    android:id="@+id/DrawChangeColor"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="7dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/selected_background"
-                    android:padding="4dp"
-                    android:scaleType="center"
-                    android:scaleX="1.35"
-                    android:scaleY="1.35"
-                    android:tint="@color/Black"
-                    android:visibility="visible"
-                    app:srcCompat="@drawable/color_selector_icon" />
-
-                <ImageButton
                     android:id="@+id/Drawblack"
+                    android:tag="black"
+                    android:onClick="drawColorChangeClick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -86,6 +57,8 @@
 
                 <ImageButton
                     android:id="@+id/Drawblue"
+                    android:tag="blue"
+                    android:onClick="drawColorChangeClick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -100,6 +73,8 @@
 
                 <ImageButton
                     android:id="@+id/Drawpurple"
+                    android:tag="purple"
+                    android:onClick="drawColorChangeClick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -114,6 +89,8 @@
 
                 <ImageButton
                     android:id="@+id/Drawmagenta"
+                    android:tag="magenta"
+                    android:onClick="drawColorChangeClick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -128,6 +105,8 @@
 
                 <ImageButton
                     android:id="@+id/Draworange"
+                    android:tag="orange"
+                    android:onClick="drawColorChangeClick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -142,6 +121,8 @@
 
                 <ImageButton
                     android:id="@+id/Drawyellow"
+                    android:tag="yellow"
+                    android:onClick="drawColorChangeClick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -156,6 +137,8 @@
 
                 <ImageButton
                     android:id="@+id/Drawgreen"
+                    android:tag="green"
+                    android:onClick="drawColorChangeClick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -167,17 +150,6 @@
                     android:tint="@color/GrassGreen"
                     android:visibility="visible"
                     app:srcCompat="@drawable/circle_colors_border" />
-
-                <androidx.appcompat.widget.AppCompatSeekBar
-                    android:id="@+id/draw_size_seekbar"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="7dp"
-                    android:background="@drawable/selected_background"
-                    android:max="50"
-                    android:padding="4dp"
-                    android:visibility="visible" />
 
             </LinearLayout>
         </HorizontalScrollView>

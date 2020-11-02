@@ -1,12 +1,20 @@
 package com.example.Evermind;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.TimeInterpolator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -22,8 +30,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -36,8 +47,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -56,45 +67,29 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.koushikdutta.ion.Ion;
-import com.muehlemann.giphy.GiphyLibrary;
+
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
-import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
+import jp.wasabeef.blurry.Blurry;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+import mva2.adapter.ListSection;
+import mva2.adapter.MultiViewAdapter;
+
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AppBarConfiguration mAppBarConfiguration;
-
-    public GiphyLibrary giphyLibrary;
-
     public EverDataBase mDatabaseEver;
-
     public Integer ID;
-
-    public RecyclerView recyclertest;
-
-    private HorizontalScrollView scrollView1;
-    private HorizontalScrollView scrollView2;
-    private HorizontalScrollView scrollView3;
-    private HorizontalScrollView scrollView4;
-    public Boolean CloseFormatter = false;
-    public Boolean CloseParagraph = false;
-    public Boolean CloseImporter = false;
-    public Boolean CloseOpenedColors = false;
-    public Boolean CloseOpenedDrawOptions = false;
-    public Boolean CloseOpenedDrawColors = false;
-    public Boolean CloseOpenedDrawSize = false;
-    public Boolean CloseOpenedColorsHighlight = false;
-    public Boolean DeleteSave = false;
-    public Boolean UndoRedo = false;
-    public Boolean bottomBarShowing = false;
+    public Note_Model actualNote;
     public Boolean showNoteContents = false;
     public SeekBar seekBarDrawSize;
     public ImageButton Undo;
@@ -108,40 +103,69 @@ public class MainActivity extends AppCompatActivity {
     public ImageButton OrangeDraw;
     public ImageButton YellowDraw;
     public ImageButton GreenDraw;
-    private ImageButton DrawChangeColor;
-    private ImageButton DrawChangeSize;
-    private CardView DrawOptions;
     public BottomNavigationView note_bottom_bar;
     public Animation bottom_nav_anim;
     public Animation bottom_nav_anim_reverse;
     public Boolean DrawVisualizerIsShowing = false;
     public Boolean DrawOn = false;
-    private CardView size_visualizer;
-    private ImageView ImageSizeView;
-    private ImageButton Bullets;
-    private ImageButton Numbers;
-    private ImageView spacing;
-    private Toolbar toolbar;
-    private int size = 4;
-    private String ImagesUrls;
-    public Boolean addedNote;
     public NotesScreen noteScreen;
-    public SharedPreferences preferences;
-    public SharedPreferences.Editor editor;
     public boolean atHome = true;
     public boolean newNote = false;
     public int selectedPosition;
     public int selectedID;
     public CardView cardNoteCreator;
-    private PopupWindowHelper popupWindowHelperColor;
-    private PopupWindowHelper popupWindowHelper;
     public NoteEditorFragmentJavaFragment noteCreator;
     public RecyclerView contentRecycler;
     public TextView title;
     public RecyclerView imageRecycler;
-    public String[] arrays = new String[0];
-    public ArrayList<Note_Model> notesModels = new ArrayList<>();
+    //   public ArrayList<Note_Model> notesModels = new ArrayList<>();
+    public ArrayList<String> names = new ArrayList<>();
+    public int noteIdIncrement = 0;
+    public EverAdapter everAdapter;
+    public Window everMainWindow;
+    public ImageButton drawColor;
+    public ImageButton drawSize;
+    public ListSection<Note_Model> noteModelSection = new ListSection<>();
+    public MultiViewAdapter adapter = new MultiViewAdapter();
+    public RecyclerView recyclertest;
+    private AppBarConfiguration mAppBarConfiguration;
+    private HorizontalScrollView scrollView1;
+    private ImageButton DrawChangeColor;
+    private ImageButton DrawChangeSize;
+    private CardView DrawOptions;
+    private CardView size_visualizer;
+    private ImageView ImageSizeView;
+    private Toolbar toolbar;
+    private int size = 4;
+    private EverPopup popupWindowHelperColor;
+    private EverPopup popupWindowHelper;
+    public int defaultToolbarColor;
+    private boolean toolbarDown = false;
+    private boolean bottomBarUp = false;
+    private boolean cardDown = false;
 
+    public @NonNull
+    static Bitmap createBitmapFromView(@NonNull View view, int width, int height) {
+        if (width > 0 && height > 0) {
+            view.measure(View.MeasureSpec.makeMeasureSpec(DynamicUnitUtils
+                            .convertDpToPixels(width), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(DynamicUnitUtils
+                            .convertDpToPixels(height), View.MeasureSpec.EXACTLY));
+        }
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(),
+                view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        Drawable background = view.getBackground();
+
+        if (background != null) {
+            background.draw(canvas);
+        }
+        view.draw(canvas);
+
+        return bitmap;
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @SuppressLint({"ClickableViewAccessibility", "CommitPrefEdits"})
@@ -150,246 +174,199 @@ public class MainActivity extends AppCompatActivity {
 
         mDatabaseEver = new EverDataBase(this);
 
+        everMainWindow = getWindow();
+
+
         //TODO: optimize performance a little more and make sure everything that we changed is working as intended
 
-        notesModels = (ArrayList<Note_Model>) getIntent().getSerializableExtra("notes");
-        noteScreen = new NotesScreen();
-
-
-        System.out.println(notesModels.toString());
-        preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
-        editor = preferences.edit();
+        if (getIntent().hasExtra("notes")) {
+            //   notesModels = (ArrayList<Note_Model>) getIntent().getSerializableExtra("notes");
+            noteModelSection.addAll((ArrayList<Note_Model>) getIntent().getSerializableExtra("notes"));
+            noteScreen = new NotesScreen();
+            if (noteModelSection.size() > 0) {
+                noteIdIncrement = noteModelSection.get(0).getId();
+            }
+        }
+        adapter.registerItemBinders(new NoteModelBinder(this));
+        adapter.addSection(noteModelSection);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         new Handler(Looper.getMainLooper()).post(() -> {
 
-            giphyLibrary = new GiphyLibrary();
+            //  giphyLibrary = new GiphyLibrary();
 
             Fresco.initialize(this);
 
         });
 
-        SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = preferences.edit();
-
-        editor.clear();
         atHome = true;
-        editor.apply();
+
+        //   new Thread(() -> {
+        // a potentially time consuming task
+
+        note_bottom_bar = findViewById(R.id.note_bottom_bar);
+        bottom_nav_anim = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim);
+        bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
+        DrawChangeColor = findViewById(R.id.DrawChangeColor);
+        DrawChangeSize = findViewById(R.id.DrawChangeSize);
+        size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
+        ImageSizeView = findViewById(R.id.draw_size_visualizer);
+        DrawOptions = findViewById(R.id.draw_options);
+        seekBarDrawSize = findViewById(R.id.draw_size_seekbar);
+        BlackDraw = findViewById(R.id.Drawblack);
+        BlueDraw = findViewById(R.id.Drawblue);
+        PurpleDraw = findViewById(R.id.Drawpurple);
+        MagentaDraw = findViewById(R.id.Drawmagenta);
+        OrangeDraw = findViewById(R.id.Draworange);
+        YellowDraw = findViewById(R.id.Drawyellow);
+        GreenDraw = findViewById(R.id.Drawgreen);
+        DrawOptions = findViewById(R.id.draw_options);
+        size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
+        ImageSizeView = findViewById(R.id.draw_size_visualizer);
+        Undo = findViewById(R.id.Undo);
+        Redo = findViewById(R.id.Redo);
+        Delete = findViewById(R.id.Delete);
+        Save = findViewById(R.id.Save);
+        toolbar = findViewById(R.id.toolbar);
+        scrollView1 = findViewById(R.id.scroll_draw);
+        drawColor = findViewById(R.id.drawColor);
+        drawSize = findViewById(R.id.drawSize);
+        OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
+
+        defaultToolbarColor = toolbar.getBackgroundTintList().getDefaultColor();
 
 
-        //////////CLEAR SHAREDPREFS
+        new Handler(Looper.getMainLooper()).post(() -> {
 
-        new Thread(() -> {
-            // a potentially time consuming task
+            setSupportActionBar(toolbar);
 
-            note_bottom_bar = findViewById(R.id.note_bottom_bar);
-            bottom_nav_anim = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim);
-            bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
-           // new ARE_BackgroundColor(ChangeColor, R.color.Magenta);
-            DrawChangeColor = findViewById(R.id.DrawChangeColor);
-            DrawChangeSize = findViewById(R.id.DrawChangeSize);
-            size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
-            ImageSizeView = findViewById(R.id.draw_size_visualizer);
-            DrawOptions = findViewById(R.id.draw_options);
-            seekBarDrawSize = findViewById(R.id.draw_size_seekbar);
-            BlackDraw = findViewById(R.id.Drawblack);
-            BlueDraw = findViewById(R.id.Drawblue);
-            PurpleDraw = findViewById(R.id.Drawpurple);
-            MagentaDraw = findViewById(R.id.Drawmagenta);
-            OrangeDraw = findViewById(R.id.Draworange);
-            YellowDraw = findViewById(R.id.Drawyellow);
-            GreenDraw = findViewById(R.id.Drawgreen);
-            DrawOptions = findViewById(R.id.draw_options);
-            size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
-            ImageSizeView = findViewById(R.id.draw_size_visualizer);
-            Undo = findViewById(R.id.Undo);
-            Redo = findViewById(R.id.Redo);
-            Delete = findViewById(R.id.Delete);
-            Save = findViewById(R.id.Save);
-            Bullets = findViewById(R.id.Bullets);
-            Numbers = findViewById(R.id.Numbers);
-            spacing = findViewById(R.id.paragraph_spacing);
-            toolbar = findViewById(R.id.toolbar);
-            scrollView1 = findViewById(R.id.scroll_draw);
-            //OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
+            Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
 
-            new Handler(Looper.getMainLooper()).post(() -> {
+            //   DrawerLayout drawer = findViewById(R.id.drawer_layout);
+            NavigationView navigationView = findViewById(R.id.nav_view);
 
-                setSupportActionBar(toolbar);
+            // Passing each menu ID as a set of Ids because each
+            // menu should be considered as top level destinations.
 
-                Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+            mAppBarConfiguration = new AppBarConfiguration.Builder(
+                    R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_note)
+                    //  .setDrawerLayout(drawer)
+                    .build();
 
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+            NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+            NavigationUI.setupWithNavController(navigationView, navController);
 
-                //  DrawerLayout drawer = findViewById(R.id.drawer_layout);
-                NavigationView navigationView = findViewById(R.id.nav_view);
-
-                // Passing each menu ID as a set of Ids because each
-                // menu should be considered as top level destinations.
-
-                mAppBarConfiguration = new AppBarConfiguration.Builder(
-                        R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_note)
-                        // .setDrawerLayout(drawer)
-                        .build();
-
-                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-                NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-                NavigationUI.setupWithNavController(navigationView, navController);
-
-            });
+        });
 
 
-            KeyboardVisibilityEvent.setEventListener(
-                    this,
-                    isOpen -> {
+        KeyboardVisibilityEvent.setEventListener(
+                this,
+                isOpen -> {
 
-                        if (isOpen) {
+                    if (isOpen) {
 
-                            //TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                            //        .addTransition(new ChangeBounds()));
+                        //TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                        //        .addTransition(new ChangeBounds()));
 
-                            // evermindEditor.setEditorHeight(250);
+                        // evermindEditor.setEditorHeight(250);
 
-                            // ViewGroup.LayoutParams params = cardView.getLayoutParams();
+                        // ViewGroup.LayoutParams params = cardView.getLayoutParams();
 
-                            //params.height = 1100;
+                        //params.height = 1100;
 
-                            // cardView.setLayoutParams(params);
+                        // cardView.setLayoutParams(params);
 
-                        } else {
+                    } else {
 
-                            //  TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                            //          .addTransition(new ChangeBounds()));
+                        //  TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
+                        //          .addTransition(new ChangeBounds()));
 
-                            // ViewGroup.LayoutParams params = cardView.getLayoutParams();
+                        // ViewGroup.LayoutParams params = cardView.getLayoutParams();
 
-                            //params.height = WRAP_CONTENT;
+                        //params.height = WRAP_CONTENT;
 
-                            // cardView.setLayoutParams(params);
-                        }
-                    });
+                        // cardView.setLayoutParams(params);
+                    }
+                });
 
+        DrawChangeColor.setOnClickListener(view -> CloseOrOpenDrawColors(false));
 
-
-            DrawChangeColor.setOnClickListener(view -> CloseOrOpenDrawColors());
-
-            DrawChangeSize.setOnClickListener(view -> CloseOrOpenDrawSize());
+        DrawChangeSize.setOnClickListener(view -> CloseOrOpenDrawSize(false));
 
 
-
-
-
-
-            note_bottom_bar.setOnNavigationItemSelectedListener(item -> {
-                int id_nav = item.getItemId();
-
-
-                switch (id_nav) {
-                    case R.id.nav_formatText:
-
-                        View popView = LayoutInflater.from(this).inflate(R.layout.format_popup, null);
-                        popupWindowHelper = new PopupWindowHelper(popView);
-                        popupWindowHelper.showAsPopUp(note_bottom_bar);
-
-                        break;
-
-                    case R.id.nav_paragraph:
-
-                        View popView2 = LayoutInflater.from(this).inflate(R.layout.paragraph_popup, null);
-                        popupWindowHelper = new PopupWindowHelper(popView2);
-                        popupWindowHelper.showAsPopUp(note_bottom_bar, -50, 0);
-
-                        break;
-
-                    case R.id.nav_checkbox:
-
-                        View popView3 = LayoutInflater.from(this).inflate(R.layout.importer_popup, null);
-                        popupWindowHelper = new PopupWindowHelper(popView3);
-                        popupWindowHelper.showAsPopUp(note_bottom_bar, -100, 0);
-
-                        break;
-
-                    case R.id.nav_bullets:
-
-
-                        break;
-
-                    case R.id.nav_draw:
-
-                        CloseOrOpenDraWOptions(1400);
-
-                        InputMethodManager keyboard = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                        keyboard.hideSoftInputFromWindow(seekBarDrawSize.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
-                    default:
-                        return true;
+        drawSize.setOnClickListener(v -> {
+            // createPopupMenu(drawColor, R.layout.draw_size_popup, true, "dropdown", 0,0);
+            View popView = LayoutInflater.from(MainActivity.this).inflate(R.layout.draw_size_popup, null);
+            popupWindowHelperColor = new EverPopup(popView);
+            popupWindowHelperColor.showAsDropDown(drawColor);
+            SeekBar seekBar = popView.findViewById(R.id.seekBar2);
+            //TODO TRY TO USE THE DRAW OPTIONS FROM HOME SCREEN BUTTONS NOT POPUP PLEASE FUTRURE PREDO
+            ImageButton imageButton = popView.findViewById(R.id.drawSizeVisualizer);
+            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    int amount = progress / 2;
+                    imageButton.setScaleY(amount);
+                    imageButton.setScaleX(amount);
                 }
-                return true;
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
             });
+        });
+
+        drawColor.setOnClickListener(v -> createPopupMenu(v, R.layout.draw_options_popup, true, "dropdown", 0, 0));
+
+        note_bottom_bar.setOnNavigationItemSelectedListener(item -> {
+            int id_nav = item.getItemId();
 
 
-            //     getActivity().findViewById(R.id.action_heading1).setOnClickListener(new View.OnClickListener() {
-            //          @Override public void onClick(View v) {
-            //              mEditor.setHeading(1);
-            //          }
-            //      });
+            switch (id_nav) {
+                case R.id.nav_formatText:
+                    createPopupMenu(note_bottom_bar, R.layout.format_popup, false, "popup", 0, 0);
+                    break;
 
-            //      getActivity().findViewById(R.id.action_heading2).setOnClickListener(new View.OnClickListener() {
-            //        @Override public void onClick(View v) {
-            //             mEditor.setHeading(2);
-            //         }
-            //      });
+                case R.id.nav_paragraph:
+                    createPopupMenu(note_bottom_bar, R.layout.paragraph_popup, false, "popup", 100, 0);
+                    break;
 
-            ///      getActivity().findViewById(R.id.action_heading3).setOnClickListener(new View.OnClickListener() {
-            //          @Override public void onClick(View v) {
-            //              mEditor.setHeading(3);
-            //            }
-            //     });
+                case R.id.nav_checkbox:
+                    //     blurView(this, 25, 2, findViewById(R.id.homeNotesrelative));
+                    createPopupMenu(drawColor, R.layout.importer_popup, false, "popup", 200, 0);
+                    break;
 
-            //     getActivity().findViewById(R.id.action_heading4).setOnClickListener(new View.OnClickListener() {
-            //         @Override public void onClick(View v) {
-            //             mEditor.setHeading(4);
-            //        }
-            //      });
+                case R.id.nav_bullets:
+                    break;
 
-            //     getActivity().findViewById(R.id.action_heading5).setOnClickListener(new View.OnClickListener() {
-            //         @Override public void onClick(View v) {
-            //             mEditor.setHeading(5);
-            //        }
-            //    });
+                case R.id.nav_draw:
 
-            //      getActivity().findViewById(R.id.action_heading6).setOnClickListener(new View.OnClickListener() {
-            //          @Override public void onClick(View v) {
-            //              mEditor.setHeading(6);
-            //          }
-            //     });
+                    CloseOrOpenDraWOptions(1400, false);
+                    noteCreator.everDraw = findViewById(R.id.EverDraw);
+                    InputMethodManager keyboard1 = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                    keyboard1.hideSoftInputFromWindow(seekBarDrawSize.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
+                default:
+                    return true;
+            }
+            return true;
+        });
 
-
-
-            //      getActivity().findViewById(R.id.action_insert_image).setOnClickListener(new View.OnClickListener() {
-            //          @Override public void onClick(View v) {
-            //              mEditor.insertImage("http://www.1honeywan.com/dachshund/image/7.21/7.21_3_thumb.JPG",
-            //                      "dachshund");
-            //          }
-            //     });
-
-            //     getActivity().findViewById(R.id.action_insert_link).setOnClickListener(new View.OnClickListener() {
-            ////         @Override public void onClick(View v) {
-            //             mEditor.insertLink("https://github.com/wasabeef", "wasabeef");
-            //         }
-
-        }).start();
+        //   }).start();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.toolbar_menu, menu);
         return true;
     }
 
@@ -403,47 +380,58 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        if (bottomBarShowing) {
-            note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
-        }
+      //  if (!actualNote.getNoteColor().equals("000000")) {
+            if (toolbar.getBackgroundTintList().getDefaultColor() != defaultToolbarColor) {
+                tintSystemBars(defaultToolbarColor);
+            }
+      //  }
 
-        if (!notesModels.get(selectedPosition).getTitle().equals("") && !notesModels.get(selectedPosition).getContent().equals("") && !notesModels.get(selectedPosition).getDrawLocation().equals("") && !notesModels.get(selectedPosition).getImageURLS().equals("")) {
-            mDatabaseEver.deleteNote(notesModels.get(selectedPosition).getId());
-            notesModels.remove(notesModels.get(selectedPosition).getActualPosition());
-            System.out.println("Note with id = " + notesModels.get(selectedPosition).getId() + " deleted. <-- called from OnBackPress in NoteEditorFragmentJava, thx future pedro");
-        }
-
-
-        if (!atHome) {
-            new Thread(() -> { mDatabaseEver.setNoteModel(String.valueOf(notesModels.get(selectedPosition).getId()), notesModels.get(selectedPosition).getTitle(), notesModels.get(selectedPosition).getContent(), notesModels.get(selectedPosition).getDrawLocation(), notesModels.get(selectedPosition).getImageURLS(), notesModels.get(selectedPosition).getNoteColor()); }).start();
-
-            FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
-            TransitionManager.beginDelayedTransition(cardNoteCreator, new TransitionSet()
-                    .addTransition(new ChangeBounds()));
-            transaction.setReorderingAllowed(true);
-            cardNoteCreator.setTransitionName("card" + selectedPosition);
-            contentRecycler.setTransitionName("textRecycler" + selectedPosition);
-            title.setTransitionName("title" + selectedPosition);
-            imageRecycler.setTransitionName("imageRecycler" + selectedPosition);
-            transaction.addSharedElement(cardNoteCreator, "card" + selectedPosition);
-            transaction.addSharedElement(contentRecycler, "textRecycler" + selectedPosition);
-            transaction.addSharedElement(title, "title" + selectedPosition);
-            transaction.addSharedElement(imageRecycler, "imageRecycler" + selectedPosition);
-            transaction.hide(noteCreator);
-            transaction.replace(R.id.nav_host_fragment, noteScreen);
-            transaction.show(noteScreen);
-            transaction.addToBackStack(null);
-            transaction.commit();
-        }
-
+        new Handler(Looper.getMainLooper()).postDelayed(this::setLightStatusBar, 250);
 
         CloseAllButtons();
 
-        atHome = true;
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-        newNote = false;
+            if (!atHome) {
 
-        addedNote = false;
+
+                if (actualNote.getTitle().equals("") && actualNote.getContent().equals("") && actualNote.getDrawLocation().equals("") && actualNote.getImageURLS().equals("")) {
+                    removeNote(actualNote.getActualPosition(), actualNote.getId());
+                    //  notesModels.remove(actualNote.getActualPosition());
+
+                    System.out.println("Note with id = " + actualNote.getId() + " deleted. <-- called from OnBackPress in MainActivity, thx future pedro");
+                } else {
+                    updateNote(actualNote.getActualPosition(), actualNote);
+                }
+
+
+                //   mDatabaseEver.setNoteModel(String.valueOf(actualNote.getId()), actualNote.getTitle(), actualNote.getContent(), actualNote.getDrawLocation(), actualNote.getImageURLS(), actualNote.getNoteColor());
+
+//                notesModels.set(actualNote.getActualPosition(), actualNote);
+                System.out.println("draw in actual = " + actualNote.getDraws().size());
+
+                FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
+                beginDelayedTransition(cardNoteCreator);
+                transaction.setReorderingAllowed(true);
+                if (newNote) {
+                    transaction.addSharedElement(cardNoteCreator, "card" + actualNote.getId());
+                } else {
+                    transaction.addSharedElement(cardNoteCreator, "card" + actualNote.getId());
+                    transaction.addSharedElement(contentRecycler, "textRecycler" + actualNote.getId());
+                    transaction.addSharedElement(title, "title" + actualNote.getId());
+                    transaction.addSharedElement(imageRecycler, "imageRecycler" + actualNote.getId());
+                }
+                transaction.hide(noteCreator);
+                transaction.replace(R.id.nav_host_fragment, noteScreen);
+                transaction.show(noteScreen);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+
+            atHome = true;
+
+            newNote = false;
+        }, 110);
 
 
         // new Handler(Looper.getMainLooper()).postDelayed(super::onBackPressed, 190);
@@ -467,9 +455,9 @@ public class MainActivity extends AppCompatActivity {
 
                 new Handler(Looper.getMainLooper()).post(() -> {
 
-                    //Hide nav view \/ \/ \/
-
-                    note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
+                    ObjectAnimator transAnimation2 = ObjectAnimator.ofFloat(note_bottom_bar, "translationY", note_bottom_bar.getTranslationY(), 200);
+                    transAnimation2.setDuration(500);//set duration
+                    transAnimation2.start();//start animation
 
                     CloseAllButtons();
 
@@ -491,51 +479,34 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View v) {
 
-        mDatabaseEver.AddNoteContent("", "");
-        if (notesModels.isEmpty()) {
-            ID = 1;
-        } else {
-            ID = notesModels.get(0).getId() + 1;
-        }
-        Note_Model newNoteModel = new Note_Model(ID, 0, "", "", "", "", "", "000000");
-        notesModels.add(0, newNoteModel);
+        //TODO TRY TO CREATE A FUNC IN DATABASE TO GET THE LAST CREATED ID AND TRY TO FIX THE SHARED ELEMNT IN TITLE
 
-        addedNote = true;
+        //  mDatabaseEver.AddNoteContent("", "");
+        noteIdIncrement++;
+        //   notesModels.add(0, newNoteModel);
+        actualNote = new Note_Model(noteIdIncrement, 0, "", "", "", "", "", "000000");
+        selectedPosition = 0;
+        addNote(actualNote);
+        atHome = false;
+        newNote = true;
 
-        if (!notesModels.isEmpty()) {
-            editor.putInt("noteId", ID);
-            atHome = false;
-            newNote = true;
-            DeleteSave = false;
-            UndoRedo = false;
-            editor.apply();
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            NoteEditorFragmentJavaFragment fragment = NoteEditorFragmentJavaFragment.newInstance();
+            CardView card = recyclertest.findContainingViewHolder(recyclertest.getChildAt(0)).itemView.findViewById(R.id.mainCard);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                fragment.setEnterTransition(new Fade());
+                noteScreen.setExitTransition(new Fade());
+            }
+            FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
+            transaction.setReorderingAllowed(true);
 
-        } else {
-            editor.putInt("noteId", ID);
-            atHome = false;
-            newNote = true;
-            DeleteSave = false;
-            UndoRedo = false;
-            editor.apply();
-        }
-
-        NoteEditorFragmentJavaFragment fragment = NoteEditorFragmentJavaFragment.newInstance();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("noteModel", newNoteModel);
-        fragment.setArguments(bundle);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            fragment.setEnterTransition(new Fade());
-            noteScreen.setExitTransition(new Fade());
-        }
-        FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
-        transaction.setReorderingAllowed(true);
-        v.setTransitionName("card" + (ID) + 1);
-        transaction.addSharedElement(v, "card");
-        transaction.replace(R.id.nav_host_fragment, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
-
+            card.setTransitionName("card" + noteIdIncrement);//was +1
+            names.add(card.getTransitionName());
+            transaction.addSharedElement(card, card.getTransitionName());
+            transaction.replace(R.id.nav_host_fragment, fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }, 450);
     }
 
     public void ShowDrawSizeVisualizer() {
@@ -565,40 +536,16 @@ public class MainActivity extends AppCompatActivity {
         ImageSizeView.setScaleY(value / 85F);
 
     }
+    //TODO ADD OPTION TO CHANGE COLOR IN NOTE SCREEN LONG PRESS
 
     public void OnFocusChangeEditor(boolean focused) {
-
         if (focused) {
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-
-                if (bottomBarShowing) {
-
-                } else {
-                    CloseOrOpenBottomNoteBar(false);
-                }
-
-            }, 450);
-
-        } else {
-
-            new Handler(Looper.getMainLooper()).post(() -> {
-
-                if (DrawOn) {
-
-                } else {
-                    CloseOrOpenToolbarUndoRedo();
-                }
-
-            });
+            switchToolbars(true, true, true);
         }
     }
 
     public void TransformUriToFile(Uri uri, boolean addToDatabase, String fileType, String imagesUrls, int ID, int position) throws
             IOException {
-
-        ImagesUrls = imagesUrls;
 
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
@@ -617,30 +564,29 @@ public class MainActivity extends AppCompatActivity {
 
             if (addToDatabase) {
 
-                notesModels.get(position).setImageURLS(file.toString() + "┼" + ImagesUrls.replaceAll("[\\[\\](){}]", ""));
-                mDatabaseEver.insertImageToDatabase(String.valueOf(ID), file.toString(), ImagesUrls.replaceAll("[\\[\\](){}]", ""));
+                actualNote.setImageURLS(file.toString() + "┼" + imagesUrls.replaceAll("[\\[\\](){}]", ""));
+                //   noteModelSection.get(position).setImageURLS(file.toString() + "┼" + imagesUrls.replaceAll("[\\[\\](){}]", ""));
+                // mDatabaseEver.insertImageToDatabase(String.valueOf(ID), file.toString(), imagesUrls.replaceAll("[\\[\\](){}]", ""));
+                updateNote(position, actualNote);
             }
         }
     }
-    //TODO ADD OPTION TO CHANGE COLOR IN NOTE SCREEN LONG PRESS
 
-    public void onItemClickFromRecyclerAtNotescreen(View view, View view2, View view3, View view4, View view5, int position, int ID) {
-        //    SharedPreferences preferences = getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+    public void onItemClickFromNoteScreen(View view, View view2, View view3, View view4, int position, Note_Model actualNote) {
 
-        //   SharedPreferences.Editor editor = preferences.edit();
-        NoteEditorFragmentJavaFragment fragment = NoteEditorFragmentJavaFragment.newInstance();
-        Bundle bundle = new Bundle();
+    //    NoteEditorFragmentJavaFragment fragment = NoteEditorFragmentJavaFragment.newInstance();
+        NoteEditorFragmentJavaFragment fragment = new NoteEditorFragmentJavaFragment();
 
-
-
-        bundle.putSerializable("noteModel", notesModels.get(position));
-        bundle.putInt("noteID", ID);
+        this.ID = actualNote.getId();
+        this.actualNote = actualNote;
         atHome = false;
         newNote = false;
-        fragment.setArguments(bundle);
+        names.add(view.getTransitionName());
+        names.add(view2.getTransitionName());
+        names.add(view3.getTransitionName());
+        names.add(view4.getTransitionName());
         selectedPosition = position;
 
-        editor.putInt("noteId", ID);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             fragment.setEnterTransition(new Fade());
             noteScreen.setExitTransition(new Fade());
@@ -648,231 +594,134 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("ID = " + ID + " position = " + position);
         FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
         transaction.setReorderingAllowed(true);
-        transaction.addSharedElement(view, "textRecycler");
-        transaction.addSharedElement(view2, "card");
-        transaction.addSharedElement(view3, "title");
-        transaction.addSharedElement(view4, "imageRecycler");
-        transaction.addSharedElement(view5, "htmltext");
+        //TODO FIX SHRD ANIMATION NOT WORKING BECAUSE WE CHANGE ADAPTER FIX IT
+        transaction.addSharedElement(view, view.getTransitionName());
+        transaction.addSharedElement(view2, view2.getTransitionName());
+        transaction.addSharedElement(view3, view3.getTransitionName());
+        transaction.addSharedElement(view4, view4.getTransitionName());
         transaction.hide(noteScreen);
         transaction.replace(R.id.nav_host_fragment, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }
 
-
-    public void CloseOrOpenToolbarUndoRedo() {
-
+    public void CloseOrOpenToolbarUndoRedo(boolean UndoRedo) {
         if (UndoRedo) {
-
-            Undo.setVisibility(View.GONE);
-            Redo.setVisibility(View.GONE);
-
-            UndoRedo = false;
-
+            Undo.setVisibility(View.INVISIBLE);
+            Redo.setVisibility(View.INVISIBLE);
         } else {
-
             Undo.setVisibility(View.VISIBLE);
             Redo.setVisibility(View.VISIBLE);
-
-            UndoRedo = true;
-
         }
     }
 
-    public void CloseOrOpenBottomNoteBar(boolean inTitle) {
+    public void switchToolbars(boolean show, boolean bottomToolbar, boolean showUndoRedo) {
 
-        if (inTitle) {
-            if (bottomBarShowing) {
-
-
-                note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
-
-                bottomBarShowing = false;
-
+        if (show) {
+            System.out.println("show");
+            if (bottomToolbar) {
+                if (!bottomBarUp) {
+                    System.out.println("bottom bar up");
+                    animateObject(note_bottom_bar, "translationY", 0, 500);
+                    bottomBarUp = true;
+                }
             } else {
-
-                toolbar.setVisibility(View.VISIBLE);
-                note_bottom_bar.startAnimation(bottom_nav_anim);
-
-                bottomBarShowing = true;
-
+                System.out.println("bottom bar down");
+                animateObject(note_bottom_bar, "translationY", 200, 500);
+                bottomBarUp = false;
             }
+            if (!toolbarDown) {
+                System.out.println("toolbar down");
+                animateObject(toolbar, "translationY", 0, 500);
+                toolbarDown = true;
+            }
+            if (!cardDown) {
+                System.out.println("card down");
+                animateObject(cardNoteCreator, "translationY", 200, 500);
+                cardDown = true;
+            }
+
+            CloseOrOpenToolbarUndoRedo(!showUndoRedo);
+
         } else {
-
-            if (bottomBarShowing) {
-
-                toolbar.setVisibility(View.GONE);
-                Save.setVisibility(View.GONE);
-                Delete.setVisibility(View.GONE);
-                note_bottom_bar.startAnimation(bottom_nav_anim_reverse);
-
-                bottomBarShowing = false;
-
-            } else {
-
-                toolbar.setVisibility(View.VISIBLE);
-                Save.setVisibility(View.VISIBLE);
-                Delete.setVisibility(View.VISIBLE);
-                note_bottom_bar.setVisibility(View.VISIBLE);
-                note_bottom_bar.startAnimation(bottom_nav_anim);
-
-                bottomBarShowing = true;
-
-            }
+            System.out.println("hide");
+            animateObject(toolbar, "translationY", -200, 150);
+            animateObject(note_bottom_bar, "translationY", 200, 150);
+            animateObject(cardNoteCreator, "translationY", 30, 150);
+            toolbarDown = false;
+            bottomBarUp = false;
+            cardDown = false;
         }
     }
 
-    public void CloseOrOpenDraWOptions(int height) {
+    public void CloseOrOpenDraWOptions(int height, boolean close) {
 
         noteCreator.drawFromRecycler = false;
 
-        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
+        if (close) {
 
-        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
-
-        if (CloseOpenedDrawOptions) {
-
-            DeleteSave = false;
-            UndoRedo = false;
+            //    TransitionManager.beginDelayedTransition(cardNoteCreator, new TransitionSet()
+            //           .addTransition(new ChangeBounds()));
 
             ResizeCardViewToWrapContent();
 
-            CloseOrOpenToolbarUndoRedo();
+            CloseOrOpenNoteContents();
+
+            animateObject(DrawOptions, "translationY", 200, 500);
+
+            if (!actualNote.getNoteColor().equals("000000")) {
+                cardNoteCreator.setCardBackgroundColor(Integer.parseInt(actualNote.getNoteColor()));
+            }
+
+            CloseOrOpenDrawColors(close);
+
+            CloseOrOpenDrawSize(close);
+
+            DrawOn = false;
+
+        } else {
+
+            animateObject(DrawOptions, "translationY", -200, 500);
+
+            ResizeEverDrawToPrepareNoteToDraw(height);
+
+            cardNoteCreator.setCardBackgroundColor(defaultToolbarColor);
 
             CloseOrOpenNoteContents();
 
-            DrawOptions.startAnimation(fadeout);
+            DrawOn = true;
 
-            if (CloseOpenedDrawColors) {
-                CloseOrOpenDrawColors();
-            }
-            if (CloseOpenedDrawSize) {
-                CloseOrOpenDrawSize();
-            }
-
-            //  evermindEditor.setVisibility(View.VISIBLE);
-
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                DrawChangeSize.setVisibility(View.GONE);
-                DrawChangeColor.setVisibility(View.GONE);
-
-                DrawOn = false;
-
-                editor.putBoolean("DrawOn", false);
-                editor.apply();
-
-            }, 100);
-
-            CloseOpenedDrawOptions = false;
-
-        } else {
-
-            DrawOptions.setVisibility(View.VISIBLE);
-
-            DrawOptions.startAnimation(fadein);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                if (bottomBarShowing) {
-
-                } else {
-                    CloseOrOpenBottomNoteBar(false);
-                }
-
-                ResizeEverDrawToPrepareNoteToDraw(height);
-
-                CloseOrOpenToolbarUndoRedo();
-
-                CloseOrOpenNoteContents();
-
-                DrawChangeSize.setVisibility(View.VISIBLE);
-                DrawChangeColor.setVisibility(View.VISIBLE);
-
-                DrawOn = true;
-
-                editor.putBoolean("DrawOn", true);
-                editor.apply();
-
-            }, 100);
-            CloseOpenedDrawOptions = true;
+            // editor.putBoolean("DrawOn", true);
+            // editor.apply();
         }
     }
 
-    public void CloseOrOpenDraWOptionsFromRecycler(EverFlowScrollView scroll, RecyclerView recyclerView) {
-
-        Animation fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter);
-
-        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
-
-        if (CloseOpenedDrawOptions) {
-
-            DeleteSave = false;
-            UndoRedo = false;
-
-            CloseOrOpenToolbarUndoRedo();
-
-            DrawOptions.startAnimation(fadeout);
-
-            if (CloseOpenedDrawColors) {
-                CloseOrOpenDrawColors();
-            }
-            if (CloseOpenedDrawSize) {
-                CloseOrOpenDrawSize();
-            }
+    public void CloseOrOpenDraWOptionsFromRecycler(EverFlowScrollView scroll, RecyclerView recyclerView, boolean close) {
 
 
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+        if (close) {
 
-                DrawChangeSize.setVisibility(View.GONE);
-                DrawChangeColor.setVisibility(View.GONE);
-
-                DrawOn = false;
-
-                scroll.setCanScroll(true);
-                recyclerView.suppressLayout(false);
-
-                editor.putBoolean("DrawOn", false);
-                editor.apply();
-
-            }, 100);
-
-            CloseOpenedDrawOptions = false;
+           // noteCreator.everDraw.setVisibility(View.GONE);
+            animateObject(DrawOptions, "translationY", 200, 500);
+            CloseOrOpenDrawColors(close);
+            CloseOrOpenDrawSize(close);
+            DrawOn = false;
+            scroll.setCanScroll(true);
+            recyclerView.suppressLayout(false);
 
         } else {
 
-            DrawOptions.setVisibility(View.VISIBLE);
+            animateObject(DrawOptions, "translationY", -200, 500);
 
-            DrawOptions.startAnimation(fadein);
+             switchToolbars(true, false, true);
 
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                if (bottomBarShowing) {
-
-                } else {
-                    CloseOrOpenBottomNoteBar(false);
-                }
-
-                CloseOrOpenToolbarUndoRedo();
-
-                DrawChangeSize.setVisibility(View.VISIBLE);
-                DrawChangeColor.setVisibility(View.VISIBLE);
-
-                DrawOn = true;
-
-                scroll.setCanScroll(false);
-                recyclerView.suppressLayout(true);
-
-                editor.putBoolean("DrawOn", true);
-                editor.apply();
-
-            }, 100);
-            CloseOpenedDrawOptions = true;
+            DrawOn = true;
+            scroll.setCanScroll(false);
+            recyclerView.suppressLayout(true);
         }
     }
 
-    public void CloseOrOpenDrawSize() {
+    public void CloseOrOpenDrawSize(boolean CloseOpenedDrawSize) {
 
         if (CloseOpenedDrawSize) {
 
@@ -886,20 +735,16 @@ public class MainActivity extends AppCompatActivity {
 
             }, 100);
 
-            CloseOpenedDrawSize = false;
-
         } else {
 
             DrawChangeColor.setVisibility(View.GONE);
             DrawChangeSize.setVisibility(View.VISIBLE);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> seekBarDrawSize.setVisibility(View.VISIBLE), 100);
-
-            CloseOpenedDrawSize = true;
         }
     }
 
-    public void CloseOrOpenDrawColors() {
+    public void CloseOrOpenDrawColors(boolean CloseOpenedDrawColors) {
 
         if (CloseOpenedDrawColors) {
 
@@ -921,8 +766,6 @@ public class MainActivity extends AppCompatActivity {
 
             }, 150);
 
-            CloseOpenedDrawColors = false;
-
         } else {
 
             DrawChangeColor.setVisibility(View.GONE);
@@ -941,30 +784,33 @@ public class MainActivity extends AppCompatActivity {
 
 
             }, 150);
-            CloseOpenedDrawColors = true;
         }
     }
 
     public void CloseAllButtons() {
-        if (CloseOpenedDrawOptions) {
-            CloseOrOpenDraWOptions(0);
-        }
-        if (CloseOpenedDrawColors) {
-            CloseOrOpenDrawColors();
-        }
-        if (CloseOpenedDrawSize) {
-            CloseOrOpenDrawSize();
-        }
-        if (bottomBarShowing) {
-            CloseOrOpenBottomNoteBar(false);
-        }
-        if (UndoRedo) {
-            CloseOrOpenToolbarUndoRedo();
+
+        if (bottomBarUp) {
+            switchToolbars(false, false, false);
+        } else {
+            if (toolbarDown) {
+                switchToolbars(false, false, false);
+            }
         }
 
         InputMethodManager keyboard = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         keyboard.hideSoftInputFromWindow(toolbar.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
+        if (seekBarDrawSize.getVisibility() == View.VISIBLE) {
+            CloseOrOpenDrawSize(true);
+        }
+
+        if (BlackDraw.getVisibility() == View.VISIBLE) {
+            CloseOrOpenDrawColors(true);
+        }
+
+        if (DrawOptions.getVisibility() == View.VISIBLE) {
+            //    CloseOrOpenDraWOptions(0, true);
+        }
     }
 
     private int GetColor(int color) {
@@ -1005,8 +851,7 @@ public class MainActivity extends AppCompatActivity {
 
         EverDraw everDraw = findViewById(R.id.EverDraw);
 
-        TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                .addTransition(new ChangeBounds()));
+        beginDelayedTransition(cardView);
 
         ViewGroup.LayoutParams params = everDraw.getLayoutParams();
 
@@ -1020,8 +865,7 @@ public class MainActivity extends AppCompatActivity {
 
         CardView cardView = findViewById(R.id.card_note_creator);
 
-        TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
-                .addTransition(new ChangeBounds()));
+        beginDelayedTransition(cardView);
 
         ViewGroup.LayoutParams params = cardView.getLayoutParams();
 
@@ -1030,23 +874,8 @@ public class MainActivity extends AppCompatActivity {
         cardView.setLayoutParams(params);
     }
 
-    public void OpenCustomizationPopup(View view, int id, int position) {
-
-        View popView = LayoutInflater.from(this).inflate(R.layout.note_customization_layout, null);
-        popupWindowHelper = new PopupWindowHelper(popView);
-        popupWindowHelper.showAsDropDown(view);
-        selectedID = id;
-        Toast.makeText(this, "id is = " + id + "position = " + position, Toast.LENGTH_SHORT).show();
-        selectedPosition = position;
-    }
-
     public void clickToOpenCustomize(View view) {
-
-
-        View popView = LayoutInflater.from(this).inflate(R.layout.note_customization_color_layout, null);
-        popupWindowHelperColor = new PopupWindowHelper(popView);
-        popupWindowHelperColor.showAsDropDown(view, 0, 10);
-
+        createPopupMenu(note_bottom_bar, R.layout.note_customization_color_layout, true, "dropdown", 0, 10);
     }
 
     public void formatClick(View view) {
@@ -1055,7 +884,7 @@ public class MainActivity extends AppCompatActivity {
                 if (size < 7) {
 
                     size++;
-                    EverAdapter.GetActiveEditor().setEditorFontSize(size);
+                    noteCreator.activeEditor.setFontSize(size);
                 }
                 break;
 
@@ -1063,144 +892,219 @@ public class MainActivity extends AppCompatActivity {
                 if (size > 3) {
 
                     size--;
-                    EverAdapter.GetActiveEditor().setEditorFontSize(size);
+                    noteCreator.activeEditor.setFontSize(size);
                 }
                 break;
 
             case "changeColor":
-                View popView = LayoutInflater.from(this).inflate(R.layout.color_change_popup, null);
-                popupWindowHelperColor = new PopupWindowHelper(popView);
-                popupWindowHelperColor.showAsPopUp(note_bottom_bar, 50, -180);
+                createPopupMenu(note_bottom_bar, R.layout.color_change_popup, true, "popup", 50, -180);
                 break;
 
             case "bold":
-                EverAdapter.GetActiveEditor().setBold();
+                noteCreator.activeEditor.setBold();
                 break;
 
             case "italic":
-                EverAdapter.GetActiveEditor().setItalic();
+                noteCreator.activeEditor.setItalic();
                 break;
 
             case "underline":
-                EverAdapter.GetActiveEditor().setUnderline();
+                noteCreator.activeEditor.setUnderline();
                 break;
 
             case "striketrough":
-                EverAdapter.GetActiveEditor().setStrikeThrough();
+                noteCreator.activeEditor.setStrikeThrough();
                 break;
 
             case "highlight":
-                View popView2 = LayoutInflater.from(this).inflate(R.layout.highlight_color_change_popup, null);
-                popupWindowHelperColor = new PopupWindowHelper(popView2);
-                popupWindowHelperColor.showAsPopUp(note_bottom_bar, 50, -180);
+                createPopupMenu(note_bottom_bar, R.layout.highlight_color_change_popup, true, "popup", 50, -180);
                 break;
             case "clearHighlight":
-               EverAdapter.GetActiveEditor().setTextBackgroundColor(Color.WHITE);
+                noteCreator.activeEditor.setTextBackgroundColor(Color.WHITE);
                 break;
         }
-       // popupWindowHelper.dismiss();
+        // popupWindowHelper.dismiss();
     }
 
     public void colorChangeClick(View view) {
         switch (view.getTag().toString()) {
             case "black":
-                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Black));
+                noteCreator.activeEditor.setTextColor(GetColor(R.color.Black));
                 break;
-
             case "white":
-                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.White));
+                noteCreator.activeEditor.setTextColor(GetColor(R.color.White));
                 break;
-
             case "magenta":
-                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Magenta));
+                noteCreator.activeEditor.setTextColor(GetColor(R.color.Magenta));
                 break;
-
             case "purple":
-                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Pink));
+                noteCreator.activeEditor.setTextColor(GetColor(R.color.Pink));
                 break;
-
             case "orange":
-                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.Orange));
+                noteCreator.activeEditor.setTextColor(GetColor(R.color.Orange));
                 break;
-
             case "blue":
-                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.SkyBlue));
+                noteCreator.activeEditor.setTextColor(GetColor(R.color.SkyBlue));
                 break;
-
             case "yellow":
-                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.YellowSun));
+                noteCreator.activeEditor.setTextColor(GetColor(R.color.YellowSun));
                 break;
-
             case "green":
-                EverAdapter.GetActiveEditor().setTextColor(GetColor(R.color.GrassGreen));
+                noteCreator.activeEditor.setTextColor(GetColor(R.color.GrassGreen));
                 break;
+        }
+        popupWindowHelperColor.dismiss();
+        Blurry.delete(findViewById(R.id.homeNotesrelative));
+    }
+
+    public void drawColorChangeClick(View view) {
+
+        if (DrawOn) {
+            switch (view.getTag().toString()) {
+                case "black":
+                    noteCreator.everDraw.setColor(GetColor(R.color.Black));
+                    break;
+
+                case "white":
+                    noteCreator.everDraw.setColor(GetColor(R.color.White));
+                    break;
+
+                case "magenta":
+                    noteCreator.everDraw.setColor(GetColor(R.color.Magenta));
+                    break;
+
+                case "purple":
+                    noteCreator.everDraw.setColor(GetColor(R.color.Pink));
+                    break;
+
+                case "orange":
+                    noteCreator.everDraw.setColor(GetColor(R.color.Orange));
+                    break;
+
+                case "blue":
+                    noteCreator.everDraw.setColor(GetColor(R.color.SkyBlue));
+                    break;
+
+                case "yellow":
+                    noteCreator.everDraw.setColor(GetColor(R.color.YellowSun));
+                    break;
+
+                case "green":
+                    noteCreator.everDraw.setColor(GetColor(R.color.GrassGreen));
+                    break;
+            }
+
+        } else {
+            switch (view.getTag().toString()) {
+                case "black":
+                    tintSystemBars(GetColor(R.color.Black));
+                    actualNote.setNoteColor(String.valueOf(R.color.Black));
+                    break;
+
+                case "white":
+                    tintSystemBars(GetColor(R.color.White));
+                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.White)));
+                    break;
+
+                case "magenta":
+                    tintSystemBars(GetColor(R.color.Magenta));
+                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.Magenta)));
+                    break;
+
+                case "purple":
+                    tintSystemBars(GetColor(R.color.Pink));
+                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.Pink)));
+                    break;
+
+                case "orange":
+                    tintSystemBars(GetColor(R.color.Orange));
+                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.Orange)));
+                    break;
+
+                case "blue":
+                    tintSystemBars(GetColor(R.color.SkyBlue));
+                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.SkyBlue)));
+                    break;
+
+                case "yellow":
+                    tintSystemBars(GetColor(R.color.YellowSun));
+                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.YellowSun)));
+                    break;
+
+                case "green":
+                    tintSystemBars(GetColor(R.color.GrassGreen));
+                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.GrassGreen)));
+                    break;
+            }
 
         }
         popupWindowHelperColor.dismiss();
+//        Blurry.delete(findViewById(R.id.homeNotesrelative));
     }
 
     public void highlightColorChangeClick(View view) {
         switch (view.getTag().toString()) {
             case "blackHighlight":
-                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.Black));
+                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.Black));
                 break;
 
             case "whiteHighlight":
-                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.White));
+                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.White));
                 break;
 
             case "magentaHighlight":
-                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.Magenta));
+                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.Magenta));
                 break;
 
             case "purpleHighlight":
-                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.Pink));
+                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.Pink));
                 break;
 
             case "orangeHighlight":
-                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.Orange));
+                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.Orange));
                 break;
 
             case "blueHighlight":
-                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.SkyBlue));
+                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.SkyBlue));
                 break;
 
             case "yellowHighlight":
-                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.YellowSun));
+                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.YellowSun));
                 break;
 
             case "greenHighlight":
-                EverAdapter.GetActiveEditor().setTextBackgroundColor(GetColor(R.color.GrassGreen));
+                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.GrassGreen));
                 break;
 
             case "clearHighlight":
-                EverAdapter.GetActiveEditor().setTextBackgroundColor(Color.WHITE);
+                noteCreator.activeEditor.setTextBackgroundColor(Color.WHITE);
                 break;
 
         }
         popupWindowHelperColor.dismiss();
+        Blurry.delete(findViewById(R.id.homeNotesrelative));
     }
 
     public void paragraphClick(View view) {
         switch (view.getTag().toString()) {
             case "numbers":
-                EverAdapter.GetActiveEditor().setNumbers();
+                noteCreator.activeEditor.setNumbers();
                 break;
 
             case "bullets":
-                EverAdapter.GetActiveEditor().setBullets();
+                noteCreator.activeEditor.setBullets();
                 break;
 
             case "alignLeft":
-                EverAdapter.GetActiveEditor().setAlignLeft();
+                noteCreator.activeEditor.setAlignLeft();
                 break;
 
             case "alignCenter":
-                EverAdapter.GetActiveEditor().setAlignCenter();
+                noteCreator.activeEditor.setAlignCenter();
                 break;
 
             case "alignRight":
-                EverAdapter.GetActiveEditor().setAlignRight();
+                noteCreator.activeEditor.setAlignRight();
                 break;
 
         }
@@ -1208,27 +1112,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void importerClick(View view) {
-        switch (view.getTag().toString()) {
-            case "gallery":
-                // TODO
-                break;
-
-            case "googlePhotos":
-                Intent intentGooglePhotos = new Intent();
-                intentGooglePhotos.setAction(Intent.ACTION_PICK);
-                intentGooglePhotos.setType("image/*");
-                intentGooglePhotos.setPackage("com.google.android.apps.photos");
-                startActivityForResult(intentGooglePhotos, 101);
-                break;
-
-            case "files":
-                Intent intentFiles = new Intent();
-                intentFiles.setType("image/*");
-                intentFiles.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intentFiles, "Select Picture"), 101);
-                break;
-        }
-        popupWindowHelper.dismiss();
+        noteCreator.importerClick(view, popupWindowHelper);
     }
 
     public void clickToCustomize(View view) {
@@ -1265,59 +1149,286 @@ public class MainActivity extends AppCompatActivity {
                 ChangeNoteColor(GetColor(R.color.GrassGreen));
                 break;
         }
+        Blurry.delete(findViewById(R.id.homeNotesrelative));
         popupWindowHelperColor.dismiss();
-    }
-
-    public void deleteNote(View view) {
-        new AlertDialog.Builder(this)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle("Are you sure?")
-                .setMessage("Do you want to delete this note?")
-                .setPositiveButton("Yes", (dialogInterface, i) -> {
-
-                            popupWindowHelper.dismiss();
-
-                            mDatabaseEver.deleteNote(selectedID);
-
-                            notesModels.remove(selectedPosition);
-                            noteScreen.adapter.notifyItemRemoved(selectedPosition);
-                        }
-                )
-                .setNegativeButton("No", null)
-                .show();
-
     }
 
     public void ChangeNoteColor(int color) {
         mDatabaseEver.editColor(String.valueOf(selectedID), String.valueOf(color));
-        notesModels.get(selectedPosition).setNoteColor(String.valueOf(color));
-        recyclertest.removeViewAt(selectedPosition);
-    }
-    public @NonNull static Bitmap createBitmapFromView(@NonNull View view, int width, int height) {
-        if (width > 0 && height > 0) {
-            view.measure(View.MeasureSpec.makeMeasureSpec(DynamicUnitUtils
-                            .convertDpToPixels(width), View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(DynamicUnitUtils
-                            .convertDpToPixels(height), View.MeasureSpec.EXACTLY));
-        }
-        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
-
-        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(),
-                view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        Drawable background = view.getBackground();
-
-        if (background != null) {
-            background.draw(canvas);
-        }
-        view.draw(canvas);
-
-        return bitmap;
+        //  notesModels.get(selectedPosition).setNoteColor(String.valueOf(color));
+        noteModelSection.get(selectedPosition).setNoteColor(String.valueOf(color));
+        updateNote(selectedPosition, noteModelSection.get(selectedPosition));
     }
 
     public void ClearIonCache() {
         Ion.getDefault(this).getBitmapCache().clear();
         Ion.getDefault(this).getCache().clear();
+    }
+
+    public void tintSystemBars(int color) {
+
+        setDarkStatusBar();
+
+        // Initial colors of each system bar.
+        final int statusBarColor = everMainWindow.getStatusBarColor();
+        // final int toolbarColor = everMainWindow.getStatusBarColor();
+
+        // Desired final colors of each bar.
+        final int statusBarToColor = color;
+        //  final int toolbarToColor = color;
+
+        ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
+        anim.addUpdateListener(animation -> {
+            // Use animation position to blend colors.
+            float position = animation.getAnimatedFraction();
+
+            // Apply blended color to the status bar.
+            int blended = blendColors(statusBarColor, statusBarToColor, position);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                everMainWindow.setStatusBarColor(blended);
+            }
+
+            // Apply blended color to the ActionBar.
+            //   blended = blendColors(toolbarColor, toolbarToColor, position);
+            //  ColorDrawable background = new ColorDrawable(blended);
+            //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
+            toolbar.setBackgroundTintList(ColorStateList.valueOf(blended));
+            note_bottom_bar.setBackgroundTintList(ColorStateList.valueOf(blended));
+            cardNoteCreator.setBackgroundTintList(ColorStateList.valueOf(blended));
+        });
+
+        anim.setDuration(500).start();
+    }
+
+    public int blendColors(int from, int to, float ratio) {
+        final float inverseRatio = 1f - ratio;
+
+        final float r = Color.red(to) * ratio + Color.red(from) * inverseRatio;
+        final float g = Color.green(to) * ratio + Color.green(from) * inverseRatio;
+        final float b = Color.blue(to) * ratio + Color.blue(from) * inverseRatio;
+
+        return Color.rgb((int) r, (int) g, (int) b);
+    }
+
+    private void animationTimer(int originalPosition, int finalPosition) {
+        ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
+        anim.addUpdateListener(animation -> {
+            // Use animation position to blend colors.
+            float position = animation.getAnimatedFraction();
+
+            // Apply blended color to the status bar.
+            int blended = goToValue(originalPosition, finalPosition, position);
+
+            cardNoteCreator.setTranslationY(blended);
+        });
+
+        anim.setDuration(500).start();
+    }
+
+    private int goToValue(int from, int to, float ratio) {
+        final float inverseRatio = 1f - ratio;
+        final float r = to * ratio + from * inverseRatio;
+        return (int) r;
+    }
+
+    private void setLightStatusBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int flags = getWindow().getDecorView().getSystemUiVisibility(); // get current flag
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // add LIGHT_STATUS_BAR to flag
+            getWindow().getDecorView().setSystemUiVisibility(flags);
+            getWindow().setStatusBarColor(Color.GRAY); // optional
+        }
+    }
+
+    private void setDarkStatusBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int flags = getWindow().getDecorView().getSystemUiVisibility(); // get current flag
+            flags = flags ^ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR; // use XOR here for remove LIGHT_STATUS_BAR from flags
+            getWindow().getDecorView().setSystemUiVisibility(flags);
+        }
+    }
+
+    public void animateObject(View view, String effect, int amount, int duration) {
+        ObjectAnimator transAnimation2 = ObjectAnimator.ofFloat(view, effect, view.getTranslationY(), amount);
+        transAnimation2.setDuration(duration);//set duration
+        transAnimation2.start();//start animation
+    }
+
+    public void swipeItemsListener(View view, Note_Model noteModel) {
+        selectedPosition = noteModel.getActualPosition();
+        selectedID = noteModel.getId();
+        switch (view.getTag().toString()) {
+            case "changeColor":
+                createPopupMenu(view, R.layout.swipe_color_change_popup, true, "dropdown", 0, 0);
+                break;
+
+            case "delete":
+                deleteNoteDialog(noteModel.getActualPosition(), noteModel.getId());
+                break;
+        }
+    }
+
+    public void deleteNoteDialog(int deletePosition, int ID) {
+        blurView(this, 25, 2, findViewById(R.id.homeNotesrelative));
+
+        new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText("Are you sure?")
+                .setContentText("Won't be able to recover this note!")
+                .setConfirmText("Yes, delete it!")
+                .setConfirmClickListener(sDialog -> {
+                    sDialog
+                            .setTitleText("Deleted!")
+                            .setContentText("Your note in position: " + deletePosition + ", with ID: " + ID + " was deleted.")
+                            .setConfirmText("OK")
+                            .setConfirmClickListener(sweetAlertDialog -> sDialog.dismissWithAnimation())
+                            .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
+                    sDialog.setOnCancelListener(dialog -> Blurry.delete(findViewById(R.id.homeNotesrelative)));
+                    sDialog.setOnDismissListener(dialog -> {
+                        Blurry.delete(findViewById(R.id.homeNotesrelative));
+                        removeNote(deletePosition, ID);
+                    });
+                    //  notesModels.remove(deletePosition);
+
+                })
+                .show();
+    }
+
+    private void createPopupMenu(View view, int layout, boolean assistPopup, String showAs, int xOffset, int yOffset) {
+
+
+        View popView = LayoutInflater.from(this).inflate(layout, null);
+        if (assistPopup) {
+            popupWindowHelperColor = new EverPopup(popView);
+        } else {
+            popupWindowHelper = new EverPopup(popView);
+        }
+        switch (showAs) {
+            case "dropdown":
+                if (assistPopup) {
+                    popupWindowHelperColor.showAsDropDown(view, xOffset, yOffset);
+                } else {
+                    popupWindowHelper.showAsDropDown(view, xOffset, yOffset);
+                }
+                break;
+
+            case "popup":
+                if (assistPopup) {
+                    popupWindowHelperColor.showAsPopUp(view, xOffset, yOffset);
+                } else {
+                    popupWindowHelper.showAsPopUp(view, xOffset, yOffset);
+                }
+                break;
+
+            case "top":
+                if (assistPopup) {
+                    popupWindowHelperColor.showFromTop(view);
+                } else {
+                    popupWindowHelper.showFromTop(view);
+                }
+                break;
+
+            case "bottom":
+                if (assistPopup) {
+                    popupWindowHelperColor.showFromBottom(view);
+                } else {
+                    popupWindowHelper.showFromBottom(view);
+                }
+                break;
+        }
+    }
+
+    public void blurView(Context context, int radius, int sampling, ViewGroup viewGroup) {
+        Blurry.with(context).radius(radius).sampling(sampling).onto(viewGroup);
+    }
+
+    public void updateNote(int p, @Nullable Note_Model note) {
+        noteModelSection.set(p, note);
+        if (note != null) {
+           System.out.println("Id =" + note.getId());
+            mDatabaseEver.setNoteModel(String.valueOf(note.getId()), note.getTitle(), note.getContent(), note.getDrawLocation(), note.getImageURLS(), note.getNoteColor());
+        }
+        //adapter.notifyItemChanged(p);
+    }
+
+    public void removeNote(int p, int ID) {
+        mDatabaseEver.deleteNote(ID);
+        noteModelSection.remove(p);
+        for (int position = 0; position < noteModelSection.size(); position++) {
+            noteModelSection.get(position).setActualPosition(position);
+        }
+        // adapter.notifyItemRemoved(p);
+    }
+
+    public void addNote(Note_Model newNote) {
+        //TODO FIX ANIMATION WHEN ADDING NOTE WHEN CREATING TO DO THE SHARED ELEMENT TRANSITION AND TRY TO USE ADAPTER.NOTIFIYITEMATPOSITION
+        mDatabaseEver.AddNoteContent("", "");
+        noteModelSection.add(0, newNote);
+        for (int position = 0; position < noteModelSection.size(); position++) {
+            noteModelSection.get(position).setActualPosition(position);
+        }
+    }
+
+    public void beginDelayedTransition(ViewGroup view) {
+        TransitionManager.beginDelayedTransition(view, new TransitionSet()
+                .addTransition(new ChangeBounds()));
+    }
+    public void pushDownOnTouch(View view, MotionEvent event, float pushScale, int duration) {
+        int i = event.getAction();
+        if( i == MotionEvent.ACTION_DOWN ){
+            makeDecisionAnimScale( view,
+                    pushScale,
+                    duration,
+                    new AccelerateDecelerateInterpolator());
+        }else if( i == MotionEvent.ACTION_CANCEL
+                || i == MotionEvent.ACTION_UP ){
+            makeDecisionAnimScale( view,
+                    1f,
+                    duration,
+                    new AccelerateDecelerateInterpolator());
+        }
+    }
+    public void makeDecisionAnimScale( final View view, float pushScale, long duration, TimeInterpolator interpolator){
+
+        animScale( view, pushScale, duration, interpolator );
+    }
+
+    public void animScale(final View view, float scale, long duration, TimeInterpolator interpolator ){
+        AnimatorSet scaleAnimSet = new AnimatorSet();
+        view.animate().cancel();
+        if( scaleAnimSet != null ){
+            scaleAnimSet.cancel();
+        }
+
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat( view, "scaleX", scale );
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat( view, "scaleY", scale );
+        scaleX.setInterpolator( interpolator );
+        scaleX.setDuration( duration );
+        scaleY.setInterpolator( interpolator );
+        scaleY.setDuration( duration );
+
+        scaleAnimSet = new AnimatorSet();
+        scaleAnimSet
+                .play( scaleX )
+                .with( scaleY );
+        scaleX.addListener( new AnimatorListenerAdapter(){
+            @Override
+            public void onAnimationStart( Animator animation ){
+                super.onAnimationStart( animation );
+            }
+
+            @Override
+            public void onAnimationEnd( Animator animation ){
+                super.onAnimationEnd( animation );
+            }
+        } );
+        scaleX.addUpdateListener( new ValueAnimator.AnimatorUpdateListener(){
+            @Override
+            public void onAnimationUpdate( ValueAnimator valueAnimator ){
+                View p = (View) view.getParent();
+                if( p != null ) p.invalidate();
+            }
+        } );
+        scaleAnimSet.start();
     }
 }
 

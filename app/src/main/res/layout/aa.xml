@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/testSwipes"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:background="@color/Transparent"
+    android:backgroundTint="@color/Transparent"
+    android:drawingCacheQuality="auto"
+    android:foregroundTint="@color/Transparent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="5dp"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardEditorRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:visibility="gone"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="0dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:animateLayoutChanges="true"
+                android:visibility="visible">
+
+                <com.sysdata.kt.htmltextview.SDHtmlTextView
+                    android:id="@+id/editorDecoy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/White"
+                    android:paddingLeft="8.5dp"
+                    android:paddingTop="6dp"
+                    android:paddingRight="8.5dp"
+                    android:paddingBottom="4dp"
+                    android:textSize="22sp"
+                    android:transitionName="htmltext"
+                    android:visibility="gone" />
+
+                <jp.wasabeef.richeditor.RichEditor
+                    android:id="@+id/evermindEditor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                </jp.wasabeef.richeditor.RichEditor>
+
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+        <com.daimajia.swipe.SwipeLayout
+            android:id="@+id/testSwipe"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:animateLayoutChanges="true"
+            android:background="@color/Transparent"
+            android:backgroundTint="@color/Transparent"
+            android:drawingCacheQuality="auto"
+            android:foregroundTint="@color/Transparent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:drag_edge="left">
+
+            <LinearLayout
+                android:id="@+id/bkg1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:animateLayoutChanges="true"
+                android:orientation="vertical"
+                android:weightSum="1">
+
+                <ImageButton
+                    android:id="@+id/imageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/roundcorners"
+                    android:elevation="10dp"
+                    android:src="@android:drawable/ic_menu_delete" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:animateLayoutChanges="true"
+                android:orientation="vertical"
+                android:weightSum="1">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardDrawRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="10dp"
+                    android:animateLayoutChanges="true"
+                    android:visibility="gone"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="5dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true">
+
+                        <ImageView
+                            android:id="@+id/recycler_imageView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/Transparent"
+                            android:backgroundTint="@color/Transparent"
+                            android:contentDescription="decoy"
+                            android:foregroundTint="@color/Transparent"
+                            android:visibility="gone" />
+
+                        <com.example.Evermind.EverDraw
+                            android:id="@+id/everDraw"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp" />
+
+                    </RelativeLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+        </com.daimajia.swipe.SwipeLayout>
+
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -10,6 +10,14 @@ public class EverLinkedMap {
         this.drawLocation = drawLocation;
     }
 
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setDrawLocation(String drawLocation) {
+        this.drawLocation = drawLocation;
+    }
+
     public String getContent() {
         return content;
     }

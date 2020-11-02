@@ -37,132 +37,116 @@
                 android:visibility="visible">
 
                 <ImageButton
-                    android:id="@+id/DecreaseSize1"
-                    android:tag="decreaseSize"
-                    android:onClick="formatClick"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:id="@+id/black1"
+                    android:tag="black"
+                    android:onClick="clickToCustomize"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_margin="7dp"
                     android:background="@drawable/selected_background"
                     android:padding="4dp"
-                    android:scaleType="centerInside"
+                    android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
                     android:tint="@color/Black"
                     android:visibility="visible"
-                    app:srcCompat="@drawable/decrease" />
+                    app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/IncreaseSize1"
-                    android:tag="increaseSize"
-                    android:onClick="formatClick"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:id="@+id/blue1"
+                    android:tag="blue"
+                    android:onClick="clickToCustomize"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_margin="7dp"
                     android:background="@drawable/selected_background"
                     android:padding="4dp"
-                    android:scaleType="centerInside"
+                    android:scaleType="center"
                     android:scaleX="1.15"
                     android:scaleY="1.15"
-                    android:tint="@color/Black"
+                    android:tint="@color/SkyBlue"
                     android:visibility="visible"
-                    app:srcCompat="@drawable/increase" />
+                    app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/ChangeColor1"
-                    android:tag="changeColor"
-                    android:onClick="formatClick"
+                    android:id="@+id/purple1"
+                    android:tag="pink"
+                    android:onClick="clickToCustomize"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
                     android:background="@drawable/selected_background"
                     android:padding="4dp"
                     android:scaleType="center"
-                    android:scaleX="1.35"
-                    android:scaleY="1.35"
-                    android:tint="@color/Black"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Pink"
                     android:visibility="visible"
-                    app:srcCompat="@drawable/color_selector_icon" />
+                    app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/Bold1"
+                    android:id="@+id/magenta1"
+                    android:tag="magenta"
+                    android:onClick="clickToCustomize"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
                     android:background="@drawable/selected_background"
-                    android:onClick="formatClick"
                     android:padding="4dp"
                     android:scaleType="center"
-                    android:scaleX="1.35"
-                    android:scaleY="1.35"
-                    android:tag="bold"
-                    android:tint="@color/Black"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Magenta"
                     android:visibility="visible"
-                    app:srcCompat="@drawable/bold_icon" />
+                    app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/Italic1"
+                    android:id="@+id/orange1"
+                    android:tag="orange"
+                    android:onClick="clickToCustomize"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
                     android:background="@drawable/selected_background"
-                    android:onClick="formatClick"
                     android:padding="4dp"
                     android:scaleType="center"
-                    android:scaleX="1.35"
-                    android:scaleY="1.35"
-                    android:tag="italic"
-                    android:tint="@color/Black"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/Orange"
                     android:visibility="visible"
-                    app:srcCompat="@drawable/italic_icon" />
+                    app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/Underline1"
+                    android:id="@+id/yellow1"
+                    android:tag="yellow"
+                    android:onClick="clickToCustomize"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
                     android:background="@drawable/selected_background"
-                    android:onClick="formatClick"
                     android:padding="4dp"
                     android:scaleType="center"
-                    android:scaleX="1.35"
-                    android:scaleY="1.35"
-                    android:tag="underline"
-                    android:tint="@color/Black"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/YellowSun"
                     android:visibility="visible"
-                    app:srcCompat="@drawable/underline_icon" />
+                    app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/Striketrough1"
+                    android:id="@+id/green1"
+                    android:tag="green"
+                    android:onClick="clickToCustomize"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
                     android:background="@drawable/selected_background"
-                    android:onClick="formatClick"
                     android:padding="4dp"
                     android:scaleType="center"
-                    android:scaleX="1.35"
-                    android:scaleY="1.35"
-                    android:tag="striketrough"
-                    android:tint="@color/Black"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tint="@color/GrassGreen"
                     android:visibility="visible"
-                    app:srcCompat="@drawable/striketrough_icon" />
-
-                <ImageButton
-                    android:id="@+id/HighlightText1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="7dp"
-                    android:background="@drawable/selected_background"
-                    android:onClick="formatClick"
-                    android:padding="4dp"
-                    android:scaleType="center"
-                    android:scaleX="1.35"
-                    android:scaleY="1.35"
-                    android:tag="highlight"
-                    android:tint="@color/Black"
-                    android:visibility="visible"
-                    app:srcCompat="@drawable/highlight_text_icon" />
+                    app:srcCompat="@drawable/circle_colors_border" />
 
             </LinearLayout>
         </HorizontalScrollView>
