@@ -20,34 +20,14 @@
         app:cardCornerRadius="15dp"
         app:cardElevation="0dp">
 
-        <RelativeLayout
+        <jp.wasabeef.richeditor.RichEditor
+            android:id="@+id/evermindEditor"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:animateLayoutChanges="true"
-            android:visibility="visible">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
-            <com.sysdata.kt.htmltextview.SDHtmlTextView
-                android:id="@+id/editorDecoy"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/White"
-                android:paddingLeft="8.5dp"
-                android:paddingTop="6dp"
-                android:paddingRight="8.5dp"
-                android:paddingBottom="4dp"
-                android:textSize="22sp"
-                android:transitionName="htmltext"
-                android:visibility="gone" />
+        </jp.wasabeef.richeditor.RichEditor>
 
-            <jp.wasabeef.richeditor.RichEditor
-                android:id="@+id/evermindEditor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone">
-
-            </jp.wasabeef.richeditor.RichEditor>
-
-        </RelativeLayout>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
@@ -69,7 +49,7 @@
             <ImageView
                 android:id="@+id/recycler_imageView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:background="@color/Transparent"
                 android:backgroundTint="@color/Transparent"
                 android:contentDescription="decoy"

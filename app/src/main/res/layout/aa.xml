@@ -38,19 +38,6 @@
                 android:animateLayoutChanges="true"
                 android:visibility="visible">
 
-                <com.sysdata.kt.htmltextview.SDHtmlTextView
-                    android:id="@+id/editorDecoy"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/White"
-                    android:paddingLeft="8.5dp"
-                    android:paddingTop="6dp"
-                    android:paddingRight="8.5dp"
-                    android:paddingBottom="4dp"
-                    android:textSize="22sp"
-                    android:transitionName="htmltext"
-                    android:visibility="gone" />
-
                 <jp.wasabeef.richeditor.RichEditor
                     android:id="@+id/evermindEditor"
                     android:layout_width="match_parent"
@@ -86,7 +73,7 @@
                 android:weightSum="1">
 
                 <ImageButton
-                    android:id="@+id/imageButton"
+                    android:id="@+id/deleteFromRecycler"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"

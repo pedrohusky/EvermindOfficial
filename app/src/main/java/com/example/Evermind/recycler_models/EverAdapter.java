@@ -154,12 +154,11 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
             everEditor = itemView.findViewById(R.id.evermindEditor);
             everDrawImage = itemView.findViewById(R.id.recycler_imageView);
             everDraw = itemView.findViewById(R.id.everDraw);
-            editorDecoy = itemView.findViewById(R.id.editorDecoy);
 
             everEditor.setOnInitialLoadListener(isReady -> {
                 if (getLayoutPosition() == getItemCount() - 1) {
-                    if (!((MainActivity)context).noteCreator.hasImages) {
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).noteCreator.startPostponeTransition(), 25);
+                    if (!((MainActivity)context).noteCreator.get().hasImages) {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).noteCreator.get().startPostponeTransition(), 25);
                     }
                 }
             });
@@ -572,8 +571,8 @@ public class EverAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
        // ((MainActivity) context).mDatabaseEver.editContent(Integer.toString(ID), replaceRGBColorsWithHex(joined_arrayString));
       //  ((MainActivity) context).notesModels.get(Position).setContent(replaceRGBColorsWithHex(joined_arrayString));
-        ((MainActivity) context).noteCreator.actualNote.setContent(replaceRGBColorsWithHex(joined_arrayString));
-            ((MainActivity)context).updateNote(((MainActivity) context).noteCreator.actualNote.getActualPosition(),  ((MainActivity) context).noteCreator.actualNote);
+        ((MainActivity) context).noteCreator.get().actualNote.get().setContent(replaceRGBColorsWithHex(joined_arrayString));
+            ((MainActivity)context).updateNote(((MainActivity) context).noteCreator.get().actualNote.get().getActualPosition(),  ((MainActivity) context).noteCreator.get().actualNote.get());
         arrayToAdd = array;
         array.clear();
     }).start();

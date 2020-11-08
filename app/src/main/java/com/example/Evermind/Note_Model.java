@@ -1,14 +1,18 @@
 package com.example.Evermind;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class Note_Model implements Serializable {
 
@@ -20,9 +24,9 @@ public class Note_Model implements Serializable {
     private String ImageURLS;
     private String drawLocation;
     private String noteColor;
-    private final ArrayList<String> contents = new ArrayList<>();
-    private final ArrayList<String> draws = new ArrayList<>();
-    private final ArrayList<String> images = new ArrayList<>();
+    private List<String> contents = new ArrayList<>();
+    private List<String> draws = new ArrayList<>();
+    private List<String> images = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -52,19 +56,29 @@ public class Note_Model implements Serializable {
         noteColor = color;
 
       Collections.addAll(contents, this.content.split("┼"));
-      Collections.addAll(draws, this.drawLocation.split("┼"));
-      Collections.addAll(images, ImageURLS.split("┼"));
+     // Collections.addAll(draws, this.drawLocation.split("┼"));
+        for (String s : this.drawLocation.split("┼")) {
+            if (!s.equals("")) {
+                draws.add(s);
+            }
+        }
+    //  Collections.addAll(images, ImageURLS.split("┼"));
+        for (String s : ImageURLS.split("┼")) {
+            if (!s.equals("")) {
+                images.add(s);
+            }
+        }
     }
 
-    public ArrayList<String> getContents() {
+    public List<String> getContents() {
         return contents;
     }
 
-    public ArrayList<String> getDraws() {
+    public List<String> getDraws() {
         return draws;
     }
 
-    public ArrayList<String> getImages() {
+    public List<String> getImages() {
         return images;
     }
 
@@ -135,5 +149,35 @@ public class Note_Model implements Serializable {
         this.drawLocation = drawLocation;
         draws.clear();
         Collections.addAll(draws,  this.drawLocation.split("┼"));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void setDraws(List<String> draws) {
+        List<String> nString = new ArrayList<>();
+        for (String path: images) {
+            nString.add(path+"┼");
+        }
+        this.drawLocation = String.join("", nString);
+        this.draws = draws;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void setImages(List<String> images) {
+        List<String> nString = new ArrayList<>();
+        for (String path: images) {
+            nString.add(path+"┼");
+        }
+        this.ImageURLS = String.join("", nString);
+        this.images = images;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void setContents(List<String> contents) {
+        List<String> nString = new ArrayList<>();
+        for (String content: contents) {
+            nString.add(content+"┼");
+        }
+        this.content = String.join("", nString);
+        this.contents = contents;
     }
 }

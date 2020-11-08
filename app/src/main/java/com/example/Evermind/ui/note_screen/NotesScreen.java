@@ -17,30 +17,25 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import com.example.Evermind.EverRecyclerContentsNoteScreen;
 import com.example.Evermind.MainActivity;
-import com.example.Evermind.NoteModelBinder;
-import com.example.Evermind.Note_Model;
 import com.example.Evermind.R;
-import com.example.Evermind.RecyclerGridAdapterNoteScreen;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.lang.ref.WeakReference;
 
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.LandingAnimator;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
-import mva2.adapter.ListSection;
 import mva2.adapter.MultiViewAdapter;
+import mva2.adapter.util.Mode;
 
 public class NotesScreen extends Fragment implements AdapterView.OnItemLongClickListener {
 
     public static int fromPosition;
     public static int toPosition;
-    public MultiViewAdapter adapter;
-    private EverRecyclerContentsNoteScreen recyclerView;
+    public WeakReference<MultiViewAdapter> adapter;
+    private WeakReference<RecyclerView> recyclerView;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -63,27 +58,28 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
         MainActivity mainActivity = ((MainActivity) requireActivity());
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
      //   GridLayoutManager grid = new GridLayoutManager(requireActivity(), 2);
-        recyclerView = mainActivity.findViewById(R.id.notesRecycler);
+        recyclerView = new WeakReference<>(mainActivity.findViewById(R.id.notesRecycler));
 
-        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+        recyclerView.get().setLayoutManager(staggeredGridLayoutManager);
         adapter = ((MainActivity)requireActivity()).adapter;
-        recyclerView.setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
-        recyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
+        adapter.get().setSelectionMode(Mode.MULTIPLE);
+        recyclerView.get().setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
+        recyclerView.get().setAdapter(new AlphaInAnimationAdapter(adapter.get()));
 
-        OverScrollDecoratorHelper.setUpOverScroll(recyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+        OverScrollDecoratorHelper.setUpOverScroll(recyclerView.get(), OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
         ((MainActivity)requireActivity()).recyclertest = recyclerView;
         //((MainActivity)requireActivity()).noteScreenAdapter = adapter;
-        recyclerView.scrollToPosition(((MainActivity)requireActivity()).selectedPosition);
+        recyclerView.get().scrollToPosition(((MainActivity)requireActivity()).selectedPosition);
         ((MainActivity)requireActivity()).selectedPosition = -1;
 
-        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+        recyclerView.get().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
 
             @Override
             public boolean onPreDraw() {
-              //  if (mainActivity.noteModelSection.size() == 0) {
+                if (mainActivity.noteModelSection.size() == 0) {
                 StartPostpone();
-              //  }
-                recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                }
+                recyclerView.get().getViewTreeObserver().removeOnPreDrawListener(this);
                 return true;
             }
         });
@@ -105,13 +101,13 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
                      //   Collections.swap(mainActivity.noteModelSection, i, i - 1);
                     }
                 }
-                adapter.notifyItemMoved(fromPosition, toPosition);
+                adapter.get().notifyItemMoved(fromPosition, toPosition);
                 return true;
             }
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                adapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+                adapter.get().notifyItemRemoved(viewHolder.getAdapterPosition());
                // databaseEver.deleteNote(viewHolder.getAdapterPosition());
             }
 

@@ -100,13 +100,13 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerSwipeAdapter<Recycler
 
         }
 
-        if (models.get(position).getImageURLS().length() > 1) {
+        if (models.get(position).getImages().size() > 0) {
 
             StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
 
             myRecyclerView.setLayoutManager(staggeredGridLayoutManager);
 
-            myRecyclerView.setAdapter(new ImagesRecyclerGridAdapter(context, models.get(position).getImages(), true));
+           // myRecyclerView.setAdapter(new ImagesRecyclerGridAdapter(context, models.get(position).getImages(), true));
 
             OverScrollDecoratorHelper.setUpOverScroll(myRecyclerView, OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
 

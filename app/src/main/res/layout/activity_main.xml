@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="false"
     tools:openDrawer="start">
 
     <include
@@ -20,7 +19,7 @@
         android:animateLayoutChanges="true"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" >
+        app:menu="@menu/activity_main_drawer">
 
     </com.google.android.material.navigation.NavigationView>
 
@@ -30,7 +29,7 @@
         android:layout_gravity="end"
         android:animateLayoutChanges="true"
         android:fitsSystemWindows="true"
-        app:menu="@menu/activity_main_drawer" >
+        app:menu="@menu/activity_main_drawer">
 
     </com.google.android.material.navigation.NavigationView>
 

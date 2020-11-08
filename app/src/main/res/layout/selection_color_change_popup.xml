@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/draw_options"
+        android:id="@+id/format_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
@@ -15,13 +15,10 @@
         app:cardBackgroundColor="@color/White"
         app:cardCornerRadius="30dp"
         app:cardElevation="9dp"
-        app:contentPadding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:contentPadding="5dp">
 
         <HorizontalScrollView
-            android:id="@+id/scroll_draw"
+            android:id="@+id/scroll_formatter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
@@ -40,9 +37,9 @@
                 android:visibility="visible">
 
                 <ImageButton
-                    android:id="@+id/Drawblack"
+                    android:id="@+id/black1"
                     android:tag="black"
-                    android:onClick="noteColorChange"
+                    android:onClick="clickChangeColorSelected"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -56,9 +53,9 @@
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/Drawblue"
+                    android:id="@+id/blue1"
                     android:tag="blue"
-                    android:onClick="noteColorChange"
+                    android:onClick="clickChangeColorSelected"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -72,9 +69,9 @@
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/Drawpurple"
+                    android:id="@+id/purple1"
                     android:tag="purple"
-                    android:onClick="noteColorChange"
+                    android:onClick="clickChangeColorSelected"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -88,9 +85,9 @@
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/Drawmagenta"
+                    android:id="@+id/magenta1"
                     android:tag="magenta"
-                    android:onClick="noteColorChange"
+                    android:onClick="clickChangeColorSelected"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -104,9 +101,9 @@
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/Draworange"
+                    android:id="@+id/orange1"
                     android:tag="orange"
-                    android:onClick="noteColorChange"
+                    android:onClick="clickChangeColorSelected"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -120,9 +117,9 @@
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/Drawyellow"
+                    android:id="@+id/yellow1"
                     android:tag="yellow"
-                    android:onClick="noteColorChange"
+                    android:onClick="clickChangeColorSelected"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
@@ -136,9 +133,9 @@
                     app:srcCompat="@drawable/circle_colors_border" />
 
                 <ImageButton
-                    android:id="@+id/Drawgreen"
+                    android:id="@+id/green1"
                     android:tag="green"
-                    android:onClick="noteColorChange"
+                    android:onClick="clickChangeColorSelected"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"

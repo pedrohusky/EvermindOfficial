@@ -8,25 +8,20 @@ import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.MediaStore;
 import android.transition.ChangeBounds;
 import android.transition.Fade;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,14 +32,15 @@ import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -67,14 +63,13 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.koushikdutta.ion.Ion;
+import com.thekhaeng.pushdownanim.PushDownAnim;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.List;
 import java.util.Objects;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
@@ -84,12 +79,13 @@ import mva2.adapter.ListSection;
 import mva2.adapter.MultiViewAdapter;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.thekhaeng.pushdownanim.PushDownAnim.MODE_SCALE;
 
 public class MainActivity extends AppCompatActivity {
 
     public EverDataBase mDatabaseEver;
     public Integer ID;
-    public Note_Model actualNote;
+    public WeakReference<Note_Model> actualNote;
     public Boolean showNoteContents = false;
     public SeekBar seekBarDrawSize;
     public ImageButton Undo;
@@ -103,6 +99,44 @@ public class MainActivity extends AppCompatActivity {
     public ImageButton OrangeDraw;
     public ImageButton YellowDraw;
     public ImageButton GreenDraw;
+    public ImageButton BlackHighlight;
+    public ImageButton BlueHighlight;
+    public ImageButton PurpleHighlight;
+    public ImageButton MagentaHighlight;
+    public ImageButton OrangeHighlight;
+    public ImageButton YellowHighlight;
+    public ImageButton GreenHighlight;
+    public ImageButton Black;
+    public ImageButton Blue;
+    public ImageButton Purple;
+    public ImageButton Magenta;
+    public ImageButton Orange;
+    public ImageButton Yellow;
+    public ImageButton Green;
+    public ImageButton IncreaseSize;
+    public ImageButton DecreaseSize;
+    public ImageButton changeColor;
+    public ImageButton Bold;
+    public ImageButton Italic;
+    public ImageButton Underline;
+    public ImageButton StrikeThrough;
+    public ImageButton Highlight;
+    public ImageButton Bullets;
+    public ImageButton Numbers;
+    public ImageButton AlignLeft;
+    public ImageButton AlignCenter;
+    public ImageButton AlignRight;
+    public ImageButton GooglePhotos;
+    public ImageButton Files;
+    public ImageButton Gallery;
+    public ImageButton selectionDelete;
+    public ImageButton selectionChangeColor;
+    public CardView ImporterOptions;
+    public CardView ParagraphOptions;
+    public CardView FormatOptions;
+    public CardView SelectOptions;
+    private Switch switchtest;
+    public ImageButton ClearHighlight;
     public BottomNavigationView note_bottom_bar;
     public Animation bottom_nav_anim;
     public Animation bottom_nav_anim_reverse;
@@ -113,11 +147,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean newNote = false;
     public int selectedPosition;
     public int selectedID;
-    public CardView cardNoteCreator;
-    public NoteEditorFragmentJavaFragment noteCreator;
-    public RecyclerView contentRecycler;
-    public TextView title;
-    public RecyclerView imageRecycler;
+    public WeakReference<CardView> cardNoteCreator;
+    public WeakReference<NoteEditorFragmentJavaFragment> noteCreator;
+    public WeakReference<RecyclerView> contentRecycler;
+    public WeakReference<EditText> title;
+    public WeakReference<RecyclerView> imageRecycler;
     //   public ArrayList<Note_Model> notesModels = new ArrayList<>();
     public ArrayList<String> names = new ArrayList<>();
     public int noteIdIncrement = 0;
@@ -126,8 +160,8 @@ public class MainActivity extends AppCompatActivity {
     public ImageButton drawColor;
     public ImageButton drawSize;
     public ListSection<Note_Model> noteModelSection = new ListSection<>();
-    public MultiViewAdapter adapter = new MultiViewAdapter();
-    public RecyclerView recyclertest;
+    public WeakReference<MultiViewAdapter> adapter = new WeakReference<>(new MultiViewAdapter());
+    public WeakReference<RecyclerView> recyclertest;
     private AppBarConfiguration mAppBarConfiguration;
     private HorizontalScrollView scrollView1;
     private ImageButton DrawChangeColor;
@@ -143,6 +177,15 @@ public class MainActivity extends AppCompatActivity {
     private boolean toolbarDown = false;
     private boolean bottomBarUp = false;
     private boolean cardDown = false;
+    public SharedPreferences preferences;
+    public SharedPreferences.Editor editor;
+    private boolean formatOptions = false;
+    private boolean paragraphOptions = false;
+    private boolean importerOptions = false;
+    private boolean drawOptions = false;
+    private boolean drawsize = false;
+    private boolean selectionOptions = false;
+    public boolean pushed = true;
 
     public @NonNull
     static Bitmap createBitmapFromView(@NonNull View view, int width, int height) {
@@ -176,6 +219,8 @@ public class MainActivity extends AppCompatActivity {
 
         everMainWindow = getWindow();
 
+        preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
+        editor = preferences.edit();
 
         //TODO: optimize performance a little more and make sure everything that we changed is working as intended
 
@@ -184,11 +229,12 @@ public class MainActivity extends AppCompatActivity {
             noteModelSection.addAll((ArrayList<Note_Model>) getIntent().getSerializableExtra("notes"));
             noteScreen = new NotesScreen();
             if (noteModelSection.size() > 0) {
-                noteIdIncrement = noteModelSection.get(0).getId();
+                noteIdIncrement = preferences.getInt("lastID", 0);
+                // noteIdIncrement = noteModelSection.get(0).getId();
             }
         }
-        adapter.registerItemBinders(new NoteModelBinder(this));
-        adapter.addSection(noteModelSection);
+        adapter.get().registerItemBinders(new NoteModelBinder(this));
+        adapter.get().addSection(noteModelSection);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -213,7 +259,6 @@ public class MainActivity extends AppCompatActivity {
         DrawChangeSize = findViewById(R.id.DrawChangeSize);
         size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
         ImageSizeView = findViewById(R.id.draw_size_visualizer);
-        DrawOptions = findViewById(R.id.draw_options);
         seekBarDrawSize = findViewById(R.id.draw_size_seekbar);
         BlackDraw = findViewById(R.id.Drawblack);
         BlueDraw = findViewById(R.id.Drawblue);
@@ -222,9 +267,44 @@ public class MainActivity extends AppCompatActivity {
         OrangeDraw = findViewById(R.id.Draworange);
         YellowDraw = findViewById(R.id.Drawyellow);
         GreenDraw = findViewById(R.id.Drawgreen);
+        BlackHighlight = findViewById(R.id.blackhighlight);
+        BlueHighlight = findViewById(R.id.bluehighlight);
+        PurpleHighlight = findViewById(R.id.purplehighlight);
+        MagentaHighlight = findViewById(R.id.magentahighlight);
+        OrangeHighlight = findViewById(R.id.orangehighlight);
+        YellowHighlight = findViewById(R.id.yellowhighlight);
+        GreenHighlight = findViewById(R.id.greenhighlight);
+        Black = findViewById(R.id.black);
+        Blue = findViewById(R.id.blue);
+        Purple = findViewById(R.id.purple);
+        Magenta = findViewById(R.id.magenta);
+        Orange = findViewById(R.id.orange);
+        Yellow = findViewById(R.id.yellow);
+        Green = findViewById(R.id.green);
+        IncreaseSize = findViewById(R.id.IncreaseSize1);
+        DecreaseSize = findViewById(R.id.DecreaseSize1);
         DrawOptions = findViewById(R.id.draw_options);
+        FormatOptions = findViewById(R.id.format_selectors);
+        ClearHighlight = findViewById(R.id.clearhighlight);
+        Bold = findViewById(R.id.Bold1);
+        Italic = findViewById(R.id.Italic1);
+        Underline = findViewById(R.id.Underline1);
+        StrikeThrough = findViewById(R.id.Striketrough1);
+        Highlight = findViewById(R.id.HighlightText1);
+        changeColor = findViewById(R.id.ChangeColor1);
         size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
         ImageSizeView = findViewById(R.id.draw_size_visualizer);
+        Bullets = findViewById(R.id.Bullets);
+        Numbers = findViewById(R.id.Numbers);
+        ParagraphOptions = findViewById(R.id.format_paragraph);
+        ImporterOptions = findViewById(R.id.import_options);
+        SelectOptions = findViewById(R.id.selectOptions);
+        AlignLeft = findViewById(R.id.AlignLeft);
+        AlignCenter = findViewById(R.id.AlignCenter);
+        AlignRight = findViewById(R.id.AlignRight);
+        GooglePhotos = findViewById(R.id.GooglePhotos);
+        Files = findViewById(R.id.Files);
+        Gallery = findViewById(R.id.Gallery);
         Undo = findViewById(R.id.Undo);
         Redo = findViewById(R.id.Redo);
         Delete = findViewById(R.id.Delete);
@@ -233,7 +313,117 @@ public class MainActivity extends AppCompatActivity {
         scrollView1 = findViewById(R.id.scroll_draw);
         drawColor = findViewById(R.id.drawColor);
         drawSize = findViewById(R.id.drawSize);
+        selectionChangeColor = findViewById(R.id.selectChangeColor);
+        selectionDelete = findViewById(R.id.selectDelete);
         OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
+
+        PushDownAnim.setPushDownAnimTo(selectionChangeColor)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(selectionDelete)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(DrawChangeColor)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(DrawChangeSize)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(changeColor)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Highlight)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(IncreaseSize)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(DecreaseSize)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Bold)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Italic)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Underline)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(StrikeThrough)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Undo)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Redo)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Save)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Delete)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Bullets)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Numbers)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(AlignCenter)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(AlignLeft)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(AlignRight)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(GooglePhotos)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Gallery)
+                .setScale(MODE_SCALE,
+                        0.7f);
+        PushDownAnim.setPushDownAnimTo(Files)
+                .setScale(MODE_SCALE,
+                        0.7f);
+
+        seekBarDrawSize.setOnTouchListener(new SeekBar.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Disallow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        // Allow ScrollView to intercept touch events.
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                            DrawVisualizerIsShowing = false;
+
+                            Animation fadeout = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out_formatter);
+
+                            size_visualizer.startAnimation(fadeout);
+
+
+                        }, 450);
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+
+                // Handle Seekbar touch events.
+                v.onTouchEvent(event);
+                return true;
+            }
+        });
+
+
+
 
         defaultToolbarColor = toolbar.getBackgroundTintList().getDefaultColor();
 
@@ -295,8 +485,15 @@ public class MainActivity extends AppCompatActivity {
 
         DrawChangeColor.setOnClickListener(view -> CloseOrOpenDrawColors(false));
 
-        DrawChangeSize.setOnClickListener(view -> CloseOrOpenDrawSize(false));
-
+        DrawChangeSize.setOnClickListener(v -> {
+            if (drawsize) {
+                CloseOrOpenDrawSize(true);
+                drawsize = false;
+            } else {
+                CloseOrOpenDrawSize(false);
+                drawsize = true;
+            }
+        });
 
         drawSize.setOnClickListener(v -> {
             // createPopupMenu(drawColor, R.layout.draw_size_popup, true, "dropdown", 0,0);
@@ -309,9 +506,11 @@ public class MainActivity extends AppCompatActivity {
             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    int amount = progress / 2;
-                    imageButton.setScaleY(amount);
-                    imageButton.setScaleX(amount);
+                    float finals = (float) progress / 100;
+                    System.out.println(finals);
+                    imageButton.setScaleY(finals);
+                    imageButton.setScaleX(finals);
+                    noteCreator.get().everDraw.get().setStrokeWidth(progress / 2);
                 }
 
                 @Override
@@ -334,27 +533,47 @@ public class MainActivity extends AppCompatActivity {
 
             switch (id_nav) {
                 case R.id.nav_formatText:
-                    createPopupMenu(note_bottom_bar, R.layout.format_popup, false, "popup", 0, 0);
+                    if (formatOptions) {
+                        CloseOrOpenFormatOptions(true);
+                        formatOptions = false;
+                    } else {
+                        CloseOrOpenFormatOptions(false);
+                        formatOptions = true;
+                    }
                     break;
 
                 case R.id.nav_paragraph:
-                    createPopupMenu(note_bottom_bar, R.layout.paragraph_popup, false, "popup", 100, 0);
+                    if (paragraphOptions) {
+                        CloseOrOpenParagraphOptions(true);
+                        paragraphOptions = false;
+                    } else {
+                        CloseOrOpenParagraphOptions(false);
+                        paragraphOptions = true;
+                    }
                     break;
 
                 case R.id.nav_checkbox:
-                    //     blurView(this, 25, 2, findViewById(R.id.homeNotesrelative));
-                    createPopupMenu(drawColor, R.layout.importer_popup, false, "popup", 200, 0);
+                    if (importerOptions) {
+                        CloseOrOpenImporterOptions(true);
+                        importerOptions = false;
+                    } else {
+                        CloseOrOpenImporterOptions(false);
+                        importerOptions = true;
+                    }
                     break;
 
                 case R.id.nav_bullets:
                     break;
 
                 case R.id.nav_draw:
-
-                    CloseOrOpenDraWOptions(1400, false);
-                    noteCreator.everDraw = findViewById(R.id.EverDraw);
-                    InputMethodManager keyboard1 = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                    keyboard1.hideSoftInputFromWindow(seekBarDrawSize.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                    if (drawOptions) {
+                        CloseOrOpenDrawOptions(0, true);
+                    } else {
+                        CloseOrOpenDrawOptions(1400, false);
+                        noteCreator.get().everDraw = new WeakReference<>(findViewById(R.id.EverDraw));
+                        InputMethodManager keyboard1 = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                        keyboard1.hideSoftInputFromWindow(seekBarDrawSize.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                    }
 
                 default:
                     return true;
@@ -380,11 +599,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-      //  if (!actualNote.getNoteColor().equals("000000")) {
-            if (toolbar.getBackgroundTintList().getDefaultColor() != defaultToolbarColor) {
-                tintSystemBars(defaultToolbarColor);
-            }
-      //  }
+        //  if (!actualNote.getNoteColor().equals("000000")) {
+        if (toolbar.getBackgroundTintList().getDefaultColor() != defaultToolbarColor) {
+            tintSystemBars(defaultToolbarColor);
+        }
+        //  }
 
         new Handler(Looper.getMainLooper()).postDelayed(this::setLightStatusBar, 250);
 
@@ -395,33 +614,26 @@ public class MainActivity extends AppCompatActivity {
             if (!atHome) {
 
 
-                if (actualNote.getTitle().equals("") && actualNote.getContent().equals("") && actualNote.getDrawLocation().equals("") && actualNote.getImageURLS().equals("")) {
-                    removeNote(actualNote.getActualPosition(), actualNote.getId());
-                    //  notesModels.remove(actualNote.getActualPosition());
+                if (actualNote.get().getTitle().equals("") && actualNote.get().getContent().equals("") && actualNote.get().getDrawLocation().equals("") && actualNote.get().getImageURLS().equals("")) {
+                    removeNote(actualNote.get().getActualPosition(), actualNote.get().getId());
 
-                    System.out.println("Note with id = " + actualNote.getId() + " deleted. <-- called from OnBackPress in MainActivity, thx future pedro");
+                    System.out.println("Note with id = " + actualNote.get().getId() + " deleted. <-- called from OnBackPress in MainActivity, thx future pedro");
                 } else {
-                    updateNote(actualNote.getActualPosition(), actualNote);
+                    updateNote(actualNote.get().getActualPosition(), actualNote.get());
                 }
-
-
-                //   mDatabaseEver.setNoteModel(String.valueOf(actualNote.getId()), actualNote.getTitle(), actualNote.getContent(), actualNote.getDrawLocation(), actualNote.getImageURLS(), actualNote.getNoteColor());
-
-//                notesModels.set(actualNote.getActualPosition(), actualNote);
-                System.out.println("draw in actual = " + actualNote.getDraws().size());
 
                 FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
-                beginDelayedTransition(cardNoteCreator);
+                beginDelayedTransition(cardNoteCreator.get());
                 transaction.setReorderingAllowed(true);
                 if (newNote) {
-                    transaction.addSharedElement(cardNoteCreator, "card" + actualNote.getId());
+                    transaction.addSharedElement(cardNoteCreator.get(), "card" + actualNote.get().getId());
                 } else {
-                    transaction.addSharedElement(cardNoteCreator, "card" + actualNote.getId());
-                    transaction.addSharedElement(contentRecycler, "textRecycler" + actualNote.getId());
-                    transaction.addSharedElement(title, "title" + actualNote.getId());
-                    transaction.addSharedElement(imageRecycler, "imageRecycler" + actualNote.getId());
+                    transaction.addSharedElement(cardNoteCreator.get(), "card" + actualNote.get().getId());
+                    transaction.addSharedElement(contentRecycler.get(), "textRecycler" + actualNote.get().getId());
+                    transaction.addSharedElement(title.get(), "title" + actualNote.get().getId());
+                    transaction.addSharedElement(imageRecycler.get(), "imageRecycler" + actualNote.get().getId());
                 }
-                transaction.hide(noteCreator);
+                transaction.hide(noteCreator.get());
                 transaction.replace(R.id.nav_host_fragment, noteScreen);
                 transaction.show(noteScreen);
                 transaction.addToBackStack(null);
@@ -479,20 +691,18 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View v) {
 
-        //TODO TRY TO CREATE A FUNC IN DATABASE TO GET THE LAST CREATED ID AND TRY TO FIX THE SHARED ELEMNT IN TITLE
-
-        //  mDatabaseEver.AddNoteContent("", "");
         noteIdIncrement++;
-        //   notesModels.add(0, newNoteModel);
-        actualNote = new Note_Model(noteIdIncrement, 0, "", "", "", "", "", "000000");
+        editor.putInt("lastID", noteIdIncrement);
+        editor.apply();
+        actualNote = new WeakReference<>(new Note_Model(noteIdIncrement, 0, "", "", "", "", "", "000000"));
         selectedPosition = 0;
-        addNote(actualNote);
+        addNote(actualNote.get());
         atHome = false;
         newNote = true;
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             NoteEditorFragmentJavaFragment fragment = NoteEditorFragmentJavaFragment.newInstance();
-            CardView card = recyclertest.findContainingViewHolder(recyclertest.getChildAt(0)).itemView.findViewById(R.id.mainCard);
+            CardView card = recyclertest.get().findContainingViewHolder(recyclertest.get().getChildAt(0)).itemView.findViewById(R.id.mainCard);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 fragment.setEnterTransition(new Fade());
                 noteScreen.setExitTransition(new Fade());
@@ -510,24 +720,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ShowDrawSizeVisualizer() {
-
-        Animation fadeout = AnimationUtils.loadAnimation(this, R.anim.fade_out_formatter);
-
-        DrawVisualizerIsShowing = true;
-        // ChangeColor.setVisibility(View.GONE);
-
-        size_visualizer.setVisibility(View.VISIBLE);
-        size_visualizer.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter));
-        ImageSizeView.setVisibility(View.VISIBLE);
-
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-            DrawVisualizerIsShowing = false;
-
-            size_visualizer.startAnimation(fadeout);
-
-
-        }, 1250);
+        if (!DrawVisualizerIsShowing) {
+            size_visualizer.setVisibility(View.VISIBLE);
+            size_visualizer.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in_formatter));
+            ImageSizeView.setVisibility(View.VISIBLE);
+            DrawVisualizerIsShowing = true;
+        }
     }
 
     public void ModifyDrawSizeVisualizer(int value) {
@@ -544,41 +742,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void TransformUriToFile(Uri uri, boolean addToDatabase, String fileType, String imagesUrls, int ID, int position) throws
-            IOException {
-
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-
-        File directory = getDir("imageDir", Context.MODE_PRIVATE);
-
-        File file = new File(directory, "EverImage" + Calendar.getInstance().getTimeInMillis() + fileType);
-
-        if (!file.exists()) {
-            Log.d("path", file.toString());
-            FileOutputStream fos;
-
-            fos = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            fos.flush();
-
-
-            if (addToDatabase) {
-
-                actualNote.setImageURLS(file.toString() + "┼" + imagesUrls.replaceAll("[\\[\\](){}]", ""));
-                //   noteModelSection.get(position).setImageURLS(file.toString() + "┼" + imagesUrls.replaceAll("[\\[\\](){}]", ""));
-                // mDatabaseEver.insertImageToDatabase(String.valueOf(ID), file.toString(), imagesUrls.replaceAll("[\\[\\](){}]", ""));
-                updateNote(position, actualNote);
-            }
-        }
-    }
 
     public void onItemClickFromNoteScreen(View view, View view2, View view3, View view4, int position, Note_Model actualNote) {
 
-    //    NoteEditorFragmentJavaFragment fragment = NoteEditorFragmentJavaFragment.newInstance();
+        //    NoteEditorFragmentJavaFragment fragment = NoteEditorFragmentJavaFragment.newInstance();
         NoteEditorFragmentJavaFragment fragment = new NoteEditorFragmentJavaFragment();
 
         this.ID = actualNote.getId();
-        this.actualNote = actualNote;
+        this.actualNote = new WeakReference<>(actualNote);
         atHome = false;
         newNote = false;
         names.add(view.getTransitionName());
@@ -637,7 +808,7 @@ public class MainActivity extends AppCompatActivity {
             }
             if (!cardDown) {
                 System.out.println("card down");
-                animateObject(cardNoteCreator, "translationY", 200, 500);
+                animateObject(cardNoteCreator.get(), "translationY", 200, 500);
                 cardDown = true;
             }
 
@@ -647,16 +818,16 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("hide");
             animateObject(toolbar, "translationY", -200, 150);
             animateObject(note_bottom_bar, "translationY", 200, 150);
-            animateObject(cardNoteCreator, "translationY", 30, 150);
+            animateObject(cardNoteCreator.get(), "translationY", 30, 150);
             toolbarDown = false;
             bottomBarUp = false;
             cardDown = false;
         }
     }
 
-    public void CloseOrOpenDraWOptions(int height, boolean close) {
+    public void CloseOrOpenDrawOptions(int height, boolean close) {
 
-        noteCreator.drawFromRecycler = false;
+        noteCreator.get().drawFromRecycler = false;
 
         if (close) {
 
@@ -665,12 +836,12 @@ public class MainActivity extends AppCompatActivity {
 
             ResizeCardViewToWrapContent();
 
+            CloseOrOpenDrawOptions(true);
+
             CloseOrOpenNoteContents();
 
-            animateObject(DrawOptions, "translationY", 200, 500);
-
-            if (!actualNote.getNoteColor().equals("000000")) {
-                cardNoteCreator.setCardBackgroundColor(Integer.parseInt(actualNote.getNoteColor()));
+            if (!actualNote.get().getNoteColor().equals("000000")) {
+                cardNoteCreator.get().setCardBackgroundColor(Integer.parseInt(actualNote.get().getNoteColor()));
             }
 
             CloseOrOpenDrawColors(close);
@@ -679,17 +850,21 @@ public class MainActivity extends AppCompatActivity {
 
             DrawOn = false;
 
+            drawOptions = false;
+
         } else {
 
-            animateObject(DrawOptions, "translationY", -200, 500);
+            CloseOrOpenDrawOptions(false);
 
             ResizeEverDrawToPrepareNoteToDraw(height);
 
-            cardNoteCreator.setCardBackgroundColor(defaultToolbarColor);
+            cardNoteCreator.get().setCardBackgroundColor(defaultToolbarColor);
 
             CloseOrOpenNoteContents();
 
             DrawOn = true;
+
+            drawOptions = true;
 
             // editor.putBoolean("DrawOn", true);
             // editor.apply();
@@ -701,7 +876,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (close) {
 
-           // noteCreator.everDraw.setVisibility(View.GONE);
+            // noteCreator.everDraw.setVisibility(View.GONE);
             animateObject(DrawOptions, "translationY", 200, 500);
             CloseOrOpenDrawColors(close);
             CloseOrOpenDrawSize(close);
@@ -713,7 +888,7 @@ public class MainActivity extends AppCompatActivity {
 
             animateObject(DrawOptions, "translationY", -200, 500);
 
-             switchToolbars(true, false, true);
+            switchToolbars(true, false, true);
 
             DrawOn = true;
             scroll.setCanScroll(false);
@@ -741,6 +916,94 @@ public class MainActivity extends AppCompatActivity {
             DrawChangeSize.setVisibility(View.VISIBLE);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> seekBarDrawSize.setVisibility(View.VISIBLE), 100);
+        }
+    }
+
+    public void CloseOrOpenDrawOptions(boolean Close) {
+        if (paragraphOptions) {
+            CloseOrOpenParagraphOptions(true);
+            paragraphOptions = false;
+        }
+        if (importerOptions) {
+            CloseOrOpenImporterOptions(true);
+            importerOptions = false;
+        }
+        if (formatOptions) {
+            CloseOrOpenFormatOptions(true);
+            formatOptions = false;
+        }
+        if (Close) {
+            animateObject(DrawOptions, "translationY", 250, 500);
+        } else {
+            animateObject(DrawOptions, "translationY", -150, 500);
+        }
+    }
+
+    public void CloseOrOpenFormatOptions(boolean Close) {
+        if (paragraphOptions) {
+            CloseOrOpenParagraphOptions(true);
+            paragraphOptions = false;
+        }
+        if (importerOptions) {
+            CloseOrOpenImporterOptions(true);
+            importerOptions = false;
+        }
+        if (drawOptions) {
+            CloseOrOpenDrawOptions(0, true);
+            drawOptions = false;
+        }
+        if (Close) {
+            animateObject(FormatOptions, "translationY", 250, 500);
+        } else {
+            animateObject(FormatOptions, "translationY", -150, 500);
+        }
+    }
+
+    public void CloseOrOpenSelectionOptions(boolean Close) {
+        if (Close) {
+            animateObject(SelectOptions, "translationY", 250, 500);
+        } else {
+            animateObject(SelectOptions, "translationY", -150, 500);
+        }
+    }
+
+    public void CloseOrOpenParagraphOptions(boolean Close) {
+        if (importerOptions) {
+            CloseOrOpenImporterOptions(true);
+            importerOptions = false;
+        }
+        if (formatOptions) {
+            CloseOrOpenFormatOptions(true);
+            formatOptions = false;
+        }
+        if (drawOptions) {
+            CloseOrOpenDrawOptions(0, true);
+            drawOptions = false;
+        }
+        if (Close) {
+            animateObject(ParagraphOptions, "translationY", 250, 500);
+        } else {
+            animateObject(ParagraphOptions, "translationY", -150, 500);
+        }
+    }
+
+    public void CloseOrOpenImporterOptions(boolean Close) {
+        if (paragraphOptions) {
+            CloseOrOpenParagraphOptions(true);
+            paragraphOptions = false;
+        }
+        if (formatOptions) {
+            CloseOrOpenFormatOptions(true);
+            formatOptions = false;
+        }
+        if (drawOptions) {
+            CloseOrOpenDrawOptions(0, true);
+            drawOptions = false;
+        }
+        if (Close) {
+            animateObject(ImporterOptions, "translationY", 250, 500);
+        } else {
+            animateObject(ImporterOptions, "translationY", -150, 500);
         }
     }
 
@@ -787,6 +1050,116 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void CloseOrOpenEditorColors(boolean CloseOpenedEditorColors) {
+
+        if (CloseOpenedEditorColors) {
+
+            Black.setVisibility(View.GONE);
+            Blue.setVisibility(View.GONE);
+            Purple.setVisibility(View.GONE);
+            Magenta.setVisibility(View.GONE);
+            Orange.setVisibility(View.GONE);
+            Yellow.setVisibility(View.GONE);
+            Green.setVisibility(View.GONE);
+
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                changeColor.setVisibility(View.VISIBLE);
+                Bold.setVisibility(View.VISIBLE);
+                Italic.setVisibility(View.VISIBLE);
+                Underline.setVisibility(View.VISIBLE);
+                StrikeThrough.setVisibility(View.VISIBLE);
+                Highlight.setVisibility(View.VISIBLE);
+                IncreaseSize.setVisibility(View.VISIBLE);
+                DecreaseSize.setVisibility(View.VISIBLE);
+
+
+            }, 150);
+
+        } else {
+
+            changeColor.setVisibility(View.GONE);
+            Bold.setVisibility(View.GONE);
+            Italic.setVisibility(View.GONE);
+            Underline.setVisibility(View.GONE);
+            StrikeThrough.setVisibility(View.GONE);
+            Highlight.setVisibility(View.GONE);
+            IncreaseSize.setVisibility(View.GONE);
+            DecreaseSize.setVisibility(View.GONE);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                // ChangeColor.setVisibility(View.GONE);
+
+                Black.setVisibility(View.VISIBLE);
+                Blue.setVisibility(View.VISIBLE);
+                Purple.setVisibility(View.VISIBLE);
+                Magenta.setVisibility(View.VISIBLE);
+                Orange.setVisibility(View.VISIBLE);
+                Yellow.setVisibility(View.VISIBLE);
+                Green.setVisibility(View.VISIBLE);
+
+
+            }, 150);
+        }
+
+
+    }
+
+    public void CloseOrOpenEditorHIghlightColors(boolean CloseOpenedEditorHighlightColors) {
+
+        if (CloseOpenedEditorHighlightColors) {
+
+            BlackHighlight.setVisibility(View.GONE);
+            BlueHighlight.setVisibility(View.GONE);
+            PurpleHighlight.setVisibility(View.GONE);
+            MagentaHighlight.setVisibility(View.GONE);
+            OrangeHighlight.setVisibility(View.GONE);
+            YellowHighlight.setVisibility(View.GONE);
+            GreenHighlight.setVisibility(View.GONE);
+            ClearHighlight.setVisibility(View.GONE);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                changeColor.setVisibility(View.VISIBLE);
+                Bold.setVisibility(View.VISIBLE);
+                Italic.setVisibility(View.VISIBLE);
+                Underline.setVisibility(View.VISIBLE);
+                StrikeThrough.setVisibility(View.VISIBLE);
+                Highlight.setVisibility(View.VISIBLE);
+                IncreaseSize.setVisibility(View.VISIBLE);
+                DecreaseSize.setVisibility(View.VISIBLE);
+
+            }, 150);
+
+        } else {
+
+            changeColor.setVisibility(View.GONE);
+            Bold.setVisibility(View.GONE);
+            IncreaseSize.setVisibility(View.GONE);
+            DecreaseSize.setVisibility(View.GONE);
+            Italic.setVisibility(View.GONE);
+            Underline.setVisibility(View.GONE);
+            StrikeThrough.setVisibility(View.GONE);
+            Highlight.setVisibility(View.GONE);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                // ChangeColor.setVisibility(View.GONE);
+
+                BlackHighlight.setVisibility(View.VISIBLE);
+                BlueHighlight.setVisibility(View.VISIBLE);
+                PurpleHighlight.setVisibility(View.VISIBLE);
+                MagentaHighlight.setVisibility(View.VISIBLE);
+                OrangeHighlight.setVisibility(View.VISIBLE);
+                YellowHighlight.setVisibility(View.VISIBLE);
+                GreenHighlight.setVisibility(View.VISIBLE);
+                ClearHighlight.setVisibility(View.VISIBLE);
+
+
+            }, 150);
+        }
+
+
+    }
+
     public void CloseAllButtons() {
 
         if (bottomBarUp) {
@@ -800,16 +1173,25 @@ public class MainActivity extends AppCompatActivity {
         InputMethodManager keyboard = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         keyboard.hideSoftInputFromWindow(toolbar.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
+        if (paragraphOptions) {
+            CloseOrOpenParagraphOptions(true);
+            paragraphOptions = false;
+        }
+        if (importerOptions) {
+            CloseOrOpenImporterOptions(true);
+            importerOptions = false;
+        }
+        if (formatOptions) {
+            CloseOrOpenFormatOptions(true);
+            formatOptions = false;
+        }
+        if (drawOptions) {
+            CloseOrOpenDrawOptions(true);
+            drawOptions = false;
+        }
+
         if (seekBarDrawSize.getVisibility() == View.VISIBLE) {
             CloseOrOpenDrawSize(true);
-        }
-
-        if (BlackDraw.getVisibility() == View.VISIBLE) {
-            CloseOrOpenDrawColors(true);
-        }
-
-        if (DrawOptions.getVisibility() == View.VISIBLE) {
-            //    CloseOrOpenDraWOptions(0, true);
         }
     }
 
@@ -819,27 +1201,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void CloseOrOpenNoteContents() {
 
-        EditText TitleTextBox = findViewById(R.id.TitleTextBox);
-        RecyclerView recyclerViewImage = findViewById(R.id.ImagesRecycler);
-        RecyclerView textanddrawRecyclerView = findViewById(R.id.TextAndDrawRecyclerView);
-        EverDraw everDraw = findViewById(R.id.EverDraw);
-
+        // EditText TitleTextBox = findViewById(R.id.TitleTextBox);
+        //  RecyclerView recyclerViewImage = findViewById(R.id.ImagesRecycler);
+        //  RecyclerView textanddrawRecyclerView = findViewById(R.id.TextAndDrawRecyclerView);
+        //  EverDraw everDraw = findViewById(R.id.EverDraw);
 
         if (showNoteContents) {
 
-            TitleTextBox.setVisibility(View.VISIBLE);
-            recyclerViewImage.setVisibility(View.VISIBLE);
-            textanddrawRecyclerView.setVisibility(View.VISIBLE);
-            everDraw.setVisibility(View.GONE);
+            title.get().setVisibility(View.VISIBLE);
+            imageRecycler.get().setVisibility(View.VISIBLE);
+            contentRecycler.get().setVisibility(View.VISIBLE);
+            noteCreator.get().everDraw.get().setVisibility(View.GONE);
 
             showNoteContents = false;
 
         } else {
 
-            TitleTextBox.setVisibility(View.GONE);
-            recyclerViewImage.setVisibility(View.GONE);
-            textanddrawRecyclerView.setVisibility(View.GONE);
-            everDraw.setVisibility(View.VISIBLE);
+            title.get().setVisibility(View.GONE);
+            imageRecycler.get().setVisibility(View.GONE);
+            contentRecycler.get().setVisibility(View.GONE);
+            noteCreator.get().everDraw.get().setVisibility(View.VISIBLE);
 
             showNoteContents = true;
         }
@@ -884,7 +1265,7 @@ public class MainActivity extends AppCompatActivity {
                 if (size < 7) {
 
                     size++;
-                    noteCreator.activeEditor.setFontSize(size);
+                    noteCreator.get().activeEditor.get().setFontSize(size);
                 }
                 break;
 
@@ -892,35 +1273,37 @@ public class MainActivity extends AppCompatActivity {
                 if (size > 3) {
 
                     size--;
-                    noteCreator.activeEditor.setFontSize(size);
+                    noteCreator.get().activeEditor.get().setFontSize(size);
                 }
                 break;
 
             case "changeColor":
-                createPopupMenu(note_bottom_bar, R.layout.color_change_popup, true, "popup", 50, -180);
+                // createPopupMenu(note_bottom_bar, R.layout.color_change_popup, true, "popup", 50, -180);
+                CloseOrOpenEditorColors(false);
                 break;
 
             case "bold":
-                noteCreator.activeEditor.setBold();
+                noteCreator.get().activeEditor.get().setBold();
                 break;
 
             case "italic":
-                noteCreator.activeEditor.setItalic();
+                noteCreator.get().activeEditor.get().setItalic();
                 break;
 
             case "underline":
-                noteCreator.activeEditor.setUnderline();
+                noteCreator.get().activeEditor.get().setUnderline();
                 break;
 
             case "striketrough":
-                noteCreator.activeEditor.setStrikeThrough();
+                noteCreator.get().activeEditor.get().setStrikeThrough();
                 break;
 
             case "highlight":
-                createPopupMenu(note_bottom_bar, R.layout.highlight_color_change_popup, true, "popup", 50, -180);
+                // createPopupMenu(note_bottom_bar, R.layout.highlight_color_change_popup, true, "popup", 50, -180);
+                CloseOrOpenEditorHIghlightColors(false);
                 break;
             case "clearHighlight":
-                noteCreator.activeEditor.setTextBackgroundColor(Color.WHITE);
+                noteCreator.get().activeEditor.get().setTextBackgroundColor(Color.WHITE);
                 break;
         }
         // popupWindowHelper.dismiss();
@@ -929,190 +1312,186 @@ public class MainActivity extends AppCompatActivity {
     public void colorChangeClick(View view) {
         switch (view.getTag().toString()) {
             case "black":
-                noteCreator.activeEditor.setTextColor(GetColor(R.color.Black));
+                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Black));
                 break;
             case "white":
-                noteCreator.activeEditor.setTextColor(GetColor(R.color.White));
+                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.White));
                 break;
             case "magenta":
-                noteCreator.activeEditor.setTextColor(GetColor(R.color.Magenta));
+                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Magenta));
                 break;
             case "purple":
-                noteCreator.activeEditor.setTextColor(GetColor(R.color.Pink));
+                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Pink));
                 break;
             case "orange":
-                noteCreator.activeEditor.setTextColor(GetColor(R.color.Orange));
+                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Orange));
                 break;
             case "blue":
-                noteCreator.activeEditor.setTextColor(GetColor(R.color.SkyBlue));
+                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.SkyBlue));
                 break;
             case "yellow":
-                noteCreator.activeEditor.setTextColor(GetColor(R.color.YellowSun));
+                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.YellowSun));
                 break;
             case "green":
-                noteCreator.activeEditor.setTextColor(GetColor(R.color.GrassGreen));
+                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.GrassGreen));
                 break;
         }
-        popupWindowHelperColor.dismiss();
-        Blurry.delete(findViewById(R.id.homeNotesrelative));
+        CloseOrOpenEditorColors(true);
     }
 
-    public void drawColorChangeClick(View view) {
+    public void noteColorChange(View view) {
 
-        if (DrawOn) {
-            switch (view.getTag().toString()) {
-                case "black":
-                    noteCreator.everDraw.setColor(GetColor(R.color.Black));
-                    break;
+        switch (view.getTag().toString()) {
+            case "black":
+                tintSystemBars(GetColor(R.color.Black));
+                actualNote.get().setNoteColor(String.valueOf(R.color.Black));
+                break;
 
-                case "white":
-                    noteCreator.everDraw.setColor(GetColor(R.color.White));
-                    break;
+            case "white":
+                tintSystemBars(GetColor(R.color.White));
+                actualNote.get().setNoteColor(String.valueOf(GetColor(R.color.White)));
+                break;
 
-                case "magenta":
-                    noteCreator.everDraw.setColor(GetColor(R.color.Magenta));
-                    break;
+            case "magenta":
+                tintSystemBars(GetColor(R.color.Magenta));
+                actualNote.get().setNoteColor(String.valueOf(GetColor(R.color.Magenta)));
+                break;
 
-                case "purple":
-                    noteCreator.everDraw.setColor(GetColor(R.color.Pink));
-                    break;
+            case "purple":
+                tintSystemBars(GetColor(R.color.Pink));
+                actualNote.get().setNoteColor(String.valueOf(GetColor(R.color.Pink)));
+                break;
 
-                case "orange":
-                    noteCreator.everDraw.setColor(GetColor(R.color.Orange));
-                    break;
+            case "orange":
+                tintSystemBars(GetColor(R.color.Orange));
+                actualNote.get().setNoteColor(String.valueOf(GetColor(R.color.Orange)));
+                break;
 
-                case "blue":
-                    noteCreator.everDraw.setColor(GetColor(R.color.SkyBlue));
-                    break;
+            case "blue":
+                tintSystemBars(GetColor(R.color.SkyBlue));
+                actualNote.get().setNoteColor(String.valueOf(GetColor(R.color.SkyBlue)));
+                break;
 
-                case "yellow":
-                    noteCreator.everDraw.setColor(GetColor(R.color.YellowSun));
-                    break;
+            case "yellow":
+                tintSystemBars(GetColor(R.color.YellowSun));
+                actualNote.get().setNoteColor(String.valueOf(GetColor(R.color.YellowSun)));
+                break;
 
-                case "green":
-                    noteCreator.everDraw.setColor(GetColor(R.color.GrassGreen));
-                    break;
-            }
+            case "green":
+                tintSystemBars(GetColor(R.color.GrassGreen));
+                actualNote.get().setNoteColor(String.valueOf(GetColor(R.color.GrassGreen)));
+                break;
+        }
+    }
 
-        } else {
-            switch (view.getTag().toString()) {
-                case "black":
-                    tintSystemBars(GetColor(R.color.Black));
-                    actualNote.setNoteColor(String.valueOf(R.color.Black));
-                    break;
+    public void drawColorChange(View view) {
 
-                case "white":
-                    tintSystemBars(GetColor(R.color.White));
-                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.White)));
-                    break;
+        switch (view.getTag().toString()) {
+            case "black":
+                noteCreator.get().everDraw.get().setColor(GetColor(R.color.Black));
+                break;
 
-                case "magenta":
-                    tintSystemBars(GetColor(R.color.Magenta));
-                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.Magenta)));
-                    break;
+            case "white":
+                noteCreator.get().everDraw.get().setColor(GetColor(R.color.White));
+                break;
 
-                case "purple":
-                    tintSystemBars(GetColor(R.color.Pink));
-                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.Pink)));
-                    break;
+            case "magenta":
+                noteCreator.get().everDraw.get().setColor(GetColor(R.color.Magenta));
+                break;
 
-                case "orange":
-                    tintSystemBars(GetColor(R.color.Orange));
-                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.Orange)));
-                    break;
+            case "purple":
+                noteCreator.get().everDraw.get().setColor(GetColor(R.color.Pink));
+                break;
 
-                case "blue":
-                    tintSystemBars(GetColor(R.color.SkyBlue));
-                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.SkyBlue)));
-                    break;
+            case "orange":
+                noteCreator.get().everDraw.get().setColor(GetColor(R.color.Orange));
+                break;
 
-                case "yellow":
-                    tintSystemBars(GetColor(R.color.YellowSun));
-                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.YellowSun)));
-                    break;
+            case "blue":
+                noteCreator.get().everDraw.get().setColor(GetColor(R.color.SkyBlue));
+                break;
 
-                case "green":
-                    tintSystemBars(GetColor(R.color.GrassGreen));
-                    actualNote.setNoteColor(String.valueOf(GetColor(R.color.GrassGreen)));
-                    break;
-            }
+            case "yellow":
+                noteCreator.get().everDraw.get().setColor(GetColor(R.color.YellowSun));
+                break;
+
+            case "green":
+                noteCreator.get().everDraw.get().setColor(GetColor(R.color.GrassGreen));
+                break;
 
         }
-        popupWindowHelperColor.dismiss();
-//        Blurry.delete(findViewById(R.id.homeNotesrelative));
+        CloseOrOpenDrawColors(true);
     }
 
     public void highlightColorChangeClick(View view) {
         switch (view.getTag().toString()) {
             case "blackHighlight":
-                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.Black));
+                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Black));
                 break;
 
             case "whiteHighlight":
-                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.White));
+                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.White));
                 break;
 
             case "magentaHighlight":
-                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.Magenta));
+                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Magenta));
                 break;
 
             case "purpleHighlight":
-                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.Pink));
+                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Pink));
                 break;
 
             case "orangeHighlight":
-                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.Orange));
+                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Orange));
                 break;
 
             case "blueHighlight":
-                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.SkyBlue));
+                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.SkyBlue));
                 break;
 
             case "yellowHighlight":
-                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.YellowSun));
+                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.YellowSun));
                 break;
 
             case "greenHighlight":
-                noteCreator.activeEditor.setTextBackgroundColor(GetColor(R.color.GrassGreen));
+                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.GrassGreen));
                 break;
 
             case "clearHighlight":
-                noteCreator.activeEditor.setTextBackgroundColor(Color.WHITE);
+                noteCreator.get().activeEditor.get().setTextBackgroundColor(Color.WHITE);
                 break;
 
         }
-        popupWindowHelperColor.dismiss();
-        Blurry.delete(findViewById(R.id.homeNotesrelative));
+        CloseOrOpenEditorHIghlightColors(true);
     }
 
     public void paragraphClick(View view) {
         switch (view.getTag().toString()) {
             case "numbers":
-                noteCreator.activeEditor.setNumbers();
+                noteCreator.get().activeEditor.get().setNumbers();
                 break;
 
             case "bullets":
-                noteCreator.activeEditor.setBullets();
+                noteCreator.get().activeEditor.get().setBullets();
                 break;
 
             case "alignLeft":
-                noteCreator.activeEditor.setAlignLeft();
+                noteCreator.get().activeEditor.get().setAlignLeft();
                 break;
 
             case "alignCenter":
-                noteCreator.activeEditor.setAlignCenter();
+                noteCreator.get().activeEditor.get().setAlignCenter();
                 break;
 
             case "alignRight":
-                noteCreator.activeEditor.setAlignRight();
+                noteCreator.get().activeEditor.get().setAlignRight();
                 break;
 
         }
-        popupWindowHelper.dismiss();
     }
 
     public void importerClick(View view) {
-        noteCreator.importerClick(view, popupWindowHelper);
+        noteCreator.get().importerClick(view, popupWindowHelper);
     }
 
     public void clickToCustomize(View view) {
@@ -1161,8 +1540,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ClearIonCache() {
-        Ion.getDefault(this).getBitmapCache().clear();
-        Ion.getDefault(this).getCache().clear();
+        new Thread(() -> {
+            new Handler(Looper.getMainLooper()).post(() -> {
+
+                Ion.getDefault(this).getBitmapCache().clear();
+                Ion.getDefault(this).getCache().clear();
+                ////  Glide.get(this).clearMemory();
+                //  Glide.get(this).clearDiskCache();
+
+            });
+
+        }).start();
     }
 
     public void tintSystemBars(int color) {
@@ -1194,7 +1582,7 @@ public class MainActivity extends AppCompatActivity {
             //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
             toolbar.setBackgroundTintList(ColorStateList.valueOf(blended));
             note_bottom_bar.setBackgroundTintList(ColorStateList.valueOf(blended));
-            cardNoteCreator.setBackgroundTintList(ColorStateList.valueOf(blended));
+            cardNoteCreator.get().setBackgroundTintList(ColorStateList.valueOf(blended));
         });
 
         anim.setDuration(500).start();
@@ -1219,7 +1607,7 @@ public class MainActivity extends AppCompatActivity {
             // Apply blended color to the status bar.
             int blended = goToValue(originalPosition, finalPosition, position);
 
-            cardNoteCreator.setTranslationY(blended);
+            cardNoteCreator.get().setTranslationY(blended);
         });
 
         anim.setDuration(500).start();
@@ -1251,6 +1639,7 @@ public class MainActivity extends AppCompatActivity {
     public void animateObject(View view, String effect, int amount, int duration) {
         ObjectAnimator transAnimation2 = ObjectAnimator.ofFloat(view, effect, view.getTranslationY(), amount);
         transAnimation2.setDuration(duration);//set duration
+        transAnimation2.setInterpolator(new AnticipateOvershootInterpolator());
         transAnimation2.start();//start animation
     }
 
@@ -1269,7 +1658,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void deleteNoteDialog(int deletePosition, int ID) {
-        blurView(this, 25, 2, findViewById(R.id.homeNotesrelative));
+        //   blurView(this, 25, 2, findViewById(R.id.homeNotesrelative));
 
         new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
                 .setTitleText("Are you sure?")
@@ -1344,7 +1733,7 @@ public class MainActivity extends AppCompatActivity {
     public void updateNote(int p, @Nullable Note_Model note) {
         noteModelSection.set(p, note);
         if (note != null) {
-           System.out.println("Id =" + note.getId());
+            System.out.println("Id =" + note.getId());
             mDatabaseEver.setNoteModel(String.valueOf(note.getId()), note.getTitle(), note.getContent(), note.getDrawLocation(), note.getImageURLS(), note.getNoteColor());
         }
         //adapter.notifyItemChanged(p);
@@ -1372,63 +1761,138 @@ public class MainActivity extends AppCompatActivity {
         TransitionManager.beginDelayedTransition(view, new TransitionSet()
                 .addTransition(new ChangeBounds()));
     }
+
     public void pushDownOnTouch(View view, MotionEvent event, float pushScale, int duration) {
         int i = event.getAction();
-        if( i == MotionEvent.ACTION_DOWN ){
-            makeDecisionAnimScale( view,
+        if (i == MotionEvent.ACTION_DOWN) {
+            makeDecisionAnimScale(view,
                     pushScale,
                     duration,
                     new AccelerateDecelerateInterpolator());
-        }else if( i == MotionEvent.ACTION_CANCEL
-                || i == MotionEvent.ACTION_UP ){
-            makeDecisionAnimScale( view,
+        } else if (i == MotionEvent.ACTION_CANCEL
+                || i == MotionEvent.ACTION_UP) {
+            makeDecisionAnimScale(view,
                     1f,
                     duration,
                     new AccelerateDecelerateInterpolator());
         }
     }
-    public void makeDecisionAnimScale( final View view, float pushScale, long duration, TimeInterpolator interpolator){
 
-        animScale( view, pushScale, duration, interpolator );
+    public void makeDecisionAnimScale(final View view, float pushScale, long duration, TimeInterpolator interpolator) {
+
+        animScale(view, pushScale, duration, interpolator);
     }
 
-    public void animScale(final View view, float scale, long duration, TimeInterpolator interpolator ){
+    public void animScale(final View view, float scale, long duration, TimeInterpolator interpolator) {
         AnimatorSet scaleAnimSet = new AnimatorSet();
         view.animate().cancel();
-        if( scaleAnimSet != null ){
+        if (scaleAnimSet != null) {
             scaleAnimSet.cancel();
         }
 
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat( view, "scaleX", scale );
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat( view, "scaleY", scale );
-        scaleX.setInterpolator( interpolator );
-        scaleX.setDuration( duration );
-        scaleY.setInterpolator( interpolator );
-        scaleY.setDuration( duration );
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", scale);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", scale);
+        scaleX.setInterpolator(interpolator);
+        scaleX.setDuration(duration);
+        scaleY.setInterpolator(interpolator);
+        scaleY.setDuration(duration);
 
         scaleAnimSet = new AnimatorSet();
         scaleAnimSet
-                .play( scaleX )
-                .with( scaleY );
-        scaleX.addListener( new AnimatorListenerAdapter(){
+                .play(scaleX)
+                .with(scaleY);
+        scaleX.addListener(new AnimatorListenerAdapter() {
             @Override
-            public void onAnimationStart( Animator animation ){
-                super.onAnimationStart( animation );
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
             }
 
             @Override
-            public void onAnimationEnd( Animator animation ){
-                super.onAnimationEnd( animation );
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
             }
-        } );
-        scaleX.addUpdateListener( new ValueAnimator.AnimatorUpdateListener(){
+        });
+        scaleX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
-            public void onAnimationUpdate( ValueAnimator valueAnimator ){
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 View p = (View) view.getParent();
-                if( p != null ) p.invalidate();
+                if (p != null) p.invalidate();
             }
-        } );
+        });
         scaleAnimSet.start();
+    }
+
+    public void deleteSelection(View view) {
+        List<Note_Model> list = noteModelSection.getSelectedItems();
+        for (Note_Model note : list) {
+            removeNote(note.getActualPosition(), note.getId());
+        }
+        noteModelSection.clearSelections();
+        CloseOrOpenSelectionOptions(true);
+        pushed = true;
+    }
+
+    public void openColorSelectorSelection(View view) {
+        createPopupMenu(view, R.layout.selection_color_change_popup, true, "popup", 0, 0);
+    }
+
+    public void changeColorSelection(int color) {
+        List<Note_Model> list = noteModelSection.getSelectedItems();
+        for (Note_Model note : list) {
+            selectedPosition = note.getActualPosition();
+            selectedID = note.getId();
+            ChangeNoteColor(color);
+        }
+        noteModelSection.clearSelections();
+        CloseOrOpenSelectionOptions(true);
+        pushed = true;
+    }
+
+    public void clickChangeColorSelected(View view) {
+        int color;
+        switch (view.getTag().toString()) {
+            case "black":
+                color = (GetColor(R.color.Black));
+                changeColorSelection(color);
+                break;
+
+            case "white":
+                color = (GetColor(R.color.White));
+                changeColorSelection(color);
+                break;
+
+            case "magenta":
+                color = (GetColor(R.color.Magenta));
+                changeColorSelection(color);
+                break;
+
+            case "pink":
+                color = (GetColor(R.color.Pink));
+                changeColorSelection(color);
+                break;
+
+            case "orange":
+                color = (GetColor(R.color.Orange));
+                changeColorSelection(color);
+                break;
+
+            case "blue":
+                color = (GetColor(R.color.SkyBlue));
+                changeColorSelection(color);
+                break;
+
+            case "yellow":
+                color = (GetColor(R.color.YellowSun));
+                changeColorSelection(color);
+                break;
+
+            case "green":
+                color = (GetColor(R.color.GrassGreen));
+                changeColorSelection(color);
+                break;
+
+        }
+        popupWindowHelperColor.dismiss();
     }
 }
 
