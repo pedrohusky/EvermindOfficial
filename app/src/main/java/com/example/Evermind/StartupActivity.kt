@@ -128,7 +128,6 @@ class StartupActivity : AppCompatActivity() {
 
                     colors = everDataBase.noteColorsFromDatabase
 
-
                     for (i in ids.indices) {
                         noteModels.add(
                             Note_Model(

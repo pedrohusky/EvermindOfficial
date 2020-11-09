@@ -32,21 +32,17 @@
             app:cardCornerRadius="15dp"
             app:cardElevation="0dp">
 
-            <RelativeLayout
+            <com.example.Evermind.TESTEDITOR.rteditor.RTEditText
+                android:id="@+id/evermindEditor"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:animateLayoutChanges="true"
-                android:visibility="visible">
+                android:layout_height="wrap_content"
+                android:background="@color/White"
+                android:bufferType="spannable"
+                android:minLines="3"
+                android:visibility="gone">
 
-                <jp.wasabeef.richeditor.RichEditor
-                    android:id="@+id/evermindEditor"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone">
+            </com.example.Evermind.TESTEDITOR.rteditor.RTEditText>
 
-                </jp.wasabeef.richeditor.RichEditor>
-
-            </RelativeLayout>
         </androidx.cardview.widget.CardView>
 
         <com.daimajia.swipe.SwipeLayout

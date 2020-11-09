@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Spannable;
 import android.transition.ChangeBounds;
 import android.transition.Fade;
 import android.transition.TransitionManager;
@@ -34,11 +35,11 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.SeekBar;
 import android.widget.Switch;
 
@@ -56,6 +57,14 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.Evermind.TESTEDITOR.rteditor.RTManager;
+import com.example.Evermind.TESTEDITOR.rteditor.api.RTApi;
+import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactoryImpl;
+import com.example.Evermind.TESTEDITOR.rteditor.api.RTProxyImpl;
+import com.example.Evermind.TESTEDITOR.rteditor.effects.Effect;
+import com.example.Evermind.TESTEDITOR.rteditor.effects.Effects;
+import com.example.Evermind.TESTEDITOR.toolbar.HorizontalRTToolbar;
+import com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton;
 import com.example.Evermind.recycler_models.EverAdapter;
 import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
 import com.example.Evermind.ui.note_screen.NotesScreen;
@@ -67,6 +76,7 @@ import com.thekhaeng.pushdownanim.PushDownAnim;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -186,6 +196,25 @@ public class MainActivity extends AppCompatActivity {
     private boolean drawsize = false;
     private boolean selectionOptions = false;
     public boolean pushed = true;
+    public HorizontalRTToolbar toolbarTEST;
+    public RTManager mRTManager;
+    public RTToolbarImageButton boldToolbar;
+    public RTToolbarImageButton italicToolbar;
+    public RTToolbarImageButton underlineToolbar;
+    public RTToolbarImageButton striketroughToolbar;
+    public RTToolbarImageButton align_rightToolbar;
+    public RTToolbarImageButton align_centerToolbar;
+    public RTToolbarImageButton align_leftToolbar;
+    public RTToolbarImageButton redoToolbar;
+    public RTToolbarImageButton undoToolbar;
+    public RTToolbarImageButton bulletToolbar;
+    public RTToolbarImageButton numberToolbar;
+    public RTToolbarImageButton changecolorToolbar;
+    public RTToolbarImageButton changeFontColorToolbar;
+    public RTToolbarImageButton increaseSizetoolbar;
+    public RTToolbarImageButton fontTypeToolbar;
+
+
 
     public @NonNull
     static Bitmap createBitmapFromView(@NonNull View view, int width, int height) {
@@ -219,6 +248,10 @@ public class MainActivity extends AppCompatActivity {
 
         everMainWindow = getWindow();
 
+        RTApi rtApi = new RTApi(this, new RTProxyImpl(this), new RTMediaFactoryImpl(this, false));
+        mRTManager = new RTManager(rtApi, savedInstanceState);
+
+
         preferences = getApplicationContext().getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
         editor = preferences.edit();
 
@@ -251,7 +284,23 @@ public class MainActivity extends AppCompatActivity {
 
         //   new Thread(() -> {
         // a potentially time consuming task
-
+        toolbarTEST = findViewById(R.id.rte_toolbar_character);
+        mRTManager.registerToolbar(null, toolbarTEST);
+        boldToolbar = findViewById(R.id.toolbar_bold);
+          italicToolbar = findViewById(R.id.toolbar_italic);
+          underlineToolbar = findViewById(R.id.toolbar_underline);
+          striketroughToolbar = findViewById(R.id.toolbar_strikethrough);
+          align_rightToolbar = findViewById(R.id.toolbar_align_right);
+          align_centerToolbar = findViewById(R.id.toolbar_align_center);
+          align_leftToolbar = findViewById(R.id.toolbar_align_left);
+          redoToolbar = findViewById(R.id.toolbar_redo);
+          undoToolbar = findViewById(R.id.toolbar_undo);
+          bulletToolbar = findViewById(R.id.toolbar_bullet);
+          numberToolbar = findViewById(R.id.toolbar_number);
+     //    RTToolbarImageButton changecolorToolbar = findViewById(R.id.toolbar_bold);
+      //   RTToolbarImageButton changeFontColorToolbar = findViewById(R.id.toolbar_bold);
+     ////    RTToolbarImageButton increaseSizetoolbar = findViewById(R.id.toolbar_bold);
+     //    RTToolbarImageButton fontTypeToolbar = findViewById(R.id.toolbar_bold);
         note_bottom_bar = findViewById(R.id.note_bottom_bar);
         bottom_nav_anim = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim);
         bottom_nav_anim_reverse = AnimationUtils.loadAnimation(this, R.anim.translate_up_anim_reverse);
@@ -615,38 +664,18 @@ public class MainActivity extends AppCompatActivity {
 
 
                 if (actualNote.get().getTitle().equals("") && actualNote.get().getContent().equals("") && actualNote.get().getDrawLocation().equals("") && actualNote.get().getImageURLS().equals("")) {
-                    removeNote(actualNote.get().getActualPosition(), actualNote.get().getId());
+                    removeNote(actualNote.get());
 
                     System.out.println("Note with id = " + actualNote.get().getId() + " deleted. <-- called from OnBackPress in MainActivity, thx future pedro");
                 } else {
                     updateNote(actualNote.get().getActualPosition(), actualNote.get());
                 }
-
-                FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
-                beginDelayedTransition(cardNoteCreator.get());
-                transaction.setReorderingAllowed(true);
-                if (newNote) {
-                    transaction.addSharedElement(cardNoteCreator.get(), "card" + actualNote.get().getId());
-                } else {
-                    transaction.addSharedElement(cardNoteCreator.get(), "card" + actualNote.get().getId());
-                    transaction.addSharedElement(contentRecycler.get(), "textRecycler" + actualNote.get().getId());
-                    transaction.addSharedElement(title.get(), "title" + actualNote.get().getId());
-                    transaction.addSharedElement(imageRecycler.get(), "imageRecycler" + actualNote.get().getId());
-                }
-                transaction.hide(noteCreator.get());
-                transaction.replace(R.id.nav_host_fragment, noteScreen);
-                transaction.show(noteScreen);
-                transaction.addToBackStack(null);
-                transaction.commit();
             }
-
             atHome = true;
-
             newNote = false;
-        }, 110);
+            new Handler(Looper.getMainLooper()).post(super::onBackPressed);
+        }, 100);
 
-
-        // new Handler(Looper.getMainLooper()).postDelayed(super::onBackPressed, 190);
     }
 
     @Override
@@ -776,6 +805,19 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mRTManager.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mRTManager.onDestroy(isFinishing());
+    }
+
     public void CloseOrOpenToolbarUndoRedo(boolean UndoRedo) {
         if (UndoRedo) {
             Undo.setVisibility(View.INVISIBLE);
@@ -876,7 +918,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (close) {
 
-            // noteCreator.everDraw.setVisibility(View.GONE);
             animateObject(DrawOptions, "translationY", 200, 500);
             CloseOrOpenDrawColors(close);
             CloseOrOpenDrawSize(close);
@@ -1262,18 +1303,20 @@ public class MainActivity extends AppCompatActivity {
     public void formatClick(View view) {
         switch (view.getTag().toString()) {
             case "increaseSize":
-                if (size < 7) {
+                if (size < 76) {
 
                     size++;
-                    noteCreator.get().activeEditor.get().setFontSize(size);
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.FONTSIZE, size);
+                   // noteCreator.get().activeEditor.get().setFontSize(size);
                 }
                 break;
 
             case "decreaseSize":
-                if (size > 3) {
+                if (size > 12) {
 
                     size--;
-                    noteCreator.get().activeEditor.get().setFontSize(size);
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.FONTSIZE, size);
+                   // noteCreator.get().activeEditor.get().setFontSize(size);
                 }
                 break;
 
@@ -1283,19 +1326,23 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case "bold":
-                noteCreator.get().activeEditor.get().setBold();
+                boldToolbar.callOnClick();
+              //  noteCreator.get().activeEditor.get().setBold();
                 break;
 
             case "italic":
-                noteCreator.get().activeEditor.get().setItalic();
+                italicToolbar.callOnClick();
+               // noteCreator.get().activeEditor.get().setItalic();
                 break;
 
             case "underline":
-                noteCreator.get().activeEditor.get().setUnderline();
+                underlineToolbar.callOnClick();
+              //  noteCreator.get().activeEditor.get().setUnderline();
                 break;
 
             case "striketrough":
-                noteCreator.get().activeEditor.get().setStrikeThrough();
+                striketroughToolbar.callOnClick();
+              //  noteCreator.get().activeEditor.get().setStrikeThrough();
                 break;
 
             case "highlight":
@@ -1303,7 +1350,7 @@ public class MainActivity extends AppCompatActivity {
                 CloseOrOpenEditorHIghlightColors(false);
                 break;
             case "clearHighlight":
-                noteCreator.get().activeEditor.get().setTextBackgroundColor(Color.WHITE);
+               // noteCreator.get().activeEditor.get().setTextBackgroundColor(Color.WHITE);
                 break;
         }
         // popupWindowHelper.dismiss();
@@ -1312,28 +1359,37 @@ public class MainActivity extends AppCompatActivity {
     public void colorChangeClick(View view) {
         switch (view.getTag().toString()) {
             case "black":
-                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Black));
+
+                noteCreator.get().activeEditor.get().applyEffect(Effects.FONTCOLOR, GetColor(R.color.Black));
+              //  noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Black));
                 break;
             case "white":
-                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.White));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.FONTCOLOR, GetColor(R.color.White));
+              //  noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.White));
                 break;
             case "magenta":
-                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Magenta));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.FONTCOLOR, GetColor(R.color.Magenta));
+            //    noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Magenta));
                 break;
             case "purple":
-                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Pink));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.FONTCOLOR, GetColor(R.color.Pink));
+              //  noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Pink));
                 break;
             case "orange":
-                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Orange));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.FONTCOLOR, GetColor(R.color.Orange));
+            //    noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.Orange));
                 break;
             case "blue":
-                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.SkyBlue));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.FONTCOLOR, GetColor(R.color.SkyBlue));
+            //    noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.SkyBlue));
                 break;
             case "yellow":
-                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.YellowSun));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.FONTCOLOR, GetColor(R.color.YellowSun));
+              //  noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.YellowSun));
                 break;
             case "green":
-                noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.GrassGreen));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.FONTCOLOR, GetColor(R.color.GrassGreen));
+              //  noteCreator.get().activeEditor.get().setTextColor(GetColor(R.color.GrassGreen));
                 break;
         }
         CloseOrOpenEditorColors(true);
@@ -1426,39 +1482,48 @@ public class MainActivity extends AppCompatActivity {
     public void highlightColorChangeClick(View view) {
         switch (view.getTag().toString()) {
             case "blackHighlight":
-                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Black));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.BGCOLOR, GetColor(R.color.Black));
+             //   noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Black));
                 break;
 
             case "whiteHighlight":
-                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.White));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.BGCOLOR, GetColor(R.color.White));
+             //   noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.White));
                 break;
 
             case "magentaHighlight":
-                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Magenta));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.BGCOLOR, GetColor(R.color.Magenta));
+             //   noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Magenta));
                 break;
 
             case "purpleHighlight":
-                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Pink));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.BGCOLOR, GetColor(R.color.Pink));
+                //noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Pink));
                 break;
 
             case "orangeHighlight":
-                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Orange));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.BGCOLOR, GetColor(R.color.Orange));
+            //    noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.Orange));
                 break;
 
             case "blueHighlight":
-                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.SkyBlue));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.BGCOLOR, GetColor(R.color.SkyBlue));
+            //    noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.SkyBlue));
                 break;
 
             case "yellowHighlight":
-                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.YellowSun));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.BGCOLOR, GetColor(R.color.YellowSun));
+             //   noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.YellowSun));
                 break;
 
             case "greenHighlight":
-                noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.GrassGreen));
+                noteCreator.get().activeEditor.get().applyEffect(Effects.BGCOLOR, GetColor(R.color.GrassGreen));
+             //   noteCreator.get().activeEditor.get().setTextBackgroundColor(GetColor(R.color.GrassGreen));
                 break;
 
             case "clearHighlight":
-                noteCreator.get().activeEditor.get().setTextBackgroundColor(Color.WHITE);
+                noteCreator.get().activeEditor.get().applyEffect(Effects.BGCOLOR, GetColor(R.color.White));
+            //    noteCreator.get().activeEditor.get().setTextBackgroundColor(Color.WHITE);
                 break;
 
         }
@@ -1468,23 +1533,28 @@ public class MainActivity extends AppCompatActivity {
     public void paragraphClick(View view) {
         switch (view.getTag().toString()) {
             case "numbers":
-                noteCreator.get().activeEditor.get().setNumbers();
+                numberToolbar.callOnClick();
+           //     noteCreator.get().activeEditor.get().setNumbers();
                 break;
 
             case "bullets":
-                noteCreator.get().activeEditor.get().setBullets();
+                bulletToolbar.callOnClick();
+           //     noteCreator.get().activeEditor.get().setBullets();
                 break;
 
             case "alignLeft":
-                noteCreator.get().activeEditor.get().setAlignLeft();
+                align_leftToolbar.callOnClick();
+            //    noteCreator.get().activeEditor.get().setAlignLeft();
                 break;
 
             case "alignCenter":
-                noteCreator.get().activeEditor.get().setAlignCenter();
+                align_centerToolbar.callOnClick();
+              //  noteCreator.get().activeEditor.get().setAlignCenter();
                 break;
 
             case "alignRight":
-                noteCreator.get().activeEditor.get().setAlignRight();
+                align_rightToolbar.callOnClick();
+              //  noteCreator.get().activeEditor.get().setAlignRight();
                 break;
 
         }
@@ -1541,15 +1611,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void ClearIonCache() {
         new Thread(() -> {
-            new Handler(Looper.getMainLooper()).post(() -> {
-
                 Ion.getDefault(this).getBitmapCache().clear();
                 Ion.getDefault(this).getCache().clear();
                 ////  Glide.get(this).clearMemory();
                 //  Glide.get(this).clearDiskCache();
-
-            });
-
         }).start();
     }
 
@@ -1583,6 +1648,35 @@ public class MainActivity extends AppCompatActivity {
             toolbar.setBackgroundTintList(ColorStateList.valueOf(blended));
             note_bottom_bar.setBackgroundTintList(ColorStateList.valueOf(blended));
             cardNoteCreator.get().setBackgroundTintList(ColorStateList.valueOf(blended));
+        });
+
+        anim.setDuration(500).start();
+    }
+
+    public void tintView(View view, int color) {
+
+        setDarkStatusBar();
+
+        // Initial colors of each system bar.
+        final int statusBarColor = view.getBackgroundTintList().getDefaultColor();
+        // final int toolbarColor = everMainWindow.getStatusBarColor();
+
+        // Desired final colors of each bar.
+        final int statusBarToColor = color;
+        //  final int toolbarToColor = color;
+
+        ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
+        anim.addUpdateListener(animation -> {
+            // Use animation position to blend colors.
+            float position = animation.getAnimatedFraction();
+
+            // Apply blended color to the status bar.
+            int blended = blendColors(statusBarColor, statusBarToColor, position);
+            // Apply blended color to the ActionBar.
+            //   blended = blendColors(toolbarColor, toolbarToColor, position);
+            //  ColorDrawable background = new ColorDrawable(blended);
+            //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
+            view.setBackgroundTintList(ColorStateList.valueOf(blended));
         });
 
         anim.setDuration(500).start();
@@ -1652,12 +1746,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case "delete":
-                deleteNoteDialog(noteModel.getActualPosition(), noteModel.getId());
+                deleteNoteDialog(noteModel);
                 break;
         }
     }
 
-    public void deleteNoteDialog(int deletePosition, int ID) {
+    public void deleteNoteDialog(Note_Model note) {
         //   blurView(this, 25, 2, findViewById(R.id.homeNotesrelative));
 
         new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
@@ -1667,14 +1761,14 @@ public class MainActivity extends AppCompatActivity {
                 .setConfirmClickListener(sDialog -> {
                     sDialog
                             .setTitleText("Deleted!")
-                            .setContentText("Your note in position: " + deletePosition + ", with ID: " + ID + " was deleted.")
+                            .setContentText("Your note in position: " + note.getActualPosition() + ", with ID: " + note.getId() + " was deleted.")
                             .setConfirmText("OK")
                             .setConfirmClickListener(sweetAlertDialog -> sDialog.dismissWithAnimation())
                             .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                     sDialog.setOnCancelListener(dialog -> Blurry.delete(findViewById(R.id.homeNotesrelative)));
                     sDialog.setOnDismissListener(dialog -> {
                         Blurry.delete(findViewById(R.id.homeNotesrelative));
-                        removeNote(deletePosition, ID);
+                        removeNote(note);
                     });
                     //  notesModels.remove(deletePosition);
 
@@ -1731,17 +1825,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateNote(int p, @Nullable Note_Model note) {
-        noteModelSection.set(p, note);
+        if (noteModelSection.size() > p) {
+            noteModelSection.set(p, note);
+        }
         if (note != null) {
-            System.out.println("Id =" + note.getId());
             mDatabaseEver.setNoteModel(String.valueOf(note.getId()), note.getTitle(), note.getContent(), note.getDrawLocation(), note.getImageURLS(), note.getNoteColor());
         }
         //adapter.notifyItemChanged(p);
     }
 
-    public void removeNote(int p, int ID) {
-        mDatabaseEver.deleteNote(ID);
-        noteModelSection.remove(p);
+    public void removeNote(Note_Model note) {
+        deleteDrawsAndImagesInsideNote(note);
+        mDatabaseEver.deleteNote(note.getId());
+        noteModelSection.remove(note.getActualPosition());
         for (int position = 0; position < noteModelSection.size(); position++) {
             noteModelSection.get(position).setActualPosition(position);
         }
@@ -1822,10 +1918,28 @@ public class MainActivity extends AppCompatActivity {
         scaleAnimSet.start();
     }
 
+    private void deleteDrawsAndImagesInsideNote(Note_Model note) {
+        for (String path: note.getImages()) {
+            File f = new File(path);
+            if (f.exists()) {
+                System.out.println("Image at = " + f.getPath() + " Deleted.");
+                f.delete();
+            }
+        }
+        for (String path: note.getDraws()) {
+            File f = new File(path);
+            if (f.exists()) {
+                System.out.println("Draw at = " + f.getPath() + " Deleted.");
+                f.delete();
+            }
+        }
+    }
+
     public void deleteSelection(View view) {
         List<Note_Model> list = noteModelSection.getSelectedItems();
         for (Note_Model note : list) {
-            removeNote(note.getActualPosition(), note.getId());
+           deleteDrawsAndImagesInsideNote(note);
+            removeNote(note);
         }
         noteModelSection.clearSelections();
         CloseOrOpenSelectionOptions(true);

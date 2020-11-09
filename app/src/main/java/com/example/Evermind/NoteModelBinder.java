@@ -83,48 +83,52 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
 
 
         if (holder.isItemSelected()) {
-            myCardView.get().setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+            mainActivity.get().tintView(myCardView.get(), Color.RED);
+           // myCardView.get().setBackgroundTintList(ColorStateList.valueOf(Color.RED));
         } else {
             if (!holder.getItem().getNoteColor().equals("000000")) {
-                myCardView.get().setBackgroundTintList(ColorStateList.valueOf(Integer.parseInt(holder.getItem().getNoteColor())));
+                mainActivity.get().tintView(myCardView.get(), Integer.parseInt(holder.getItem().getNoteColor()));
+             //   myCardView.get().setBackgroundTintList(ColorStateList.valueOf(Integer.parseInt(holder.getItem().getNoteColor())));
             } else {
-                myCardView.get().setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+                mainActivity.get().tintView(myCardView.get(), Color.WHITE);
+              //  myCardView.get().setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+            }
+            if (textRecycler.get().getAdapter() == null) {
+                SetupNoteEditorRecycler(holder.getItem());
+
+                myTitleView.get().setText(holder.getItem().getTitle());
+
+                if (holder.getItem().getTitle().length() < 1) {
+                    //   TransitionManager.beginDelayedTransition(holder.itemView.findViewById(R.id.mainCard), new TransitionSet()
+                    //          .addTransition(new ChangeBounds()));
+                    myTitleView.get().setVisibility(View.GONE);
+
+                }
+
+                if (holder.getItem().getImages().size() > 0) {
+
+                    StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
+
+                    myRecyclerView.get().setLayoutManager(staggeredGridLayoutManager);
+
+                    MultiViewAdapter adapter = new MultiViewAdapter();
+                    ListSection<String> list = new ListSection<>();
+                    list.addAll(holder.getItem().getImages());
+                    adapter.addSection(list);
+                    adapter.registerItemBinders(new ImagesBinder(context, list.size(), true));
+                    myRecyclerView.get().setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
+                    myRecyclerView.get().setAdapter(new AlphaInAnimationAdapter(adapter));
+
+                    OverScrollDecoratorHelper.setUpOverScroll(myRecyclerView.get(), OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
+
+                } else {
+                    myRecyclerView.get().setVisibility(View.GONE);
+                }
+
+                swipe.get().setShowMode(SwipeLayout.ShowMode.PullOut);
+                swipe.get().setClickToClose(true);
             }
         }
-
-        SetupNoteEditorRecycler(holder.getItem());
-
-        myTitleView.get().setText(holder.getItem().getTitle());
-
-        if (holder.getItem().getTitle().length() < 1) {
-            //   TransitionManager.beginDelayedTransition(holder.itemView.findViewById(R.id.mainCard), new TransitionSet()
-            //          .addTransition(new ChangeBounds()));
-            myTitleView.get().setVisibility(View.GONE);
-
-        }
-
-        if (holder.getItem().getImages().size() > 0) {
-
-            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
-
-            myRecyclerView.get().setLayoutManager(staggeredGridLayoutManager);
-
-            MultiViewAdapter adapter = new MultiViewAdapter();
-            ListSection<String> list = new ListSection<>();
-            list.addAll(holder.getItem().getImages());
-            adapter.addSection(list);
-            adapter.registerItemBinders(new ImagesBinder(context, list.size(), true));
-            myRecyclerView.get().setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
-            myRecyclerView.get().setAdapter(new AlphaInAnimationAdapter(adapter));
-
-            OverScrollDecoratorHelper.setUpOverScroll(myRecyclerView.get(), OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
-
-        } else {
-            myRecyclerView.get().setVisibility(View.GONE);
-        }
-
-        swipe.get().setShowMode(SwipeLayout.ShowMode.PullOut);
-        swipe.get().setClickToClose(true);
     }
 
     private void SetupNoteEditorRecycler(Note_Model item) {

@@ -76,6 +76,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="15dp"
             android:animateLayoutChanges="true"
+            android:backgroundTint="@color/White"
             android:minWidth="185dp"
             android:tag="second"
             app:cardCornerRadius="15dp"

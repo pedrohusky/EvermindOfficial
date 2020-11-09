@@ -5,9 +5,14 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
@@ -16,9 +21,10 @@ import com.bumptech.glide.GenericTransitionOptions;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
+import com.example.Evermind.TESTEDITOR.rteditor.RTTextView;
 import com.example.Evermind.recycler_models.EverLinkedMap;
 import com.koushikdutta.ion.Ion;
-import com.sysdata.kt.htmltextview.SDHtmlTextView;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -30,7 +36,7 @@ public class NoteContentsNoteScreenBinder extends ItemBinder<EverLinkedMap, Note
 
     private final Context context;
     private WeakReference<CardView> noteScreenCard;
-    private WeakReference<SDHtmlTextView> everTextView;
+    private WeakReference<RTTextView> everTextView;
     private WeakReference<ImageView> everImage;
     private final int Size;
 
@@ -64,6 +70,8 @@ public class NoteContentsNoteScreenBinder extends ItemBinder<EverLinkedMap, Note
         noteScreenCard.get().setElevation(0);
         // }
 
+        //((MainActivity)context).mRTManager.registerEditor(everTextView.get(), true);
+
         holder.setContentHTML(holder.getItem().getContent());
         holder.setDrawContent(holder.getItem().getDrawLocation());
 
@@ -85,23 +93,26 @@ public class NoteContentsNoteScreenBinder extends ItemBinder<EverLinkedMap, Note
             everTextView = new WeakReference<>(itemView.findViewById(R.id.recycler_everEditor));
 
             if (!contentHTML.equals("▓")) {
-                everTextView.get().setHtmlText(contentHTML);
+
+
+
+                everTextView.get().setRichTextEditing(contentHTML);
                 everTextView.get().setVisibility(View.VISIBLE);
 
                 if (getAdapterPosition() == Size - 1) {
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).noteScreen.startPostponedEnterTransition(), 25);
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).noteScreen.startPostponedEnterTransition(), 50);
                 }
 
                 if (contentHTML.length() <= 10) {
-                    everTextView.get().setTextSize(19);
-                }
-
-                if (contentHTML.length() <= 5) {
                     everTextView.get().setTextSize(22);
                 }
 
+                if (contentHTML.length() <= 5) {
+                    everTextView.get().setTextSize(25);
+                }
+
                 if (contentHTML.length() >= 10) {
-                    everTextView.get().setTextSize(16);
+                    everTextView.get().setTextSize(18);
                 }
             } else {
                 everTextView.get().setVisibility(View.GONE);
@@ -114,16 +125,14 @@ public class NoteContentsNoteScreenBinder extends ItemBinder<EverLinkedMap, Note
             everImage = new WeakReference<>(itemView.findViewById(R.id.recycler_Image));
 
             if (new File(draw).exists()) {
-                System.out.println("loaded file = " + draw);
                 everImage.get().setVisibility(View.VISIBLE);
-                Glide.with(context)
-                        .asBitmap()
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .skipMemoryCache(true)
-                        .apply(new RequestOptions().override(468, 700))
+                Ion.with(everImage.get())
                         .error(R.drawable.ic_baseline_clear_24)
-                        .transition(GenericTransitionOptions.with(R.anim.grid_new_item_anim))
-                        .load(draw).into(everImage.get());
+                        .animateLoad(R.anim.grid_new_item_anim)
+                        .animateIn(R.anim.grid_new_item_anim)
+                        .smartSize(true)
+                        .centerCrop()
+                        .load(draw);
             } else {
                everImage.get().setVisibility(View.GONE);
             }

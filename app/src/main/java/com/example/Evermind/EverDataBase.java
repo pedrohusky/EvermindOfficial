@@ -84,6 +84,13 @@ public class EverDataBase extends SQLiteOpenHelper {
         String query = "SELECT * FROM " + TABLE_NOTES;
         Cursor cursor = sqLiteDatabase.rawQuery(query, null);
         //cursor.moveToFirst();
+        ids.clear();
+        titles.clear();
+        contents.clear();
+        dates.clear();
+        images.clear();
+        draws.clear();
+        colors.clear();
         if (cursor.moveToFirst()) {
             do {
                 ids.add(cursor.getInt(0));

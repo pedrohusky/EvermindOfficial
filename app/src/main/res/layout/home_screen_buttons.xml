@@ -363,23 +363,87 @@
                 android:paddingTop="0dp"
                 android:paddingRight="0dp"
                 android:paddingBottom="0dp"
-                android:visibility="visible">
+                android:visibility="visible"
+                android:orientation="horizontal">
 
-                <ImageButton
-                    android:id="@+id/DecreaseSize1"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_margin="7dp"
-                    android:background="@drawable/selected_background"
-                    android:onClick="formatClick"
-                    android:padding="4dp"
-                    android:scaleType="centerInside"
-                    android:scaleX="1.15"
-                    android:scaleY="1.15"
-                    android:tag="decreaseSize"
-                    android:tint="@color/Black"
-                    android:visibility="visible"
-                    app:srcCompat="@drawable/decrease" />
+                <com.example.Evermind.TESTEDITOR.toolbar.HorizontalRTToolbar
+                    android:id="@+id/rte_toolbar_character"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?android:attr/actionBarItemBackground"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_bold"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_italic"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_underline"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_strikethrough"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_superscript"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"/>
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_subscript"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"/>
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_align_left"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"/>
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_align_center"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp" />
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_align_right"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp" />
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_bullet"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp" />
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_number"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp" />
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_undo"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp" />
+
+                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/toolbar_redo"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp" />
+
+                </com.example.Evermind.TESTEDITOR.toolbar.HorizontalRTToolbar>
 
                 <ImageButton
                     android:id="@+id/IncreaseSize1"
@@ -396,6 +460,22 @@
                     android:tint="@color/Black"
                     android:visibility="visible"
                     app:srcCompat="@drawable/increase" />
+
+                <ImageButton
+                    android:id="@+id/DecreaseSize1"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/selected_background"
+                    android:onClick="formatClick"
+                    android:padding="4dp"
+                    android:scaleType="centerInside"
+                    android:scaleX="1.15"
+                    android:scaleY="1.15"
+                    android:tag="decreaseSize"
+                    android:tint="@color/Black"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/decrease" />
 
                 <ImageButton
                     android:id="@+id/ChangeColor1"

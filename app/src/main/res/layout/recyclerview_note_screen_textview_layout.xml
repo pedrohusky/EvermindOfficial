@@ -22,7 +22,7 @@
         android:foregroundTint="@color/Transparent"
         android:orientation="vertical">
 
-        <com.sysdata.kt.htmltextview.SDHtmlTextView
+        <com.example.Evermind.TESTEDITOR.rteditor.RTTextView
             android:id="@+id/recycler_everEditor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -31,7 +31,9 @@
             android:maxLines="7"
             android:minLines="1"
             android:textSize="24sp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
         <ImageView
             android:id="@+id/recycler_Image"
@@ -41,6 +43,7 @@
             android:background="@color/Transparent"
             android:backgroundTint="@color/Transparent"
             android:foregroundTint="@color/Transparent"
+            android:translationY="-2dp"
             android:visibility="gone" />
     </LinearLayout>
 

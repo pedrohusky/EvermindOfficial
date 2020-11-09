@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.GenericTransitionOptions;
 import com.bumptech.glide.Glide;
+import com.koushikdutta.ion.Ion;
 import com.stfalcon.imageviewer.StfalconImageViewer;
 
 import mva2.adapter.ItemBinder;
@@ -27,6 +28,8 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
     }
 
 
+
+
     @Override
     public ImageModelViewHolder createViewHolder(ViewGroup parent) {
         return new ImageModelViewHolder(inflate(parent, R.layout.images_imagerecycler));
@@ -40,15 +43,15 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
     @Override
     public void bindViewHolder(ImageModelViewHolder holder, String path) {
         if (fromNoteScreen) {
-
             if (holder.getAdapterPosition() == 0 && size <= 1) {
                 if (path.length() > 1) {
-                    Glide.with(context)
-                            .asBitmap()
+                    Ion.with(holder.myImageView)
                             .error(R.drawable.ic_baseline_clear_24)
-                            .transition(GenericTransitionOptions.with(R.anim.grid_new_item_anim))
-                            .load(path)
-                            .into(holder.myImageView);
+                            .animateLoad(R.anim.grid_new_item_anim)
+                            .animateIn(R.anim.grid_new_item_anim)
+                            .smartSize(true)
+                            .centerCrop()
+                            .load(path);
 
                     ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
 
@@ -61,12 +64,13 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
 
             } else {
                 if (path.length() > 1) {
-                    Glide.with(context)
-                            .asBitmap()
+                    Ion.with(holder.myImageView)
                             .error(R.drawable.ic_baseline_clear_24)
-                            .transition(GenericTransitionOptions.with(R.anim.grid_new_item_anim))
-                            .load(path)
-                            .into(holder.myImageView);
+                            .animateLoad(R.anim.grid_new_item_anim)
+                            .animateIn(R.anim.grid_new_item_anim)
+                            .smartSize(true)
+                            .centerCrop()
+                            .load(path);
 
                     ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
 
@@ -83,12 +87,13 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
             if ((holder.getAdapterPosition() % 2) == 0 && (holder.getAdapterPosition() + 1) == ((MainActivity)context).noteCreator.get().listImages.size()) {
 
                 if (!path.equals("")) {
-                    Glide.with(context)
-                            .asBitmap()
+                    Ion.with(holder.myImageView)
                             .error(R.drawable.ic_baseline_clear_24)
-                            .transition(GenericTransitionOptions.with(R.anim.grid_new_item_anim))
-                            .load(path)
-                            .into(holder.myImageView);
+                            .animateLoad(R.anim.grid_new_item_anim)
+                            .animateIn(R.anim.grid_new_item_anim)
+                            .smartSize(true)
+                            .centerCrop()
+                            .load(path);
 
 
                     ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
@@ -103,12 +108,13 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
             } else {
 
                 if (!path.equals("")) {
-                    Glide.with(context)
-                            .asBitmap()
+                    Ion.with(holder.myImageView)
                             .error(R.drawable.ic_baseline_clear_24)
-                            .transition(GenericTransitionOptions.with(R.anim.grid_new_item_anim))
-                            .load(path)
-                            .into(holder.myImageView);
+                            .animateLoad(R.anim.grid_new_item_anim)
+                            .animateIn(R.anim.grid_new_item_anim)
+                            .smartSize(true)
+                            .centerCrop()
+                            .load(path);
 
                     }
                 }
