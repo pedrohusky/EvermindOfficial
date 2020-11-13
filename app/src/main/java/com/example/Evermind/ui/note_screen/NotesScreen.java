@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.example.Evermind.EvershootInterpolator;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 
@@ -36,6 +37,7 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
     public static int toPosition;
     public WeakReference<MultiViewAdapter> adapter;
     private WeakReference<RecyclerView> recyclerView;
+    private int count;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -54,71 +56,7 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        MainActivity mainActivity = ((MainActivity) requireActivity());
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-     //   GridLayoutManager grid = new GridLayoutManager(requireActivity(), 2);
-        recyclerView = new WeakReference<>(mainActivity.findViewById(R.id.notesRecycler));
-
-        recyclerView.get().setLayoutManager(staggeredGridLayoutManager);
-        adapter = ((MainActivity)requireActivity()).adapter;
-        adapter.get().setSelectionMode(Mode.MULTIPLE);
-        recyclerView.get().setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
-        recyclerView.get().setAdapter(new AlphaInAnimationAdapter(adapter.get()));
-
-        OverScrollDecoratorHelper.setUpOverScroll(recyclerView.get(), OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
-        ((MainActivity)requireActivity()).recyclertest = recyclerView;
-        //((MainActivity)requireActivity()).noteScreenAdapter = adapter;
-        recyclerView.get().scrollToPosition(((MainActivity)requireActivity()).selectedPosition);
-        ((MainActivity)requireActivity()).selectedPosition = -1;
-
-        recyclerView.get().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-
-            @Override
-            public boolean onPreDraw() {
-                if (mainActivity.noteModelSection.size() == 0) {
-                StartPostpone();
-                }
-                recyclerView.get().getViewTreeObserver().removeOnPreDrawListener(this);
-                return true;
-            }
-        });
-
-        mainActivity.noteScreen = this;
-
-
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT, 0) {
-            @Override
-            public boolean onMove(@NotNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                fromPosition = viewHolder.getAdapterPosition();
-                toPosition = target.getAdapterPosition();
-                if (fromPosition < toPosition) {
-                    for (int i = fromPosition; i < toPosition; i++) {
-                     //   Collections.swap(mainActivity.noteModelSection, i, i + 1);
-                    }
-                } else {
-                    for (int i = fromPosition; i > toPosition; i--) {
-                     //   Collections.swap(mainActivity.noteModelSection, i, i - 1);
-                    }
-                }
-                adapter.get().notifyItemMoved(fromPosition, toPosition);
-                return true;
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                adapter.get().notifyItemRemoved(viewHolder.getAdapterPosition());
-               // databaseEver.deleteNote(viewHolder.getAdapterPosition());
-            }
-
-            @Override
-            public void clearView(@NotNull RecyclerView recyclerView, @NotNull RecyclerView.ViewHolder viewHolder) {
-                super.clearView(recyclerView, viewHolder);
-            }
-        };
-
-      //  ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
-      //  itemTouchHelper.attachToRecyclerView(recyclerView);
+     init();
     }
 
 
@@ -130,6 +68,78 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
 
         return true;
+    }
+
+    public void init() {
+        WeakReference<MainActivity> mainActivity = new WeakReference<>(((MainActivity) requireActivity()));
+
+        if (mainActivity.get().isGrid) {
+            count = 2;
+        } else {
+            count = 1;
+        }
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(count, StaggeredGridLayoutManager.VERTICAL);
+        //   GridLayoutManager grid = new GridLayoutManager(requireActivity(), 2);
+        recyclerView = new WeakReference<>(mainActivity.get().findViewById(R.id.notesRecycler));
+
+        recyclerView.get().setLayoutManager(staggeredGridLayoutManager);
+        adapter = ((MainActivity)requireActivity()).adapter;
+        adapter.get().setSelectionMode(Mode.MULTIPLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            recyclerView.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
+        }
+        recyclerView.get().setAdapter(new AlphaInAnimationAdapter(adapter.get()));
+
+        OverScrollDecoratorHelper.setUpOverScroll(recyclerView.get(), OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+        ((MainActivity)requireActivity()).recyclertest = recyclerView;
+        recyclerView.get().scrollToPosition(((MainActivity)requireActivity()).selectedPosition);
+        ((MainActivity)requireActivity()).selectedPosition = -1;
+
+        recyclerView.get().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+
+            @Override
+            public boolean onPreDraw() {
+                if (mainActivity.get().noteModelSection.size() == 0) { StartPostpone(); }
+                recyclerView.get().getViewTreeObserver().removeOnPreDrawListener(this);
+                return true;
+            }
+        });
+
+        mainActivity.get().noteScreen = this;
+
+
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT, 0) {
+            @Override
+            public boolean onMove(@NotNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                fromPosition = viewHolder.getAdapterPosition();
+                toPosition = target.getAdapterPosition();
+                if (fromPosition < toPosition) {
+                    for (int i = fromPosition; i < toPosition; i++) {
+                        //   Collections.swap(mainActivity.noteModelSection, i, i + 1);
+                    }
+                } else {
+                    for (int i = fromPosition; i > toPosition; i--) {
+                        //   Collections.swap(mainActivity.noteModelSection, i, i - 1);
+                    }
+                }
+                adapter.get().notifyItemMoved(fromPosition, toPosition);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                adapter.get().notifyItemRemoved(viewHolder.getAdapterPosition());
+                // databaseEver.deleteNote(viewHolder.getAdapterPosition());
+            }
+
+            @Override
+            public void clearView(@NotNull RecyclerView recyclerView, @NotNull RecyclerView.ViewHolder viewHolder) {
+                super.clearView(recyclerView, viewHolder);
+            }
+        };
+
+        //  ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        //  itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 }
 

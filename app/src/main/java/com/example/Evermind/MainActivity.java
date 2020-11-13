@@ -18,7 +18,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Spannable;
+import android.text.Editable;
+import android.text.Layout;
+import android.text.TextWatcher;
 import android.transition.ChangeBounds;
 import android.transition.Fade;
 import android.transition.TransitionManager;
@@ -33,15 +35,17 @@ import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateInterpolator;
 import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,12 +61,15 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.RTManager;
+import com.example.Evermind.TESTEDITOR.rteditor.RTToolbarListener;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTApi;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactoryImpl;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTProxyImpl;
 import com.example.Evermind.TESTEDITOR.rteditor.effects.Effect;
 import com.example.Evermind.TESTEDITOR.rteditor.effects.Effects;
+import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 import com.example.Evermind.TESTEDITOR.toolbar.HorizontalRTToolbar;
 import com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton;
 import com.example.Evermind.recycler_models.EverAdapter;
@@ -84,7 +91,6 @@ import java.util.Objects;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import jp.wasabeef.blurry.Blurry;
-import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 import mva2.adapter.ListSection;
 import mva2.adapter.MultiViewAdapter;
 
@@ -126,16 +132,16 @@ public class MainActivity extends AppCompatActivity {
     public ImageButton IncreaseSize;
     public ImageButton DecreaseSize;
     public ImageButton changeColor;
-    public ImageButton Bold;
-    public ImageButton Italic;
-    public ImageButton Underline;
-    public ImageButton StrikeThrough;
+    public RTToolbarImageButton Bold;
+    public RTToolbarImageButton Italic;
+    public RTToolbarImageButton Underline;
+    public RTToolbarImageButton StrikeThrough;
     public ImageButton Highlight;
-    public ImageButton Bullets;
-    public ImageButton Numbers;
-    public ImageButton AlignLeft;
-    public ImageButton AlignCenter;
-    public ImageButton AlignRight;
+    public RTToolbarImageButton Bullets;
+    public RTToolbarImageButton Numbers;
+    public RTToolbarImageButton AlignLeft;
+    public RTToolbarImageButton AlignCenter;
+    public RTToolbarImageButton AlignRight;
     public ImageButton GooglePhotos;
     public ImageButton Files;
     public ImageButton Gallery;
@@ -170,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
     public ImageButton drawColor;
     public ImageButton drawSize;
     public ListSection<Note_Model> noteModelSection = new ListSection<>();
+    WeakReference<EditText> edit ;
     public WeakReference<MultiViewAdapter> adapter = new WeakReference<>(new MultiViewAdapter());
     public WeakReference<RecyclerView> recyclertest;
     private AppBarConfiguration mAppBarConfiguration;
@@ -194,26 +201,20 @@ public class MainActivity extends AppCompatActivity {
     private boolean importerOptions = false;
     private boolean drawOptions = false;
     private boolean drawsize = false;
-    private boolean selectionOptions = false;
     public boolean pushed = true;
-    public HorizontalRTToolbar toolbarTEST;
     public RTManager mRTManager;
-    public RTToolbarImageButton boldToolbar;
-    public RTToolbarImageButton italicToolbar;
-    public RTToolbarImageButton underlineToolbar;
-    public RTToolbarImageButton striketroughToolbar;
-    public RTToolbarImageButton align_rightToolbar;
-    public RTToolbarImageButton align_centerToolbar;
-    public RTToolbarImageButton align_leftToolbar;
-    public RTToolbarImageButton redoToolbar;
-    public RTToolbarImageButton undoToolbar;
-    public RTToolbarImageButton bulletToolbar;
-    public RTToolbarImageButton numberToolbar;
-    public RTToolbarImageButton changecolorToolbar;
-    public RTToolbarImageButton changeFontColorToolbar;
-    public RTToolbarImageButton increaseSizetoolbar;
-    public RTToolbarImageButton fontTypeToolbar;
-
+    private boolean bold = false;
+    private boolean italic = false;
+    private boolean underline = false;
+    private boolean striketrough = false;
+    private boolean numbers = false;
+    private boolean bullets = false;
+    private final int DOY = 0;
+    private final int DCY = 350;
+    private boolean switchToolbars = false;
+    public boolean isGrid = true;
+    public boolean searching = false;
+    public ListSection<Note_Model> newList = new ListSection<>();
 
 
     public @NonNull
@@ -247,6 +248,8 @@ public class MainActivity extends AppCompatActivity {
         mDatabaseEver = new EverDataBase(this);
 
         everMainWindow = getWindow();
+
+
 
         RTApi rtApi = new RTApi(this, new RTProxyImpl(this), new RTMediaFactoryImpl(this, false));
         mRTManager = new RTManager(rtApi, savedInstanceState);
@@ -282,21 +285,10 @@ public class MainActivity extends AppCompatActivity {
 
         atHome = true;
 
+        isGrid = preferences.getBoolean("isGrid", true);
+
         //   new Thread(() -> {
         // a potentially time consuming task
-        toolbarTEST = findViewById(R.id.rte_toolbar_character);
-        mRTManager.registerToolbar(null, toolbarTEST);
-        boldToolbar = findViewById(R.id.toolbar_bold);
-          italicToolbar = findViewById(R.id.toolbar_italic);
-          underlineToolbar = findViewById(R.id.toolbar_underline);
-          striketroughToolbar = findViewById(R.id.toolbar_strikethrough);
-          align_rightToolbar = findViewById(R.id.toolbar_align_right);
-          align_centerToolbar = findViewById(R.id.toolbar_align_center);
-          align_leftToolbar = findViewById(R.id.toolbar_align_left);
-          redoToolbar = findViewById(R.id.toolbar_redo);
-          undoToolbar = findViewById(R.id.toolbar_undo);
-          bulletToolbar = findViewById(R.id.toolbar_bullet);
-          numberToolbar = findViewById(R.id.toolbar_number);
      //    RTToolbarImageButton changecolorToolbar = findViewById(R.id.toolbar_bold);
       //   RTToolbarImageButton changeFontColorToolbar = findViewById(R.id.toolbar_bold);
      ////    RTToolbarImageButton increaseSizetoolbar = findViewById(R.id.toolbar_bold);
@@ -335,36 +327,38 @@ public class MainActivity extends AppCompatActivity {
         DrawOptions = findViewById(R.id.draw_options);
         FormatOptions = findViewById(R.id.format_selectors);
         ClearHighlight = findViewById(R.id.clearhighlight);
-        Bold = findViewById(R.id.Bold1);
-        Italic = findViewById(R.id.Italic1);
-        Underline = findViewById(R.id.Underline1);
-        StrikeThrough = findViewById(R.id.Striketrough1);
+        Bold = findViewById(R.id.toolbar_bold);
+        Italic = findViewById(R.id.toolbar_italic);
+        Underline = findViewById(R.id.toolbar_underline);
+        StrikeThrough = findViewById(R.id.toolbar_strikethrough);
         Highlight = findViewById(R.id.HighlightText1);
         changeColor = findViewById(R.id.ChangeColor1);
         size_visualizer = findViewById(R.id.draw_sizeVisualizerCardView);
         ImageSizeView = findViewById(R.id.draw_size_visualizer);
-        Bullets = findViewById(R.id.Bullets);
-        Numbers = findViewById(R.id.Numbers);
+        Bullets = findViewById(R.id.toolbar_bullet);
+        Numbers = findViewById(R.id.toolbar_number);
         ParagraphOptions = findViewById(R.id.format_paragraph);
         ImporterOptions = findViewById(R.id.import_options);
         SelectOptions = findViewById(R.id.selectOptions);
-        AlignLeft = findViewById(R.id.AlignLeft);
-        AlignCenter = findViewById(R.id.AlignCenter);
-        AlignRight = findViewById(R.id.AlignRight);
+        AlignLeft = findViewById(R.id.toolbar_align_left);
+        AlignCenter = findViewById(R.id.toolbar_align_center);
+        AlignRight = findViewById(R.id.toolbar_align_right);
         GooglePhotos = findViewById(R.id.GooglePhotos);
         Files = findViewById(R.id.Files);
         Gallery = findViewById(R.id.Gallery);
-        Undo = findViewById(R.id.Undo);
-        Redo = findViewById(R.id.Redo);
+        Undo = findViewById(R.id.toolbar_undo);
+        Redo = findViewById(R.id.toolbar_redo);
         Delete = findViewById(R.id.Delete);
         Save = findViewById(R.id.Save);
         toolbar = findViewById(R.id.toolbar);
-        scrollView1 = findViewById(R.id.scroll_draw);
+        //scrollView1 = findViewById(R.id.scroll_draw);
         drawColor = findViewById(R.id.drawColor);
-        drawSize = findViewById(R.id.drawSize);
         selectionChangeColor = findViewById(R.id.selectChangeColor);
         selectionDelete = findViewById(R.id.selectDelete);
-        OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
+        edit = new WeakReference<>(findViewById(R.id.searchBox));
+        edit.get().setFocusable(false);
+      //  OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
+
 
         PushDownAnim.setPushDownAnimTo(selectionChangeColor)
                 .setScale(MODE_SCALE,
@@ -544,36 +538,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        drawSize.setOnClickListener(v -> {
-            // createPopupMenu(drawColor, R.layout.draw_size_popup, true, "dropdown", 0,0);
-            View popView = LayoutInflater.from(MainActivity.this).inflate(R.layout.draw_size_popup, null);
-            popupWindowHelperColor = new EverPopup(popView);
-            popupWindowHelperColor.showAsDropDown(drawColor);
-            SeekBar seekBar = popView.findViewById(R.id.seekBar2);
-            //TODO TRY TO USE THE DRAW OPTIONS FROM HOME SCREEN BUTTONS NOT POPUP PLEASE FUTRURE PREDO
-            ImageButton imageButton = popView.findViewById(R.id.drawSizeVisualizer);
-            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    float finals = (float) progress / 100;
-                    System.out.println(finals);
-                    imageButton.setScaleY(finals);
-                    imageButton.setScaleX(finals);
-                    noteCreator.get().everDraw.get().setStrokeWidth(progress / 2);
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                }
-            });
-        });
-
         drawColor.setOnClickListener(v -> createPopupMenu(v, R.layout.draw_options_popup, true, "dropdown", 0, 0));
 
         note_bottom_bar.setOnNavigationItemSelectedListener(item -> {
@@ -629,7 +593,8 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
-
+        HorizontalRTToolbar toolbar1 = new HorizontalRTToolbar(this);
+        mRTManager.registerToolbar(null, toolbar1);
         //   }).start();
     }
 
@@ -650,7 +615,9 @@ public class MainActivity extends AppCompatActivity {
 
         //  if (!actualNote.getNoteColor().equals("000000")) {
         if (toolbar.getBackgroundTintList().getDefaultColor() != defaultToolbarColor) {
-            tintSystemBars(defaultToolbarColor);
+          //  tintSystemBars(defaultToolbarColor);
+            tintView(toolbar, defaultToolbarColor);
+            tintView(note_bottom_bar, defaultToolbarColor);
         }
         //  }
 
@@ -671,6 +638,7 @@ public class MainActivity extends AppCompatActivity {
                     updateNote(actualNote.get().getActualPosition(), actualNote.get());
                 }
             }
+            switchToolbars(true);
             atHome = true;
             newNote = false;
             new Handler(Looper.getMainLooper()).post(super::onBackPressed);
@@ -774,7 +742,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void onItemClickFromNoteScreen(View view, View view2, View view3, View view4, int position, Note_Model actualNote) {
 
-        //    NoteEditorFragmentJavaFragment fragment = NoteEditorFragmentJavaFragment.newInstance();
         NoteEditorFragmentJavaFragment fragment = new NoteEditorFragmentJavaFragment();
 
         this.ID = actualNote.getId();
@@ -791,17 +758,14 @@ public class MainActivity extends AppCompatActivity {
             fragment.setEnterTransition(new Fade());
             noteScreen.setExitTransition(new Fade());
         }
-        System.out.println("ID = " + ID + " position = " + position);
         FragmentTransaction transaction = noteScreen.getParentFragmentManager().beginTransaction();
         transaction.setReorderingAllowed(true);
-        //TODO FIX SHRD ANIMATION NOT WORKING BECAUSE WE CHANGE ADAPTER FIX IT
         transaction.addSharedElement(view, view.getTransitionName());
         transaction.addSharedElement(view2, view2.getTransitionName());
         transaction.addSharedElement(view3, view3.getTransitionName());
         transaction.addSharedElement(view4, view4.getTransitionName());
-        transaction.hide(noteScreen);
         transaction.replace(R.id.nav_host_fragment, fragment);
-        transaction.addToBackStack(null);
+        transaction.addToBackStack(noteScreen.getTag());
         transaction.commit();
     }
 
@@ -834,44 +798,31 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("show");
             if (bottomToolbar) {
                 if (!bottomBarUp) {
-                    System.out.println("bottom bar up");
-                    animateObject(note_bottom_bar, "translationY", 0, 500);
+                    note_bottom_bar.setVisibility(View.VISIBLE);
                     bottomBarUp = true;
                 }
             } else {
-                System.out.println("bottom bar down");
-                animateObject(note_bottom_bar, "translationY", 200, 500);
+                note_bottom_bar.setVisibility(View.GONE);
                 bottomBarUp = false;
-            }
-            if (!toolbarDown) {
-                System.out.println("toolbar down");
-                animateObject(toolbar, "translationY", 0, 500);
-                toolbarDown = true;
-            }
-            if (!cardDown) {
-                System.out.println("card down");
-                animateObject(cardNoteCreator.get(), "translationY", 200, 500);
-                cardDown = true;
             }
 
             CloseOrOpenToolbarUndoRedo(!showUndoRedo);
 
         } else {
-            System.out.println("hide");
-            animateObject(toolbar, "translationY", -200, 150);
-            animateObject(note_bottom_bar, "translationY", 200, 150);
-            animateObject(cardNoteCreator.get(), "translationY", 30, 150);
+            note_bottom_bar.setVisibility(View.GONE);
             toolbarDown = false;
             bottomBarUp = false;
-            cardDown = false;
         }
     }
 
     public void CloseOrOpenDrawOptions(int height, boolean close) {
 
+
         noteCreator.get().drawFromRecycler = false;
 
         if (close) {
+
+           if (!actualNote.get().getNoteColor().equals("000000"))  tintView(noteCreator.get().cardView.get(), Integer.parseInt(actualNote.get().getNoteColor()));
 
             //    TransitionManager.beginDelayedTransition(cardNoteCreator, new TransitionSet()
             //           .addTransition(new ChangeBounds()));
@@ -896,6 +847,8 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
 
+            tintView(noteCreator.get().cardView.get(), defaultToolbarColor);
+
             CloseOrOpenDrawOptions(false);
 
             ResizeEverDrawToPrepareNoteToDraw(height);
@@ -913,12 +866,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void CloseOrOpenDraWOptionsFromRecycler(EverFlowScrollView scroll, RecyclerView recyclerView, boolean close) {
+    public void CloseOrOpenDraWOptionsFromRecycler(EverNestedScrollView scroll, RecyclerView recyclerView, boolean close) {
 
 
         if (close) {
 
-            animateObject(DrawOptions, "translationY", 200, 500);
+            animateObject(DrawOptions, "translationY", DCY, 350);
             CloseOrOpenDrawColors(close);
             CloseOrOpenDrawSize(close);
             DrawOn = false;
@@ -927,7 +880,7 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
 
-            animateObject(DrawOptions, "translationY", -200, 500);
+            animateObject(DrawOptions, "translationY", DOY, 350);
 
             switchToolbars(true, false, true);
 
@@ -974,9 +927,9 @@ public class MainActivity extends AppCompatActivity {
             formatOptions = false;
         }
         if (Close) {
-            animateObject(DrawOptions, "translationY", 250, 500);
+            animateObject(DrawOptions, "translationY", DCY, 350);
         } else {
-            animateObject(DrawOptions, "translationY", -150, 500);
+            animateObject(DrawOptions, "translationY", DOY-50, 350);
         }
     }
 
@@ -994,17 +947,17 @@ public class MainActivity extends AppCompatActivity {
             drawOptions = false;
         }
         if (Close) {
-            animateObject(FormatOptions, "translationY", 250, 500);
+            animateObject(FormatOptions, "translationY", DCY, 350);
         } else {
-            animateObject(FormatOptions, "translationY", -150, 500);
+            animateObject(FormatOptions, "translationY", DOY, 350);
         }
     }
 
     public void CloseOrOpenSelectionOptions(boolean Close) {
         if (Close) {
-            animateObject(SelectOptions, "translationY", 250, 500);
+            animateObject(SelectOptions, "translationY", DCY, 350);
         } else {
-            animateObject(SelectOptions, "translationY", -150, 500);
+            animateObject(SelectOptions, "translationY", DOY, 350);
         }
     }
 
@@ -1022,9 +975,9 @@ public class MainActivity extends AppCompatActivity {
             drawOptions = false;
         }
         if (Close) {
-            animateObject(ParagraphOptions, "translationY", 250, 500);
+            animateObject(ParagraphOptions, "translationY", DCY, 350);
         } else {
-            animateObject(ParagraphOptions, "translationY", -150, 500);
+            animateObject(ParagraphOptions, "translationY", DOY, 350);
         }
     }
 
@@ -1042,9 +995,9 @@ public class MainActivity extends AppCompatActivity {
             drawOptions = false;
         }
         if (Close) {
-            animateObject(ImporterOptions, "translationY", 250, 500);
+            animateObject(ImporterOptions, "translationY", DCY+50, 350);
         } else {
-            animateObject(ImporterOptions, "translationY", -150, 500);
+            animateObject(ImporterOptions, "translationY", DOY, 350);
         }
     }
 
@@ -1203,6 +1156,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void CloseAllButtons() {
 
+        if (noteCreator.get().scrollView.get() != null) {
+            noteCreator.get().scrollView.get().smoothScrollTo(0, 0);
+        }
+
         if (bottomBarUp) {
             switchToolbars(false, false, false);
         } else {
@@ -1326,22 +1283,48 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case "bold":
-                boldToolbar.callOnClick();
+                if (bold) {
+                    view.setBackgroundTintList(ColorStateList.valueOf(GetColor(R.color.White)));
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.BOLD, false);
+                    bold = false;
+                } else {
+                    view.setBackgroundTintList(ColorStateList.valueOf(GetColor(R.color.SkyBlueHighlight)));
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.BOLD, true);
+                    bold = true;
+                }
               //  noteCreator.get().activeEditor.get().setBold();
                 break;
 
             case "italic":
-                italicToolbar.callOnClick();
+                if (italic) {
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.ITALIC, false);
+                    italic = false;
+                } else {
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.ITALIC, true);
+                    italic = true;
+                }
                // noteCreator.get().activeEditor.get().setItalic();
                 break;
 
             case "underline":
-                underlineToolbar.callOnClick();
+                if (underline) {
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.UNDERLINE, false);
+                    underline = false;
+                } else {
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.UNDERLINE, true);
+                    underline = true;
+                }
               //  noteCreator.get().activeEditor.get().setUnderline();
                 break;
 
             case "striketrough":
-                striketroughToolbar.callOnClick();
+                if (striketrough) {
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.STRIKETHROUGH, false);
+                    striketrough = false;
+                } else {
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.STRIKETHROUGH, true);
+                    striketrough = true;
+                }
               //  noteCreator.get().activeEditor.get().setStrikeThrough();
                 break;
 
@@ -1474,7 +1457,6 @@ public class MainActivity extends AppCompatActivity {
             case "green":
                 noteCreator.get().everDraw.get().setColor(GetColor(R.color.GrassGreen));
                 break;
-
         }
         CloseOrOpenDrawColors(true);
     }
@@ -1533,27 +1515,39 @@ public class MainActivity extends AppCompatActivity {
     public void paragraphClick(View view) {
         switch (view.getTag().toString()) {
             case "numbers":
-                numberToolbar.callOnClick();
+                if (numbers) {
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.NUMBER, false);
+                    numbers = false;
+                } else {
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.NUMBER, true);
+                    numbers = true;
+                }
            //     noteCreator.get().activeEditor.get().setNumbers();
                 break;
 
             case "bullets":
-                bulletToolbar.callOnClick();
+                if (bullets) {
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.BULLET, false);
+                    bullets = false;
+                } else {
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.BULLET, true);
+                    bullets = true;
+                }
            //     noteCreator.get().activeEditor.get().setBullets();
                 break;
 
             case "alignLeft":
-                align_leftToolbar.callOnClick();
+                    noteCreator.get().activeEditor.get().applyEffect(Effects.ALIGNMENT, Layout.Alignment.ALIGN_NORMAL);
             //    noteCreator.get().activeEditor.get().setAlignLeft();
                 break;
 
             case "alignCenter":
-                align_centerToolbar.callOnClick();
+                noteCreator.get().activeEditor.get().applyEffect(Effects.ALIGNMENT, Layout.Alignment.ALIGN_CENTER);
               //  noteCreator.get().activeEditor.get().setAlignCenter();
                 break;
 
             case "alignRight":
-                align_rightToolbar.callOnClick();
+                noteCreator.get().activeEditor.get().applyEffect(Effects.ALIGNMENT, Layout.Alignment.ALIGN_OPPOSITE);
               //  noteCreator.get().activeEditor.get().setAlignRight();
                 break;
 
@@ -1733,7 +1727,9 @@ public class MainActivity extends AppCompatActivity {
     public void animateObject(View view, String effect, int amount, int duration) {
         ObjectAnimator transAnimation2 = ObjectAnimator.ofFloat(view, effect, view.getTranslationY(), amount);
         transAnimation2.setDuration(duration);//set duration
-        transAnimation2.setInterpolator(new AnticipateOvershootInterpolator());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            transAnimation2.setInterpolator(new OvershootInterpolator(1f));
+        }
         transAnimation2.start();//start animation
     }
 
@@ -2007,6 +2003,81 @@ public class MainActivity extends AppCompatActivity {
 
         }
         popupWindowHelperColor.dismiss();
+    }
+    public void registerEditor(RTEditText editor, boolean useRichEditing) {
+        mRTManager.unregisterEditor(editor);
+        mRTManager.registerEditor(editor, useRichEditing);
+    }
+
+    public void switchToolbars(boolean showmain) {
+        if (showmain) {
+            findViewById(R.id.note_Creator_ToolbarLayout).setVisibility(View.GONE);
+            findViewById(R.id.mainScreen_ToolbarLayout).setVisibility(View.VISIBLE);
+
+        } else {
+            findViewById(R.id.mainScreen_ToolbarLayout).setVisibility(View.GONE);
+            findViewById(R.id.note_Creator_ToolbarLayout).setVisibility(View.VISIBLE);
+        }
+    }
+    public void changeLayout(View view) {
+       if (isGrid) {
+           editor.putBoolean("isGrid", false);
+           editor.apply();
+           isGrid = false;
+       } else {
+           editor.putBoolean("isGrid", true);
+           editor.apply();
+           isGrid = true;
+       }
+       noteScreen.init();
+    }
+
+    public void searchNotes(View view) {
+        TextWatcher a = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                searchInNotes(s);
+            }
+        };
+        if (view.getTag().equals("search")) {
+            searching = true;
+            edit.get().setFocusable(true);
+            edit.get().setFocusableInTouchMode(true);
+            edit.get().setText("");
+            edit.get().requestFocus();
+            view.setTag("remove");
+            edit.get().addTextChangedListener(a);
+        } else {
+            searching = false;
+            edit.get().setFocusable(false);
+            edit.get().setFocusableInTouchMode(false);
+            edit.get().removeTextChangedListener(a);
+            edit.get().setText("EVERMIND");
+            view.setTag("search");
+            noteScreen.adapter.get().removeAllSections();
+            noteScreen.adapter.get().addSection(noteModelSection);
+        }
+    }
+
+    private void searchInNotes(CharSequence what) {
+        newList = new ListSection<>();
+        for (Note_Model note : noteModelSection.getData()) {
+            if (note.getContent().contains(what)) {
+                    newList.add(note);
+            }
+        }
+        noteScreen.adapter.get().removeAllSections();
+        noteScreen.adapter.get().addSection(newList);
     }
 }
 

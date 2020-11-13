@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter;
 
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
@@ -66,7 +68,7 @@ public class ConverterSpannedToHtml {
     private static final String AMP = "&amp;";
     private static final String NBSP = "&nbsp;";
 
-    private StringBuilder mOut;
+    private SpannableStringBuilder mOut;
     private Spanned mText;
     private RTFormat mRTFormat;
     private List<RTImage> mImages;
@@ -79,7 +81,7 @@ public class ConverterSpannedToHtml {
         mText = text;
         mRTFormat = rtFormat;
 
-        mOut = new StringBuilder();
+        mOut = new SpannableStringBuilder();
         mImages = new ArrayList<>();
         mParagraphStyles.clear();
 
@@ -318,7 +320,7 @@ public class ConverterSpannedToHtml {
             mOut.append("<font style=\"font-size:");
             int size = ((AbsoluteSizeSpan) style).getSize();
             size = Helper.convertSpToPx(size);
-            mOut.append(size);
+            mOut.append((char) size);
             mOut.append("px\">");
         } else if (style instanceof ForegroundColorSpan) {
             mOut.append("<font style=\"color:#");

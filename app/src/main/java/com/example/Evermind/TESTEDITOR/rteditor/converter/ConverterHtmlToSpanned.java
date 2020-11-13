@@ -33,6 +33,7 @@ import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTVideo;
 import com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.HTMLSchema;
 import com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.Parser;
+import com.example.Evermind.TESTEDITOR.rteditor.effects.NumberEffect;
 import com.example.Evermind.TESTEDITOR.rteditor.fonts.FontManager;
 import com.example.Evermind.TESTEDITOR.rteditor.fonts.RTTypeface;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.AbsoluteSizeSpan;
@@ -93,7 +94,6 @@ public class ConverterHtmlToSpanned implements ContentHandler {
      * This way be can ignore e.g. style information or even the whole header
      */
     private boolean mIgnoreContent;
-
     private static final Set<String> sIgnoreTags = new HashSet<String>();
 
     static {

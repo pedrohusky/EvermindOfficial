@@ -86,6 +86,4 @@ public class NumberSpan extends com.example.Evermind.TESTEDITOR.rteditor.spans.B
     public com.example.Evermind.TESTEDITOR.rteditor.spans.NumberSpan createClone() {
         return new com.example.Evermind.TESTEDITOR.rteditor.spans.NumberSpan(mNr, mGapWidth, mIgnoreSpan);
     }
-
-
 }

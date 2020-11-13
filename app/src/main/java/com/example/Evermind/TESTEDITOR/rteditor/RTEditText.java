@@ -20,7 +20,10 @@ import android.content.ClipDescription;
 import android.content.Context;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.Editable;
@@ -31,15 +34,19 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.style.ParagraphStyle;
+import android.transition.Fade;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
+import androidx.cardview.widget.CardView;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
+import androidx.fragment.app.FragmentTransaction;
 
+import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTEditable;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
@@ -52,6 +59,7 @@ import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTMedia;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTVideo;
 import com.example.Evermind.TESTEDITOR.rteditor.effects.Effect;
 import com.example.Evermind.TESTEDITOR.rteditor.effects.Effects;
+import com.example.Evermind.TESTEDITOR.rteditor.effects.NumberEffect;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.BulletSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.LinkSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.MediaSpan;
@@ -61,10 +69,15 @@ import com.example.Evermind.TESTEDITOR.rteditor.utils.Paragraph;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.RTLayout;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Selection;
 import com.example.Evermind.WriterSpannableStringBuilder;
+import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.N_MR1;
@@ -97,6 +110,9 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
 
     private RTMediaFactory<RTImage, RTAudio, RTVideo> mMediaFactory;
 
+    private Map<Integer, Stack<RTOperationManager.Operation>> mUndoStacks = new HashMap<>();
+    private Map<Integer, Stack<RTOperationManager.Operation>> mRedoStacks = new HashMap<>();
+
     // used to check if selection has changed
     private int mOldSelStart = -1;
     private int mOldSelEnd = -1;
@@ -116,6 +132,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
     // This fixes the bug when bullet/number span is not applied to empty string
     private boolean mIsBulletSpanSelected;
     private boolean mIsNumberSpanSelected;
+    private static final int MAX_NR_OF_OPERATIONS = 15;
     // The length of text before new char is added
     private int mPreviousTextLength;
 
@@ -147,10 +164,8 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
     }
 
     private void init() {
-        // TODO MAYBE USE VARIANTION FILTER INPUT TYPE
-        //TODO REMOVE TEXT WATCHER PEDRO!!!!
-        this.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS|InputType.TYPE_TEXT_FLAG_MULTI_LINE|InputType.TYPE_CLASS_TEXT);
-   //     addTextChangedListener(this);
+        this.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE|InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_FILTER);
+      //  addTextChangedListener(this);
         // we need this or links won't be clickable
         setMovementMethod(RTEditorMovementMethod.getInstance());
         allowImageInsertion();
@@ -340,32 +355,34 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
      * us to apply styles and such.
      */
     public void setText(RTText rtText) {
-        assertRegistration();
+        new Handler(Looper.getMainLooper()).post(() -> {
+            assertRegistration();
+            if (rtText.getFormat() instanceof RTFormat.Html) {
+                if (mUseRTFormatting) {
+                    RTText rtSpanned = rtText.convertTo(RTFormat.SPANNED, mMediaFactory);
 
-        if (rtText.getFormat() instanceof RTFormat.Html) {
-            if (mUseRTFormatting) {
-                RTText rtSpanned = rtText.convertTo(RTFormat.SPANNED, mMediaFactory);
+                    super.setText(rtSpanned.getText(), BufferType.EDITABLE);
+                    new NumberEffect().applyToSelection(this, null, null);
+                    addSpanWatcher();
 
-                super.setText(rtSpanned.getText(), BufferType.EDITABLE);
-                addSpanWatcher();
+                    // collect all current media
+                    Spannable text = getText();
+                    for (MediaSpan span : Objects.requireNonNull(text).getSpans(0, text.length(), MediaSpan.class)) {
+                        mOriginalMedia.add(span.getMedia());
+                    }
 
-                // collect all current media
-                Spannable text = getText();
-                for (MediaSpan span : text.getSpans(0, text.length(), MediaSpan.class)) {
-                    mOriginalMedia.add(span.getMedia());
+                     Effects.cleanupParagraphs(this);
+                } else {
+                    RTText rtPlainText = rtText.convertTo(RTFormat.PLAIN_TEXT, mMediaFactory);
+                    super.setText(rtPlainText.getText());
                 }
-
-               // Effects.cleanupParagraphs(this);
-            } else {
-                RTText rtPlainText = rtText.convertTo(RTFormat.PLAIN_TEXT, mMediaFactory);
-                super.setText(rtPlainText.getText());
+            } else if (rtText.getFormat() instanceof RTFormat.PlainText) {
+                CharSequence text = rtText.getText();
+                super.setText(text == null ? "" : text.toString());
             }
-        } else if (rtText.getFormat() instanceof RTFormat.PlainText) {
-            CharSequence text = rtText.getText();
-            super.setText(text == null ? "" : text.toString());
-        }
 
-        onSelectionChanged(0, 0);
+            onSelectionChanged(0, 0);
+        });
     }
 
     public boolean usesRTFormatting() {
@@ -571,7 +588,6 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
      * @param onRichContentListener the listener
      */
     public void setOnRichContentListener(OnRichContentListener onRichContentListener) {
-        System.out.println("RICH CONTENT RECEIVED");
         this.onRichContentListener = onRichContentListener;
     }
 
@@ -611,35 +627,28 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
         final InputConnection ic = super.onCreateInputConnection(editorInfo);
         EditorInfoCompat.setContentMimeTypes(editorInfo, getContentMimeTypes());
         return InputConnectionCompat.createWrapper(ic, editorInfo,
-                new InputConnectionCompat.OnCommitContentListener() {
-                    @Override
-                    public boolean onCommitContent(final InputContentInfoCompat inputContentInfo,
-                                                   int flags, Bundle opts) {
-                        if (SDK_INT >= N_MR1 && (flags & InputConnectionCompat
-                                .INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
-                            try {
-                                if (onRichContentListener != null) {
-                                    Runnable runnable = new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            inputContentInfo.requestPermission();
-                                            onRichContentListener.onRichContent(
-                                                    inputContentInfo.getContentUri(),
-                                                    inputContentInfo.getDescription());
-                                            inputContentInfo.releasePermission();
-                                        }
-                                    };
-                                    if (runListenerInBackground) new Thread(runnable).start();
-                                    else runnable.run();
-                                }
-                            } catch (Exception e) {
-                                Log.e(TAG, "Error accepting rich content: " + e.getMessage());
-                                e.printStackTrace();
-                                return false;
+                (inputContentInfo, flags, opts) -> {
+                    if (SDK_INT >= N_MR1 && (flags & InputConnectionCompat
+                            .INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+                        try {
+                            if (onRichContentListener != null) {
+                                Runnable runnable = () -> {
+                                    inputContentInfo.requestPermission();
+                                    onRichContentListener.onRichContent(
+                                            inputContentInfo.getContentUri(),
+                                            inputContentInfo.getDescription());
+                                    inputContentInfo.releasePermission();
+                                };
+                                if (runListenerInBackground) new Thread(runnable).start();
+                                else runnable.run();
                             }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error accepting rich content: " + e.getMessage());
+                            e.printStackTrace();
+                            return false;
                         }
-                        return true;
                     }
+                    return true;
                 });
     }
 
@@ -722,5 +731,4 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
             mListener.onClick(this, linkSpan);
         }
     }
-
 }

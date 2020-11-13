@@ -42,7 +42,7 @@
                 android:visibility="visible">
 
                 <ImageButton
-                    android:id="@+id/Bullets"
+                    android:id="@+id/toolbar_bullet"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
@@ -61,7 +61,7 @@
                     app:srcCompat="@drawable/bullets" />
 
                 <ImageButton
-                    android:id="@+id/Numbers"
+                    android:id="@+id/toolbar_number"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
@@ -89,7 +89,7 @@
                     android:visibility="visible" />
 
                 <ImageButton
-                    android:id="@+id/AlignRight"
+                    android:id="@+id/toolbar_align_right"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
@@ -109,7 +109,7 @@
                     app:srcCompat="@drawable/align_right" />
 
                 <ImageButton
-                    android:id="@+id/AlignLeft"
+                    android:id="@+id/toolbar_align_left"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
@@ -129,7 +129,7 @@
                     app:srcCompat="@drawable/align_left" />
 
                 <ImageButton
-                    android:id="@+id/AlignCenter"
+                    android:id="@+id/toolbar_align_center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"

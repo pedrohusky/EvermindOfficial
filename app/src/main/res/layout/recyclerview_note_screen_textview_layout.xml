@@ -29,7 +29,6 @@
             android:background="@color/White"
             android:backgroundTint="@color/White"
             android:maxLines="7"
-            android:minLines="1"
             android:textSize="24sp"
             android:visibility="gone"
             android:focusable="false"

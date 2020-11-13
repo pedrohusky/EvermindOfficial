@@ -17,6 +17,8 @@
 package com.example.Evermind.TESTEDITOR.rteditor;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.SpanWatcher;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -30,6 +32,7 @@ import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTMedia;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTVideo;
+import com.example.Evermind.TESTEDITOR.rteditor.effects.NumberEffect;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.BulletSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.MediaSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.NumberSpan;
@@ -46,6 +49,7 @@ public class RTTextView extends androidx.appcompat.widget.AppCompatTextView {
     private final boolean mUseRTFormatting = true;
     private boolean mLayoutChanged;
     private RTLayout mRTLayout;
+    private Thread thread;
     private final Set<RTMedia> mOriginalMedia = new HashSet<RTMedia>();
 
     public RTTextView(Context context) {
@@ -83,12 +87,13 @@ public class RTTextView extends androidx.appcompat.widget.AppCompatTextView {
     }
 
     public void setText(RTText rtText) {
-
+        new Handler(Looper.getMainLooper()).post(() -> {
         if (rtText.getFormat() instanceof RTFormat.Html) {
             if (mUseRTFormatting) {
                 RTText rtSpanned = rtText.convertTo(RTFormat.SPANNED, null);
 
                 super.setText(rtSpanned.getText(), BufferType.EDITABLE);
+                new NumberEffect().applyToSelectionTextView(this, null, null);
 
                 // collect all current media
                 Spannable text = getEditableText();
@@ -96,7 +101,7 @@ public class RTTextView extends androidx.appcompat.widget.AppCompatTextView {
                     mOriginalMedia.add(span.getMedia());
                 }
 
-             //   Effects.cleanupParagraphs(this);
+                //   Effects.cleanupParagraphs(this);
             } else {
                 RTText rtPlainText = rtText.convertTo(RTFormat.PLAIN_TEXT, null);
                 super.setText(rtPlainText.getText());
@@ -107,6 +112,7 @@ public class RTTextView extends androidx.appcompat.widget.AppCompatTextView {
         }
 
         onSelectionChanged(0, 0);
+        });
     }
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {

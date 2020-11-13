@@ -33,7 +33,7 @@ class RTOperationManager {
     /*
      * Maximum number of operations to put in the undo/redo stack
      */
-    private static final int MAX_NR_OF_OPERATIONS = 50;
+    private static final int MAX_NR_OF_OPERATIONS = 20;
 
     /*
      * two operations performed in this time frame (in ms) are considered one
@@ -44,8 +44,8 @@ class RTOperationManager {
     /*
      * The undo/redo stacks by editor Id
      */
-    private Map<Integer, Stack<Operation>> mUndoStacks = new HashMap<>();
-    private Map<Integer, Stack<Operation>> mRedoStacks = new HashMap<>();
+    private Map<RTEditText, Stack<Operation>> mUndoStacks = new HashMap<>();
+    private Map<RTEditText, Stack<Operation>> mRedoStacks = new HashMap<>();
     ;
 
     // ****************************************** Operation Classes *******************************************
@@ -55,7 +55,7 @@ class RTOperationManager {
      * If two operations are performed within a certain time frame
      * they will be considered as one operation and un-done/re-done together.
      */
-    private abstract static class Operation {
+    public abstract static class Operation {
         private long mTimestamp;
 
         private int mSelStartBefore;
@@ -127,7 +127,7 @@ class RTOperationManager {
             op.merge(previousOp);
         }
 
-        push(op, undoStack);
+        push(op, undoStack, editor);
         redoStack.clear();
     }
 
@@ -141,11 +141,11 @@ class RTOperationManager {
         if (!undoStack.empty()) {
             Stack<Operation> redoStack = getRedoStack(editor);
             Operation op = undoStack.pop();
-            push(op, redoStack);
+            push(op, redoStack, editor);
             op.undo(editor);
             while (!undoStack.empty() && op.canMerge(undoStack.peek())) {
                 op = undoStack.pop();
-                push(op, redoStack);
+                push(op, redoStack, editor);
                 op.undo(editor);
             }
         }
@@ -161,11 +161,11 @@ class RTOperationManager {
         if (!redoStack.empty()) {
             Stack<Operation> undoStack = getUndoStack(editor);
             Operation op = redoStack.pop();
-            push(op, undoStack);
+            push(op, undoStack, editor);
             op.redo(editor);
             while (!redoStack.empty() && op.canMerge(redoStack.peek())) {
                 op = redoStack.pop();
-                push(op, undoStack);
+                push(op, undoStack, editor);
                 op.redo(editor);
             }
         }
@@ -185,7 +185,7 @@ class RTOperationManager {
 
     // ****************************************** Private Methods *******************************************
 
-    private void push(Operation op, Stack<Operation> stack) {
+    private void push(Operation op, Stack<Operation> stack, RTEditText editor) {
         if (stack.size() >= MAX_NR_OF_OPERATIONS) {
             stack.remove(0);
         }
@@ -200,11 +200,11 @@ class RTOperationManager {
         return getStack(mRedoStacks, editor);
     }
 
-    private Stack<Operation> getStack(Map<Integer, Stack<Operation>> stacks, RTEditText editor) {
-        Stack<Operation> stack = stacks.get(editor.getId());
+    private Stack<Operation> getStack(Map<RTEditText, Stack<Operation>> stacks, RTEditText editor) {
+        Stack<Operation> stack = stacks.get(editor);
         if (stack == null) {
             stack = new Stack<>();
-            stacks.put(editor.getId(), stack);
+            stacks.put(editor, stack);
         }
         return stack;
     }

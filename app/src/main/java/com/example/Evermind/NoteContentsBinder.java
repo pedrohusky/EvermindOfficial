@@ -88,6 +88,8 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
     private WeakReference<EverDraw> draws;
     private boolean action = false;
     private int h = 0;
+    private int old;
+    private int newline;
 
     public NoteContentsBinder(Context context, int size) {
         this.context = context;
@@ -112,16 +114,15 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
         swipe = new WeakReference<>(holder.itemView.findViewById(R.id.testSwipe));
         everEditor = new WeakReference<>(holder.itemView.findViewById(R.id.evermindEditor));
         everEditor.get().setPaddingRelative(8, 8, 8, 8);
-       // everEditor.get().setEditorFontSize(22);
-        everEditor.get().setSpannableFactory(new Spannable.Factory(){
-            @Override
-            public Spannable newSpannable(CharSequence source) {
-                return (Spannable) source;
-            }
-        });
+      //  everEditor.get().setSpannableFactory(new Spannable.Factory(){
+      //      @Override
+       //    public Spannable newSpannable(CharSequence source) {
+     //           return (Spannable) source;
+     //       }
+       // });
 
 
-        ((MainActivity) context).mRTManager.registerEditor(everEditor.get(), true);
+        ((MainActivity) context).registerEditor(everEditor.get(), true);
         holder.setContentHTML(everMap.getContent());
         holder.setDrawContent(everMap.getDrawLocation());
         swipe.get().setShowMode(SwipeLayout.ShowMode.PullOut);
@@ -188,43 +189,44 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void updateContents() {
-         new Thread(() -> {
+    //     new Thread(() -> {
+             new Handler(Looper.getMainLooper()).postDelayed(() -> {
             array.clear();
             arrayToAdd = ((MainActivity) context).noteCreator.get().list.getData();
             for (EverLinkedMap strg : arrayToAdd) {
-               // System.out.println("Splitted string is = " + strg.getContent());
-               // if (!strg.getContent().equals("")) {
                     if (strg.getContent().endsWith("┼")) {
                         array.add(strg.getContent());
                     } else {
                         array.add(strg.getContent() + "┼");
                     }
-              //  }
             }
             //   arrayToAdd = null;
             String text = "";
             if (ActiveEditor != null) {
-               text = ActiveEditor.get().getText(RTFormat.HTML);
-                if (ActiveEditorPosition > array.size()) {
-                    array.add(text + "┼");
-                } else {
-                    if (text.endsWith("<br>")) {
-                        array.set(ActiveEditorPosition, text.substring(0, text.length() - 4) + "┼");
+                if (ActiveEditor.get() != null) {
+                    text = ActiveEditor.get().getText(RTFormat.HTML);
+                    if (ActiveEditorPosition > array.size()) {
+                        array.add(text + "┼");
                     } else {
-                        array.set(ActiveEditorPosition, text + "┼");
+                        if (text.endsWith("<br>")) {
+                            array.set(ActiveEditorPosition, text.substring(0, text.length() - 4) + "┼");
+                        } else {
+                            array.set(ActiveEditorPosition, text + "┼");
+                        }
                     }
-                }
 
-                String joined_arrayString = String.join("", array);
+                    String joined_arrayString = String.join("", array);
 
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
                     //TODO MBAYBE WE CCAN REMOVE REPLACE RGB COLOR WIT HEXT BECAUSE ITS NOT FUNCTIONAL ANYMORE replaceRGBColorsWithHex(joined_arrayString)
                     ((MainActivity) context).noteCreator.get().actualNote.get().setContent(joined_arrayString);
                     ((MainActivity) context).noteCreator.get().list.get(ActiveEditorPosition).setContent(ActiveEditor.get().getText(RTFormat.HTML));
                     ((MainActivity) context).updateNote(((MainActivity) context).noteCreator.get().actualNote.get().getActualPosition(), ((MainActivity) context).noteCreator.get().actualNote.get());
-                }, 1000);
+
+                }
             }
-        }).start();
+             }, 2000);
+     //   }).start();
     }
 
     class NoteCreatorHolder extends ItemViewHolder<EverLinkedMap> implements View.OnClickListener, View.OnLongClickListener {
@@ -384,17 +386,16 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
             }
 
 
-            everEditor.get().setOnRichContentListener((RTEditText.OnRichContentListener) (contentUri, description) -> {
+            everEditor.get().setOnRichContentListener((contentUri, description) -> {
                 if (description.getMimeTypeCount() > 0 && contentUri != null) {
                     final String fileExtension = MimeTypeMap.getSingleton()
                             .getExtensionFromMimeType(description.getMimeType(0));
                     final String filename = System.currentTimeMillis() + "." + fileExtension;
-                    File richContentFile = new File(((MainActivity)context).getFilesDir(), filename);
+                    File richContentFile = new File(context.getFilesDir(), filename);
                     if (!writeToFileFromContentUri(richContentFile, contentUri)) {
                         System.out.println("Cant Write File");
-                    } else {
-                        System.out.println("FAILED");
                     }
+
                     ((MainActivity)context).mRTManager.insertImage(ActiveEditor.get(), new RTImage() {
                         @Override
                         public String getFilePath(RTFormat format) {
@@ -447,7 +448,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                 everEditor = new WeakReference<>(itemView.findViewById(R.id.evermindEditor));
                 ActiveEditor = everEditor;
 
-                ((MainActivity) context).mRTManager.registerEditor(everEditor.get(), true);
+                ((MainActivity) context).registerEditor(everEditor.get(), true);
                 ((MainActivity) context).noteCreator.get().activeEditor = ActiveEditor;
                 ((MainActivity) context).noteCreator.get().activeEditorPosition = getLayoutPosition();
                 ActiveEditorPosition = getLayoutPosition();
@@ -473,6 +474,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
            // });
 
             everEditor.get().addTextChangedListener(new TextWatcher() {
+
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -480,11 +482,14 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    System.out.println(everEditor.get().getText(RTFormat.HTML));
+
+
+
                 }
 
                 @Override
                 public void afterTextChanged(Editable s) {
+
                     updateContents();
                 }
             });
@@ -501,6 +506,14 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                 cardDrawRecycler.get().setVisibility(View.VISIBLE);
                 everDrawImage.get().setVisibility(View.VISIBLE);
 
+            //    Glide.with(context)
+            //            .asBitmap()
+            //            .skipMemoryCache(true)
+            //            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            //            .transition(GenericTransitionOptions.with(R.anim.grid_new_item_anim))
+            //            .error(R.drawable.ic_baseline_clear_24)
+            //            .load(draw)
+            //            .into(everDrawImage.get());
                 Ion.with(everDrawImage.get())
                         .error(R.drawable.ic_baseline_clear_24)
                         .animateLoad(R.anim.grid_new_item_anim)
@@ -561,7 +574,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
     public boolean writeToFileFromContentUri(File file, Uri uri) {
         if (file == null || uri == null) return false;
         try {
-            InputStream stream = ((MainActivity)context).getContentResolver().openInputStream(uri);
+            InputStream stream = context.getContentResolver().openInputStream(uri);
             OutputStream output = new FileOutputStream(file);
             if (stream == null) return false;
             byte[] buffer = new byte[4 * 1024];
@@ -570,7 +583,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
             output.flush();
             output.close();
             stream.close();
-            System.out.println("File created succesffuly. At: " + file.getPath());
+            System.out.println("File created successfully at: " + file.getPath());
             return true;
         } catch (FileNotFoundException e) {
             Log.e(TAG, "Couldn't open stream: " + e.getMessage());

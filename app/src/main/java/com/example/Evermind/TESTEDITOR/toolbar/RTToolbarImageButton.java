@@ -18,8 +18,10 @@ package com.example.Evermind.TESTEDITOR.toolbar;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.util.AttributeSet;
 
+import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;;
 
 /**
@@ -53,7 +55,15 @@ public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatIma
     public void setChecked(boolean checked) {
         if (mChecked != checked) {
             mChecked = checked;
-            refreshDrawableState();
+            if (mChecked) {
+                if (!((MainActivity)getContext()).actualNote.get().getNoteColor().equals("000000")) {
+                    ((MainActivity)getContext()).tintView(this, Integer.parseInt(((MainActivity)getContext()).actualNote.get().getNoteColor()));
+                } else {
+                    ((MainActivity)getContext()).tintView(this, R.color.SkyBlueHighlight);
+                }
+            } else {
+                ((MainActivity)getContext()).tintView(this, ((MainActivity)getContext()).defaultToolbarColor);
+            }
         }
     }
 

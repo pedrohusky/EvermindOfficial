@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -64,7 +65,7 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
 
     @Override
     public void bindViewHolder(NoteModelViewHolder holder, Note_Model item) {
-        int ID = item.getId();
+        int ID = holder.getItem().getId();
 
 
 
@@ -74,13 +75,10 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
         myRecyclerView = new WeakReference<>(holder.itemView.findViewById(R.id.RecyclerNoteScren));
         textRecycler = new WeakReference<>(holder.itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler));
         WeakReference<SwipeLayout> swipe = new WeakReference<>(holder.itemView.findViewById(R.id.testSwipe));
-
         ViewCompat.setTransitionName(textRecycler.get(), "textRecycler" + ID);
         ViewCompat.setTransitionName(myCardView.get(), "card" + ID);
         ViewCompat.setTransitionName(myRecyclerView.get(), "imageRecycler" + ID);
         ViewCompat.setTransitionName(myTitleView.get(), "title" + ID);
-
-
 
         if (holder.isItemSelected()) {
             mainActivity.get().tintView(myCardView.get(), Color.RED);
@@ -93,42 +91,27 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
                 mainActivity.get().tintView(myCardView.get(), Color.WHITE);
               //  myCardView.get().setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
             }
+
+            if (mainActivity.get().searching) {
+                init(holder.getItem());
+            }
             if (textRecycler.get().getAdapter() == null) {
-                SetupNoteEditorRecycler(holder.getItem());
-
-                myTitleView.get().setText(holder.getItem().getTitle());
-
-                if (holder.getItem().getTitle().length() < 1) {
-                    //   TransitionManager.beginDelayedTransition(holder.itemView.findViewById(R.id.mainCard), new TransitionSet()
-                    //          .addTransition(new ChangeBounds()));
-                    myTitleView.get().setVisibility(View.GONE);
-
-                }
-
-                if (holder.getItem().getImages().size() > 0) {
-
-                    StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
-
-                    myRecyclerView.get().setLayoutManager(staggeredGridLayoutManager);
-
-                    MultiViewAdapter adapter = new MultiViewAdapter();
-                    ListSection<String> list = new ListSection<>();
-                    list.addAll(holder.getItem().getImages());
-                    adapter.addSection(list);
-                    adapter.registerItemBinders(new ImagesBinder(context, list.size(), true));
-                    myRecyclerView.get().setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
-                    myRecyclerView.get().setAdapter(new AlphaInAnimationAdapter(adapter));
-
-                    OverScrollDecoratorHelper.setUpOverScroll(myRecyclerView.get(), OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
-
-                } else {
-                    myRecyclerView.get().setVisibility(View.GONE);
-                }
-
                 swipe.get().setShowMode(SwipeLayout.ShowMode.PullOut);
                 swipe.get().setClickToClose(true);
+                init(holder.getItem());
             }
         }
+
+        System.out.println(holder.getAdapterPosition() + " < p - s > " + mainActivity.get().newList.getData().size());
+
+        if (mainActivity.get().newList.size() != 0) {
+            if (holder.getAdapterPosition() == mainActivity.get().newList.size()-1) {
+                mainActivity.get().noteScreen.StartPostpone();
+            }
+        } else if (holder.getAdapterPosition() == mainActivity.get().noteModelSection.getData().size()-1) {
+            mainActivity.get().noteScreen.StartPostpone();
+        }
+
     }
 
     private void SetupNoteEditorRecycler(Note_Model item) {
@@ -179,7 +162,9 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
         adptr.registerItemBinders(new NoteContentsNoteScreenBinder(context, items.size()));
         adptr.addSection(list);
 
-        textRecycler.get().setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            textRecycler.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
+        }
         textRecycler.get().setAdapter(new AlphaInAnimationAdapter(adptr));
 
     }
@@ -234,5 +219,40 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
                     .setScale( MODE_SCALE,
                             0.7f );
         }
+    }
+    private void init(Note_Model note) {
+        SetupNoteEditorRecycler(note);
+
+        myTitleView.get().setText(note.getTitle());
+
+        if (note.getTitle().length() < 1) {
+            //   TransitionManager.beginDelayedTransition(holder.itemView.findViewById(R.id.mainCard), new TransitionSet()
+            //          .addTransition(new ChangeBounds()));
+            myTitleView.get().setVisibility(View.GONE);
+
+        }
+
+        if (note.getImages().size() > 0) {
+
+            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
+
+            myRecyclerView.get().setLayoutManager(staggeredGridLayoutManager);
+
+            MultiViewAdapter adapter = new MultiViewAdapter();
+            ListSection<String> list = new ListSection<>();
+            list.addAll(note.getImages());
+            adapter.addSection(list);
+            adapter.registerItemBinders(new ImagesBinder(context, list.size(), true));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                myRecyclerView.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
+            }
+            myRecyclerView.get().setAdapter(new AlphaInAnimationAdapter(adapter));
+
+            //   EverScrollDecorator.setUpOverScroll(myRecyclerView.get(), EverScrollDecorator.ORIENTATION_HORIZONTAL);
+
+        } else {
+            myRecyclerView.get().setVisibility(View.GONE);
+        }
+
     }
 }

@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;;
 import com.example.Evermind.TESTEDITOR.rteditor.RTToolbar;
 import com.example.Evermind.TESTEDITOR.rteditor.RTToolbarListener;
@@ -104,15 +105,18 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     private SpinnerItemAdapter<? extends ColorSpinnerItem> mBGColorAdapter;
 
     private int mCustomColorFont = Color.BLACK;
+    private Context context;
     private int mCustomColorBG = Color.BLACK;
 
     private int mPickerId = -1;
-  //  private ColorPickerListener mColorPickerListener;
+    private MainActivity a;
+    //  private ColorPickerListener mColorPickerListener;
 
     // ****************************************** Initialize Methods *******************************************
 
     public HorizontalRTToolbar(Context context) {
         super(context);
+        this.context = context;
         init();
     }
 
@@ -127,6 +131,27 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     }
 
     private void init() {
+       a =  ((MainActivity)context);
+        System.out.println("aaa");
+        mBold = initImageButton(a.Bold);
+        mItalic = initImageButton(a.Italic);
+        mUnderline = initImageButton(a.Underline);
+        mStrikethrough = initImageButton(a.StrikeThrough);
+   //     mSuperscript = initImageButton(R.id.toolbar_superscript);
+    //    mSubscript = initImageButton(R.id.toolbar_subscript);
+        mAlignLeft = initImageButton(a.AlignLeft);
+       mAlignCenter = initImageButton(a.AlignCenter);
+        mAlignRight = initImageButton(a.AlignRight);
+        mBullet = initImageButton(a.Bullets);
+        mNumber = initImageButton(a.Numbers);
+
+      //  initImageButton(R.id.toolbar_inc_indent);
+      //  initImageButton(R.id.toolbar_dec_indent);
+      ////  initImageButton(R.id.toolbar_link);
+       // initImageButton(R.id.toolbar_image);
+//        initImageButton(R.id.toolbar_undo);
+     //   initImageButton(R.id.toolbar_redo);
+      //  initImageButton(R.id.toolbar_clear);
         synchronized (sIdCounter) {
             mId = sIdCounter.getAndIncrement();
         }
@@ -137,190 +162,16 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     protected void onFinishInflate() {
         super.onFinishInflate();
         // configure regular action buttons
-        mBold = initImageButton(R.id.toolbar_bold);
-        mItalic = initImageButton(R.id.toolbar_italic);
-        mUnderline = initImageButton(R.id.toolbar_underline);
-        mStrikethrough = initImageButton(R.id.toolbar_strikethrough);
-        mSuperscript = initImageButton(R.id.toolbar_superscript);
-        mSubscript = initImageButton(R.id.toolbar_subscript);
-        mAlignLeft = initImageButton(R.id.toolbar_align_left);
-        mAlignCenter = initImageButton(R.id.toolbar_align_center);
-        mAlignRight = initImageButton(R.id.toolbar_align_right);
-        mBullet = initImageButton(R.id.toolbar_bullet);
-        mNumber = initImageButton(R.id.toolbar_number);
 
-        initImageButton(R.id.toolbar_inc_indent);
-        initImageButton(R.id.toolbar_dec_indent);
-        initImageButton(R.id.toolbar_link);
-        initImageButton(R.id.toolbar_image);
-        initImageButton(R.id.toolbar_undo);
-        initImageButton(R.id.toolbar_redo);
-        initImageButton(R.id.toolbar_clear);
 
-        // enable/disable capture picture depending on whether the device
-        // has a camera or not
-        PackageManager packageMgr = getContext().getPackageManager();
-        if (packageMgr.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            initImageButton(R.id.toolbar_image_capture);
-        } else {
-            View imageCapture = findViewById(R.id.toolbar_image_capture);
-            if (imageCapture != null) imageCapture.setVisibility(View.GONE);
-        }
-
-        // configure font button
-        mFont = (Spinner) findViewById(R.id.toolbar_font);
-        mFontAdapter = createDropDownNav(mFont,
-                R.layout.rte_toolbar_font_spinner,
-                R.layout.rte_toolbar_spinner_item,
-                getFontItems(), mFontListener);
-
-        // configure font size button
-        mFontSize = (Spinner) findViewById(R.id.toolbar_fontsize);
-        mFontSizeAdapter = createDropDownNav(mFontSize,
-                R.layout.rte_toolbar_fontsize_spinner,
-                R.layout.rte_toolbar_spinner_item,
-                getTextSizeItems(), mFontSizeListener);
-
-        // configure font color button
-        mFontColor = (Spinner) findViewById(R.id.toolbar_fontcolor);
-        mFontColorAdapter = createDropDownNav(mFontColor,
-                R.layout.rte_toolbar_fontcolor_spinner,
-                R.layout.rte_toolbar_fontcolor_spinner_item,
-                getFontColorItems(), mFontColorListener);
-
-        // configure bg color button
-        mBGColor = (Spinner) findViewById(R.id.toolbar_bgcolor);
-        mBGColorAdapter = createDropDownNav(mBGColor,
-                R.layout.rte_toolbar_bgcolor_spinner,
-                R.layout.rte_toolbar_bgcolor_spinner_item,
-                getBGColorItems(), mBGColorListener);
     }
 
-    private RTToolbarImageButton initImageButton(int id) {
-        RTToolbarImageButton button = findViewById(id);
+    private RTToolbarImageButton initImageButton(RTToolbarImageButton icon) {
+        RTToolbarImageButton button = icon;
         if (button != null) {
             button.setOnClickListener(this);
         }
         return button;
-    }
-
-    private SpinnerItems<FontSpinnerItem> getFontItems() {
-        /*
-         * Retrieve the fonts.
-         */
-        SortedSet<RTTypeface> fonts = FontManager.getFonts(getContext());
-
-        /*
-         * Create the spinner items
-         */
-        SpinnerItems<FontSpinnerItem> spinnerItems = new SpinnerItems<FontSpinnerItem>();
-        spinnerItems.add(new FontSpinnerItem(null));        // empty element
-        for (RTTypeface typeface : fonts) {
-            spinnerItems.add(new FontSpinnerItem(typeface));
-        }
-
-        return spinnerItems;
-    }
-
-    private SpinnerItems<FontSizeSpinnerItem> getTextSizeItems() {
-        SpinnerItems<FontSizeSpinnerItem> spinnerItems = new SpinnerItems<FontSizeSpinnerItem>();
-        Resources res = getResources();
-
-        // empty size
-        spinnerItems.add(new FontSizeSpinnerItem(-1, "", true));
-
-        // regular sizes
-        String[] fontSizeEntries = res.getStringArray(R.array.rte_toolbar_fontsizes_entries);
-        int[] fontSizeValues = res.getIntArray(R.array.rte_toolbar_fontsizes_values);
-        for (int i = 0; i < fontSizeEntries.length; i++) {
-            spinnerItems.add(new FontSizeSpinnerItem(fontSizeValues[i], fontSizeEntries[i], false));
-        }
-
-        return spinnerItems;
-    }
-
-    private SpinnerItems<FontColorSpinnerItem> getFontColorItems() {
-        SpinnerItems<FontColorSpinnerItem> spinnerItems = new SpinnerItems<FontColorSpinnerItem>();
-        Context context = getContext();
-        // empty color
-        String name = context.getString(R.string.rte_toolbar_color_text);
-        FontColorSpinnerItem spinnerItem = new FontColorSpinnerItem(mCustomColorFont, name, true, false);
-        spinnerItems.add(spinnerItem);
-
-        // regular colors
-        for (String fontColor : getResources().getStringArray(R.array.rte_toolbar_fontcolors_values)) {
-            int color = Integer.parseInt(fontColor, 16);
-            spinnerItem = new FontColorSpinnerItem(color, name, false, false);
-            spinnerItems.add(spinnerItem);
-        }
-
-        // custom color
-        name = context.getString(R.string.rte_toolbar_color_custom);
-        spinnerItem = new FontColorSpinnerItem(mCustomColorFont, name, false, true);
-        spinnerItems.add(spinnerItem);
-
-        return spinnerItems;
-    }
-
-    private SpinnerItems<BGColorSpinnerItem> getBGColorItems() {
-        SpinnerItems<BGColorSpinnerItem> spinnerItems = new SpinnerItems<BGColorSpinnerItem>();
-        Context context = getContext();
-
-        // empty color
-        String name = context.getString(R.string.rte_toolbar_color_text);
-        BGColorSpinnerItem spinnerItem = new BGColorSpinnerItem(mCustomColorFont, name, true, false);
-        spinnerItems.add(spinnerItem);
-
-        // regular colors
-        for (String fontColor : getResources().getStringArray(R.array.rte_toolbar_fontcolors_values)) {
-            int color = Integer.parseInt(fontColor, 16);
-            spinnerItem = new BGColorSpinnerItem(color, name, false, false);
-            spinnerItems.add(spinnerItem);
-        }
-
-        // custom color
-        name = context.getString(R.string.rte_toolbar_color_custom);
-        spinnerItem = new BGColorSpinnerItem(mCustomColorFont, name, false, true);
-        spinnerItems.add(spinnerItem);
-
-        return spinnerItems;
-    }
-
-    private <T extends SpinnerItem> SpinnerItemAdapter<T> createDropDownNav(Spinner spinner, int spinnerId, int spinnerItemId,
-                                                                            SpinnerItems<T> spinnerItems,
-                                                                            final DropDownNavListener<T> listener) {
-        if (spinner != null) {
-            Context context = getContext();
-
-            // create custom adapter
-            final SpinnerItemAdapter<T> dropDownNavAdapter = new SpinnerItemAdapter<T>(context, spinnerItems, spinnerId, spinnerItemId);
-
-            // configure spinner
-            spinner.setPadding(spinner.getPaddingLeft(), 0, spinner.getPaddingRight(), 0);
-            spinner.setAdapter(dropDownNavAdapter);
-            // we need this because otherwise the first item will be selected by
-            // default and the OnItemSelectedListener won't get called
-            spinner.setSelection(spinnerItems.getSelectedItem());
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                private AtomicBoolean mFirstCall = new AtomicBoolean(true);
-
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if (!mFirstCall.getAndSet(false) && dropDownNavAdapter.getSelectedItem() != position) {
-                        listener.onItemSelected(dropDownNavAdapter.getItem(position), position);
-                    }
-                    dropDownNavAdapter.setSelectedItem(position);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                }
-            });
-
-            return dropDownNavAdapter;
-        }
-
-        return null;
     }
 
     @Override
@@ -495,52 +346,6 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
 
     // ****************************************** Item Selected Methods *******************************************
 
-    interface DropDownNavListener<T extends SpinnerItem> {
-        void onItemSelected(T spinnerItem, int position);
-    }
-
-    private DropDownNavListener<FontSpinnerItem> mFontListener = new DropDownNavListener<FontSpinnerItem>() {
-        @Override
-        public void onItemSelected(FontSpinnerItem spinnerItem, int position) {
-            RTTypeface typeface = spinnerItem.getTypeface();
-            mListener.onEffectSelected(Effects.TYPEFACE, typeface);
-        }
-    };
-
-    private DropDownNavListener<FontSizeSpinnerItem> mFontSizeListener = new DropDownNavListener<FontSizeSpinnerItem>() {
-        @Override
-        public void onItemSelected(FontSizeSpinnerItem spinnerItem, int position) {
-            int size = spinnerItem.getFontSize();
-            mFontSizeAdapter.updateSpinnerTitle(spinnerItem.isEmpty() ? "" : Integer.toString(size));
-            size = Helper.convertPxToSp(size);
-            mListener.onEffectSelected(Effects.FONTSIZE, size);
-        }
-    };
-
-    private DropDownNavListener<FontColorSpinnerItem> mFontColorListener = new DropDownNavListener<FontColorSpinnerItem>() {
-        @Override
-        public void onItemSelected(final FontColorSpinnerItem spinnerItem, int position) {
-            if (spinnerItem.isCustom()) {
-
-            } else if (mListener != null) {
-                Integer color = spinnerItem.isEmpty() ? null : spinnerItem.getColor();
-                mListener.onEffectSelected(Effects.FONTCOLOR, color);
-            }
-        }
-    };
-
-    private DropDownNavListener<BGColorSpinnerItem> mBGColorListener = new DropDownNavListener<BGColorSpinnerItem>() {
-        @Override
-        public void onItemSelected(final BGColorSpinnerItem spinnerItem, int position) {
-            if (spinnerItem.isCustom()) {
-
-            } else if (mListener != null) {
-                Integer color = spinnerItem.isEmpty() ? null : spinnerItem.getColor();
-                mListener.onEffectSelected(Effects.BGCOLOR, color);
-            }
-        }
-    };
-
     @Override
     public void onClick(View v) {
         if (mListener != null) {
@@ -548,7 +353,6 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
             int id = v.getId();
             if (id == R.id.toolbar_bold) {
                 mBold.setChecked(!mBold.isChecked());
-                Toast.makeText(getContext(), "aaa", Toast.LENGTH_SHORT).show();
                 mListener.onEffectSelected(Effects.BOLD, mBold.isChecked());
             }
 
