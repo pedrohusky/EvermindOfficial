@@ -37,7 +37,7 @@ abstract class MediaChooserManager implements MediaProcessorListener {
         /**
          * Handle any error condition if at all, when you receive this callback
          */
-        public void onError(String reason);
+        void onError(String reason);
     }
 
     transient protected MonitoredActivity mActivity;
@@ -46,7 +46,7 @@ abstract class MediaChooserManager implements MediaProcessorListener {
     // the type of chooser (see MediaChooserActivity.REQUEST_PICK_PICTURE etc.)
     transient protected MediaAction mMediaAction;
 
-    transient private MediaChooserListener mListener;
+    final transient private MediaChooserListener mListener;
 
     // the file path and name of the original file
     // the MediaChooserManager sets this once the user picked a file

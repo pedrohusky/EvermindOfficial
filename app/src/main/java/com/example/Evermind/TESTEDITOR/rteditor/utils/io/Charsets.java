@@ -17,6 +17,7 @@
 package com.example.Evermind.TESTEDITOR.rteditor.utils.io;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
 /**
@@ -88,7 +89,7 @@ public class Charsets {
      * 
      * @see <a href="http://docs.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
      */
-    public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
+    public static final Charset ISO_8859_1 = StandardCharsets.ISO_8859_1;
 
     /**
      * <p>
@@ -100,7 +101,7 @@ public class Charsets {
      * 
      * @see <a href="http://docs.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
      */
-    public static final Charset US_ASCII = Charset.forName("US-ASCII");
+    public static final Charset US_ASCII = StandardCharsets.US_ASCII;
 
     /**
      * <p>
@@ -113,7 +114,7 @@ public class Charsets {
      * 
      * @see <a href="http://docs.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
      */
-    public static final Charset UTF_16 = Charset.forName("UTF-16");
+    public static final Charset UTF_16 = StandardCharsets.UTF_16;
 
     /**
      * <p>
@@ -125,7 +126,7 @@ public class Charsets {
      * 
      * @see <a href="http://docs.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
      */
-    public static final Charset UTF_16BE = Charset.forName("UTF-16BE");
+    public static final Charset UTF_16BE = StandardCharsets.UTF_16BE;
 
     /**
      * <p>
@@ -137,7 +138,7 @@ public class Charsets {
      * 
      * @see <a href="http://docs.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
      */
-    public static final Charset UTF_16LE = Charset.forName("UTF-16LE");
+    public static final Charset UTF_16LE = StandardCharsets.UTF_16LE;
 
     /**
      * <p>
@@ -149,5 +150,5 @@ public class Charsets {
      * 
      * @see <a href="http://docs.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
      */
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final Charset UTF_8 = StandardCharsets.UTF_8;
 }

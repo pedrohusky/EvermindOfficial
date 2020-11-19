@@ -29,7 +29,7 @@ import java.lang.reflect.Type;
  * Base class for all Integer Effect classes like ForegroundColorEffect or AbsoluteSizeEffect.
  */
 abstract class IntegerEffect<C extends RTSpan<Integer>> extends CharacterEffect<Integer, C> {
-    private Class<? extends RTSpan<Integer>> mSpanClazz;
+    private final Class<? extends RTSpan<Integer>> mSpanClazz;
 
     protected IntegerEffect() {
         Type[] types = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments();

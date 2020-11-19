@@ -72,7 +72,7 @@ public class ConverterSpannedToHtml {
     private Spanned mText;
     private RTFormat mRTFormat;
     private List<RTImage> mImages;
-    private Stack<AccumulatedParagraphStyle> mParagraphStyles = new Stack<AccumulatedParagraphStyle>();
+    private final Stack<AccumulatedParagraphStyle> mParagraphStyles = new Stack<AccumulatedParagraphStyle>();
 
     /**
      * Converts a spanned text to HTML

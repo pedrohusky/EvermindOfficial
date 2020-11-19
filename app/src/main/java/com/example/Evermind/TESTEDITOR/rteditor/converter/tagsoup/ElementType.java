@@ -23,15 +23,15 @@ package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
 
 public class ElementType {
 
-    private String theName; // element type name (Qname)
-    private String theNamespace; // element type namespace name
-    private String theLocalName; // element type local name
+    private final String theName; // element type name (Qname)
+    private final String theNamespace; // element type namespace name
+    private final String theLocalName; // element type local name
     private int theModel; // bitmap: what the element contains
     private int theMemberOf; // bitmap: what element is contained in
     private int theFlags; // bitmap: element flags
-    private AttributesImpl theAtts; // default attributes
+    private final AttributesImpl theAtts; // default attributes
     private ElementType theParent; // parent of this element type
-    private Schema theSchema; // schema to which this belongs
+    private final Schema theSchema; // schema to which this belongs
 
     /**
      * Construct an ElementType: but it's better to use Schema.element()
@@ -217,7 +217,6 @@ public class ElementType {
         if (name.equals("xmlns") || name.startsWith("xmlns:")) {
             return;
         }
-        ;
         String namespace = namespace(name, true);
         String localName = localName(name);
         int i = atts.getIndex(name);

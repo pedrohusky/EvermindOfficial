@@ -1,0 +1,20 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item>
+        <shape android:shape="rectangle" android:padding="5dp">
+
+            <solid android:color="@color/White" />
+
+            <corners
+                android:radius="20dp"/>
+
+            <size android:height="20dp"
+                android:width="20dp" />
+        </shape>
+
+    </item>
+
+    <item android:drawable="@drawable/circle_colors"
+        android:height="7dp"
+        android:width="7dp"
+        android:gravity="center"/>
+</layer-list>

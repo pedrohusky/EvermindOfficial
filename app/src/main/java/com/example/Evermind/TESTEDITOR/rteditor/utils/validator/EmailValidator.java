@@ -124,11 +124,7 @@ public class EmailValidator implements Serializable {
             return false;
         }
 
-        if (!isValidDomain(emailMatcher.group(2))) {
-            return false;
-        }
-
-        return true;
+        return isValidDomain(emailMatcher.group(2));
     }
 
     /**

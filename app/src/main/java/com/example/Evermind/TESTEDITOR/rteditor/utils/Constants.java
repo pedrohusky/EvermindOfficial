@@ -30,9 +30,9 @@ public abstract class Constants {
         CAPTURE_VIDEO(105),
         CAPTURE_AUDIO(106);
 
-        private int mRequestCode;
+        private final int mRequestCode;
 
-        private MediaAction(int requestCode) {
+        MediaAction(int requestCode) {
             mRequestCode = requestCode;
         }
 

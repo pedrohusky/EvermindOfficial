@@ -39,7 +39,7 @@ import java.util.WeakHashMap;
  */
 public class BitmapManager {
 
-    private static enum State {
+    private enum State {
         CANCEL, ALLOW
     }
 

@@ -6,7 +6,7 @@ public class Content {
         return content;
     }
 
-    private String content;
+    private final String content;
 
     public Content(String content) {
         this.content = content;

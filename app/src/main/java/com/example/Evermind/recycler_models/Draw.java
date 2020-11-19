@@ -2,7 +2,7 @@ package com.example.Evermind.recycler_models;
 
 public class Draw {
 
-    private String FileLocation;
+    private final String FileLocation;
 
     public String getFileLocation() {
         return FileLocation;

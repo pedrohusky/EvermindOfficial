@@ -22,7 +22,7 @@ import java.util.TreeSet;
  * This is a SortedSet for RTTypeface objects with some convenience methods.
  */
 public class RTTypefaceSet extends TreeSet<RTTypeface> {
-    private RTTypeface tmp = new RTTypeface();
+    private final RTTypeface tmp = new RTTypeface();
 
     /**
      * @return The RTTypeface with the specified name or false if no such RTTypeface exists.

@@ -1,5 +1,6 @@
 package com.example.Evermind;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -9,7 +10,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -58,6 +61,8 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
         return new NoteModelViewHolder(inflate(parent, R.layout.note_content_with_recyclerview_visualizationtest));
     }
 
+
+
     @Override
     public boolean canBindData(Object item) {
         return item instanceof Note_Model;
@@ -74,6 +79,7 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
         myCardView = new WeakReference<>(holder.itemView.findViewById(R.id.mainCard));
         myRecyclerView = new WeakReference<>(holder.itemView.findViewById(R.id.RecyclerNoteScren));
         textRecycler = new WeakReference<>(holder.itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler));
+        WeakReference<View> view = new WeakReference<>(holder.itemView.findViewById(R.id.view2));
         WeakReference<SwipeLayout> swipe = new WeakReference<>(holder.itemView.findViewById(R.id.testSwipe));
         ViewCompat.setTransitionName(textRecycler.get(), "textRecycler" + ID);
         ViewCompat.setTransitionName(myCardView.get(), "card" + ID);
@@ -82,35 +88,68 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
 
         if (holder.isItemSelected()) {
             mainActivity.get().tintView(myCardView.get(), Color.RED);
-           // myCardView.get().setBackgroundTintList(ColorStateList.valueOf(Color.RED));
         } else {
             if (!holder.getItem().getNoteColor().equals("000000")) {
                 mainActivity.get().tintView(myCardView.get(), Integer.parseInt(holder.getItem().getNoteColor()));
-             //   myCardView.get().setBackgroundTintList(ColorStateList.valueOf(Integer.parseInt(holder.getItem().getNoteColor())));
             } else {
                 mainActivity.get().tintView(myCardView.get(), Color.WHITE);
-              //  myCardView.get().setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
             }
 
             if (mainActivity.get().searching) {
-                init(holder.getItem());
+                if (!mainActivity.get().pushed) {
+                    if (!mainActivity.get().swipeChangeColorRefresh) {
+                        init(holder.getItem());
+                    }
+                }
+
             }
-            if (textRecycler.get().getAdapter() == null) {
-                swipe.get().setShowMode(SwipeLayout.ShowMode.PullOut);
-                swipe.get().setClickToClose(true);
-                init(holder.getItem());
+
+            if (!mainActivity.get().pushed) {
+                if (!mainActivity.get().swipeChangeColorRefresh) {
+                    init(holder.getItem());
+                }
             }
         }
 
-        System.out.println(holder.getAdapterPosition() + " < p - s > " + mainActivity.get().newList.getData().size());
+        WeakReference<ImageButton> delete = new WeakReference<>(holder.itemView.findViewById(R.id.deleteSwipe));
+        WeakReference<ImageButton> changeColor = new WeakReference<>(holder.itemView.findViewById(R.id.changeColorSwipe));
 
-        if (mainActivity.get().newList.size() != 0) {
-            if (holder.getAdapterPosition() == mainActivity.get().newList.size()-1) {
-                mainActivity.get().noteScreen.StartPostpone();
+        changeColor.get().setOnClickListener(v -> ((MainActivity) context).swipeItemsListener(v, holder.getItem()));
+        delete.get().setOnClickListener(v -> ((MainActivity) context).swipeItemsListener(v, holder.getItem()));
+        view.get().setOnLongClickListener(v -> {
+            holder.toggleItemSelection();
+            if (holder.isItemSelected()) {
+                mainActivity.get().CloseOrOpenSelectionOptions(false);
+                mainActivity.get().pushed = true;
+            } else {
+                if (mainActivity.get().noteModelSection.getSelectedItems().size() == 0) {
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> mainActivity.get().pushed = false, 450);
+                    mainActivity.get().CloseOrOpenSelectionOptions(true);
+                }
             }
-        } else if (holder.getAdapterPosition() == mainActivity.get().noteModelSection.getData().size()-1) {
-            mainActivity.get().noteScreen.StartPostpone();
-        }
+            return false;
+        });
+
+        view.get().setOnClickListener(v -> {
+            if (!holder.isItemSelected()) {
+                if (!mainActivity.get().pushed) {
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).onItemClickFromNoteScreen(holder.itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler), holder.itemView.findViewById(R.id.mainCard), holder.itemView.findViewById(R.id.info_title), holder.itemView.findViewById(R.id.RecyclerNoteScren), holder.getAdapterPosition(), holder.getItem()), 40);
+                }
+            }
+        });
+
+        view.get().setOnTouchListener((v, event) -> {
+            mainActivity.get().pushDownOnTouch(holder.itemView.findViewById(R.id.mainCard), event, 0.85f, 50);
+            return false;
+        });
+
+        swipe.get().setShowMode(SwipeLayout.ShowMode.PullOut);
+        swipe.get().setClickToClose(true);
+     // if (holder.getAdapterPosition() == mainActivity.get().noteModelSection.getData().size()-1) {
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> mainActivity.get().noteScreen.StartPostpone(), 25);
+
+      //  }
 
     }
 
@@ -162,9 +201,7 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
         adptr.registerItemBinders(new NoteContentsNoteScreenBinder(context, items.size()));
         adptr.addSection(list);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            textRecycler.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
-        }
+        textRecycler.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
         textRecycler.get().setAdapter(new AlphaInAnimationAdapter(adptr));
 
     }
@@ -177,40 +214,13 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
 
             WeakReference<ImageButton> delete = new WeakReference<>(itemView.findViewById(R.id.deleteSwipe));
             WeakReference<ImageButton> changeColor = new WeakReference<>(itemView.findViewById(R.id.changeColorSwipe));
-            WeakReference<View> view = new WeakReference<>(itemView.findViewById(R.id.view2));
+
             myTitleView = new WeakReference<>(itemView.findViewById(R.id.info_title));
             myCardView = new WeakReference<>(itemView.findViewById(R.id.mainCard));
             myRecyclerView = new WeakReference<>(itemView.findViewById(R.id.RecyclerNoteScren));
             textRecycler = new WeakReference<>(itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler));
 
-            changeColor.get().setOnClickListener(v -> ((MainActivity) context).swipeItemsListener(v, getItem()));
-            delete.get().setOnClickListener(v -> ((MainActivity) context).swipeItemsListener(v, getItem()));
-            view.get().setOnLongClickListener(v -> {
-                toggleItemSelection();
-               if (isItemSelected()) {
-                   mainActivity.get().CloseOrOpenSelectionOptions(false);
-                   mainActivity.get().pushed = false;
-               } else {
-                   if (mainActivity.get().noteModelSection.getSelectedItems().size() == 0) {
-                       new Handler(Looper.getMainLooper()).postDelayed(() -> mainActivity.get().pushed = true, 500);
-                       mainActivity.get().CloseOrOpenSelectionOptions(true);
-                   }
-               }
-                return false;
-            });
 
-            view.get().setOnClickListener(v -> {
-                if (!isItemSelected()) {
-                    if (mainActivity.get().pushed) {
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).onItemClickFromNoteScreen(itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler), itemView.findViewById(R.id.mainCard), itemView.findViewById(R.id.info_title), itemView.findViewById(R.id.RecyclerNoteScren), getAdapterPosition(), getItem()), 40);
-                    }
-                }
-            });
-
-            view.get().setOnTouchListener((v, event) -> {
-               mainActivity.get().pushDownOnTouch(itemView.findViewById(R.id.mainCard), event, 0.85f, 50);
-               return false;
-           });
 
             PushDownAnim.setPushDownAnimTo(delete.get())
                     .setScale( MODE_SCALE,

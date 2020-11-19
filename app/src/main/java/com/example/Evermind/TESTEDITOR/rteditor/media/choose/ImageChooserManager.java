@@ -43,12 +43,12 @@ class ImageChooserManager extends MediaChooserManager implements ImageProcessorL
         /**
          * Callback method to inform the caller that an image file has been processed
          */
-        public void onImageChosen(RTImage image);
+        void onImageChosen(RTImage image);
     }
 
     private static final String CAPTURED_IMAGE_TEMPLATE = "CAPTURED_IMAGE.jpeg";
 
-    private ImageChooserListener mListener;
+    private final ImageChooserListener mListener;
 
     ImageChooserManager(MonitoredActivity activity, MediaAction mediaAction,
                         RTMediaFactory<RTImage, RTAudio, RTVideo> mediaFactory,

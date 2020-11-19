@@ -6,6 +6,7 @@ import android.content.ClipDescription;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
@@ -25,6 +26,8 @@ import android.util.TimeUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.WebView;
@@ -34,6 +37,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
 import com.bumptech.glide.GenericTransitionOptions;
 import com.bumptech.glide.Glide;
@@ -45,6 +49,7 @@ import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTText;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
 import com.example.Evermind.recycler_models.EverLinkedMap;
+import com.koushikdutta.async.future.SuccessCallback;
 import com.koushikdutta.ion.Ion;
 
 import java.io.File;
@@ -74,7 +79,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
     private final ArrayList<String> array = new ArrayList<>();
     private final Context context;
-    private final int Size;
+    private int Size;
     public int SelectedDrawPosition;
     private WeakReference<RTEditText> ActiveEditor;
     private int ActiveEditorPosition;
@@ -87,13 +92,13 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
     private WeakReference<SwipeLayout> swipe;
     private WeakReference<EverDraw> draws;
     private boolean action = false;
-    private int h = 0;
+    private final int h = 0;
     private int old;
     private int newline;
 
-    public NoteContentsBinder(Context context, int size) {
+
+    public NoteContentsBinder(Context context) {
         this.context = context;
-        Size = size;
     }
 
 
@@ -124,14 +129,18 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
         ((MainActivity) context).registerEditor(everEditor.get(), true);
         holder.setContentHTML(everMap.getContent());
-        holder.setDrawContent(everMap.getDrawLocation());
+                holder.setDrawContent(everMap.getDrawLocation());
         swipe.get().setShowMode(SwipeLayout.ShowMode.PullOut);
         swipe.get().setClickToClose(true);
-        if (holder.getAdapterPosition() == Size-1) {
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                ((MainActivity) context).noteCreator.get().startPostponeTransition(); }, 75);
+        //if (holder.getAdapterPosition() == holder.cou) {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).noteCreator.get().startPostponeTransition(), 25);
 
-        }
+
+    }
+
+    @Override
+    public int getSpanSize(int maxSpanCount) {
+        return super.getSpanSize(1);
     }
 
     private String replaceRGBColorsWithHex(String html) {
@@ -189,7 +198,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void updateContents() {
-    //     new Thread(() -> {
+         new Thread(() -> {
              new Handler(Looper.getMainLooper()).postDelayed(() -> {
             array.clear();
             arrayToAdd = ((MainActivity) context).noteCreator.get().list.getData();
@@ -215,18 +224,20 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                         }
                     }
 
-                    String joined_arrayString = String.join("", array);
 
-
-                    //TODO MBAYBE WE CCAN REMOVE REPLACE RGB COLOR WIT HEXT BECAUSE ITS NOT FUNCTIONAL ANYMORE replaceRGBColorsWithHex(joined_arrayString)
-                    ((MainActivity) context).noteCreator.get().actualNote.get().setContent(joined_arrayString);
+                     String textFromEditor = String.join("", array);
+                    ((MainActivity) context).noteCreator.get().actualNote.get().setContent(textFromEditor);
                     ((MainActivity) context).noteCreator.get().list.get(ActiveEditorPosition).setContent(ActiveEditor.get().getText(RTFormat.HTML));
-                    ((MainActivity) context).updateNote(((MainActivity) context).noteCreator.get().actualNote.get().getActualPosition(), ((MainActivity) context).noteCreator.get().actualNote.get());
 
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    //TODO MBAYBE WE CCAN REMOVE REPLACE RGB COLOR WIT HEXT BECAUSE ITS NOT FUNCTIONAL ANYMORE replaceRGBColorsWithHex(joined_arrayString)
+                    ((MainActivity) context).updateNote(((MainActivity) context).noteCreator.get().actualNote.get().getActualPosition(), ((MainActivity) context).noteCreator.get().actualNote.get());
+                    }, 2000);
                 }
             }
-             }, 2000);
-     //   }).start();
+             }, 150);
+
+           }).start();
     }
 
     class NoteCreatorHolder extends ItemViewHolder<EverLinkedMap> implements View.OnClickListener, View.OnLongClickListener {
@@ -271,7 +282,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                             //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
                             itemView.findViewById(R.id.deleteFromRecycler).setBackgroundTintList(ColorStateList.valueOf(blended));
                         });
-
+                        anim.setInterpolator(new LinearOutSlowInInterpolator());
                         anim.setDuration(250).start();
                         action = true;
                     }
@@ -292,7 +303,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                         //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
                         itemView.findViewById(R.id.deleteFromRecycler).setBackgroundTintList(ColorStateList.valueOf(blended));
                     });
-
+                    anim.setInterpolator(new LinearOutSlowInInterpolator());
                     anim.setDuration(250).start();
                     action = false;
                 }
@@ -310,7 +321,8 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
             //itemView.setOnClickListener(this);
 
             itemView.findViewById(R.id.everDraw).setOnTouchListener((view, motionEvent) -> {
-
+                EverDraw e = itemView.findViewById(R.id.everDraw);
+                cardDrawRecycler = new WeakReference<>(itemView.findViewById(R.id.cardDrawRecycler));
                 ((MainActivity) context).noteCreator.get().textanddrawRecyclerView.get().suppressLayout(true);
                 ((SwipeLayout)itemView.findViewById(R.id.testSwipe)).setSwipeEnabled(false);
 
@@ -323,30 +335,36 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
 
-                    if (y >= everDrawImage.get().getHeight() - 75) {
+                    if (y >= e.getHeight() - 75) {
+                        ((MainActivity) context).noteCreator.get().textanddrawRecyclerView.get().suppressLayout(false);
+                        TransitionManager.beginDelayedTransition(((MainActivity) context).cardNoteCreator.get(), new TransitionSet()
+                                .addTransition(new ChangeBounds()));
+                        System.out.println(y);
+                            ViewGroup.LayoutParams params1 = cardDrawRecycler.get().getLayoutParams();
 
-                        new Handler(Looper.getMainLooper()).post(() -> {
+                            params1.height = FinalYHeight + 100;
+                            cardDrawRecycler.get().setLayoutParams(params1);
 
-                            ((MainActivity) context).noteCreator.get().textanddrawRecyclerView.get().suppressLayout(false);
+                        ViewGroup.LayoutParams params = e.getLayoutParams();
 
-                            TransitionManager.beginDelayedTransition(((MainActivity) context).cardNoteCreator.get(), new TransitionSet()
-                                    .addTransition(new ChangeBounds()));
+                        params.height =  FinalYHeight + 100;
 
-                            ViewGroup.LayoutParams params = itemView.findViewById(R.id.everDraw).getLayoutParams();
+                        e.setLayoutParams(params);
 
-                            params.height = FinalYHeight + 100;
-
-                            itemView.findViewById(R.id.everDraw).setLayoutParams(params);
 
                             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                                 ((SwipeLayout)itemView.findViewById(R.id.testSwipe)).setSwipeEnabled(true);
                                 ((MainActivity) context).noteCreator.get().textanddrawRecyclerView.get().suppressLayout(true);
                             }, 150);
 
-                        });
-
                         return false;
                     }
+                } else {
+                    ViewGroup.LayoutParams params1 = cardDrawRecycler.get().getLayoutParams();
+
+                    params1.height = e.getHeight();
+                    params1.width = e.getWidth();
+                    cardDrawRecycler.get().setLayoutParams(params1);
                 }
                 return false;
             });
@@ -367,22 +385,28 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
         @RequiresApi(api = Build.VERSION_CODES.O)
         void setContentHTML(String contentHTML) {
-
             everEditor = new WeakReference<>(itemView.findViewById(R.id.evermindEditor));
             cardEditorRecycler = new WeakReference<>(itemView.findViewById(R.id.cardEditorRecycler));
-
+            Size =((MainActivity)context).noteCreator.get().list.size();
             if (contentHTML.equals("▓")) {
                 cardEditorRecycler.get().setVisibility(View.GONE);
                 everEditor.get().setVisibility(View.GONE);
                 System.out.println("Position = " + getLayoutPosition() + " GONE1" + "content os =" + contentHTML);
-            } else if (contentHTML.equals("<br>") && getLayoutPosition() != 0 && getLayoutPosition() != Size - 1) {
-                System.out.println("Position = " + getLayoutPosition() + " GONE2");
+            } else if (contentHTML.equals("") && getLayoutPosition() != Size-1) {
+                cardEditorRecycler.get().setVisibility(View.GONE);
+                everEditor.get().setVisibility(View.GONE);
+                System.out.println("Position = " + getLayoutPosition() + " GONE2  " + Size);
 
-            } else {
+            }else {
 
                 cardEditorRecycler.get().setVisibility(View.VISIBLE);
                 everEditor.get().setRichTextEditing(true, contentHTML);
                everEditor.get().setVisibility(View.VISIBLE);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    ((MainActivity)context).noteCreator.get().cardWidth = cardEditorRecycler.get().getWidth();
+                    ((MainActivity)context).noteCreator.get().cardHeight = cardEditorRecycler.get().getHeight();
+                }, 50);
+
             }
 
 
@@ -447,6 +471,8 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
             everEditor.get().setOnFocusChangeListener((view, b) -> {
                 everEditor = new WeakReference<>(itemView.findViewById(R.id.evermindEditor));
                 ActiveEditor = everEditor;
+                ((MainActivity)context).metaColorForeGroundColor = context.getColor(R.color.White);
+                ((MainActivity)context).metaColorHighlightColor = context.getColor(R.color.White);
 
                 ((MainActivity) context).registerEditor(everEditor.get(), true);
                 ((MainActivity) context).noteCreator.get().activeEditor = ActiveEditor;
@@ -472,27 +498,46 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                     //}
                 //}
            // });
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                everEditor = new WeakReference<>(itemView.findViewById(R.id.evermindEditor));
+                everEditor.get().addTextChangedListener(new TextWatcher() {
 
-            everEditor.get().addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        old = everEditor.get().getCurrentCursorLine();
 
-                }
+                    }
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
 
 
-                }
 
-                @Override
-                public void afterTextChanged(Editable s) {
+                    }
 
-                    updateContents();
-                }
-            });
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        newline = everEditor.get().getCurrentCursorLine();
+                        System.out.println("aa = " + newline + "uu = " + old);
+                        if (newline > old) {
+                            ((MainActivity)context).beginDelayedTransition(((MainActivity)context).noteCreator.get().cardView.get());
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                ((MainActivity)context).noteCreator.get().scrollView.get().smoothScrollBy(0, everEditor.get().getLineHeight()+20);
+
+                            }, 5);
+                        } else if (newline < old){
+                            ((MainActivity)context).beginDelayedTransition(((MainActivity)context).noteCreator.get().cardView.get());
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                ((MainActivity)context).noteCreator.get().scrollView.get().smoothScrollBy(0, -everEditor.get().getLineHeight()+20);
+
+                            }, 5);
+                        }
+                        updateContents();
+                    }
+                });
+            }, 100);
+
             //everEditor.get().setOnTextChangeListener(text -> updateContents());
         }
 
@@ -502,9 +547,25 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
             swipe = new WeakReference<>(itemView.findViewById(R.id.testSwipe));
 
             if (new File(draw).exists()) {
+                itemView.findViewById(R.id.everDraw).setVisibility(View.GONE);
                 swipe.get().setVisibility(View.VISIBLE);
                 cardDrawRecycler.get().setVisibility(View.VISIBLE);
                 everDrawImage.get().setVisibility(View.VISIBLE);
+
+                if (cardDrawRecycler.get().getHeight() > 0) {
+                    ViewGroup.LayoutParams params = everDrawImage.get().getLayoutParams();
+                    params.height = cardDrawRecycler.get().getHeight();
+                    params.width = cardDrawRecycler.get().getWidth();
+
+                    everDrawImage.get().setLayoutParams(params);
+                } else  {
+                    Bitmap bitmap = BitmapFactory.decodeFile(draw);
+                    ViewGroup.LayoutParams params = everDrawImage.get().getLayoutParams();
+                    params.height = bitmap.getHeight();
+                    params.width = bitmap.getWidth();
+                    everDrawImage.get().setLayoutParams(params);
+                    bitmap.recycle();
+                }
 
             //    Glide.with(context)
             //            .asBitmap()
@@ -518,9 +579,8 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                         .error(R.drawable.ic_baseline_clear_24)
                         .animateLoad(R.anim.grid_new_item_anim)
                         .animateIn(R.anim.grid_new_item_anim)
-                        .smartSize(true)
-                        .centerCrop()
                         .load(draw);
+
 
 
             } else {
@@ -550,6 +610,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                 EverDraw draw = itemView.findViewById(R.id.everDraw);
 
                 assert draw != null;
+                draw.setVisibility(View.VISIBLE);
                 ViewGroup.LayoutParams params = draw.getLayoutParams();
                 params.height = imageView.getHeight();
 
@@ -559,7 +620,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
                 Bitmap b = Ion.with(imageView).getBitmap();
 
-                ((MainActivity) context).noteCreator.get().onItemClickTemporaryINHERE_REMOVE_LATER(draw, SelectedDrawPosition, b, getItem().getDrawLocation());
+                ((MainActivity) context).noteCreator.get().onItemClickTemporaryINHERE_REMOVE_LATER(draw, SelectedDrawPosition, b, getItem().getDrawLocation(), itemView.findViewById(R.id.cardDrawRecycler));
 
             }, 250);
 

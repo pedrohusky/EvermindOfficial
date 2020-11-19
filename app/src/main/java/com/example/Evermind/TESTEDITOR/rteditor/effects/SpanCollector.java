@@ -57,7 +57,7 @@ import java.util.List;
  */
 abstract class SpanCollector<V> {
 
-    private Class<? extends RTSpan<V>> mSpanClazz;
+    private final Class<? extends RTSpan<V>> mSpanClazz;
 
     protected SpanCollector(Class<? extends RTSpan<V>> spanClazz) {
         mSpanClazz = spanClazz;

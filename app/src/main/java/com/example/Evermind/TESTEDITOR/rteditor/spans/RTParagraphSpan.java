@@ -21,6 +21,6 @@ package com.example.Evermind.TESTEDITOR.rteditor.spans;
  */
 public interface RTParagraphSpan<V> {
 
-    public RTParagraphSpan<V> createClone();
+    RTParagraphSpan<V> createClone();
 
 }

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/homeNotesrelative"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <ImageButton
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@color/White"
+        android:clickable="true"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:onClick="onClick"
+        android:scaleType="center"
+        android:src="@drawable/note_plus_button_rectangle"
+        android:transitionName="card"
+        android:visibility="visible" />
+
+    <com.example.Evermind.EverRecyclerContentsNoteScreen
+        android:id="@+id/notesRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="28dp"
+        android:background="@color/Transparent"
+        android:backgroundTint="@color/Transparent"
+        android:foreground="@color/Transparent"
+        android:foregroundTint="@color/Transparent"
+        android:layoutAnimation="@anim/grid_appear_layout_animation"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</RelativeLayout>

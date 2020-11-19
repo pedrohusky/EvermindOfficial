@@ -42,7 +42,7 @@ public class RTEditorMovementMethod extends ArrowKeyMovementMethod {
 
     private static com.example.Evermind.TESTEDITOR.rteditor.RTEditorMovementMethod sInstance;
 
-    private static Rect sLineBounds = new Rect();
+    private static final Rect sLineBounds = new Rect();
 
     public static synchronized MovementMethod getInstance() {
         if (sInstance == null) {

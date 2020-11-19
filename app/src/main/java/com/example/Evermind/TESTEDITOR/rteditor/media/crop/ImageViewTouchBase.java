@@ -26,7 +26,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.ImageView;
 
-abstract class ImageViewTouchBase extends ImageView {
+abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatImageView {
 
     @SuppressWarnings("unused")
     private static final String TAG = "ImageViewTouchBase";
@@ -72,7 +72,7 @@ abstract class ImageViewTouchBase extends ImageView {
     // ImageViewTouchBase will pass a Bitmap to the Recycler if it has finished
     // its use of that Bitmap.
     public interface Recycler {
-        public void recycle(Bitmap b);
+        void recycle(Bitmap b);
     }
 
     public void setRecycler(Recycler r) {

@@ -87,7 +87,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
     private Parser mParser;
     private SpannableStringBuilder mResult;
 
-    private Stack<AccumulatedParagraphStyle> mParagraphStyles = new Stack<AccumulatedParagraphStyle>();
+    private final Stack<AccumulatedParagraphStyle> mParagraphStyles = new Stack<AccumulatedParagraphStyle>();
 
     /**
      * If this is set to True we ignore all characters till it's set to false again.
@@ -195,7 +195,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
     }
 
     @Override
-    public void characters(char ch[], int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length) throws SAXException {
         if (mIgnoreContent) return;
 
         StringBuilder sb = new StringBuilder();
@@ -234,7 +234,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
     }
 
     @Override
-    public void ignorableWhitespace(char ch[], int start, int length) throws SAXException {
+    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
     }
 
     @Override
@@ -608,11 +608,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
 
             @Override
             public boolean exists() {
-                if (new File(src).exists()) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return new File(src).exists();
             }
 
             @Override
@@ -932,7 +928,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
 
     // ****************************************** Color Methods *******************************************
 
-    private static HashMap<String, Integer> COLORS = new HashMap<String, Integer>();
+    private static final HashMap<String, Integer> COLORS = new HashMap<String, Integer>();
 
     static {
         COLORS.put("aqua", 0x00FFFF);

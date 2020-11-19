@@ -69,9 +69,9 @@ public class CropImageActivity extends MonitoredActivity {
     public static final String ACTION_INLINE_DATA = "inline-data";
 
     // These are various options can be specified in the intent.
-    private Bitmap.CompressFormat mOutputFormat = Bitmap.CompressFormat.JPEG;
+    private final Bitmap.CompressFormat mOutputFormat = Bitmap.CompressFormat.JPEG;
     private Uri mSaveUri = null;
-    private boolean mDoFaceDetection = false;
+    private final boolean mDoFaceDetection = false;
     private boolean mCircleCrop = false;
 
     private int mAspectX;
@@ -101,7 +101,7 @@ public class CropImageActivity extends MonitoredActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.rte_crop_image);
-        mImageView = (CropImageView) findViewById(R.id.image);
+        mImageView = findViewById(R.id.image);
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -427,7 +427,7 @@ public class CropImageActivity extends MonitoredActivity {
     Runnable mRunFaceDetection = new Runnable() {
         float mScale = 1F;
         Matrix mImageMatrix;
-        FaceDetector.Face[] mFaces = new FaceDetector.Face[3];
+        final FaceDetector.Face[] mFaces = new FaceDetector.Face[3];
         int mNumFaces;
 
         // For each face, we create a HightlightView for it.

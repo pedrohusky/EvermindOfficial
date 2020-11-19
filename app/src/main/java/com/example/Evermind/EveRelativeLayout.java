@@ -8,7 +8,7 @@ import android.widget.RelativeLayout;
 
 public class EveRelativeLayout extends RelativeLayout {
 
-    private int[] mInsets = new int[4];
+    private final int[] mInsets = new int[4];
 
     public EveRelativeLayout(Context context) {
         super(context);

@@ -22,11 +22,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.OverScroller;
 import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
@@ -34,7 +32,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,10 +41,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import com.daimajia.swipe.SwipeLayout;
 import com.example.Evermind.EverBitmapMerger;
 import com.example.Evermind.EverDraw;
-import com.example.Evermind.EverFlowScrollView;
 import com.example.Evermind.EverNestedScrollView;
 import com.example.Evermind.EverPopup;
-import com.example.Evermind.EverScrollDecorator;
 import com.example.Evermind.EvershootInterpolator;
 import com.example.Evermind.ImagesBinder;
 import com.example.Evermind.ImagesRecyclerGridAdapter;
@@ -59,6 +54,7 @@ import com.example.Evermind.SoftInputAssist;
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.recycler_models.EverAdapter;
 import com.example.Evermind.recycler_models.EverLinkedMap;
+import com.koushikdutta.ion.Ion;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -69,21 +65,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.LandingAnimator;
 import me.everything.android.ui.overscroll.HorizontalOverScrollBounceEffectDecorator;
-import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 import me.everything.android.ui.overscroll.adapters.StaticOverScrollDecorAdapter;
 import mva2.adapter.ListSection;
 import mva2.adapter.MultiViewAdapter;
 
 import static android.app.Activity.RESULT_OK;
 
-public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdapter.ItemClickListener, ImagesRecyclerGridAdapter.ItemClickListener {
+public class NoteEditorFragmentJavaFragment extends Fragment implements ImagesRecyclerGridAdapter.ItemClickListener {
 
     private static final String GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos";
-    private static String[] PERMISSIONS_STORAGE = {
+    private static final String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
     // public RecyclerView textanddrawRecyclerView;
@@ -116,11 +112,16 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     public WeakReference<MainActivity> mainActivity;
     public ListSection<String> listImages;
     private EverDraw drawToRemove;
+    private View rootView;
+    public  int cardWidth;
+    public int cardHeight;
+    private CardView card;
 
     public static NoteEditorFragmentJavaFragment newInstance() {
         return new NoteEditorFragmentJavaFragment();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -128,13 +129,26 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         postponeEnterTransition();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setSharedElementEnterTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
-            setSharedElementReturnTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
-        }
+         rootView = inflater.inflate(R.layout.fragment_note_creator, container, false);
+
+        init();
+
+        setSharedElementEnterTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
+        setSharedElementReturnTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
+
+        return rootView;
 
 
-        return inflater.inflate(R.layout.fragment_note_creator, container, false);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -143,6 +157,14 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+
+
+    }
+
+
+    @SuppressLint("ClickableViewAccessibility")
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void init() {
         mainActivity = new WeakReference<>(((MainActivity) requireActivity()));
 
         mainActivity.get().noteCreator = new WeakReference<>(this);
@@ -158,15 +180,16 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             hasDraws = true;
         }
 
-        everDraw = new WeakReference<>(mainActivity.get().findViewById(R.id.EverDraw));
-       // scrollView = new WeakReference<>(mainActivity.get().findViewById(R.id.scrollview));
-        TitleTextBox = new WeakReference<>(mainActivity.get().findViewById(R.id.TitleTextBox));
-        textanddrawRecyclerView = new WeakReference<>(mainActivity.get().findViewById(R.id.TextAndDrawRecyclerView));
-        cardView = new WeakReference<>(mainActivity.get().findViewById(R.id.card_note_creator));
-        scrollView = new WeakReference<>(mainActivity.get().findViewById(R.id.nestedScroll));
+        everDraw = new WeakReference<>(rootView.findViewById(R.id.EverDraw));
+        // scrollView = new WeakReference<>(mainActivity.get().findViewById(R.id.scrollview));
+        TitleTextBox = new WeakReference<>(rootView.findViewById(R.id.TitleTextBox));
+        textanddrawRecyclerView = new WeakReference<>(rootView.findViewById(R.id.TextAndDrawRecyclerView));
+        cardView = new WeakReference<>(rootView.findViewById(R.id.card_note_creator));
+        scrollView = new WeakReference<>(rootView.findViewById(R.id.nestedScroll));
         SetupNoteEditorRecycler();
-        recyclerViewImage = new WeakReference<>(mainActivity.get().findViewById(R.id.ImagesRecycler));
+        recyclerViewImage = new WeakReference<>(rootView.findViewById(R.id.ImagesRecycler));
         cardView.get().requestFocus();
+
 
         if (!mainActivity.get().names.isEmpty()) {
             if (mainActivity.get().newNote) {
@@ -197,15 +220,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
             if (NewNote) {
 
-                mainActivity.get().switchToolbars(true, false, false);
-
-                InputMethodManager keyboard = (InputMethodManager) mainActivity.get().getSystemService(requireActivity().INPUT_METHOD_SERVICE);
-                keyboard.showSoftInput(TitleTextBox.get(), 0);
+                mainActivity.get().switchToolbars(true, true, false);
             }
 
         }, 750);
 
-      //  EverScrollDecorator.setUpOverScroll(scrollView.get());
+        //  EverScrollDecorator.setUpOverScroll(scrollView.get());
         everDraw.get().setOnTouchListener((view, motionEvent) -> {
 
             scrollView.get().setCanScroll(false);
@@ -280,78 +300,15 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 // }, 400);
             }
         });
-
-        mainActivity.get().Delete.setOnClickListener(view -> {
-
-            if (mainActivity.get().DrawOn) {
-                everDraw.get().clearCanvas();
-                CloseOrOpenDraWOptions(0, true);
-                FinalYHeight = 0;
-            } else {
-                mainActivity.get().deleteNoteDialog(actualNote.get());
-            }
-        });
-
-
-        mainActivity.get().Save.setOnClickListener(view -> {
-
-            if (drawFromRecycler) {
-
-                Bitmap toResizeBitmap = everDraw.get().getBitmap(Color.TRANSPARENT);
-
-                if (toResizeBitmap.getHeight() >= FinalYHeight + 75) {
-                    newDrawedbitmap = new WeakReference<>(Bitmap.createBitmap(toResizeBitmap, 0, 0, toResizeBitmap.getWidth(), FinalYHeight + 75));
-                } else {
-                    newDrawedbitmap = new WeakReference<>(Bitmap.createBitmap(toResizeBitmap, 0, 0, toResizeBitmap.getWidth(), FinalYHeight));
-                }
-
-                SaveBitmapFromDraw(true);
-                drawFromRecycler = false;
-            } else {
-
-                // String content = actualNote.get().getContent();
-
-                // mainActivity.get().mDatabaseEver.editContent(String.valueOf(actualNote.get().getId()), content + "┼");
-
-                SaveBitmapFromDraw(false);
-
-            }
-        });
-
-
-        mainActivity.get().Undo.setOnClickListener(view -> {
-
-            mainActivity.get().animateObject(mainActivity.get().Undo, "rotation", -360, 250);
-
-            if (mainActivity.get().DrawOn) {
-                everDraw.get().undo();
-            } else {
-                mainActivity.get().mRTManager.onUndo();
-              //TODOFUN  activeEditor.get().undo();
-            }
-        });
-
-        mainActivity.get().Redo.setOnClickListener(view -> {
-
-            mainActivity.get().animateObject(mainActivity.get().Redo, "rotation", 360, 250);
-
-            if (mainActivity.get().DrawOn) {
-                everDraw.get().redo();
-            } else {
-                mainActivity.get().mRTManager.onRedo();
-              //TODO  activeEditor.get().redo();
-            }
-        });
         // TransitionManager.beginDelayedTransition(cardView, new TransitionSet()
         //         .addTransition(new ChangeBounds()));
 
 
         if (!actualNote.get().getNoteColor().equals("000000")) {
-            mainActivity.get().tintSystemBars(Integer.parseInt(actualNote.get().getNoteColor()));
+            mainActivity.get().tintSystemBars(Integer.parseInt(actualNote.get().getNoteColor()), 500);
         }
 
         // }).start();
-
     }
 
     private void onBackPressed(Boolean delete) {
@@ -380,7 +337,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
         drawPosition = list.size() - 1;
 
-        File file = new File(directory, "Draw" + "RealID" + actualNote.get().getId() + "WithID" + drawPosition + fileType);
+
+        File file = new File(directory, "Draw" +  System.currentTimeMillis() + fileType);
 
         String drawLocation = actualNote.get().getDrawLocation();
 
@@ -418,7 +376,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             toDelete.delete();
         }
 
-        File file = new File(savedBitmapPath);
+        String s = savedBitmapPath.substring(0, savedBitmapPath.length()-17) ;
+        File file = new File(s + System.currentTimeMillis() +".jpg");
 
         Log.d("path", file.toString());
         FileOutputStream fos;
@@ -440,11 +399,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
                 strings.set(p, strings.get(p) + "┼");
             }
         }
-        mainActivity.get().ClearIonCache();
         String editDraw = strings.toString().replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", "");
         actualNote.get().setDrawLocation(editDraw);
         mainActivity.get().updateNote(actualNote.get().getActualPosition(), actualNote.get());
-        updateNote(drawPosition, new EverLinkedMap(actualNote.get().getContents().get(drawPosition), actualNote.get().getDraws().get(drawPosition)));
+        updateNote(drawPosition,  actualNote.get().getDraws().get(drawPosition));
 
     }
 
@@ -592,7 +550,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         });
     }
 
-    @Override
+
     public void onItemClick(View view, int position) {
 
         //  everAdapter.get().setFinalYHeight(0);
@@ -605,10 +563,11 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         //   CloseOrOpenDraWOptionsFromRecycler(false);
     }
 
-    public void onItemClickTemporaryINHERE_REMOVE_LATER(EverDraw view, int position, Bitmap bitmap, String path) {
+    public void onItemClickTemporaryINHERE_REMOVE_LATER(EverDraw view, int position, Bitmap bitmap, String path, CardView swipe) {
 
 
         // everAdapter.setFinalYHeight(0);
+        this.card = swipe;
         drawToRemove = view;
         savedbitmap = new WeakReference<>(bitmap);
         savedBitmapPath = path;
@@ -620,7 +579,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
+
     public void onLongPress(View view, int position) {
 
         String finalS;
@@ -631,7 +590,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         String selectedDrawPath = list.get(position).getDrawLocation();
         int positionToRemove = position;
         String toReplace = "";
-        int positionToReplace = -1;
+        int positionToReplace = 0;
 
         for (String s : strings) {
             if (s.equals(strings.get(positionToRemove))) {
@@ -708,7 +667,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         LinearLayoutManager a = new LinearLayoutManager(requireActivity());
         textanddrawRecyclerView.get().setLayoutManager(a);
         adptr = new WeakReference<>(new MultiViewAdapter());
-        adptr.get().registerItemBinders(new NoteContentsBinder(requireActivity(), list.size()));
+        adptr.get().registerItemBinders(new NoteContentsBinder(requireActivity()));
         adptr.get().addSection(list);
         textanddrawRecyclerView.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1F)));
         textanddrawRecyclerView.get().setAdapter(new AlphaInAnimationAdapter(adptr.get()));
@@ -722,15 +681,14 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void SaveBitmapFromDraw(boolean fromRecycler) {
+    public void SaveBitmapFromDraw(boolean fromRecycler) {
         textanddrawRecyclerView.get().suppressLayout(false);
         if (fromRecycler) {
             if (mainActivity.get().DrawOn) {
 
                 if (!everDraw.get().getMPaths().isEmpty()) {
 
-
-                    mergeBitmaps(savedbitmap.get(), newDrawedbitmap.get());
+                    UpdateBitmapToFile(((MainActivity)requireActivity()).createBitmapFromView(card, card.getWidth(),card.getHeight()));
 
                     everDraw.get().clearCanvas();
 
@@ -746,7 +704,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
             if (mainActivity.get().DrawOn) {
 
                 Bitmap bitmap = everDraw.get().getBitmap(Color.WHITE);
-                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), FinalYHeight + 75);
+                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, cardWidth, FinalYHeight + 75);
 
                 if (!everDraw.get().getMPaths().isEmpty()) {
 
@@ -789,14 +747,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
 
     private void CloseOrOpenDraWOptions(int height, boolean close) {
 
-        if (height == 0) {
-
-            mainActivity.get().CloseOrOpenDrawOptions(0, close);
-
-        } else {
-
-            mainActivity.get().CloseOrOpenDrawOptions(height, close);
-        }
+        mainActivity.get().CloseOrOpenDrawOptions(height, close);
     }
 
     private void CloseOrOpenDraWOptionsFromRecycler(boolean close) {
@@ -837,9 +788,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         System.out.println("aaaaaaaaaaaaaa " + list.size() + "imgs =" + actualNote.get().getImages().toString());
         adapter.addSection(listImages);
         adapter.registerItemBinders(new ImagesBinder(requireActivity(), 0, false));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            recyclerViewImage.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
-        }
+        recyclerViewImage.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
         recyclerViewImage.get().setAdapter(new AlphaInAnimationAdapter(adapter));
 
         if (actualNote.get().getImages().size() > 0) {
@@ -853,11 +802,10 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         mainActivity.get().imageRecycler = recyclerViewImage;
     }
 
-    public void updateNote(int p, EverLinkedMap everLinkedMap) {
+    public void updateNote(int p, String everLinkedMap) {
         mainActivity.get().beginDelayedTransition(cardView.get());
-        list.get(p).setDrawLocation(everLinkedMap.getDrawLocation());
-       // adptr.get().notifyItemChanged(p);
-        textanddrawRecyclerView.get().removeViewAt(p);
+        list.get(p).setDrawLocation(everLinkedMap);
+        adptr.get().notifyItemChanged(p);
     }
 
     public void updateNoteContent(int p, String newString) {
@@ -878,6 +826,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverAdap
         mainActivity.get().beginDelayedTransition(cardView.get());
         list.set(p, newEverLinkedMap);
         list.add(new EverLinkedMap("", ""));
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

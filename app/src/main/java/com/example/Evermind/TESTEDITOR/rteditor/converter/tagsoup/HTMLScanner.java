@@ -100,7 +100,7 @@ public class HTMLScanner implements Scanner, Locator {
     private static final int A_STAGC = 30;
     private static final int A_UNGET = 31;
     private static final int A_UNSAVE_PCDATA = 32;
-    private static int[] statetable = {S_ANAME, '/', A_ANAME_ADUP, S_EMPTYTAG,
+    private static final int[] statetable = {S_ANAME, '/', A_ANAME_ADUP, S_EMPTYTAG,
             S_ANAME, '=', A_ANAME, S_AVAL, S_ANAME, '>', A_ANAME_ADUP_STAGC,
             S_PCDATA, S_ANAME, 0, A_SAVE, S_ANAME, S_ANAME, -1,
             A_ANAME_ADUP_STAGC, S_DONE, S_ANAME, ' ', A_ANAME, S_EQ, S_ANAME,
@@ -302,7 +302,7 @@ public class HTMLScanner implements Scanner, Locator {
             }
             switch (action) {
                 case 0:
-                    throw new Error("HTMLScanner can't cope with " + Integer.toString(c1) + " in state " + Integer.toString(theState));
+                    throw new Error("HTMLScanner can't cope with " + c1 + " in state " + theState);
                 case A_ADUP:
                     h.adup(theOutputBuffer, 0, theSize);
                     theSize = 0;

@@ -1,0 +1,113 @@
+<com.example.Evermind.EveRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/Transparent"
+    android:backgroundTint="@color/Transparent"
+    android:fitsSystemWindows="true"
+    android:foregroundTint="@color/Transparent"
+    android:orientation="vertical"
+    android:tag="first"
+    tools:context=".MainActivity">
+
+    <com.example.Evermind.EverNestedScrollView
+        android:id="@+id/nestedScroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/Transparent"
+        android:backgroundTint="@color/Transparent"
+        android:fillViewport="true"
+        android:foreground="@color/Transparent"
+        android:foregroundTint="@color/Transparent">
+
+        <LinearLayout
+            android:id="@+id/aaaas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/Transparent"
+            android:backgroundTint="@color/Transparent"
+            android:foreground="@color/Transparent"
+            android:foregroundTint="@color/Transparent"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_note_creator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="15dp"
+                android:animateLayoutChanges="true"
+                android:backgroundTint="@color/White"
+                android:layoutAnimation="@anim/grid_appear_layout_animation"
+                android:nestedScrollingEnabled="true"
+                android:tag="second"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="8dp">
+
+                <com.example.Evermind.EveRelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:gravity="top"
+                    android:nestedScrollingEnabled="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
+                        android:nestedScrollingEnabled="true"
+                        android:orientation="vertical">
+
+                        <EditText
+                            android:id="@+id/TitleTextBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints=""
+                            android:background="@color/Transparent"
+                            android:gravity="center"
+                            android:hint="@string/TitleHint"
+                            android:inputType="textShortMessage"
+                            android:paddingLeft="12dp"
+                            android:paddingTop="2dp"
+                            android:paddingRight="12dp"
+                            android:paddingBottom="2dp"
+                            android:textSize="25sp" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/TextAndDrawRecyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/Transparent"
+                            android:isScrollContainer="true"
+                            android:nestedScrollingEnabled="true" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/ImagesRecycler"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:animationCache="true"
+                            android:background="@color/Transparent"
+                            android:layoutAnimation="@anim/grid_appear_layout_animation"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+
+                    <com.example.Evermind.EverDraw
+                        android:id="@+id/EverDraw"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/Transparent"
+                        android:visibility="gone" />
+
+
+                </com.example.Evermind.EveRelativeLayout>
+
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </com.example.Evermind.EverNestedScrollView>
+
+</com.example.Evermind.EveRelativeLayout>

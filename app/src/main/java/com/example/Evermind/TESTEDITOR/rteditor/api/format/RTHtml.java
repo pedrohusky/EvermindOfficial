@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class RTHtml<I extends RTImage, A extends RTAudio, V extends RTVideo> extends RTText {
 
-    private List<I> mImages;
+    private final List<I> mImages;
 
     public RTHtml(CharSequence html) {
         this(RTFormat.HTML, html);

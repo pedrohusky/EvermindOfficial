@@ -38,7 +38,7 @@ import com.example.Evermind.TESTEDITOR.rteditor.effects.Effects;
  */
 public final class RTEditable extends RTSpanned {
 
-    private RTEditText mEditor;
+    private final RTEditText mEditor;
 
     public RTEditable(RTEditText editor) {
         super(editor.getText());

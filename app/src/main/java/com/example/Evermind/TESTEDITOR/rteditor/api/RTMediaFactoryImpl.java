@@ -45,7 +45,7 @@ import java.io.OutputStream;
 public class RTMediaFactoryImpl implements RTMediaFactory<RTImage, RTAudio, RTVideo> {
     private static final long serialVersionUID = 6970361368051595063L;
 
-    private File mStoragePath;
+    private final File mStoragePath;
 
     public RTMediaFactoryImpl(Context context) {
         this(context, true);    // use external storage as default

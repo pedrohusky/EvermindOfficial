@@ -22,7 +22,7 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 
 import com.example.Evermind.MainActivity;
-import com.example.Evermind.R;;
+import com.example.Evermind.R;
 
 /**
  * An ImageButton for the toolbar.
@@ -59,7 +59,7 @@ public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatIma
                 if (!((MainActivity)getContext()).actualNote.get().getNoteColor().equals("000000")) {
                     ((MainActivity)getContext()).tintView(this, Integer.parseInt(((MainActivity)getContext()).actualNote.get().getNoteColor()));
                 } else {
-                    ((MainActivity)getContext()).tintView(this, R.color.SkyBlueHighlight);
+                    ((MainActivity)getContext()).tintView(this, getContext().getColor(R.color.SkyBlueHighlight));
                 }
             } else {
                 ((MainActivity)getContext()).tintView(this, ((MainActivity)getContext()).defaultToolbarColor);

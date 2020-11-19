@@ -2,8 +2,8 @@ package com.example.Evermind.recycler_models;
 
 public class Item {
 
-    private int type;
-    private Object object;
+    private final int type;
+    private final Object object;
 
     public Item(int type, Object object) {
         this.type = type;

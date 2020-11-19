@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class BulletEffect extends ParagraphEffect<Boolean, BulletSpan> {
 
-    private ParagraphSpanProcessor<Boolean> mSpans2Process = new ParagraphSpanProcessor();
+    private final ParagraphSpanProcessor<Boolean> mSpans2Process = new ParagraphSpanProcessor();
 
     @Override
     public synchronized void applyToSelection(RTEditText editor, Selection selectedParagraphs, Boolean enable) {

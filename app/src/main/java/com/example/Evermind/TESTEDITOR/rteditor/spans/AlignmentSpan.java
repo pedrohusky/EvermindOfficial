@@ -32,7 +32,7 @@ public class AlignmentSpan extends android.text.style.AlignmentSpan.Standard imp
     /*
      * Map alignment directions for RTL languages (Hebrew, Arabic etc.)
      */
-    private static Map<Layout.Alignment, Layout.Alignment> sRTLMapping = new HashMap<>();
+    private static final Map<Layout.Alignment, Layout.Alignment> sRTLMapping = new HashMap<>();
     static {
         sRTLMapping.put(Layout.Alignment.ALIGN_CENTER, Layout.Alignment.ALIGN_CENTER);
         sRTLMapping.put(Layout.Alignment.ALIGN_NORMAL, Layout.Alignment.ALIGN_OPPOSITE);

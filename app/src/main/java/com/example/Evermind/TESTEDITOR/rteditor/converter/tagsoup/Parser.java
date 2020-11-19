@@ -60,15 +60,15 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
 
     // Default values for feature flags
 
-    private static boolean DEFAULT_NAMESPACES = true;
-    private static boolean DEFAULT_IGNORE_BOGONS = false;
-    private static boolean DEFAULT_BOGONS_EMPTY = false;
-    private static boolean DEFAULT_ROOT_BOGONS = true;
-    private static boolean DEFAULT_DEFAULT_ATTRIBUTES = true;
-    private static boolean DEFAULT_TRANSLATE_COLONS = false;
-    private static boolean DEFAULT_RESTART_ELEMENTS = true;
-    private static boolean DEFAULT_IGNORABLE_WHITESPACE = false;
-    private static boolean DEFAULT_CDATA_ELEMENTS = true;
+    private static final boolean DEFAULT_NAMESPACES = true;
+    private static final boolean DEFAULT_IGNORE_BOGONS = false;
+    private static final boolean DEFAULT_BOGONS_EMPTY = false;
+    private static final boolean DEFAULT_ROOT_BOGONS = true;
+    private static final boolean DEFAULT_DEFAULT_ATTRIBUTES = true;
+    private static final boolean DEFAULT_TRANSLATE_COLONS = false;
+    private static final boolean DEFAULT_RESTART_ELEMENTS = true;
+    private static final boolean DEFAULT_IGNORABLE_WHITESPACE = false;
+    private static final boolean DEFAULT_CDATA_ELEMENTS = true;
 
     // Feature flags.
 
@@ -262,7 +262,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     // the corresponding instance variables, but care must be taken
     // to keep them in sync.
 
-    private HashMap<String, Boolean> theFeatures = new HashMap<String, Boolean>();
+    private final HashMap<String, Boolean> theFeatures = new HashMap<String, Boolean>();
 
     {
         theFeatures.put(namespacesFeature, truthValue(DEFAULT_NAMESPACES));
@@ -298,7 +298,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
 
     @Override
     public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
-        Boolean b = (Boolean) theFeatures.get(name);
+        Boolean b = theFeatures.get(name);
         if (b == null) {
             throw new SAXNotRecognizedException("Unknown feature " + name);
         }
@@ -307,7 +307,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
 
     @Override
     public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
-        Boolean b = (Boolean) theFeatures.get(name);
+        Boolean b = theFeatures.get(name);
         if (b == null) {
             throw new SAXNotRecognizedException("Unknown feature " + name);
         }
@@ -637,7 +637,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
         etag_basic(buff, offset, length);
     }
 
-    private static char[] etagchars = {'<', '/', '>'};
+    private static final char[] etagchars = {'<', '/', '>'};
 
     private boolean etag_cdata(char[] buff, int offset, int length) throws SAXException {
         String currentName = theStack.name();
@@ -919,12 +919,12 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
                 lastc = c;
             }
             l.add(val.substring(s, e));
-            return (String[]) l.toArray(new String[0]);
+            return l.toArray(new String[0]);
         }
     }
 
     // Replace junk in publicids with spaces
-    private static String legal = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-'()+,./:=?;!*#@$_%";
+    private static final String legal = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-'()+,./:=?;!*#@$_%";
 
     private String cleanPublicid(String src) {
         if (src == null)
@@ -938,7 +938,6 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
                 dst.append(ch);
                 suppressSpace = false;
             } else if (suppressSpace) { // normalizable whitespace or junk
-                ;
             } else {
                 dst.append(' ');
                 suppressSpace = true;

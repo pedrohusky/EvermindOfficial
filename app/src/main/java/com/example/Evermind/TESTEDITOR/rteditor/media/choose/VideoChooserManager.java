@@ -43,12 +43,12 @@ class VideoChooserManager extends com.example.Evermind.TESTEDITOR.rteditor.media
         /**
          * Callback method to inform the caller that a video file has been processed
          */
-        public void onVideoChosen(RTVideo video);
+        void onVideoChosen(RTVideo video);
     }
 
     private static final String CAPTURED_VIDEO_TEMPLATE = "CAPTURED_VIDEO.mp4";
 
-    private VideoChooserListener mListener;
+    private final VideoChooserListener mListener;
 
     VideoChooserManager(MonitoredActivity activity, MediaAction mediaAction,
                         RTMediaFactory<RTImage, RTAudio, RTVideo> mediaFactory,

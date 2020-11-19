@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.example.Evermind.R;;
+import com.example.Evermind.R;
 
 import java.util.List;
 
@@ -44,19 +44,19 @@ public class SpinnerItemAdapter<T extends SpinnerItem> extends BaseAdapter imple
     final private int mSpinnerItemId;
 
     private int mSelectedItem;
-    private List<T> mItems;
+    private final List<T> mItems;
 
-    private LayoutInflater mInflater;
+    private final LayoutInflater mInflater;
 
     // we need this to update the spinner text, for some reason the layout view
     private ViewGroup mParent;
     private String mSpinnerTitle;
 
-    private Handler mHandler;
+    private final Handler mHandler;
 
     final private SparseArray<View> mViewCache = new SparseArray<>();
 
-    private int mSelectedBackgroundId;
+    private final int mSelectedBackgroundId;
 
     public SpinnerItemAdapter(Context context, SpinnerItems<T> spinnerItems, int spinnerId, int spinnerItemId) {
         mSelectedItem = spinnerItems.getSelectedItem();
@@ -80,7 +80,7 @@ public class SpinnerItemAdapter<T extends SpinnerItem> extends BaseAdapter imple
         View spinnerView = mInflater.inflate(mSpinnerId, parent, false);
 
         mParent = parent;
-        TextView spinnerTitleView = (TextView) spinnerView.findViewById(R.id.title);
+        TextView spinnerTitleView = spinnerView.findViewById(R.id.title);
         updateSpinnerTitle(spinnerTitleView);
         return spinnerView;
     }
@@ -122,7 +122,7 @@ public class SpinnerItemAdapter<T extends SpinnerItem> extends BaseAdapter imple
 
     private void bindView(int position, View spinnerItemView, SpinnerItem spinnerItem) {
         // configure spinner name
-        TextView nameView = (TextView) spinnerItemView.findViewById(R.id.spinner_name);
+        TextView nameView = spinnerItemView.findViewById(R.id.spinner_name);
         spinnerItem.formatNameView(nameView);
 
         // configure spinner color
@@ -153,7 +153,7 @@ public class SpinnerItemAdapter<T extends SpinnerItem> extends BaseAdapter imple
         mSpinnerTitle = title;
         if (mParent != null) {
             try {
-                TextView spinnerTitleView = ((TextView) mParent.getChildAt(0).findViewById(R.id.title));
+                TextView spinnerTitleView = mParent.getChildAt(0).findViewById(R.id.title);
                 updateSpinnerTitle(spinnerTitleView);
             } catch (Exception ignore) { /* this is a hack but better safe than sorry */ }
         }

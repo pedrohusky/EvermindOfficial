@@ -23,8 +23,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
  */
 public class Element {
 
-    private ElementType theType; // type of element
-    private AttributesImpl theAtts; // attributes of element
+    private final ElementType theType; // type of element
+    private final AttributesImpl theAtts; // attributes of element
     private com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.Element theNext; // successor of element
     private boolean preclosed; // this element has been preclosed
 

@@ -15,7 +15,7 @@ import jp.wasabeef.blurry.Blurry;
  */
 public class EverPopup {
 
-    private View popupView;
+    private final View popupView;
     private PopupWindow mPopupWindow;
     private static final int TYPE_WRAP_CONTENT = 0, TYPE_MATCH_PARENT = 1;
     private boolean isCancelable = true;

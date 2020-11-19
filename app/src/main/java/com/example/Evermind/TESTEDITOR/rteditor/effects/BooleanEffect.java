@@ -28,7 +28,7 @@ import java.lang.reflect.Type;
  * ItalicEffect (text is either italic or not)
  */
 abstract class BooleanEffect<C extends RTSpan<Boolean>> extends CharacterEffect<Boolean, C> {
-    private Class<? extends RTSpan<Boolean>> mSpanClazz;
+    private final Class<? extends RTSpan<Boolean>> mSpanClazz;
 
     protected BooleanEffect() {
         Type[] types = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments();

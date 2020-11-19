@@ -21,6 +21,6 @@ package com.example.Evermind.TESTEDITOR.rteditor.spans;
  */
 public interface RTSpan<V> {
 
-    public V getValue();
+    V getValue();
 
 }

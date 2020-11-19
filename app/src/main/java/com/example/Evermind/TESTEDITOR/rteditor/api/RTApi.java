@@ -16,6 +16,7 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.api;
 
+import android.annotation.SuppressLint;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
@@ -106,6 +107,7 @@ public class RTApi implements RTProxy, RTMediaFactory<RTImage, RTAudio, RTVideo>
      * @param rtProxy      The RTProxy provided by the app.
      * @param mediaFactory the RTMediaFactory provided by the app.
      */
+    @SuppressLint("ResourceType")
     public RTApi(Context context, RTProxy rtProxy, RTMediaFactory<RTImage, RTAudio, RTVideo> mediaFactory) {
         synchronized (sTheLock) {
             sAppContext = context.getApplicationContext();

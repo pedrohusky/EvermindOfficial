@@ -30,7 +30,7 @@ public enum RTMediaType {
     VIDEO("videos"),
     AUDIO("audios");
 
-    private String mMediaPath;
+    private final String mMediaPath;
 
     RTMediaType(String mediaPath) {
         mMediaPath = mediaPath;

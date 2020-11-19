@@ -38,8 +38,6 @@ public class MediaUtils {
      *
      * @param targetFolder The target folder (e.g. /sdcard/Android/data)
      * @param originalFile The source file including the path (e.g. /sdcard/image.jpg)
-     * @param mimeType     If the originalFile has no extension (e.g. for files provided by picasa) we use the mime type
-     *                     to determine the file extension
      * @return The non-conflicting file name in targetFolder (e.g. /sdcard/Android/data/158867324_201308071234568.jpg)
      */
     public static File createUniqueFile(File targetFolder, String originalFile, boolean keepOriginal) {

@@ -44,9 +44,8 @@ class RTOperationManager {
     /*
      * The undo/redo stacks by editor Id
      */
-    private Map<RTEditText, Stack<Operation>> mUndoStacks = new HashMap<>();
-    private Map<RTEditText, Stack<Operation>> mRedoStacks = new HashMap<>();
-    ;
+    private final Map<RTEditText, Stack<Operation>> mUndoStacks = new HashMap<>();
+    private final Map<RTEditText, Stack<Operation>> mRedoStacks = new HashMap<>();
 
     // ****************************************** Operation Classes *******************************************
 
@@ -56,15 +55,15 @@ class RTOperationManager {
      * they will be considered as one operation and un-done/re-done together.
      */
     public abstract static class Operation {
-        private long mTimestamp;
+        private final long mTimestamp;
 
         private int mSelStartBefore;
         private int mSelEndBefore;
         private Spannable mBefore;
 
-        private int mSelStartAfter;
-        private int mSelEndAfter;
-        private Spannable mAfter;
+        private final int mSelStartAfter;
+        private final int mSelEndAfter;
+        private final Spannable mAfter;
 
         Operation(Spannable before, Spannable after, int selStartBefore, int selEndBefore, int selStartAfter, int selEndAfter) {
             mSelStartBefore = selStartBefore;

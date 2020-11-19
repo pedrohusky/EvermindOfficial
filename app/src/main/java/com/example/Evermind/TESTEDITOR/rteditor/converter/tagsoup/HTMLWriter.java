@@ -294,7 +294,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
     // //////////////////////////////////////////////////////////////////
     // Tags to ignore
     // //////////////////////////////////////////////////////////////////
-    private static Map<String, Map<String, String>> mTags2Ignore = new HashMap<String, Map<String, String>>();
+    private static final Map<String, Map<String, String>> mTags2Ignore = new HashMap<String, Map<String, String>>();
 
     static {
         // meta refresh tag + iframe meta refresh
@@ -329,14 +329,14 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
     // Internal state.
     // //////////////////////////////////////////////////////////////////
 
-    private Hashtable<String, String> prefixTable;
-    private Hashtable<String, Boolean> forcedDeclTable;
-    private Hashtable<String, String> doneDeclTable;
+    private final Hashtable<String, String> prefixTable;
+    private final Hashtable<String, Boolean> forcedDeclTable;
+    private final Hashtable<String, String> doneDeclTable;
     private int elementLevel = 0;
     private Writer output;
-    private NamespaceSupport nsSupport;
+    private final NamespaceSupport nsSupport;
     private int prefixCounter = 0;
-    private Properties outputProperties;
+    private final Properties outputProperties;
     private String outputEncoding = "";
     private boolean htmlMode = false;
     private boolean forceDTD = false;
@@ -346,8 +346,8 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
     private String version = null;
     private String standalone = null;
     private boolean cdataElement = false;
-    private boolean mOmitXHTMLNamespace;
-    private Stack<String> mIgnoredTags;
+    private final boolean mOmitXHTMLNamespace;
+    private final Stack<String> mIgnoredTags;
 
     // //////////////////////////////////////////////////////////////////
     // Constructors.
@@ -471,7 +471,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      * @see #setPrefix
      */
     public String getPrefix(String uri) {
-        return (String) prefixTable.get(uri);
+        return prefixTable.get(uri);
     }
 
     /**
@@ -704,7 +704,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      * @see org.xml.sax.ContentHandler#characters
      */
     @Override
-    public void characters(char ch[], int start, int len) throws SAXException {
+    public void characters(char[] ch, int start, int len) throws SAXException {
         if (!cdataElement) {
             if (mIgnoreChars) {
                 writeText4Links();
@@ -735,7 +735,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      * @see org.xml.sax.ContentHandler#ignorableWhitespace
      */
     @Override
-    public void ignorableWhitespace(char ch[], int start, int length) throws SAXException {
+    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
         writeText4Links();
         writeEscUTF16(new String(ch), start, length, false);
         super.ignorableWhitespace(ch, start, length);
@@ -779,7 +779,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
     private void forceNSDecls() {
         Enumeration<String> prefixes = forcedDeclTable.keys();
         while (prefixes.hasMoreElements()) {
-            String prefix = (String) prefixes.nextElement();
+            String prefix = prefixes.nextElement();
             doPrefix(prefix, null, true);
         }
     }
@@ -810,14 +810,14 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
         if (prefix != null) {
             return prefix;
         }
-        prefix = (String) doneDeclTable.get(uri);
+        prefix = doneDeclTable.get(uri);
         if (prefix != null
                 && ((!isElement || defaultNS != null) && "".equals(prefix) || nsSupport
                 .getURI(prefix) != null)) {
             prefix = null;
         }
         if (prefix == null) {
-            prefix = (String) prefixTable.get(uri);
+            prefix = prefixTable.get(uri);
             if (prefix != null
                     && ((!isElement || defaultNS != null) && "".equals(prefix) || nsSupport
                     .getURI(prefix) != null)) {
@@ -899,7 +899,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
         }
     }
 
-    private String[] booleans = {"checked", "compact", "declare", "defer",
+    private final String[] booleans = {"checked", "compact", "declare", "defer",
             "disabled", "ismap", "multiple", "nohref", "noresize", "noshade",
             "nowrap", "readonly", "selected"};
 
@@ -910,7 +910,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
         if (name == null) {
             int i = qName.indexOf(':');
             if (i != -1)
-                name = qName.substring(i + 1, qName.length());
+                name = qName.substring(i + 1);
         }
         if (!name.equals(value))
             return false;
@@ -947,7 +947,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
     private void writeNSDecls() throws SAXException {
         Enumeration<String> prefixes = (Enumeration<String>) nsSupport.getDeclaredPrefixes();
         while (prefixes.hasMoreElements()) {
-            String prefix = (String) prefixes.nextElement();
+            String prefix = prefixes.nextElement();
             String uri = nsSupport.getURI(prefix);
             if (uri == null) {
                 uri = "";
@@ -987,7 +987,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
             write(localName);
         } else {
             int i = qName.indexOf(':');
-            write(qName.substring(i + 1, qName.length()));
+            write(qName.substring(i + 1));
         }
     }
 
@@ -1099,9 +1099,9 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
 
     private boolean mIgnoreChars;
 
-    private StringBuffer mLastText4Links = new StringBuffer();
+    private final StringBuffer mLastText4Links = new StringBuffer();
 
-    private void collectText4Links(char ch[], int start, int len) throws SAXException {
+    private void collectText4Links(char[] ch, int start, int len) throws SAXException {
         mLastText4Links.append(String.valueOf(ch, start, len));
     }
 

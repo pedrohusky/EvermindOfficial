@@ -12,15 +12,20 @@
         android:title="Checkbox" />
 
     <item
-        android:id="@+id/nav_checkbox"
+        android:id="@+id/nav_import"
         android:icon="@drawable/import_icon"
         android:title="Import" />
 
 
     <item
-        android:id="@+id/nav_bullets"
-        android:icon="@drawable/bullets"
-        android:title="Bullets" />
+        android:id="@+id/nav_record"
+        android:icon="@drawable/ic_baseline_mic_24"
+        android:title="Record Audio" />
+
+    <item
+        android:id="@+id/nav_checkbox"
+        android:icon="@android:drawable/checkbox_on_background"
+        android:title="To-Do List" />
 
     <item
         android:id="@+id/nav_draw"

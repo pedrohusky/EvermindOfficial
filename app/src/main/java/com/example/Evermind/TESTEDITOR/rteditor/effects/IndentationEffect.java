@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class IndentationEffect extends ParagraphEffect<Integer, IndentationSpan> {
 
-    private ParagraphSpanProcessor<Integer> mSpans2Process = new ParagraphSpanProcessor();
+    private final ParagraphSpanProcessor<Integer> mSpans2Process = new ParagraphSpanProcessor();
 
     public void applyToSelection(RTEditText editor, Selection selectedParagraphs, Integer increment) {
         final Spannable str = editor.getText();

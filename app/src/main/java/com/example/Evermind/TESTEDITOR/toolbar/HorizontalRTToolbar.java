@@ -31,7 +31,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.Evermind.MainActivity;
-import com.example.Evermind.R;;
+import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.rteditor.RTToolbar;
 import com.example.Evermind.TESTEDITOR.rteditor.RTToolbarListener;
 import com.example.Evermind.TESTEDITOR.rteditor.effects.Effects;
@@ -67,7 +67,7 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     /*
      * We need a unique id for the toolbar because the RTManager is capable of managing multiple toolbars
      */
-    private static AtomicInteger sIdCounter = new AtomicInteger(0);
+    private static final AtomicInteger sIdCounter = new AtomicInteger(0);
     private int mId;
 
     private RTToolbarListener mListener;
@@ -104,11 +104,11 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     private Spinner mBGColor;
     private SpinnerItemAdapter<? extends ColorSpinnerItem> mBGColorAdapter;
 
-    private int mCustomColorFont = Color.BLACK;
+    private final int mCustomColorFont = Color.BLACK;
     private Context context;
-    private int mCustomColorBG = Color.BLACK;
+    private final int mCustomColorBG = Color.BLACK;
 
-    private int mPickerId = -1;
+    private final int mPickerId = -1;
     private MainActivity a;
     //  private ColorPickerListener mColorPickerListener;
 

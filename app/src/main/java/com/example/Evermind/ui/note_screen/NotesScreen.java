@@ -7,12 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import com.example.Evermind.EvershootInterpolator;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
+import com.example.Evermind.RecyclerGridAdapterNoteScreen;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,27 +39,31 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
     public WeakReference<MultiViewAdapter> adapter;
     private WeakReference<RecyclerView> recyclerView;
     private int count;
+    private  View rootView;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-       postponeEnterTransition();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setSharedElementEnterTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
-            setSharedElementReturnTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
-        }
-
-        return inflater.inflate(R.layout.home_screen_notes, container, false);
+        rootView = inflater.inflate(R.layout.home_screen_notes, container, false);
+        postponeEnterTransition();
+        setSharedElementEnterTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
+        setSharedElementReturnTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
+        init();
+        return rootView;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-     init();
+
+
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
 
     public void StartPostpone() {
         startPostponedEnterTransition();
@@ -79,15 +84,12 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
             count = 1;
         }
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(count, StaggeredGridLayoutManager.VERTICAL);
-        //   GridLayoutManager grid = new GridLayoutManager(requireActivity(), 2);
-        recyclerView = new WeakReference<>(mainActivity.get().findViewById(R.id.notesRecycler));
+        recyclerView = new WeakReference<>(rootView.findViewById(R.id.notesRecycler));
 
         recyclerView.get().setLayoutManager(staggeredGridLayoutManager);
         adapter = ((MainActivity)requireActivity()).adapter;
         adapter.get().setSelectionMode(Mode.MULTIPLE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            recyclerView.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
-        }
+        recyclerView.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
         recyclerView.get().setAdapter(new AlphaInAnimationAdapter(adapter.get()));
 
         OverScrollDecoratorHelper.setUpOverScroll(recyclerView.get(), OverScrollDecoratorHelper.ORIENTATION_VERTICAL);

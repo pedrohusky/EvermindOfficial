@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class AlignmentEffect extends ParagraphEffect<Alignment, AlignmentSpan> {
 
-    private com.example.Evermind.TESTEDITOR.rteditor.effects.ParagraphSpanProcessor<Alignment> mSpans2Process = new com.example.Evermind.TESTEDITOR.rteditor.effects.ParagraphSpanProcessor();
+    private final com.example.Evermind.TESTEDITOR.rteditor.effects.ParagraphSpanProcessor<Alignment> mSpans2Process = new com.example.Evermind.TESTEDITOR.rteditor.effects.ParagraphSpanProcessor();
 
     @Override
     public void applyToSelection(RTEditText editor, Selection selectedParagraphs, Alignment alignment) {

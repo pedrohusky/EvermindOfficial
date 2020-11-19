@@ -37,20 +37,20 @@ import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 public class RecyclerGridAdapterNoteScreen extends RecyclerSwipeAdapter<RecyclerGridAdapterNoteScreen.ViewHolder> {
 
-    private Context context;
-    private LayoutInflater mInflater;
+    private final Context context;
+    private final LayoutInflater mInflater;
     private AdapterView.OnItemLongClickListener mLongClick;
     private RecyclerView textRecycler;
     private TextView myTitleView;
     private RecyclerView myRecyclerView;
     private CardView myCardView;
-    private ArrayList<Note_Model> models;
+    private final List<Note_Model> models;
     private LinearLayout linearLayout;
     private SwipeLayout swipe;
     private ImageButton delete;
     private ImageButton changeColor;
 
-    public RecyclerGridAdapterNoteScreen(Context contexts, ArrayList<Note_Model> noteModels) {
+    public RecyclerGridAdapterNoteScreen(Context contexts, List<Note_Model> noteModels) {
 
         context = contexts;
         models = noteModels;
@@ -239,10 +239,12 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerSwipeAdapter<Recycler
 
             textRecycler.setLayoutManager(staggeredGridLayoutManager);
 
-            EverAdapter adapter = new EverAdapter(context, items, models.get(position).getId(), position, null, myCardView, textRecycler, myRecyclerView, myTitleView, true);
+
+
+            //EverAdapter adapter = new EverAdapter();
 
             textRecycler.setItemAnimator(new LandingAnimator(new OvershootInterpolator(1f)));
-            textRecycler.setAdapter(new AlphaInAnimationAdapter(adapter));
+        //    textRecycler.setAdapter(new AlphaInAnimationAdapter(adapter));
 
     }
 }

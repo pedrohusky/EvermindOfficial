@@ -93,6 +93,67 @@ class StartupActivity : AppCompatActivity() {
             val scaleup4 = AnimationUtils.loadAnimation(this, R.anim.scaleup4)
             val scaleup5 = AnimationUtils.loadAnimation(this, R.anim.scaleup5)
 
+
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            noteModels.clear()
+
+            everDataBase.getAllContentsFromAllNotes()
+
+            ids = everDataBase.idFromDatabase
+
+            notes = everDataBase.contentsFromDatabase
+
+            titles = everDataBase.titlesFromDatabase
+
+            dates = everDataBase.dateFromDatabase
+
+            imageURL = everDataBase.imageURLFromDatabase
+
+            draws = everDataBase.drawLocationFromDatabase
+
+            colors = everDataBase.noteColorsFromDatabase
+
+            for (i in ids.indices) {
+                //this is for clean the database when theres notes with nothing in it
+                if (notes[i] == "┼" && draws[i] == "" && imageURL[i] == "") {
+                    everDataBase.deleteNote(ids[i])
+                } else if (notes[i] == "┼┼" && draws[i] == "" && imageURL[i] == "") {
+                    everDataBase.deleteNote(ids[i])
+                } else if (notes[i] == "" && draws[i] == "" && imageURL[i] == "") {
+                    everDataBase.deleteNote(ids[i])
+                }
+                 //after clean, then add the notes
+                 else {
+                    noteModels.add(
+                        Note_Model(
+                            ids[i],
+                            i,
+                            titles[i],
+                            notes[i],
+                            dates[i],
+                            imageURL[i],
+                            draws[i],
+                            colors[i]
+                        )
+                    )
+                }
+            }
+
+
+            //and sort them to make the last become the first
+            noteModels.sortWith { obj1: Note_Model, obj2: Note_Model ->
+                obj2.id.compareTo(obj1.id)
+            }
+            for ((p, i) in noteModels.withIndex()) {
+                i.actualPosition = p
+            }
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            intent.putExtra("notes", noteModels)
+
+            startActivity(intent)
+        }, 200)
+
             startButton.setOnClickListener {
 
                 Handler(Looper.getMainLooper()).post {
@@ -110,48 +171,7 @@ class StartupActivity : AppCompatActivity() {
                     circle5.startAnimation(scaleup5)
                     startButton.startAnimation(fadebutton)
 
-                    noteModels.clear()
 
-                    everDataBase.getAllContentsFromAllNotes()
-
-                    ids = everDataBase.idFromDatabase
-
-                    notes = everDataBase.contentsFromDatabase
-
-                    titles = everDataBase.titlesFromDatabase
-
-                    dates = everDataBase.dateFromDatabase
-
-                    imageURL = everDataBase.imageURLFromDatabase
-
-                    draws = everDataBase.drawLocationFromDatabase
-
-                    colors = everDataBase.noteColorsFromDatabase
-
-                    for (i in ids.indices) {
-                        noteModels.add(
-                            Note_Model(
-                                ids[i],
-                                i,
-                                titles[i],
-                                notes[i],
-                                dates[i],
-                                imageURL[i],
-                                draws[i],
-                                colors[i]
-                            )
-                        )
-                    }
-
-
-                    noteModels.sortWith(Comparator { obj1: Note_Model, obj2: Note_Model ->
-                        obj2.id.compareTo(obj1.id)
-                    })
-                    var p = 0
-                    for (i in noteModels) {
-                        i.actualPosition = p;
-                        p++
-                    }
 
                     Handler(Looper.getMainLooper()).postDelayed({
                         circle1.visibility = View.GONE
@@ -159,11 +179,6 @@ class StartupActivity : AppCompatActivity() {
                         circle3.visibility = View.GONE
                         circle4.visibility = View.GONE
                         circle5.visibility = View.GONE
-
-                        val intent = Intent(applicationContext, MainActivity::class.java)
-                        intent.putExtra("notes", noteModels)
-
-                        startActivity(intent)
                     }, 1300)
                 }
             }

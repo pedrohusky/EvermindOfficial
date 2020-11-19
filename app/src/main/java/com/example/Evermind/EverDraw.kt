@@ -4,7 +4,6 @@ package com.example.Evermind
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -23,6 +22,7 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private var mUndonePaths = LinkedHashMap<EverDrawPath, EverDrawPaintOptions>()
 
     private var mPaint = Paint()
+    private var mCanvas = Canvas()
     private var mPath = EverDrawPath()
     private var mPaintOptions = EverDrawPaintOptions()
 
@@ -38,7 +38,7 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
     init {
         mPaint.apply {
             color = mPaintOptions.color
-            style = Paint.Style.STROKE
+            style = mPaintOptions.style
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
             strokeWidth = mPaintOptions.strokeWidth
@@ -98,9 +98,28 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
             invalidate()
         }
     }
+    //TODO TRY TO MAKE A BITMAP FROM THE VIEW!1111111
+
+    fun fillColor(color: Int) {
+        mPaintOptions.color = color
+        mPaintOptions.style = Paint.Style.FILL
+    }
+    fun paintType(type: String) {
+        when (type) {
+            "stroke" -> {
+                mPaintOptions.style = Paint.Style.STROKE
+            }
+            "fill" -> {
+                mPaintOptions.style = Paint.Style.FILL
+            }
+            "fillStroke" -> {
+                mPaintOptions.style = Paint.Style.FILL_AND_STROKE
+            }
+        }
+    }
 
     fun getBitmap(color: Int): Bitmap {
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         canvas.drawColor(color)
         mIsSaving = true
@@ -115,7 +134,7 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
+        mCanvas = canvas
         for ((key, value) in mPaths) {
             changePaint(value)
             canvas.drawPath(key, mPaint)
@@ -128,6 +147,7 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private fun changePaint(paintOptions: EverDrawPaintOptions) {
         mPaint.color = paintOptions.color
         mPaint.strokeWidth = paintOptions.strokeWidth
+        mPaint.style = paintOptions.style
     }
 
     fun clearCanvas() {
@@ -167,7 +187,8 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
         mPaintOptions = EverDrawPaintOptions(
             mPaintOptions.color,
             mPaintOptions.strokeWidth,
-            mPaintOptions.alpha
+            mPaintOptions.alpha,
+            mPaintOptions.style
         )
     }
 

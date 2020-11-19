@@ -543,7 +543,7 @@ public class AttributesImpl implements Attributes {
             max *= 2;
         }
 
-        String newData[] = new String[max];
+        String[] newData = new String[max];
         if (length > 0) {
             System.arraycopy(data, 0, newData, 0, length * 5);
         }
@@ -566,6 +566,6 @@ public class AttributesImpl implements Attributes {
     // //////////////////////////////////////////////////////////////////
 
     int length;
-    String data[];
+    String[] data;
 
 }

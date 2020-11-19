@@ -21,13 +21,13 @@ public class EverDataBase extends SQLiteOpenHelper {
     private static final String NOTE_BACKGROUND = "Background";
     private static final String NOTE_IMAGEURL = "URL";
     private static final String NOTE_COLOR = "Color";
-    private ArrayList<Integer> ids = new ArrayList<>();
-    private ArrayList<String> titles = new ArrayList<>();
-    private ArrayList<String> contents = new ArrayList<>();
-    private ArrayList<String> draws = new ArrayList<>();
-    private ArrayList<String> dates = new ArrayList<>();
-    private ArrayList<String> images = new ArrayList<>();
-    private ArrayList<String> colors = new ArrayList<>();
+    private final ArrayList<Integer> ids = new ArrayList<>();
+    private final ArrayList<String> titles = new ArrayList<>();
+    private final ArrayList<String> contents = new ArrayList<>();
+    private final ArrayList<String> draws = new ArrayList<>();
+    private final ArrayList<String> dates = new ArrayList<>();
+    private final ArrayList<String> images = new ArrayList<>();
+    private final ArrayList<String> colors = new ArrayList<>();
 
 
     EverDataBase mDatabaseEver;

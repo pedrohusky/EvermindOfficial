@@ -40,7 +40,7 @@ import java.util.List;
  */
 public class NumberEffect extends ParagraphEffect<Boolean, NumberSpan> {
 
-    private ParagraphSpanProcessor<Boolean> mSpans2Process = new ParagraphSpanProcessor();
+    private final ParagraphSpanProcessor<Boolean> mSpans2Process = new ParagraphSpanProcessor();
 
     public void applyToSelectionTextView (RTTextView editor, Selection selectedParagraphs, Boolean enable) {
         final Spannable str = (Spannable) editor.getText();

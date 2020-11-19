@@ -20,33 +20,23 @@ import android.content.ClipDescription;
 import android.content.Context;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.SpanWatcher;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.style.ParagraphStyle;
-import android.transition.Fade;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
-import androidx.cardview.widget.CardView;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
-import androidx.core.view.inputmethod.InputContentInfoCompat;
-import androidx.fragment.app.FragmentTransaction;
 
-import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTEditable;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
@@ -68,8 +58,6 @@ import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Paragraph;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.RTLayout;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Selection;
-import com.example.Evermind.WriterSpannableStringBuilder;
-import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -110,8 +98,8 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
 
     private RTMediaFactory<RTImage, RTAudio, RTVideo> mMediaFactory;
 
-    private Map<Integer, Stack<RTOperationManager.Operation>> mUndoStacks = new HashMap<>();
-    private Map<Integer, Stack<RTOperationManager.Operation>> mRedoStacks = new HashMap<>();
+    private final Map<Integer, Stack<RTOperationManager.Operation>> mUndoStacks = new HashMap<>();
+    private final Map<Integer, Stack<RTOperationManager.Operation>> mRedoStacks = new HashMap<>();
 
     // used to check if selection has changed
     private int mOldSelStart = -1;
@@ -143,8 +131,8 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
     private Spannable mOldSpannable;    // undo/redo
 
     // we need to keep track of the media for this editor to be able to clean up after we're done
-    private Set<RTMedia> mOriginalMedia = new HashSet<RTMedia>();
-    private Set<RTMedia> mAddedMedia = new HashSet<RTMedia>();
+    private final Set<RTMedia> mOriginalMedia = new HashSet<RTMedia>();
+    private final Set<RTMedia> mAddedMedia = new HashSet<RTMedia>();
 
     // ****************************************** Lifecycle Methods *******************************************
 
@@ -730,5 +718,18 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
         if (mUseRTFormatting && mListener != null) {
             mListener.onClick(this, linkSpan);
         }
+    }
+    public int getCurrentCursorLine() {
+        int selectionStartPos = this.getSelectionStart();
+
+        if (selectionStartPos < 0) {
+            // There is no selection, so return -1 like getSelectionStart() does when there is no seleciton.
+            return -1;
+        }
+
+
+        String preSelectionStartText = this.getText().toString().substring(0, selectionStartPos);
+
+        return preSelectionStartText.lastIndexOf('\n');
     }
 }

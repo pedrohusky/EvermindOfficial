@@ -35,8 +35,8 @@ public abstract class Schema {
     public static final int F_CDATA = 2;
     public static final int F_NOFORCE = 4;
 
-    private HashMap<String, Integer> theEntities = new HashMap<String, Integer>();
-    private HashMap<String, ElementType> theElementTypes = new HashMap<String, ElementType>();
+    private final HashMap<String, Integer> theEntities = new HashMap<String, Integer>();
+    private final HashMap<String, ElementType> theElementTypes = new HashMap<String, ElementType>();
 
     private String theURI = "";
     private String thePrefix = "";
@@ -125,7 +125,7 @@ public abstract class Schema {
 
     @SuppressLint("DefaultLocale")
     public ElementType getElementType(String name) {
-        return (ElementType) (theElementTypes.get(name.toLowerCase()));
+        return theElementTypes.get(name.toLowerCase());
     }
 
     /**
@@ -137,7 +137,7 @@ public abstract class Schema {
 
     public int getEntity(String name) {
         // System.err.println("%% Looking up entity " + name);
-        Integer ch = (Integer) theEntities.get(name);
+        Integer ch = theEntities.get(name);
         if (ch == null)
             return 0;
         return ch.intValue();

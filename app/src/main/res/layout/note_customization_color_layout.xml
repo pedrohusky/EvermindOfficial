@@ -12,7 +12,6 @@
     app:cardElevation="0dp">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/noteCardCustomization"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -28,7 +27,6 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/noteBlack"
                 android:tag="black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -43,7 +41,6 @@
                 app:tint="@color/Black" />
 
             <ImageView
-                android:id="@+id/noteWhite"
                 android:tag="white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -57,7 +54,6 @@
                 app:tint="@color/White" />
 
             <ImageView
-                android:id="@+id/noteMagenta"
                 android:tag="magenta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -71,7 +67,6 @@
                 app:tint="@color/Magenta" />
 
             <ImageView
-                android:id="@+id/notePink"
                 android:tag="pink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -85,7 +80,6 @@
                 app:tint="@color/Pink" />
 
             <ImageView
-                android:id="@+id/noteOrange"
                 android:tag="orange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -99,7 +93,6 @@
                 app:tint="@color/Orange" />
 
             <ImageView
-                android:id="@+id/noteBlue"
                 android:tag="blue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -113,7 +106,6 @@
                 app:tint="@color/SkyBlue" />
 
             <ImageView
-                android:id="@+id/noteYellow"
                 android:tag="yellow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -127,7 +119,6 @@
                 app:tint="@color/YellowSun" />
 
             <ImageView
-                android:id="@+id/noteGreen"
                 android:tag="green"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
