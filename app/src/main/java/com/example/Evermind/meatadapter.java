@@ -10,24 +10,24 @@ import java.util.ArrayList;
 import no.danielzeller.metaballslib.menu.MetaBallAdapter;
 
 public class meatadapter implements MetaBallAdapter {
-    private ArrayList<Integer> colors = new ArrayList<>();
-    private ArrayList<Drawable> backgrounds = new ArrayList<>();
-    private ArrayList<Integer> menuColors = new ArrayList<>();
+    private int[] colors;
+    private ArrayList<Drawable> backgrounds;
+    private int[] menuColors;
 
 
 
-    public meatadapter(ArrayList<Integer> colors, ArrayList<Drawable> backgrounds) {
+    public meatadapter(int[] colors, ArrayList<Drawable> backgrounds) {
         this.colors = colors;
         this.backgrounds = backgrounds;
-        this.menuColors.addAll(colors);
+        this.menuColors = this.colors;
     }
 
     @Override
     public int itemsCount() {
-        return colors.size();
+        return colors.length;
     }
 
-    public void setColors(ArrayList<Integer> colors) {
+    public void setColors(int[] colors) {
         this.colors = colors;
     }
 
@@ -35,13 +35,13 @@ public class meatadapter implements MetaBallAdapter {
         this.backgrounds = backgrounds;
     }
 
-    public void setMenuColors(ArrayList<Integer> menuColors) {
+    public void setMenuColors(int[] menuColors) {
         this.menuColors = menuColors;
     }
 
     @Override
     public int menuItemBackgroundColor(int i) {
-        return colors.get(i);
+        return colors[i];
     }
 
     @Nullable
@@ -52,7 +52,7 @@ public class meatadapter implements MetaBallAdapter {
 
     @Override
     public int menuItemIconTint(int i) {
-        return menuColors.get(i);
+        return menuColors[i];
     }
 
 

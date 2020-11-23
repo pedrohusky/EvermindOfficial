@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="highlight">
+        <item>@color/White</item>
+        <item>@color/YellowSunHighlight</item>
+        <item>@color/OrangeHighlight</item>
+        <item>@color/PinkHighlight</item>
+        <item>@color/PurpleHighlight</item>
+        <item>@color/MagentaHighlight</item>
+        <item>@color/SkyBlueHighlight</item>
+        <item>@color/GrassGreenHighlight</item>
+    </array>
+
+    <array name="noteColor">
+        <item>@color/White</item>
+        <item>@color/DarkBlue</item>
+        <item>@color/YellowSun</item>
+        <item>@color/Orange</item>
+        <item>@color/Magenta</item>
+        <item>@color/Pink</item>
+        <item>@color/SkyBlue</item>
+        <item>@color/GrassGreen</item>
+    </array>
+
+    <array name="foreground">
+        <item>@color/White</item>
+        <item>@color/Black</item>
+        <item>@color/YellowSun</item>
+        <item>@color/Orange</item>
+        <item>@color/Magenta</item>
+        <item>@color/Pink</item>
+        <item>@color/SkyBlue</item>
+        <item>@color/GrassGreen</item>
+    </array>
+</resources>

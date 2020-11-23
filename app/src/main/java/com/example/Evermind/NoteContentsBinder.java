@@ -2,54 +2,37 @@ package com.example.Evermind;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.content.ClipDescription;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
-import android.text.Html;
-import android.text.Spannable;
 import android.text.TextWatcher;
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
-import android.util.TimeUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
-import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
-import com.bumptech.glide.GenericTransitionOptions;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.daimajia.swipe.SwipeLayout;
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
-import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTEditable;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
-import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTText;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
 import com.example.Evermind.recycler_models.EverLinkedMap;
-import com.koushikdutta.async.future.SuccessCallback;
 import com.koushikdutta.ion.Ion;
 
 import java.io.File;
@@ -59,17 +42,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
-import java.sql.Time;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jp.wasabeef.richeditor.RichEditor;
 import mva2.adapter.ItemBinder;
 import mva2.adapter.ItemViewHolder;
 
@@ -267,7 +245,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (!action) {
                         ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
-                        int color = ((MainActivity)context).defaultToolbarColor;
+                        int color = ((MainActivity)context).defaultColor;
                         anim.addUpdateListener(animation -> {
                             // Use animation position to blend colors.
                             float position = animation.getAnimatedFraction();
@@ -580,7 +558,6 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                         .animateLoad(R.anim.grid_new_item_anim)
                         .animateIn(R.anim.grid_new_item_anim)
                         .load(draw);
-
 
 
             } else {

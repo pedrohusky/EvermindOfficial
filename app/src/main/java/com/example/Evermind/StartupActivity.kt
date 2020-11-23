@@ -1,5 +1,6 @@
 package com.example.Evermind
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
@@ -14,8 +15,10 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.core.app.ActivityOptionsCompat
 import kotlinx.android.synthetic.main.startup_activity.*
-import java.util.*
+
 
 class StartupActivity : AppCompatActivity() {
 
@@ -28,12 +31,13 @@ class StartupActivity : AppCompatActivity() {
     private var colors = java.util.ArrayList<String>()
     private val noteModels = java.util.ArrayList<Note_Model>()
 
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.startup_activity)
 
-        val everDataBase: EverDataBase = EverDataBase(this)
+        val everDataBase = EverDataBase(this)
 
         fun setWindowFlag(bits: Int, on: Boolean) {
                 val win = window
@@ -49,17 +53,13 @@ class StartupActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT in 19..20) {
                 setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, true)
             }
-            if (Build.VERSION.SDK_INT >= 19) {
-                window.decorView.systemUiVisibility =
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            }
-            if (Build.VERSION.SDK_INT >= 21) {
-                setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
-                window.statusBarColor = Color.TRANSPARENT
-                //window.navigationBarColor = Color.TRANSPARENT //DONT KNOW IF IT WORKS
-            }
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
+        window.statusBarColor = Color.TRANSPARENT
+        //window.navigationBarColor = Color.TRANSPARENT //DONT KNOW IF IT WORKS
 
-            /////ABOVE SET STATUS BAR TRANSPARENT
+        /////ABOVE SET STATUS BAR TRANSPARENT
 
             val animationDrawable = background.background as AnimationDrawable
             animationDrawable.setEnterFadeDuration(20)
@@ -67,129 +67,106 @@ class StartupActivity : AppCompatActivity() {
             animationDrawable.start()
 
             val startButton = findViewById<Button>(R.id.startButton)
-            val circle1 = findViewById<ImageView>(R.id.Circle)
-            val circle2 = findViewById<ImageView>(R.id.Circle2)
-            val circle3 = findViewById<ImageView>(R.id.Circle3)
-            val circle4 = findViewById<ImageView>(R.id.Circle4)
-            val circle5 = findViewById<ImageView>(R.id.Circle5)
 
-            val fadein = AnimationUtils.loadAnimation(this, R.anim.fade_in)
-            val fadeInButton = AnimationUtils.loadAnimation(this, R.anim.fade_in_elephant)
+        val intentToStart = Intent(applicationContext, MainActivity::class.java)
 
-            EvermindBlack.startAnimation(fadein)
-            startButton.startAnimation(fadeInButton)
+        startButton.setOnTouchListener { v, event ->
+            when (event?.action) {
+                MotionEvent.ACTION_DOWN -> findViewById<MotionLayout>(R.id.background).setTransitionListener(
+                    object : MotionLayout.TransitionListener {
+                        override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
+                            noteModels.clear()
 
-            val buttonAnim = AnimationUtils.loadAnimation(this, R.anim.button_press)
+                            everDataBase.getAllContentsFromAllNotes()
 
-            val fade = AnimationUtils.loadAnimation(this, R.anim.fade_title)
+                            ids = everDataBase.idFromDatabase
 
-            val fadebutton = AnimationUtils.loadAnimation(this, R.anim.fade_out_button)
+                            notes = everDataBase.contentsFromDatabase
 
-            val focusedButton = AnimationUtils.loadAnimation(this, R.anim.button_focused)
+                            titles = everDataBase.titlesFromDatabase
 
-            val scaleup = AnimationUtils.loadAnimation(this, R.anim.scaleup)
-            val scaleup2 = AnimationUtils.loadAnimation(this, R.anim.scaleup2)
-            val scaleup3 = AnimationUtils.loadAnimation(this, R.anim.scaleup3)
-            val scaleup4 = AnimationUtils.loadAnimation(this, R.anim.scaleup4)
-            val scaleup5 = AnimationUtils.loadAnimation(this, R.anim.scaleup5)
+                            dates = everDataBase.dateFromDatabase
+
+                            imageURL = everDataBase.imageURLFromDatabase
+
+                            draws = everDataBase.drawLocationFromDatabase
+
+                            colors = everDataBase.noteColorsFromDatabase
+
+                            for (i in ids.indices) {
+                                //this is for clean the database when theres notes with nothing in it
+                                if (notes[i] == "┼" && draws[i] == "" && imageURL[i] == "") {
+                                    everDataBase.deleteNote(ids[i])
+                                } else if (notes[i] == "┼┼" && draws[i] == "" && imageURL[i] == "") {
+                                    everDataBase.deleteNote(ids[i])
+                                } else if (notes[i] == "" && draws[i] == "" && imageURL[i] == "") {
+                                    everDataBase.deleteNote(ids[i])
+                                }
+                                //after clean, then add the notes
+                                else {
+                                    noteModels.add(
+                                        Note_Model(
+                                            ids[i],
+                                            i,
+                                            titles[i],
+                                            notes[i],
+                                            dates[i],
+                                            imageURL[i],
+                                            draws[i],
+                                            colors[i]
+                                        )
+                                    )
+                                }
+                            }
 
 
+                            //and sort them to make the last become the first
+                            noteModels.sortWith { obj1: Note_Model, obj2: Note_Model ->
+                                obj2.id.compareTo(obj1.id)
+                            }
+                            for ((p, i) in noteModels.withIndex()) {
+                                i.actualPosition = p
+                            }
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            noteModels.clear()
+                            intentToStart.putExtra("notes", noteModels)
+                        }
 
-            everDataBase.getAllContentsFromAllNotes()
+                        override fun onTransitionChange(
+                            p0: MotionLayout?,
+                            p1: Int,
+                            p2: Int,
+                            p3: Float
+                        ) {
+                        }
 
-            ids = everDataBase.idFromDatabase
+                        override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
+                            startActivity(intentToStart)
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_in)
+                        }
 
-            notes = everDataBase.contentsFromDatabase
-
-            titles = everDataBase.titlesFromDatabase
-
-            dates = everDataBase.dateFromDatabase
-
-            imageURL = everDataBase.imageURLFromDatabase
-
-            draws = everDataBase.drawLocationFromDatabase
-
-            colors = everDataBase.noteColorsFromDatabase
-
-            for (i in ids.indices) {
-                //this is for clean the database when theres notes with nothing in it
-                if (notes[i] == "┼" && draws[i] == "" && imageURL[i] == "") {
-                    everDataBase.deleteNote(ids[i])
-                } else if (notes[i] == "┼┼" && draws[i] == "" && imageURL[i] == "") {
-                    everDataBase.deleteNote(ids[i])
-                } else if (notes[i] == "" && draws[i] == "" && imageURL[i] == "") {
-                    everDataBase.deleteNote(ids[i])
-                }
-                 //after clean, then add the notes
-                 else {
-                    noteModels.add(
-                        Note_Model(
-                            ids[i],
-                            i,
-                            titles[i],
-                            notes[i],
-                            dates[i],
-                            imageURL[i],
-                            draws[i],
-                            colors[i]
-                        )
-                    )
-                }
+                        override fun onTransitionTrigger(
+                            p0: MotionLayout?,
+                            p1: Int,
+                            p2: Boolean,
+                            p3: Float
+                        ) {
+                            TODO("Not yet implemented")
+                        }
+                    })//Do Something
             }
 
+            v?.onTouchEvent(event) ?: true
 
-            //and sort them to make the last become the first
-            noteModels.sortWith { obj1: Note_Model, obj2: Note_Model ->
-                obj2.id.compareTo(obj1.id)
-            }
-            for ((p, i) in noteModels.withIndex()) {
-                i.actualPosition = p
-            }
-            val intent = Intent(applicationContext, MainActivity::class.java)
-            intent.putExtra("notes", noteModels)
+        }
+    }
 
-            startActivity(intent)
-        }, 200)
+    override fun onStop() {
+        super.onStop()
+        onTrimMemory(TRIM_MEMORY_UI_HIDDEN)
+    }
 
-            startButton.setOnClickListener {
-
-                Handler(Looper.getMainLooper()).post {
-                    startButton.startAnimation(buttonAnim)
-                    EvermindBlack.startAnimation(fade)
-                    circle1.visibility = View.VISIBLE
-                    circle2.visibility = View.VISIBLE
-                    circle3.visibility = View.VISIBLE
-                    circle4.visibility = View.VISIBLE
-                    circle5.visibility = View.VISIBLE
-                    circle1.startAnimation(scaleup)
-                    circle2.startAnimation(scaleup2)
-                    circle3.startAnimation(scaleup3)
-                    circle4.startAnimation(scaleup4)
-                    circle5.startAnimation(scaleup5)
-                    startButton.startAnimation(fadebutton)
-
-
-
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        circle1.visibility = View.GONE
-                        circle2.visibility = View.GONE
-                        circle3.visibility = View.GONE
-                        circle4.visibility = View.GONE
-                        circle5.visibility = View.GONE
-                    }, 1300)
-                }
-            }
-
-                startButton.setOnTouchListener { v, event ->
-                    when (event?.action) {
-                        MotionEvent.ACTION_DOWN -> startButton.startAnimation(focusedButton)//Do Something
-                    }
-
-                    v?.onTouchEvent(event) ?: true
-
-            }
+    override fun onDestroy() {
+        super.onDestroy()
+        onTrimMemory(TRIM_MEMORY_UI_HIDDEN)
     }
 }

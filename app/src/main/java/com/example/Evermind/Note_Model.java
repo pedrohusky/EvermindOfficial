@@ -7,6 +7,8 @@ import android.os.Parcelable;
 
 import androidx.annotation.RequiresApi;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -14,7 +16,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class Note_Model implements Serializable {
+import mva2.adapter.internal.ItemMetaData;
+
+public class Note_Model extends ItemMetaData implements Serializable {
 
     private int id;
     private int actualPosition;
@@ -28,6 +32,7 @@ public class Note_Model implements Serializable {
     private List<String> draws = new ArrayList<>();
     private List<String> images = new ArrayList<>();
 
+    @NotNull
     @Override
     public String toString() {
         return "Note_Model{" +

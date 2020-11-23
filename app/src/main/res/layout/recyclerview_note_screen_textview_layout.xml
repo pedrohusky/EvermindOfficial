@@ -37,8 +37,8 @@
         <ImageView
             android:id="@+id/recycler_Image"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
             android:background="@color/Transparent"
             android:backgroundTint="@color/Transparent"
             android:foregroundTint="@color/Transparent"

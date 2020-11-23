@@ -267,16 +267,12 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements ImagesRe
         mainActivity.get().seekBarDrawSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                everDraw.get().setStrokeWidth(i);
+                everDraw.get().setStrokeWidth((float) (i*1.1));
 
-                if (mainActivity.get().DrawVisualizerIsShowing) {
-
-                    ModifyDrawSizeVisualizer(i);
-
-                } else {
+                if (!mainActivity.get().DrawVisualizerIsShowing) {
                     ShowDrawSizeVisualizer();
-                    ModifyDrawSizeVisualizer(i);
                 }
+                ModifyDrawSizeVisualizer(i);
             }
 
             @Override
@@ -306,6 +302,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements ImagesRe
 
         if (!actualNote.get().getNoteColor().equals("000000")) {
             mainActivity.get().tintSystemBars(Integer.parseInt(actualNote.get().getNoteColor()), 500);
+            mainActivity.get().metaColorNoteColor = Integer.parseInt(actualNote.get().getNoteColor());
         }
 
         // }).start();
@@ -785,7 +782,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements ImagesRe
         listImages = new ListSection<>();
 
         listImages.addAll(actualNote.get().getImages());
-        System.out.println("aaaaaaaaaaaaaa " + list.size() + "imgs =" + actualNote.get().getImages().toString());
         adapter.addSection(listImages);
         adapter.registerItemBinders(new ImagesBinder(requireActivity(), 0, false));
         recyclerViewImage.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));

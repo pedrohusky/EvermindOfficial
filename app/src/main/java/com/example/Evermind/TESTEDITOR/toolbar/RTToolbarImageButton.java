@@ -18,7 +18,6 @@ package com.example.Evermind.TESTEDITOR.toolbar;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.util.AttributeSet;
 
 import com.example.Evermind.MainActivity;
@@ -62,7 +61,7 @@ public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatIma
                     ((MainActivity)getContext()).tintView(this, getContext().getColor(R.color.SkyBlueHighlight));
                 }
             } else {
-                ((MainActivity)getContext()).tintView(this, ((MainActivity)getContext()).defaultToolbarColor);
+                ((MainActivity)getContext()).tintView(this, ((MainActivity)getContext()).defaultColor);
             }
         }
     }

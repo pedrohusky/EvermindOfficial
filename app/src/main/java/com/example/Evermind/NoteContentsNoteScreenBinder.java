@@ -131,7 +131,7 @@ public class NoteContentsNoteScreenBinder extends ItemBinder<EverLinkedMap, Note
                         .animateLoad(R.anim.grid_new_item_anim)
                         .animateIn(R.anim.grid_new_item_anim)
                         .smartSize(true)
-                        .centerCrop()
+                        .fitXY()
                         .load(draw);
             } else {
                everImage.get().setVisibility(View.GONE);

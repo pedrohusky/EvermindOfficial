@@ -68,6 +68,7 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
         return item instanceof Note_Model;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void bindViewHolder(NoteModelViewHolder holder, Note_Model item) {
         int ID = holder.getItem().getId();
@@ -86,7 +87,7 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
         ViewCompat.setTransitionName(myRecyclerView.get(), "imageRecycler" + ID);
         ViewCompat.setTransitionName(myTitleView.get(), "title" + ID);
 
-        if (holder.isItemSelected()) {
+        if (holder.getItem().isSelected()) {
             mainActivity.get().tintView(myCardView.get(), Color.RED);
         } else {
             if (!holder.getItem().getNoteColor().equals("000000")) {
@@ -117,8 +118,9 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
         changeColor.get().setOnClickListener(v -> ((MainActivity) context).swipeItemsListener(v, holder.getItem()));
         delete.get().setOnClickListener(v -> ((MainActivity) context).swipeItemsListener(v, holder.getItem()));
         view.get().setOnLongClickListener(v -> {
-            holder.toggleItemSelection();
-            if (holder.isItemSelected()) {
+            holder.getItem().setSelected(!holder.getItem().isSelected());
+            if (holder.getItem().isSelected()) {
+                mainActivity.get().selectedItems.add(holder.getItem());
                 mainActivity.get().CloseOrOpenSelectionOptions(false);
                 mainActivity.get().pushed = true;
             } else {
@@ -127,6 +129,7 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
                     mainActivity.get().CloseOrOpenSelectionOptions(true);
                 }
             }
+            mainActivity.get().noteScreen.adapter.get().notifyItemChanged(holder.getAdapterPosition());
             return false;
         });
 
@@ -150,6 +153,10 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
         new Handler(Looper.getMainLooper()).postDelayed(() -> mainActivity.get().noteScreen.StartPostpone(), 25);
 
       //  }
+
+        if (!mainActivity.get().holders.contains(holder)) {
+            mainActivity.get().holders.add(holder);
+        }
 
     }
 
