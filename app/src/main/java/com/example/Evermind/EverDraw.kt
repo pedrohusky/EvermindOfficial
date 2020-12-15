@@ -101,8 +101,7 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
     //TODO TRY TO MAKE A BITMAP FROM THE VIEW!1111111
 
     fun fillColor(color: Int) {
-        mPaintOptions.color = color
-        mPaintOptions.style = Paint.Style.FILL
+      // TODO(make the fill background when needed)
     }
     fun paintType(type: String) {
         when (type) {

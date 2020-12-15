@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android">
-    <fade />
-    <changeClipBounds android:interpolator="@android:interpolator/accelerate_decelerate" android:duration="300"/>
-    <changeTransform android:interpolator="@android:interpolator/accelerate_decelerate" android:duration="300"/>
-    <changeBounds android:interpolator="@android:interpolator/accelerate_decelerate" android:duration="300"/>
-    <changeImageTransform android:interpolator="@android:interpolator/accelerate_decelerate" android:duration="300"/>
+    <fade android:interpolator="@android:interpolator/accelerate_decelerate" />
+    <changeClipBounds android:interpolator="@android:interpolator/accelerate_decelerate" />
+    <changeTransform android:interpolator="@android:interpolator/accelerate_decelerate" />
+    <changeBounds android:interpolator="@android:interpolator/accelerate_decelerate" />
+    <changeImageTransform android:interpolator="@android:interpolator/accelerate_decelerate" />
 </transitionSet>

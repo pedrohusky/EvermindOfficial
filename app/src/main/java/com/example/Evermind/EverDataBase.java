@@ -18,9 +18,10 @@ public class EverDataBase extends SQLiteOpenHelper {
     private static final String NOTE_CONTENT = "Note_content";
     private static final String NOTE_ID = "ID";
     private static final String NOTE_DATE = "Date";
-    private static final String NOTE_BACKGROUND = "Background";
+    private static final String NOTE_DRAW = "Background";
     private static final String NOTE_IMAGEURL = "URL";
     private static final String NOTE_COLOR = "Color";
+    private static final String NOTE_RECORD = "Record";
     private final ArrayList<Integer> ids = new ArrayList<>();
     private final ArrayList<String> titles = new ArrayList<>();
     private final ArrayList<String> contents = new ArrayList<>();
@@ -28,10 +29,7 @@ public class EverDataBase extends SQLiteOpenHelper {
     private final ArrayList<String> dates = new ArrayList<>();
     private final ArrayList<String> images = new ArrayList<>();
     private final ArrayList<String> colors = new ArrayList<>();
-
-
-    EverDataBase mDatabaseEver;
-
+    private final ArrayList<String> records = new ArrayList<>();
 
     public EverDataBase(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -44,7 +42,7 @@ public class EverDataBase extends SQLiteOpenHelper {
 
         // TODO String createTable = "CREATE TABLE " + TABLE_NOTES + " (" + NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NOTE_TITLE + " TEXT, " + NOTE_CONTENT + " TEXT, " + NOTE_DATE + " TEXT)";
 
-        String createTable = "CREATE TABLE " + TABLE_NOTES + " (" + NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NOTE_TITLE + " TEXT, " + NOTE_CONTENT + " TEXT, " + NOTE_DATE + " TEXT, " + NOTE_IMAGEURL + " TEXT, " + NOTE_BACKGROUND + " TEXT, " + NOTE_COLOR + " TEXT)";
+        String createTable = "CREATE TABLE " + TABLE_NOTES + " (" + NOTE_ID + " TEXT, " + NOTE_TITLE + " TEXT, " + NOTE_CONTENT + " TEXT, " + NOTE_DATE + " TEXT, " + NOTE_IMAGEURL + " TEXT, " + NOTE_DRAW + " TEXT, " + NOTE_COLOR + " TEXT, " + NOTE_RECORD + " TEXT)";
 
         db.execSQL(createTable);
 
@@ -62,20 +60,19 @@ public class EverDataBase extends SQLiteOpenHelper {
     }
 
 
-    public boolean AddNoteContent(String title, String content) {
+    public void AddNoteContent(int ID, String title, String content, String images, String draws, String color, String record) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(NOTE_CONTENT, content);
+        contentValues.put(NOTE_ID, ID);
         contentValues.put(NOTE_TITLE, title);
-        contentValues.put(NOTE_IMAGEURL, "");
-        contentValues.put(NOTE_BACKGROUND, "");
-        contentValues.put(NOTE_COLOR, "000000");
-        Date currentTime = Calendar.getInstance().getTime();
-        contentValues.put(NOTE_DATE, currentTime.toString());
+        contentValues.put(NOTE_IMAGEURL, images);
+        contentValues.put(NOTE_DRAW, draws);
+        contentValues.put(NOTE_COLOR, color);
+        contentValues.put(NOTE_RECORD, record);
+        contentValues.put(NOTE_DATE, Calendar.getInstance().getTime().toString());
 
         sqLiteDatabase.insert(TABLE_NOTES, null, contentValues);
-
-        return true;
     }
 
     public void getAllContentsFromAllNotes() {
@@ -91,6 +88,7 @@ public class EverDataBase extends SQLiteOpenHelper {
         images.clear();
         draws.clear();
         colors.clear();
+        records.clear();
         if (cursor.moveToFirst()) {
             do {
                 ids.add(cursor.getInt(0));
@@ -100,6 +98,7 @@ public class EverDataBase extends SQLiteOpenHelper {
                 images.add(cursor.getString(4));
                 draws.add(cursor.getString(5));
                 colors.add(cursor.getString(6));
+                records.add(cursor.getString(7));
             }
 
             while (cursor.moveToNext());
@@ -136,6 +135,10 @@ public class EverDataBase extends SQLiteOpenHelper {
 
     public ArrayList<String> getNoteColorsFromDatabase() {
         return colors;
+    }
+
+    public ArrayList<String> getRecordsFromDatabase() {
+        return records;
     }
 
     public String getDateFromDatabaseWithID(Integer ID) {
@@ -266,15 +269,16 @@ public class EverDataBase extends SQLiteOpenHelper {
             }
     }
 
-    public void setNoteModel(String id, String title, String content, String draws, String images, String color) {
+    public void setNoteModel(String id, String title, String content, String draws, String images, String color, String record) {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(NOTE_TITLE, title);
         contentValues.put(NOTE_CONTENT, content);
-        contentValues.put(NOTE_BACKGROUND, draws);
+        contentValues.put(NOTE_DRAW, draws);
         contentValues.put(NOTE_IMAGEURL, images);
         contentValues.put(NOTE_COLOR, color);
+        contentValues.put(NOTE_RECORD, record);
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
@@ -339,7 +343,7 @@ public class EverDataBase extends SQLiteOpenHelper {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_BACKGROUND, draws);
+        contentValues.put(NOTE_DRAW, draws);
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
@@ -378,7 +382,7 @@ public class EverDataBase extends SQLiteOpenHelper {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_BACKGROUND, oldURL + newURL  + "┼");
+        contentValues.put(NOTE_DRAW, oldURL + newURL  + "┼");
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
         System.out.println("Added = " + oldURL + newURL  + "┼");

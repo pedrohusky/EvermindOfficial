@@ -30,6 +30,7 @@ class StartupActivity : AppCompatActivity() {
     private var draws = java.util.ArrayList<String>()
     private var colors = java.util.ArrayList<String>()
     private val noteModels = java.util.ArrayList<Note_Model>()
+    private var record = java.util.ArrayList<String>()
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -93,6 +94,8 @@ class StartupActivity : AppCompatActivity() {
 
                             colors = everDataBase.noteColorsFromDatabase
 
+                            record = everDataBase.recordsFromDatabase
+
                             for (i in ids.indices) {
                                 //this is for clean the database when theres notes with nothing in it
                                 if (notes[i] == "┼" && draws[i] == "" && imageURL[i] == "") {
@@ -104,18 +107,17 @@ class StartupActivity : AppCompatActivity() {
                                 }
                                 //after clean, then add the notes
                                 else {
-                                    noteModels.add(
-                                        Note_Model(
-                                            ids[i],
-                                            i,
-                                            titles[i],
-                                            notes[i],
-                                            dates[i],
-                                            imageURL[i],
-                                            draws[i],
-                                            colors[i]
-                                        )
-                                    )
+                                    noteModels.add(Note_Model(
+                                        ids[i],
+                                        i,
+                                        titles[i],
+                                        notes[i],
+                                        dates[i],
+                                        imageURL[i],
+                                        draws[i],
+                                        colors[i],
+                                        record[i]
+                                    ))
                                 }
                             }
 

@@ -21,6 +21,7 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.core.view.isVisible
 import no.danielzeller.compbat.CompBatMBLayout
 import no.danielzeller.metaballslib.menu.DecreasedTouchImageView
 import no.danielzeller.metaballslib.menu.EmptyAdapter
@@ -135,7 +136,7 @@ abstract class EverCircularMenu : CompBatMBLayout {
 
  public fun init(changeNoteColor: Boolean, highlight: Boolean, color: Int) {
      menuButton?.background?.setTint(color)
-     (context as MainActivity).metaColors.visibility = VISIBLE
+     (context as MainActivity).everBallsHelper.metaColors.visibility = VISIBLE
           toggleMenu(changeNoteColor, highlight)
  }
     /**
@@ -469,7 +470,7 @@ abstract class EverCircularMenu : CompBatMBLayout {
                    // (context as MainActivity).blur.startBlur()
                 }
                 Handler(Looper.getMainLooper()).postDelayed({
-                    (context as MainActivity).metaColors.visibility = GONE
+                    (context as MainActivity).everBallsHelper.metaColors.visibility = GONE
                     (context as MainActivity).blur.visibility = GONE
                     (context as MainActivity).blur.pauseBlur()
                 }, 700)

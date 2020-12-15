@@ -320,7 +320,7 @@ public class ConverterSpannedToHtml {
             mOut.append("<font style=\"font-size:");
             int size = ((AbsoluteSizeSpan) style).getSize();
             size = Helper.convertSpToPx(size);
-            mOut.append((char) size);
+            mOut.append(String.valueOf(size));
             mOut.append("px\">");
         } else if (style instanceof ForegroundColorSpan) {
             mOut.append("<font style=\"color:#");

@@ -1,26 +1,30 @@
 package com.example.Evermind.ui.note_screen;
 
-import android.os.Build;
+import android.animation.ValueAnimator;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.example.Evermind.EvershootInterpolator;
 import com.example.Evermind.MainActivity;
+import com.example.Evermind.NoteModelBinder;
 import com.example.Evermind.R;
-import com.example.Evermind.RecyclerGridAdapterNoteScreen;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,8 +42,9 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
     public static int toPosition;
     public WeakReference<MultiViewAdapter> adapter;
     private WeakReference<RecyclerView> recyclerView;
-    private int count;
     private  View rootView;
+    private boolean hasInitialized = false;
+    private int rootSize;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -47,17 +52,15 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
 
         rootView = inflater.inflate(R.layout.home_screen_notes, container, false);
         postponeEnterTransition();
-        setSharedElementEnterTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
-        setSharedElementReturnTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
-        init();
+       // setSharedElementEnterTransition(TransitionInflater.from(requireActivity()).inflateTransition(new ));
+        //setSharedElementReturnTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
+        if (!hasInitialized) new Handler(Looper.getMainLooper()).post(this::init);
         return rootView;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-
     }
 
     @Override
@@ -78,7 +81,9 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
     public void init() {
         WeakReference<MainActivity> mainActivity = new WeakReference<>(((MainActivity) requireActivity()));
 
-        if (mainActivity.get().isGrid) {
+        hasInitialized = true;
+        int count;
+        if (mainActivity.get().everNoteManagement.isGrid) {
             count = 2;
         } else {
             count = 1;
@@ -87,21 +92,21 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
         recyclerView = new WeakReference<>(rootView.findViewById(R.id.notesRecycler));
 
         recyclerView.get().setLayoutManager(staggeredGridLayoutManager);
-        adapter = ((MainActivity)requireActivity()).adapter;
+        adapter = mainActivity.get().adapter;
         adapter.get().setSelectionMode(Mode.MULTIPLE);
-        recyclerView.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
+        recyclerView.get().setItemAnimator(new LandingAnimator(new AccelerateDecelerateInterpolator()));
         recyclerView.get().setAdapter(new AlphaInAnimationAdapter(adapter.get()));
 
         OverScrollDecoratorHelper.setUpOverScroll(recyclerView.get(), OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
-        ((MainActivity)requireActivity()).recyclertest = recyclerView;
-        recyclerView.get().scrollToPosition(((MainActivity)requireActivity()).selectedPosition);
-        ((MainActivity)requireActivity()).selectedPosition = -1;
+        ((MainActivity)requireActivity()).everNoteManagement.noteScreenRecycler = recyclerView;
+        recyclerView.get().scrollToPosition(mainActivity.get().everNoteManagement.selectedPosition);
+        ((MainActivity)requireActivity()).everNoteManagement.selectedPosition = -1;
 
         recyclerView.get().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
 
             @Override
             public boolean onPreDraw() {
-                if (mainActivity.get().noteModelSection.size() == 0) { StartPostpone(); }
+                if (mainActivity.get().everNoteManagement.noteModelSection.size() == 0) { StartPostpone(); }
                 recyclerView.get().getViewTreeObserver().removeOnPreDrawListener(this);
                 return true;
             }
@@ -142,6 +147,12 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
 
         //  ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         //  itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    public void minimize() {
+    }
+
+    public void maximize() {
     }
 }
 

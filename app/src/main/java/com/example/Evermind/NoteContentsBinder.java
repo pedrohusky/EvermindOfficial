@@ -3,9 +3,9 @@ package com.example.Evermind;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageButton;
@@ -26,14 +27,22 @@ import android.widget.ImageView;
 
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
-import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
+import androidx.core.content.ContextCompat;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.example.Evermind.EverAudioVisualizerHandlers.CloseAudioVisualizationHelper;
+import com.example.Evermind.EverAudioVisualizerHandlers.EverDbmHandler;
+import com.example.Evermind.EverAudioVisualizerHandlers.EverGLAudioVisualizationView;
+import com.example.Evermind.EverAudioVisualizerHandlers.EverVisualizerDbmHandler;
+import com.example.Evermind.EverAudioVisualizerHandlers.EverVisualizerHandler;
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
 import com.example.Evermind.recycler_models.EverLinkedMap;
 import com.koushikdutta.ion.Ion;
+import com.masoudss.lib.Utils;
+import com.masoudss.lib.WaveGravity;
+import com.thekhaeng.pushdownanim.PushDownAnim;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,12 +53,12 @@ import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import cafe.adriel.androidaudiorecorder.Util;
 import mva2.adapter.ItemBinder;
 import mva2.adapter.ItemViewHolder;
+import omrecorder.AudioChunk;
+import omrecorder.PullTransport;
 
 import static com.example.Evermind.TESTEDITOR.rteditor.media.crop.RotateBitmap.TAG;
 
@@ -57,10 +66,8 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
     private final ArrayList<String> array = new ArrayList<>();
     private final Context context;
-    private int Size;
     public int SelectedDrawPosition;
     private WeakReference<RTEditText> ActiveEditor;
-    private int ActiveEditorPosition;
     private List<EverLinkedMap> arrayToAdd;
     private int FinalYHeight;
     private WeakReference<RTEditText> everEditor;
@@ -68,9 +75,6 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
     private WeakReference<CardView> cardDrawRecycler;
     private WeakReference<CardView> cardEditorRecycler;
     private WeakReference<SwipeLayout> swipe;
-    private WeakReference<EverDraw> draws;
-    private boolean action = false;
-    private final int h = 0;
     private int old;
     private int newline;
 
@@ -97,23 +101,21 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
         swipe = new WeakReference<>(holder.itemView.findViewById(R.id.testSwipe));
         everEditor = new WeakReference<>(holder.itemView.findViewById(R.id.evermindEditor));
         everEditor.get().setPaddingRelative(8, 8, 8, 8);
-      //  everEditor.get().setSpannableFactory(new Spannable.Factory(){
-      //      @Override
-       //    public Spannable newSpannable(CharSequence source) {
-     //           return (Spannable) source;
-     //       }
-       // });
-
+        swipe = new WeakReference<>(holder.itemView.findViewById(R.id.testSwipe));
 
         ((MainActivity) context).registerEditor(everEditor.get(), true);
         holder.setContentHTML(everMap.getContent());
-                holder.setDrawContent(everMap.getDrawLocation());
+        holder.setDrawContent(everMap.getDrawLocation());
+        holder.setAudio(everMap.getRecord());
+
         swipe.get().setShowMode(SwipeLayout.ShowMode.PullOut);
         swipe.get().setClickToClose(true);
-        //if (holder.getAdapterPosition() == holder.cou) {
-            new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).noteCreator.get().startPostponeTransition(), 25);
 
 
+
+        if (holder.getAdapterPosition() == ((MainActivity)context).actualNote.get().everLinkedContents.size()-1) {
+            ((MainActivity) context).noteCreator.get().startPostponeTransition();
+        }
     }
 
     @Override
@@ -121,178 +123,58 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
         return super.getSpanSize(1);
     }
 
-    private String replaceRGBColorsWithHex(String html) {
-        // using regular expression to find all occurences of rgb(a,b,c) using
-        // capturing groups to get separate numbers.
-
-        Pattern p = Pattern.compile("(rgb\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\))");
-        Matcher m = p.matcher(html);
-
-        while (m.find()) {
-            // get whole matched rgb(a,b,c) text
-            String foundRGBColor = m.group(1);
-            //  System.out.println("Found: " + foundRGBColor);
-
-            // get r value
-            String rString = m.group(2);
-            // get g value
-            String gString = m.group(3);
-            // get b value
-            String bString = m.group(4);
-
-            //  System.out.println(" separated r value: " + rString);
-            //   System.out.println(" separated g value: " + gString);
-            //   System.out.println(" separated b value: " + bString);
-
-            // converting numbers from string to int
-            int rInt = Integer.parseInt(Objects.requireNonNull(rString));
-            int gInt = Integer.parseInt(Objects.requireNonNull(gString));
-            int bInt = Integer.parseInt(Objects.requireNonNull(bString));
-
-            // converting int to hex value
-            String rHex = Integer.toHexString(rInt);
-            String gHex = Integer.toHexString(gInt);
-            String bHex = Integer.toHexString(bInt);
-
-            // add leading zero if number is small to avoid converting
-            // rgb(1,2,3) to rgb(#123)
-            String rHexFormatted = String.format("%2s", rHex).replace(" ", "0");
-            String gHexFormatted = String.format("%2s", gHex).replace(" ", "0");
-            String bHexFormatted = String.format("%2s", bHex).replace(" ", "0");
-
-            //   System.out.println(" converted " + rString + " to hex: " + rHexFormatted);
-            //  System.out.println(" converted " + gString + " to hex: " + gHexFormatted);
-            //   System.out.println(" converted " + bString + " to hex:" + bHexFormatted);
-
-            // concatenate new color in hex
-            String hexColorString = "#" + rHexFormatted + gHexFormatted + bHexFormatted;
-
-            if (foundRGBColor != null) {
-                html = html.replaceAll(Pattern.quote(foundRGBColor), hexColorString);
-            }
-        }
-        return html;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void updateContents() {
-         new Thread(() -> {
-             new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            array.clear();
-            arrayToAdd = ((MainActivity) context).noteCreator.get().list.getData();
-            for (EverLinkedMap strg : arrayToAdd) {
-                    if (strg.getContent().endsWith("┼")) {
-                        array.add(strg.getContent());
-                    } else {
-                        array.add(strg.getContent() + "┼");
-                    }
-            }
-            //   arrayToAdd = null;
-            String text = "";
-            if (ActiveEditor != null) {
-                if (ActiveEditor.get() != null) {
-                    text = ActiveEditor.get().getText(RTFormat.HTML);
-                    if (ActiveEditorPosition > array.size()) {
-                        array.add(text + "┼");
-                    } else {
-                        if (text.endsWith("<br>")) {
-                            array.set(ActiveEditorPosition, text.substring(0, text.length() - 4) + "┼");
-                        } else {
-                            array.set(ActiveEditorPosition, text + "┼");
-                        }
-                    }
 
 
-                     String textFromEditor = String.join("", array);
-                    ((MainActivity) context).noteCreator.get().actualNote.get().setContent(textFromEditor);
-                    ((MainActivity) context).noteCreator.get().list.get(ActiveEditorPosition).setContent(ActiveEditor.get().getText(RTFormat.HTML));
+    class NoteCreatorHolder extends ItemViewHolder<EverLinkedMap> implements View.OnClickListener, View.OnLongClickListener, PullTransport.OnAudioChunkPulledListener, CloseAudioVisualizationHelper.OnOpenAudioStateListener, CloseAudioVisualizationHelper.OnChangeColorListener {
 
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    //TODO MBAYBE WE CCAN REMOVE REPLACE RGB COLOR WIT HEXT BECAUSE ITS NOT FUNCTIONAL ANYMORE replaceRGBColorsWithHex(joined_arrayString)
-                    ((MainActivity) context).updateNote(((MainActivity) context).noteCreator.get().actualNote.get().getActualPosition(), ((MainActivity) context).noteCreator.get().actualNote.get());
-                    }, 2000);
-                }
-            }
-             }, 150);
-
-           }).start();
-    }
-
-    class NoteCreatorHolder extends ItemViewHolder<EverLinkedMap> implements View.OnClickListener, View.OnLongClickListener {
-
+        private EverVisualizerHandler visualizerHandler;
+        private EverVisualizerDbmHandler mini_visualizerHandler;
+        private MediaPlayer mediaPlayer;
+        private EverWave waveSeek;
+        private ImageButton playAudio;
+        private boolean isPlaying = false;
+        private boolean prepared = false;
+       private ValueAnimator va;
+        private int ActiveEditorPosition;
+        private int imageDecoySize;
+        private String audioPath;
         @RequiresApi(api = Build.VERSION_CODES.M)
         @SuppressLint("ClickableViewAccessibility")
         public NoteCreatorHolder(View itemView) {
             super(itemView);
             everEditor = new WeakReference<>(itemView.findViewById(R.id.evermindEditor));
             everDrawImage = new WeakReference<>(itemView.findViewById(R.id.recycler_imageView));
-        //    editorDecoy = itemView.findViewById(R.id.editorDecoy);
             cardDrawRecycler = new WeakReference<>(itemView.findViewById(R.id.cardDrawRecycler));
             cardEditorRecycler = new WeakReference<>(itemView.findViewById(R.id.cardEditorRecycler));
             swipe = new WeakReference<>(itemView.findViewById(R.id.testSwipe));
             ImageButton delete = itemView.findViewById(R.id.deleteFromRecycler);
+            playAudio = itemView.findViewById(R.id.AudioViewButton);
             everEditor.get().setTextSize(22);
-         //   editorDecoy.setVisibility(View.GONE);
 
 
-            delete.setOnClickListener(v -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            delete.setOnClickListener(v ->
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    ((MainActivity)context).noteCreator.get().onLongPress(v, getAdapterPosition());
+                    ((MainActivity)context).noteCreator.get().everCreatorHelper.onLongPress(getAdapterPosition());
                 }
-            }, 350));
+            }, 150));
 
-            delete.setOnTouchListener((v, event) -> {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (!action) {
-                        ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
-                        int color = ((MainActivity)context).defaultColor;
-                        anim.addUpdateListener(animation -> {
-                            // Use animation position to blend colors.
-                            float position = animation.getAnimatedFraction();
+            playAudio.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                        //  String record = ((MainActivity)context).noteCreator.get().everCreatorHelper.list.get(holder.getAdapterPosition()).getRecord();
+                        if (prepared) {
+                            toggleAudio(mediaPlayer);
+                        } else {
 
-                            // Apply blended color to the status bar.
-
-                            int blended = ((MainActivity)context).blendColors(color, context.getColor(R.color.Magenta), position);
-
-                            // Apply blended color to the ActionBar.
-                            //   blended = blendColors(toolbarColor, toolbarToColor, position);
-                            //  ColorDrawable background = new ColorDrawable(blended);
-                            //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
-                            itemView.findViewById(R.id.deleteFromRecycler).setBackgroundTintList(ColorStateList.valueOf(blended));
-                        });
-                        anim.setInterpolator(new LinearOutSlowInInterpolator());
-                        anim.setDuration(250).start();
-                        action = true;
+                            mediaPlayer.prepareAsync();
+                        }
                     }
-                }
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
-                    anim.addUpdateListener(animation -> {
-                        // Use animation position to blend colors.
-                        float position = animation.getAnimatedFraction();
-
-                        // Apply blended color to the status bar.
-
-                        int blended = ((MainActivity)context).blendColors(context.getColor(R.color.Magenta), context.getColor(R.color.GrassGreen), position);
-
-                        // Apply blended color to the ActionBar.
-                        //   blended = blendColors(toolbarColor, toolbarToColor, position);
-                        //  ColorDrawable background = new ColorDrawable(blended);
-                        //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
-                        itemView.findViewById(R.id.deleteFromRecycler).setBackgroundTintList(ColorStateList.valueOf(blended));
-                    });
-                    anim.setInterpolator(new LinearOutSlowInInterpolator());
-                    anim.setDuration(250).start();
-                    action = false;
-                }
-                ((MainActivity)context).pushDownOnTouch(v, event, 0.7f, 50);
-                return false;
             });
 
-            everDrawImage.get().setOnTouchListener((v, event) -> {
-                ((MainActivity)context).pushDownOnTouch(itemView.findViewById(R.id.cardDrawRecycler), event, 0.85f, 50);
-                return false;
-            });
+            PushDownAnim.setPushDownAnimTo(delete).setScale(PushDownAnim.MODE_SCALE, 0.7f);
+            PushDownAnim.setPushDownAnimTo(playAudio).setScale(PushDownAnim.MODE_SCALE, 0.7f);
+            PushDownAnim.setPushDownAnimTo(everDrawImage.get()).setScale(PushDownAnim.MODE_SCALE, 0.7f);
 
 
             everDrawImage.get().setOnClickListener(this);
@@ -301,20 +183,20 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
             itemView.findViewById(R.id.everDraw).setOnTouchListener((view, motionEvent) -> {
                 EverDraw e = itemView.findViewById(R.id.everDraw);
                 cardDrawRecycler = new WeakReference<>(itemView.findViewById(R.id.cardDrawRecycler));
-                ((MainActivity) context).noteCreator.get().textanddrawRecyclerView.get().suppressLayout(true);
+                ((MainActivity) context).noteCreator.get().everCreatorHelper.textDrawRecycler.get().suppressLayout(true);
                 ((SwipeLayout)itemView.findViewById(R.id.testSwipe)).setSwipeEnabled(false);
 
                 int y = (int) motionEvent.getY();
 
                 if (y >= FinalYHeight) {
                     FinalYHeight = y;
-                    ((MainActivity) context).noteCreator.get().FinalYHeight = y;
+                    ((MainActivity) context).noteCreator.get().everCreatorHelper.FinalYHeight = y;
                 }
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
 
                     if (y >= e.getHeight() - 75) {
-                        ((MainActivity) context).noteCreator.get().textanddrawRecyclerView.get().suppressLayout(false);
+                        ((MainActivity) context).noteCreator.get().everCreatorHelper.textDrawRecycler.get().suppressLayout(false);
                         TransitionManager.beginDelayedTransition(((MainActivity) context).cardNoteCreator.get(), new TransitionSet()
                                 .addTransition(new ChangeBounds()));
                         System.out.println(y);
@@ -332,7 +214,7 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
                             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                                 ((SwipeLayout)itemView.findViewById(R.id.testSwipe)).setSwipeEnabled(true);
-                                ((MainActivity) context).noteCreator.get().textanddrawRecyclerView.get().suppressLayout(true);
+                                ((MainActivity) context).noteCreator.get().everCreatorHelper.textDrawRecycler.get().suppressLayout(true);
                             }, 150);
 
                         return false;
@@ -346,34 +228,21 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                 }
                 return false;
             });
-
-
-            itemView.setOnLongClickListener(view -> {
-                int p = getLayoutPosition();
-
-                System.out.println(p);
-
-                return true;// returning true instead of false, works for me
-            });
-            //TODO IMPORTANT CODE \/ \/ \/ \/ \/
-
-            // everEditor.setOnClickListener(this);
-
         }
 
         @RequiresApi(api = Build.VERSION_CODES.O)
         void setContentHTML(String contentHTML) {
             everEditor = new WeakReference<>(itemView.findViewById(R.id.evermindEditor));
             cardEditorRecycler = new WeakReference<>(itemView.findViewById(R.id.cardEditorRecycler));
-            Size =((MainActivity)context).noteCreator.get().list.size();
+            int size = ((MainActivity) context).noteCreator.get().everCreatorHelper.everLinkedContents.size();
             if (contentHTML.equals("▓")) {
                 cardEditorRecycler.get().setVisibility(View.GONE);
                 everEditor.get().setVisibility(View.GONE);
                 System.out.println("Position = " + getLayoutPosition() + " GONE1" + "content os =" + contentHTML);
-            } else if (contentHTML.equals("") && getLayoutPosition() != Size-1) {
+            } else if (contentHTML.equals("") && getLayoutPosition() != size -1) {
                 cardEditorRecycler.get().setVisibility(View.GONE);
                 everEditor.get().setVisibility(View.GONE);
-                System.out.println("Position = " + getLayoutPosition() + " GONE2  " + Size);
+                System.out.println("Position = " + getLayoutPosition() + " GONE2  " + size);
 
             }else {
 
@@ -381,8 +250,8 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                 everEditor.get().setRichTextEditing(true, contentHTML);
                everEditor.get().setVisibility(View.VISIBLE);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    ((MainActivity)context).noteCreator.get().cardWidth = cardEditorRecycler.get().getWidth();
-                    ((MainActivity)context).noteCreator.get().cardHeight = cardEditorRecycler.get().getHeight();
+                    ((MainActivity)context).noteCreator.get().everCreatorHelper.cardWidth = cardEditorRecycler.get().getWidth();
+                    ((MainActivity)context).noteCreator.get().everCreatorHelper.cardHeight = cardEditorRecycler.get().getHeight();
                 }, 50);
 
             }
@@ -421,7 +290,9 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
 
                         @Override
                         public void remove() {
-                            richContentFile.delete();
+                            if (richContentFile.delete()) {
+                                System.out.println("IMAGE FROM KEYBOARD DELETED!");
+                            }
                         }
 
                         @Override
@@ -442,19 +313,15 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                     }
                 });
 
-
-
-
-
             everEditor.get().setOnFocusChangeListener((view, b) -> {
                 everEditor = new WeakReference<>(itemView.findViewById(R.id.evermindEditor));
                 ActiveEditor = everEditor;
-                ((MainActivity)context).metaColorForeGroundColor = context.getColor(R.color.White);
-                ((MainActivity)context).metaColorHighlightColor = context.getColor(R.color.White);
+                ((MainActivity)context).everBallsHelper.metaColorForeGroundColor = context.getColor(R.color.White);
+                ((MainActivity)context).everBallsHelper.metaColorHighlightColor = context.getColor(R.color.White);
 
                 ((MainActivity) context).registerEditor(everEditor.get(), true);
-                ((MainActivity) context).noteCreator.get().activeEditor = ActiveEditor;
-                ((MainActivity) context).noteCreator.get().activeEditorPosition = getLayoutPosition();
+                ((MainActivity) context).noteCreator.get().everCreatorHelper.activeEditor = ActiveEditor;
+                ((MainActivity) context).noteCreator.get().everCreatorHelper.activeEditorPosition = getLayoutPosition();
                 ActiveEditorPosition = getLayoutPosition();
                 ((MainActivity) context).OnFocusChangeEditor(b);
             });
@@ -464,10 +331,10 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
               //      if (getLayoutPosition() == Size-1 ) {
                        ///////////////////////////// ((MainActivity)context).beginDelayedTransition(((MainActivity)context).findViewById(R.id.card_note_creator));
                 //        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                            //   if (!((MainActivity) context).noteCreator.get().hasImages) {
+                            //   if (!((MainActivity) context).noteCreator.get().everCreatorHelper.hasImages) {
 
                    //         Toast.makeText(context, "p = " + getLayoutPosition(), Toast.LENGTH_SHORT).show();
-                    //        ((MainActivity) context).noteCreator.get().startPostponeTransition();
+                    //        ((MainActivity) context).noteCreator.get().everCreatorHelper.startPostponeTransition();
                             //   }
 
 
@@ -497,21 +364,14 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
                     @Override
                     public void afterTextChanged(Editable s) {
                         newline = everEditor.get().getCurrentCursorLine();
-                        System.out.println("aa = " + newline + "uu = " + old);
                         if (newline > old) {
-                            ((MainActivity)context).beginDelayedTransition(((MainActivity)context).noteCreator.get().cardView.get());
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                ((MainActivity)context).noteCreator.get().scrollView.get().smoothScrollBy(0, everEditor.get().getLineHeight()+20);
-
-                            }, 5);
+                        //    ((MainActivity)context).beginDelayedTransition(((MainActivity)context).noteCreator.get().everCreatorHelper.cardView.get());
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity)context).noteCreator.get().everCreatorHelper.scrollView.get().smoothScrollBy(0, everEditor.get().getLineHeight()+20), 5);
                         } else if (newline < old){
-                            ((MainActivity)context).beginDelayedTransition(((MainActivity)context).noteCreator.get().cardView.get());
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                ((MainActivity)context).noteCreator.get().scrollView.get().smoothScrollBy(0, -everEditor.get().getLineHeight()+20);
-
-                            }, 5);
+                        //    ((MainActivity)context).beginDelayedTransition(((MainActivity)context).noteCreator.get().everCreatorHelper.cardView.get());
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity)context).noteCreator.get().everCreatorHelper.scrollView.get().smoothScrollBy(0, -everEditor.get().getLineHeight()+20), 5);
                         }
-                        updateContents();
+                        updateContents(getItem());
                     }
                 });
             }, 100);
@@ -567,6 +427,131 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
             }
         }
 
+        void setAudio(String audioPath) {
+            if (new File(audioPath).exists()) {
+                playAudio = itemView.findViewById(R.id.AudioViewButton);
+
+                mediaPlayer = new MediaPlayer();
+               // mediaPlayer.setOnPreparedListener(mp -> {
+              //      prepared = true;
+              //      toggleAudio( mp, itemView);
+               //     mp.setOnCompletionListener(mp12 -> {
+               //         isPlaying = false;
+               //         playAudio.setImageResource(R.drawable.aar_ic_play);
+               //     });
+               // });
+                try {
+                    mediaPlayer.setDataSource(((MainActivity)context).noteCreator.get().everCreatorHelper.everLinkedContents.get(getAdapterPosition()).getRecord());
+                    System.out.println("Data source set = " + ((MainActivity)context).noteCreator.get().everCreatorHelper.everLinkedContents.get(getAdapterPosition()).getRecord());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                this.audioPath = audioPath;
+               addVisualizer(audioPath, Integer.parseInt(((MainActivity) context).actualNote.get().getNoteColor()));
+
+            } else {
+
+                itemView.findViewById(R.id.card_everPlayer).setVisibility(View.GONE);
+
+            }
+
+
+        }
+
+        void startAudio(int audioDuration) {
+
+            int percent = 110;
+            va = ValueAnimator.ofFloat(0, percent);
+            va.setInterpolator(new LinearInterpolator());
+            int result = audioDuration * percent / 100;
+            va.setDuration(result);
+            va.addUpdateListener(animation -> {
+                System.out.println(animation.getAnimatedValue().toString());
+                waveSeek.setProgress(Math.round((Float) animation.getAnimatedValue()));
+            });
+            playAudio.setImageResource(R.drawable.aar_ic_pause);
+            mediaPlayer.start();
+            mini_visualizerHandler.onResume();
+            va.start();
+
+        }
+
+        void resumeAudio() {
+            playAudio.setImageResource(R.drawable.aar_ic_pause);
+            mediaPlayer.start();
+            mini_visualizerHandler.onResume();
+            va.resume();
+        }
+
+        void toggleAudio(MediaPlayer mp) {
+            if (isPlaying()) {
+               pauseAudio(mp);
+            } else {
+                if (getAudioTime() > 0) {
+                    resumeAudio();
+                } else {
+                    startAudio(mp.getDuration());
+                }
+            }
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        private void updateContents(EverLinkedMap note) {
+            new Thread(() -> {
+                array.clear();
+                arrayToAdd = ((MainActivity) context).noteCreator.get().everCreatorHelper.everLinkedContents.getData();
+                for (EverLinkedMap strg : arrayToAdd) {
+                    if (strg.getContent().endsWith("┼")) {
+                        array.add(strg.getContent());
+                    } else {
+                        array.add(strg.getContent() + "┼");
+                    }
+                }
+                //   arrayToAdd = null;
+                String text;
+                if (ActiveEditor != null) {
+                    if (ActiveEditor.get() != null) {
+                        text = ActiveEditor.get().getText(RTFormat.HTML);
+                        if (ActiveEditorPosition > array.size()) {
+                            array.add(text + "┼");
+                        } else {
+                            if (text.endsWith("<br>")) {
+                                array.set(ActiveEditorPosition, text.substring(0, text.length() - 4) + "┼");
+                            } else {
+                                array.set(ActiveEditorPosition, text + "┼");
+                            }
+                        }
+
+                        String toDatabase = String.join("", array);
+                        note.setContent(text);
+                       ((MainActivity) context).actualNote.get().setContent(toDatabase);
+                    }
+                }
+            }).start();
+        }
+
+        private void pauseAudio(MediaPlayer mp) {
+            va.pause();
+            mp.pause();
+            mini_visualizerHandler.onPause();
+            playAudio.setImageResource(R.drawable.aar_ic_play);
+            //TODO FNISH THIS AND MAKE SEEK WORKS
+        }
+
+        private boolean isPlaying() { return mediaPlayer.isPlaying(); }
+
+        private int getAudioTime() {
+            if (va != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    return Math.toIntExact(va.getCurrentPlayTime()*100);
+                } else {
+                    return (int) va.getCurrentPlayTime()*100;
+                }
+            } else {
+                return 0;
+            }
+        }
+
         @Override
         public void onClick(View view) {
 
@@ -578,34 +563,125 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
             }
 
 
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            new Handler(Looper.getMainLooper()).post(() -> {
                 FinalYHeight = 0;
-
+//TODO FIX DRAW NOT EDITING AFTER THE FIRST ONE
                 SelectedDrawPosition = getLayoutPosition();
 
                 ImageView imageView = itemView.findViewById(R.id.recycler_imageView);
                 EverDraw draw = itemView.findViewById(R.id.everDraw);
-
-                assert draw != null;
+                cardDrawRecycler = new WeakReference<>(itemView.findViewById(R.id.cardDrawRecycler));
                 draw.setVisibility(View.VISIBLE);
                 ViewGroup.LayoutParams params = draw.getLayoutParams();
                 params.height = imageView.getHeight();
 
+                System.out.println("height = " + imageView.getHeight());
                 ((MainActivity)context).beginDelayedTransition(cardDrawRecycler.get());
 
                 draw.setLayoutParams(params);
 
-                Bitmap b = Ion.with(imageView).getBitmap();
+                ((MainActivity) context).noteCreator.get().everCreatorHelper.onDrawClick(draw, SelectedDrawPosition, getItem().getDrawLocation(), cardDrawRecycler.get());
 
-                ((MainActivity) context).noteCreator.get().onItemClickTemporaryINHERE_REMOVE_LATER(draw, SelectedDrawPosition, b, getItem().getDrawLocation(), itemView.findViewById(R.id.cardDrawRecycler));
+            });
 
-            }, 250);
+          }
 
+          void addVisualizer(String audioPath, int color) {
+              CardView layout = itemView.findViewById(R.id.card_visualizer);
+              CardView layout1 = itemView.findViewById(R.id.card_everPlayer);
+              EverGLAudioVisualizationView visualizer = new EverGLAudioVisualizationView.Builder(itemView.getContext())
+                      .setLayersCount(1)
+                      .setWavesCount(6)
+                      .setWavesHeight(1200f)
+                      .setWavesFooterHeight(550f)
+                      .setBubblesPerLayer(15)
+                      .setBubblesSize(35f)
+                      .setBubblesRandomizeSize(true)
+                      .setBackgroundColor(Util.getDarkerColor(color))
+                      .setLayerColors(new int[]{color})
+                      .build();
+
+              mini_visualizerHandler = EverDbmHandler.Factory.newVisualizerHandler(context, mediaPlayer);
+              visualizer.linkTo(mini_visualizerHandler);
+              mini_visualizerHandler.setInnerOnPreparedListener(mp -> {
+                  prepared = true;
+                  waveSeek.setOnProgressChanged((waveformSeekBar, i, b) -> {
+                      if (b) {
+                          if (i >= 0) {
+                              pauseAudio(mediaPlayer);
+                              int time = mp.getDuration()/110*i;
+                              mediaPlayer.seekTo(time);
+                              va.start();
+                              va.setCurrentPlayTime(time);
+                              resumeAudio();
+
+                          }
+                      }
+                  });
+                  toggleAudio( mp);
+
+              });
+              mini_visualizerHandler.setInnerOnCompletionListener(mp -> {
+                  isPlaying = false;
+                  playAudio.setImageResource(R.drawable.aar_ic_play);
+              });
+
+              //  visualizer.stopRendering();
+              waveSeek = new EverWave(context);
+              waveSeek.setMMaxValue(100);
+              waveSeek.setWaveWidth(Utils.INSTANCE.dp(context,3));
+              waveSeek.setWaveGap(Utils.INSTANCE.dp(context,2));
+              waveSeek.setWaveMinHeight(Utils.INSTANCE.dp(context,5));
+              waveSeek.setWaveCornerRadius(Utils.INSTANCE.dp(context,2));
+              waveSeek.setWaveGravity(WaveGravity.CENTER);
+              waveSeek.setWaveBackgroundColor(ContextCompat.getColor(context, R.color.Grey));
+              waveSeek.setWaveProgressColor(ContextCompat.getColor(context,R.color.SkyBlue));
+              waveSeek.setSampleFrom(audioPath, false);
+
+              CloseAudioVisualizationHelper.getInstance().setListener(this);
+              CloseAudioVisualizationHelper.getInstance().setColorListener(this);
+
+              layout1.addView(visualizer, 0);
+              layout.addView(waveSeek);
+              mini_visualizerHandler.onPause();
+              itemView.findViewById(R.id.card_everPlayer).setVisibility(View.VISIBLE);
+              ImageView imageDecoy = itemView.findViewById(R.id.imageDecoy);
+              imageDecoy.setBackgroundColor(Integer.parseInt(((MainActivity)context).actualNote.get().getNoteColor()));
+              new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                  imageDecoySize = imageDecoy.getHeight();
+                  ((MainActivity)context).animateHeightChange(imageDecoy, 500, 0);
+              }, 1000);
           }
 
         @Override
         public boolean onLongClick(View view) {
             return false;
+        }
+
+        @Override
+        public void onAudioChunkPulled(AudioChunk audioChunk) {
+            float amplitude = isPlaying ? (float) audioChunk.maxAmplitude() : 0f;
+            visualizerHandler.onDataReceived(amplitude);
+            System.out.println("1212121212212");
+        }
+
+        @Override
+        public void open() {
+            ((MainActivity)context).animateHeightChange(itemView.findViewById(R.id.imageDecoy), 500, 0);
+        }
+
+        @Override
+        public void close() {
+            ((MainActivity)context).animateHeightChange(itemView.findViewById(R.id.imageDecoy), 500, imageDecoySize);
+        }
+
+        @Override
+        public void changeColor(int color) {
+            ((MainActivity)context).animateHeightChange(itemView.findViewById(R.id.imageDecoy), 500, imageDecoySize);
+            ((MainActivity)context).everThemeHelper.tintView(itemView.findViewById(R.id.imageDecoy), color);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                addVisualizer(audioPath, color);
+            }, 500);
         }
     }
 
@@ -630,4 +706,5 @@ public class NoteContentsBinder extends ItemBinder<EverLinkedMap, NoteContentsBi
         }
         return false;
     }
+
 }

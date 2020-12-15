@@ -156,6 +156,101 @@
         app:textSize="0sp" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/audio_options"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:layout_margin="0dp"
+        android:animateLayoutChanges="true"
+        android:paddingBottom="5dp"
+        android:visibility="visible"
+        app:cardBackgroundColor="@color/White"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="0dp"
+        app:contentPadding="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <RelativeLayout
+            android:id="@+id/relativeAudio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true">
+
+            <ImageView
+                android:id="@+id/imageAudioDecoy"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/White" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/audio_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="00:00:00"
+                    android:textAlignment="center"
+                    android:textSize="25sp" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight="1"
+                        android:background="@color/Transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/aar_ic_play"
+                        android:tint="@color/Grey" />
+
+                    <ImageButton
+                        android:id="@+id/stop"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight="1"
+                        android:background="@color/Transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/aar_ic_stop"
+                        android:tint="@color/Grey" />
+
+                    <ImageButton
+                        android:id="@+id/saveAudio"
+                        android:layout_width="130dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight="1"
+                        android:background="@color/Transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_baseline_save_24"
+                        android:tint="@color/Grey" />
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
         android:id="@+id/selectOptions"
         android:layout_width="wrap_content"
         android:layout_height="0.1dp"
@@ -547,6 +642,7 @@
                         android:layout_gravity="center"
                         android:layout_margin="7dp"
                         android:layout_weight="1"
+                        android:onClick="drawChangeSizeClick"
                         android:background="@drawable/selected_background"
                         android:elevation="2dp"
                         android:padding="4dp"
@@ -562,6 +658,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="7dp"
                         android:layout_weight="1"
+                        android:onClick="drawColorClick"
                         android:background="@drawable/selected_background"
                         android:padding="4dp"
                         android:scaleType="center"

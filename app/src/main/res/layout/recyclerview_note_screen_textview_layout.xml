@@ -34,6 +34,80 @@
             android:focusable="false"
             android:focusableInTouchMode="false"/>
 
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_everNoteScreenPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="5dp"
+            android:animateLayoutChanges="true"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/White"
+            app:cardCornerRadius="25dp"
+            app:cardElevation="5dp">
+
+            <ImageView
+                android:id="@+id/imageDecoy"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tag="audioImageDecoy"
+                android:visibility="visible" />
+
+            <RelativeLayout
+                android:id="@+id/relative_layout_player"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:background="@color/Transparent">
+
+
+                <LinearLayout
+                    android:id="@+id/linear_player"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:background="@color/Transparent"
+                    android:orientation="horizontal">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_margin="5dp"
+                        app:cardBackgroundColor="@color/White"
+                        app:cardCornerRadius="30dp"
+                        app:cardElevation="5dp">
+
+                        <ImageButton
+                            android:id="@+id/AudioViewButton"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="center"
+                            android:background="@color/Transparent"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/aar_ic_play"
+                            android:tint="#C52727" />
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_visualizer"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="1dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginBottom="5dp"
+                        app:cardBackgroundColor="@color/Transparent"
+                        app:cardCornerRadius="0dp"
+                        app:cardElevation="0dp" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+
         <ImageView
             android:id="@+id/recycler_Image"
             android:layout_width="match_parent"

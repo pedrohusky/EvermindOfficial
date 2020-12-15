@@ -2,6 +2,7 @@ package com.example.Evermind;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,19 +17,26 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.GenericTransitionOptions;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.Evermind.EverAudioVisualizerHandlers.CloseAudioVisualizationHelper;
+import com.example.Evermind.EverAudioVisualizerHandlers.EverDbmHandler;
+import com.example.Evermind.EverAudioVisualizerHandlers.EverGLAudioVisualizationView;
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.RTTextView;
 import com.example.Evermind.recycler_models.EverLinkedMap;
 import com.koushikdutta.ion.Ion;
+import com.masoudss.lib.Utils;
+import com.masoudss.lib.WaveGravity;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
 
+import cafe.adriel.androidaudiorecorder.Util;
 import mva2.adapter.ItemBinder;
 import mva2.adapter.ItemViewHolder;
 
@@ -74,11 +82,13 @@ public class NoteContentsNoteScreenBinder extends ItemBinder<EverLinkedMap, Note
 
         holder.setContentHTML(holder.getItem().getContent());
         holder.setDrawContent(holder.getItem().getDrawLocation());
+        holder.setWaveSeek(holder.getItem().getRecord());
 
     }
 
     class NoteScreenHolder extends ItemViewHolder<EverLinkedMap> {
-
+        private EverWave waveSeek;
+        private int imageDecoySize;
         @SuppressLint("ClickableViewAccessibility")
         public NoteScreenHolder(View itemView) {
             super(itemView);
@@ -136,6 +146,36 @@ public class NoteContentsNoteScreenBinder extends ItemBinder<EverLinkedMap, Note
             } else {
                everImage.get().setVisibility(View.GONE);
             }
+        }
+
+        void setWaveSeek(String audioPath) {
+            if (new File(audioPath).exists()) {
+                itemView.findViewById(R.id.card_everNoteScreenPlayer).setVisibility(View.VISIBLE);
+                addVisualizer(audioPath, Color.WHITE);
+            }
+        }
+        void addVisualizer(String audioPath, int color) {
+            CardView layout = itemView.findViewById(R.id.card_visualizer);
+            //  visualizer.stopRendering();
+            waveSeek = new EverWave(context);
+            waveSeek.setMMaxValue(100);
+            waveSeek.setWaveWidth(Utils.INSTANCE.dp(context,3));
+            waveSeek.setWaveGap(Utils.INSTANCE.dp(context,2));
+            waveSeek.setWaveMinHeight(Utils.INSTANCE.dp(context,5));
+            waveSeek.setWaveCornerRadius(Utils.INSTANCE.dp(context,2));
+            waveSeek.setWaveGravity(WaveGravity.CENTER);
+            waveSeek.setWaveBackgroundColor(ContextCompat.getColor(context, R.color.Grey));
+            waveSeek.setWaveProgressColor(ContextCompat.getColor(context,R.color.SkyBlue));
+            waveSeek.setSampleFrom(audioPath, false);
+
+            layout.addView(waveSeek);
+            itemView.findViewById(R.id.card_everNoteScreenPlayer).setVisibility(View.VISIBLE);
+            ImageView imageDecoy = itemView.findViewById(R.id.imageDecoy);
+            imageDecoy.setBackgroundColor(Color.WHITE);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                imageDecoySize = imageDecoy.getHeight();
+                ((MainActivity)context).animateHeightChange(imageDecoy, 500, 0);
+            }, 1000);
         }
     }
 }

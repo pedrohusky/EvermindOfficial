@@ -61,20 +61,20 @@ public class EverDiffUtil extends DiffUtil.Callback {
         if(newNotModel.getId() != (oldNoteModel.getId())){
             diff.putInt("id", newNotModel.getId());
         }
-        if(!newNotModel.getContent().equals (oldNoteModel.getContent())){
-            diff.putString("content", newNotModel.getContent());
+        if(!newNotModel.getContentsAsString().equals (oldNoteModel.getContentsAsString())){
+            diff.putString("content", newNotModel.getContentsAsString());
         }
         if(!newNotModel.getTitle().equals (oldNoteModel.getTitle())){
             diff.putString("title", newNotModel.getTitle());
         }
-        if(!newNotModel.getImageURLS().equals (oldNoteModel.getImageURLS())){
-            diff.putString("images", newNotModel.getContent());
+        if(!newNotModel.getImagesAsString().equals (oldNoteModel.getImagesAsString())){
+            diff.putString("images", newNotModel.getContentsAsString());
         }
-        if(!newNotModel.getDrawLocation().equals (oldNoteModel.getDrawLocation())){
-            diff.putString("draws", newNotModel.getContent());
+        if(!newNotModel.getDrawsAsString().equals (oldNoteModel.getDrawsAsString())){
+            diff.putString("draws", newNotModel.getContentsAsString());
         }
         if(!newNotModel.getNoteColor().equals (oldNoteModel.getNoteColor())){
-            diff.putString("color", newNotModel.getContent());
+            diff.putString("color", newNotModel.getContentsAsString());
         }
         if(newNotModel.getActualPosition() != (oldNoteModel.getActualPosition())){
             diff.putInt("position", newNotModel.getActualPosition());

@@ -3,10 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/Transparent"
-    android:backgroundTint="@color/Transparent"
     android:fitsSystemWindows="true"
-    android:foregroundTint="@color/Transparent"
     android:orientation="vertical"
     android:tag="first"
     tools:context=".MainActivity">
@@ -15,20 +12,13 @@
         android:id="@+id/nestedScroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/Transparent"
-        android:backgroundTint="@color/Transparent"
-        android:fillViewport="true"
-        android:foreground="@color/Transparent"
-        android:foregroundTint="@color/Transparent">
+        android:fillViewport="true">
 
         <LinearLayout
             android:id="@+id/aaaas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/Transparent"
-            android:backgroundTint="@color/Transparent"
-            android:foreground="@color/Transparent"
-            android:foregroundTint="@color/Transparent"
+            android:background="@color/White"
             android:orientation="vertical">
 
             <androidx.cardview.widget.CardView

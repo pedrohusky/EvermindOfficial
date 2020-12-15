@@ -84,7 +84,7 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
 
         } else {
 
-            if ((holder.getAdapterPosition() % 2) == 0 && (holder.getAdapterPosition() + 1) == ((MainActivity)context).noteCreator.get().listImages.size()) {
+            if ((holder.getAdapterPosition() % 2) == 0 && (holder.getAdapterPosition() + 1) == ((MainActivity)context).noteCreator.get().everCreatorHelper.listImages.size()) {
 
                 if (!path.equals("")) {
                     Ion.with(holder.myImageView)
@@ -132,7 +132,7 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
             myImageView = itemView.findViewById(R.id.recyclerImage);
 
             myImageView.setOnClickListener(view ->
-                    new StfalconImageViewer.Builder<>(context, ((MainActivity) context).noteModelSection.get(((MainActivity) context).actualNote.get().getActualPosition()).getImages(), (imageView, image) ->
+                    new StfalconImageViewer.Builder<>(context, ((MainActivity) context).everNoteManagement.noteModelSection.get(((MainActivity) context).actualNote.get().getActualPosition()).getImages(), (imageView, image) ->
                             Glide.with(context)
                                     .asBitmap()
                                     .transition(GenericTransitionOptions.with(R.anim.grid_new_item_anim))

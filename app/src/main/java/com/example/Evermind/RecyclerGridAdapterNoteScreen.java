@@ -85,7 +85,7 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerSwipeAdapter<Recycler
         ViewCompat.setTransitionName(myRecyclerView, "imageRecycler"+ID);
         ViewCompat.setTransitionName(myTitleView, "title"+ID);
 
-        if (!models.get(position).getNoteColor().equals("000000")) {
+        if (!models.get(position).getNoteColor().equals("16777215")) {
             myCardView.setBackgroundTintList(ColorStateList.valueOf(Integer.parseInt(models.get(position).getNoteColor())));
         }
 
@@ -232,7 +232,7 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerSwipeAdapter<Recycler
         int size = bitmaps.size() - 1;
 
         for (i = 0; i <= size ; i++) {
-            items.add(new EverLinkedMap(content_split.get(i), bitmaps.get(i)));
+           // items.add(new EverLinkedMap(content_split.get(i), bitmaps.get(i)));
         }
 
             StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);

@@ -122,7 +122,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/Transparent"
-                    android:layoutAnimation="@anim/grid_appear_layout_animation" />
+                    android:layoutAnimation="@anim/grid_appear_layout_animation"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

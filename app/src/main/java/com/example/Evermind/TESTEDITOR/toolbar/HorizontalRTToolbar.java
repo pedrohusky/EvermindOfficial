@@ -132,7 +132,6 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
 
     private void init() {
        a =  ((MainActivity)context);
-        System.out.println("aaa");
         mBold = initImageButton(a.Bold);
         mItalic = initImageButton(a.Italic);
         mUnderline = initImageButton(a.Underline);

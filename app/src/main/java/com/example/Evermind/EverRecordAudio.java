@@ -1,8 +1,14 @@
 package com.example.Evermind;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Environment;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,10 +16,12 @@ import java.io.IOException;
 public class EverRecordAudio {
 
     final MediaRecorder recorder = new MediaRecorder();
+    final Context context;
     public final String path;
 
-    public EverRecordAudio(String path) {
+    public EverRecordAudio(String path, Context context) {
         this.path = sanitizePath(path);
+        this.context = context;
     }
 
     private String sanitizePath(String path) {
@@ -40,19 +48,19 @@ public class EverRecordAudio {
             throw new IOException("Path to file could not be created.");
         }
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         recorder.setOutputFile(path);
         recorder.prepare();
         recorder.start();
     }
 
-    public void stop() throws IOException {
+    public void stop() {
         recorder.stop();
         recorder.release();
     }
 
-    public void playarcoding(String path) throws IOException {
+    public void playarcoding() throws IOException {
         MediaPlayer mp = new MediaPlayer();
         mp.setDataSource(path);
         mp.prepare();
