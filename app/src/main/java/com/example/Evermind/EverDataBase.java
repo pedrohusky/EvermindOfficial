@@ -5,13 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Handler;
+import android.os.Looper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public class EverDataBase extends SQLiteOpenHelper {
-    private static final String TAG = "DatabaseHelper";
     private static final String TABLE_NOTES = "Notes";
     private static final String DATABASE_NAME = "NotesDatabase";
     private static final String NOTE_TITLE = "Title";
@@ -22,32 +25,20 @@ public class EverDataBase extends SQLiteOpenHelper {
     private static final String NOTE_IMAGEURL = "URL";
     private static final String NOTE_COLOR = "Color";
     private static final String NOTE_RECORD = "Record";
-    private final ArrayList<Integer> ids = new ArrayList<>();
-    private final ArrayList<String> titles = new ArrayList<>();
-    private final ArrayList<String> contents = new ArrayList<>();
-    private final ArrayList<String> draws = new ArrayList<>();
-    private final ArrayList<String> dates = new ArrayList<>();
-    private final ArrayList<String> images = new ArrayList<>();
-    private final ArrayList<String> colors = new ArrayList<>();
-    private final ArrayList<String> records = new ArrayList<>();
+    private final Context context;
 
     public EverDataBase(Context context) {
         super(context, DATABASE_NAME, null, 1);
+        this.context = context;
+        getAllContentsFromAllNotes();
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
-        //  new Thread(() -> {
-
-        // TODO String createTable = "CREATE TABLE " + TABLE_NOTES + " (" + NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NOTE_TITLE + " TEXT, " + NOTE_CONTENT + " TEXT, " + NOTE_DATE + " TEXT)";
-
+      //  new Thread(() -> {
         String createTable = "CREATE TABLE " + TABLE_NOTES + " (" + NOTE_ID + " TEXT, " + NOTE_TITLE + " TEXT, " + NOTE_CONTENT + " TEXT, " + NOTE_DATE + " TEXT, " + NOTE_IMAGEURL + " TEXT, " + NOTE_DRAW + " TEXT, " + NOTE_COLOR + " TEXT, " + NOTE_RECORD + " TEXT)";
-
         db.execSQL(createTable);
-
-        // }).start();
-
+    //    }).start();
     }
 
     @Override
@@ -76,186 +67,22 @@ public class EverDataBase extends SQLiteOpenHelper {
     }
 
     public void getAllContentsFromAllNotes() {
+        new Thread(() -> {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        ArrayList<String> arrayListTitles = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_NOTES;
         Cursor cursor = sqLiteDatabase.rawQuery(query, null);
-        //cursor.moveToFirst();
-        ids.clear();
-        titles.clear();
-        contents.clear();
-        dates.clear();
-        images.clear();
-        draws.clear();
-        colors.clear();
-        records.clear();
-        if (cursor.moveToFirst()) {
+        int p = 0;
+        if (cursor.moveToLast()) {
             do {
-                ids.add(cursor.getInt(0));
-                titles.add(cursor.getString(1));
-                contents.add(cursor.getString(2));
-                dates.add(cursor.getString(3));
-                images.add(cursor.getString(4));
-                draws.add(cursor.getString(5));
-                colors.add(cursor.getString(6));
-                records.add(cursor.getString(7));
+                ((MainActivity)context).getEverNoteManagement().getNoteModelSection().add(new Note_Model(cursor.getInt(0), p, cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7)));
+                p++;
             }
 
-            while (cursor.moveToNext());
-        } else { // DO NOTHING
+            while (cursor.moveToPrevious());
         }
         cursor.close();
         sqLiteDatabase.close();
-    }
-
-    public ArrayList<String> getDateFromDatabase() {
-        return dates;
-    }
-
-    public ArrayList<Integer> getIDFromDatabase() {
-        return ids;
-    }
-
-
-    public ArrayList<String> getTitlesFromDatabase() {
-        return titles;
-    }
-
-    public ArrayList<String> getContentsFromDatabase() {
-        return contents;
-    }
-
-    public ArrayList<String> getImageURLFromDatabase() {
-        return images;
-    }
-
-    public ArrayList<String> getDrawLocationFromDatabase() {
-        return draws;
-    }
-
-    public ArrayList<String> getNoteColorsFromDatabase() {
-        return colors;
-    }
-
-    public ArrayList<String> getRecordsFromDatabase() {
-        return records;
-    }
-
-    public String getDateFromDatabaseWithID(Integer ID) {
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        String date = "";
-        String query = "SELECT * FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + ID + "'";
-        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
-        if (cursor.moveToFirst()) {
-            do {
-                date = cursor.getString(3);
-            }
-
-            while (cursor.moveToNext());
-        } else { // DO NOTHING
-        }
-        cursor.close();
-        sqLiteDatabase.close();
-        return date;
-    }
-
-    public Integer getIDFromDatabaseWithID(Integer ID) {
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        Integer noteID = -1;
-        String query = "SELECT * FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + ID + "'";
-        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
-        //cursor.moveToFirst();
-        if (cursor.moveToFirst()) {
-            do {
-                noteID = cursor.getInt(0);
-
-            }
-
-            while (cursor.moveToNext());
-        } else { // DO NOTHING
-        }
-        cursor.close();
-        sqLiteDatabase.close();
-        return noteID;
-    }
-
-
-    public String getTitlesFromDatabaseWithID(Integer ID) {
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        String title = "";
-        String query = "SELECT * FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + ID + "'";
-        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
-        //cursor.moveToFirst();
-        if (cursor.moveToFirst()) {
-            do {
-
-                 title = cursor.getString(1);
-            }
-
-            while (cursor.moveToNext());
-        } else { // DO NOTHING
-        }
-        cursor.close();
-        sqLiteDatabase.close();
-        return title;
-    }
-
-    public String getContentsFromDatabaseWithID(Integer ID) {
-
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        String content = "";
-        String query = "SELECT * FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + ID + "'";
-        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
-        //cursor.moveToFirst();
-        if (cursor.moveToFirst()) {
-            do {
-                 content = cursor.getString(2);
-            }
-
-            while (cursor.moveToNext());
-        } else { // DO NOTHING
-        }
-        cursor.close();
-        sqLiteDatabase.close();
-
-        return content;
-    }
-
-    public String getImageURLFromDatabaseWithID(Integer ID) {
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        String ImageURL = "";
-        String query = "SELECT * FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + ID + "'";
-        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
-        //cursor.moveToFirst();
-        if (cursor.moveToFirst()) {
-            do {
-                 ImageURL = cursor.getString(4);
-            }
-
-            while (cursor.moveToNext());
-        } else { // DO NOTHING
-        }
-        cursor.close();
-        sqLiteDatabase.close();
-        return ImageURL;
-    }
-
-    public String getBackgroundFromDatabaseWithID(Integer ID) {
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        String background = "";
-        String query = "SELECT * FROM " + TABLE_NOTES + " WHERE " + NOTE_ID + " = '" + ID + "'";
-        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
-        if (cursor.moveToFirst()) {
-            do {
-               background = cursor.getString(5);
-            }
-
-            while (cursor.moveToNext());
-        } else { // DO NOTHING
-        }
-        cursor.close();
-        sqLiteDatabase.close();
-        return background;
+        }).start();
     }
 
     public void deleteNote(Integer id) {
@@ -287,76 +114,11 @@ public class EverDataBase extends SQLiteOpenHelper {
 
     }
 
-    public void editTitle(String id, String title) {
-
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_TITLE, title);
-        Date currentTime = Calendar.getInstance().getTime();
-        contentValues.put(NOTE_DATE, currentTime.toString());
-
-        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
-        sqLiteDatabase.close();
-
-    }
-
     public void editColor(String id, String color) {
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(NOTE_COLOR, color);
-        Date currentTime = Calendar.getInstance().getTime();
-        contentValues.put(NOTE_DATE, currentTime.toString());
-
-        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
-        sqLiteDatabase.close();
-
-    }
-
-    public void editContentWithID(String id, String content, String oldContent) {
-
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_CONTENT, content + "┼" + oldContent);
-        Date currentTime = Calendar.getInstance().getTime();
-        contentValues.put(NOTE_DATE, currentTime.toString());
-
-        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
-        sqLiteDatabase.close();
-
-    }
-
-    public void editContent(String id, String content) {
-
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_CONTENT, content);
-        Date currentTime = Calendar.getInstance().getTime();
-        contentValues.put(NOTE_DATE, currentTime.toString());
-
-        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
-        sqLiteDatabase.close();
-
-    }
-
-    public void editDraw(String id, String draws) {
-
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_DRAW, draws);
-        Date currentTime = Calendar.getInstance().getTime();
-        contentValues.put(NOTE_DATE, currentTime.toString());
-
-        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
-        sqLiteDatabase.close();
-
-    }
-
-    public void insertImageToDatabase(String id, String newURL, String oldURL) {
-
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_IMAGEURL, newURL + "┼" + oldURL);
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
 
@@ -372,20 +134,6 @@ public class EverDataBase extends SQLiteOpenHelper {
         contentValues.put(NOTE_IMAGEURL, newURL);
         Date currentTime = Calendar.getInstance().getTime();
         contentValues.put(NOTE_DATE, currentTime.toString());
-
-        sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
-        sqLiteDatabase.close();
-
-    }
-
-    public void insertNoteBackgroundToDatabase(String id, String newURL, String oldURL) {
-
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTE_DRAW, oldURL + newURL  + "┼");
-        Date currentTime = Calendar.getInstance().getTime();
-        contentValues.put(NOTE_DATE, currentTime.toString());
-        System.out.println("Added = " + oldURL + newURL  + "┼");
 
         sqLiteDatabase.update(TABLE_NOTES, contentValues, "ID = ?", new String[]{id});
         sqLiteDatabase.close();

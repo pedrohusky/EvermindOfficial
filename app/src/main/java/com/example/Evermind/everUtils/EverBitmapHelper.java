@@ -12,8 +12,10 @@ import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.example.Evermind.MainActivity;
@@ -40,19 +42,16 @@ public class EverBitmapHelper {
     }
 
     public @NonNull
-    Bitmap createBitmapFromView(@NonNull View view) {
-
+    Bitmap createBitmapFromView(@NonNull View view, int size) {
+        int finalSize = size + 100;
+        if (size == 0 || size < view.getHeight() && !mainActivity.get().getNoteCreator().isNewDraw()) {
+            finalSize = view.getHeight();
+        }
         Bitmap bitmap = Bitmap.createBitmap(view.getWidth(),
-                view.getHeight(), Bitmap.Config.ARGB_8888);
+                finalSize, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         canvas.drawColor(Color.WHITE);
-        Drawable background = view.getBackground();
-
-        if (background != null) {
-            background.draw(canvas);
-        }
         view.draw(canvas);
-
         return bitmap;
     }
 
@@ -60,7 +59,7 @@ public class EverBitmapHelper {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void TransformBitmapToFile(Bitmap bitmap) {
         File file = CreateBitmap(bitmap, "EverDraw"+ System.currentTimeMillis(), ".jpg");
-        mainActivity.get().actualNote.get().addDraw(file.toString(), mainActivity.get());
+        mainActivity.get().getActualNote().addEverLinkedMap(file.toString(), mainActivity.get(), true);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -70,25 +69,27 @@ public class EverBitmapHelper {
         if (toDelete.exists()) {
             if (toDelete.delete()) {
                 System.out.println("Old draw deleted when updating.");
+             //   mainActivity.get().clearIonCache(toDelete.getPath());
             }
         }
+        String finalPath = mainActivity.get().getDir("imageDir", Context.MODE_PRIVATE).getPath() + "/";
 
-        String s = savedBitmapPath.substring(0, savedBitmapPath.length() - 17);
 
-        List<String> strings = mainActivity.get().actualNote.get().getDraws();
 
-        strings.set(strings.indexOf(savedBitmapPath), UpdateFile(bitmap, s).toString());
+        List<String> drawPath = mainActivity.get().getActualNote().getDraws();
 
-        for (int p = 0; p < strings.size(); p++) {
-            if (!strings.get(p).equals("")) {
-                strings.set(p, strings.get(p) + "┼");
+        int i = 0;
+        for (String path : drawPath) {
+            if (path.equals(savedBitmapPath)) {
+                drawPath.set(i, UpdateFile(bitmap, finalPath).toString());
             }
+            i++;
         }
-        String editDraw = strings.toString().replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", "");
-        mainActivity.get().actualNote.get().setDrawLocation(editDraw);
+
+        mainActivity.get().getActualNote().setDraws(drawPath);
       //  mainActivity.get().everNoteManagement.updateNote(actualNote.get().getActualPosition(), actualNote.get());
-        int drawPosition = mainActivity.get().noteCreator.get().everCreatorHelper.drawPosition;
-        mainActivity.get().noteCreator.get().everCreatorHelper.updateDraw(drawPosition, mainActivity.get().actualNote.get().getDraws().get(drawPosition));
+        int drawPosition = mainActivity.get().getNoteCreator().drawPosition;
+        mainActivity.get().getNoteCreator().updateDraw(drawPosition, mainActivity.get().getActualNote().getDraws().get(drawPosition));
 
     }
 
@@ -102,7 +103,7 @@ public class EverBitmapHelper {
         }
         File file =  CreateBitmap(bitmap, "EverImage", ".jpg");
        if (file.exists()) {
-           mainActivity.get().noteCreator.get().everCreatorHelper.addImage(file.toString());
+           mainActivity.get().getNoteCreator().addImage(file.toString());
        }
     }
 
@@ -110,7 +111,7 @@ public class EverBitmapHelper {
 
         File directory = mainActivity.get().getDir("imageDir", Context.MODE_PRIVATE);
 
-        File file = new File(directory, fileName + Calendar.getInstance().getTimeInMillis() + fileType);
+        File file = new File(directory, fileName + System.currentTimeMillis() + fileType);
 
         if (!file.exists()) {
             Log.d("path", file.toString());

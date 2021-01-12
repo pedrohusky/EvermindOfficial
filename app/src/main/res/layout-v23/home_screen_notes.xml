@@ -19,15 +19,12 @@
         android:transitionName="card"
         android:visibility="visible" />
 
-    <com.example.Evermind.EverRecyclerContentsNoteScreen
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notesRecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="28dp"
-        android:background="@color/Transparent"
-        android:backgroundTint="@color/Transparent"
-        android:foreground="@color/Transparent"
-        android:foregroundTint="@color/Transparent"
+        android:background="@color/White"
         android:layoutAnimation="@anim/grid_appear_layout_animation"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 

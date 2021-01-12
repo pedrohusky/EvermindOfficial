@@ -25,7 +25,7 @@ import android.view.MotionEvent;
 
 import java.util.ArrayList;
 
-class CropImageView extends ImageViewTouchBase {
+public class CropImageView extends ImageViewTouchBase {
 
     ArrayList<com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView> mHighlightViews = new ArrayList<com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView>();
     com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView mMotionHighlightView = null;

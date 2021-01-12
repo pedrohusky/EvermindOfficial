@@ -10,31 +10,7 @@
     app:layoutDescription="@xml/startup_activity_scene"
     tools:context=".StartupActivity">
 
-    <ImageView
-        android:id="@+id/EvermindBlack"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="24dp"
-        android:contentDescription="@string/DescriptionEvermindblack"
-        android:scaleType="centerInside"
-        app:layout_constraintBottom_toBottomOf="@+id/startButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/evermindblack" />
 
-    <Button
-        android:id="@+id/startButton"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="158dp"
-        android:layout_height="144dp"
-        android:layout_marginTop="64dp"
-        android:background="@drawable/elephantpressedandpush"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.motion.widget.MotionLayout>
 

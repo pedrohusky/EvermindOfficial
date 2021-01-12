@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<pl.droidsonroids.gif.GifImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<ImageView
     android:id="@+id/recyclerImage"
-    android:layout_width="190dp"
-    android:layout_height="200dp"
-    android:elevation="8dp"
-    android:fitsSystemWindows="true"
-    android:scaleType="centerCrop">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/Transparent"
+    android:scaleType="centerCrop"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
 
-</pl.droidsonroids.gif.GifImageView>
+</ImageView>

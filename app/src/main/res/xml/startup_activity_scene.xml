@@ -93,11 +93,11 @@
             <KeyAttribute
                 motion:motionTarget="@+id/startButton"
                 motion:framePosition="100"
-                android:scaleX="220" />
+                android:scaleX="10" />
             <KeyAttribute
                 motion:motionTarget="@+id/startButton"
                 motion:framePosition="100"
-                android:scaleY="220" />
+                android:scaleY="15" />
     </KeyFrameSet>
         <OnClick motion:targetId="@+id/startButton" />
     </Transition>

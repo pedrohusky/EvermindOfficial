@@ -2,9 +2,11 @@ package com.example.Evermind;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -12,43 +14,43 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 import androidx.core.view.ViewCompat;
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.example.Evermind.EverAudioVisualizerHandlers.EverInterfaceHelper;
+import com.example.Evermind.databinding.MainViewNoteCreatorRecyclerBinding;
+import com.example.Evermind.databinding.NoteContentWithRecyclerviewVisualizationtestBinding;
 import com.example.Evermind.recycler_models.EverLinkedMap;
 import com.thekhaeng.pushdownanim.PushDownAnim;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.LandingAnimator;
 import mva2.adapter.ItemBinder;
 import mva2.adapter.ItemViewHolder;
 import mva2.adapter.ListSection;
 import mva2.adapter.MultiViewAdapter;
 
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.thekhaeng.pushdownanim.PushDownAnim.MODE_SCALE;
 
 public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.NoteModelViewHolder> {
 
     private final Context context;
-    private WeakReference<RecyclerView> textRecycler;
-    private WeakReference<TextView> myTitleView;
-    private WeakReference<RecyclerView> myRecyclerView;
-    private WeakReference<CardView> myCardView;
     private final WeakReference<MainActivity> mainActivity;
+    private final EverLinkedMap e;
 
     public NoteModelBinder(Context context) {
         this.context = context;
-        mainActivity = new WeakReference<>(((MainActivity)context));
+        mainActivity = new WeakReference<>(((MainActivity) context));
+        e = new EverLinkedMap(true);
     }
 
 
@@ -56,7 +58,6 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
     public NoteModelViewHolder createViewHolder(ViewGroup parent) {
         return new NoteModelViewHolder(inflate(parent, R.layout.note_content_with_recyclerview_visualizationtest));
     }
-
 
 
     @Override
@@ -67,211 +68,262 @@ public class NoteModelBinder extends ItemBinder<Note_Model, NoteModelBinder.Note
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void bindViewHolder(NoteModelViewHolder holder, Note_Model item) {
-        int ID = holder.getItem().getId();
-        int position = holder.getItem().getActualPosition();
 
-        myTitleView = new WeakReference<>(holder.itemView.findViewById(R.id.info_title));
-        myCardView = new WeakReference<>(holder.itemView.findViewById(R.id.mainCard));
-        myRecyclerView = new WeakReference<>(holder.itemView.findViewById(R.id.RecyclerNoteScren));
-        textRecycler = new WeakReference<>(holder.itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler));
-        WeakReference<View> view = new WeakReference<>(holder.itemView.findViewById(R.id.view2));
-        WeakReference<SwipeLayout> swipe = new WeakReference<>(holder.itemView.findViewById(R.id.testSwipe));
-        ViewCompat.setTransitionName(textRecycler.get(), "textRecycler" +"-"+ ID + position);
-        ViewCompat.setTransitionName(myCardView.get(), "card" + ID +"-"+ position);
-        ViewCompat.setTransitionName(myRecyclerView.get(), "imageRecycler" +"-"+ ID + position);
-        ViewCompat.setTransitionName(myTitleView.get(), "title" +"-"+ ID + position);
+        String transitionIdentifier = item.getId() + "-" + item.getDate();
 
-        if (holder.getItem().isSelected()) {
-            mainActivity.get().everThemeHelper.tintView(myCardView.get(), Color.RED);
+        if (holder.binding.mainCard.getTransitionName() == null) {
+            ViewCompat.setTransitionName(holder.binding.DrawAndTextNoteScreenRecycler, "textRecycler" + transitionIdentifier);
+            ViewCompat.setTransitionName(holder.binding.mainCard, "card" + transitionIdentifier);
+            ViewCompat.setTransitionName(holder.binding.imageRecyclerNoteScreen, "imageRecycler" + transitionIdentifier);
         } else {
-            if (!holder.getItem().getNoteColor().equals("16777215")) {
-                mainActivity.get().everThemeHelper.tintView(myCardView.get(), Integer.parseInt(holder.getItem().getNoteColor()));
-            }// else {
-              //  mainActivity.get().tintView(myCardView.get(), Integer.parseInt(holder.getItem().getNoteColor()));
-           // }
-
-            if (mainActivity.get().everNoteManagement.searching) {
-                if (!mainActivity.get().everNoteManagement.pushed) {
-                    if (!mainActivity.get().everNoteManagement.swipeChangeColorRefresh) {
-                        init(holder.getItem());
-                    }
-                }
-            }
-
-            if (!mainActivity.get().everNoteManagement.pushed) {
-                if (!mainActivity.get().everNoteManagement.swipeChangeColorRefresh) {
-                    init(holder.getItem());
-                }
+            if (!holder.binding.mainCard.getTransitionName().equals("card" + transitionIdentifier)) {
+                ViewCompat.setTransitionName(holder.binding.DrawAndTextNoteScreenRecycler, "textRecycler" + transitionIdentifier);
+                ViewCompat.setTransitionName(holder.binding.mainCard, "card" + transitionIdentifier);
+                ViewCompat.setTransitionName(holder.binding.imageRecyclerNoteScreen, "imageRecycler" + transitionIdentifier);
             }
         }
 
-        WeakReference<ImageButton> delete = new WeakReference<>(holder.itemView.findViewById(R.id.deleteSwipe));
-        WeakReference<ImageButton> changeColor = new WeakReference<>(holder.itemView.findViewById(R.id.changeColorSwipe));
-
-        changeColor.get().setOnClickListener(v -> ((MainActivity) context).swipeItemsListener(v, holder.getItem()));
-        delete.get().setOnClickListener(v -> ((MainActivity) context).swipeItemsListener(v, holder.getItem()));
-        view.get().setOnLongClickListener(v -> {
-            holder.getItem().setSelected(!holder.getItem().isSelected());
-            if (holder.getItem().isSelected()) {
-                mainActivity.get().everNoteManagement.selectedItems.add(holder.getItem());
-                mainActivity.get().CloseOrOpenSelectionOptions(false);
-                mainActivity.get().everNoteManagement.pushed = true;
-            } else {
-                if (mainActivity.get().everNoteManagement.noteModelSection.getSelectedItems().size() == 0) {
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> mainActivity.get().everNoteManagement.pushed = false, 450);
-                    mainActivity.get().CloseOrOpenSelectionOptions(true);
-                }
+        if (item.isSelected()) {
+            mainActivity.get().getEverThemeHelper().tintView(holder.binding.mainCard, Color.RED, 0);
+        } else {
+            if (holder.binding.mainCard.getBackgroundTintList().getDefaultColor() != Integer.parseInt(item.getNoteColor())) {
+                holder.updateNoteColor(mainActivity.get().isSmoothColorChange());
             }
-            mainActivity.get().noteScreen.adapter.get().notifyItemChanged(holder.getAdapterPosition());
-            return false;
-        });
-
-        view.get().setOnClickListener(v -> {
-            if (!holder.isItemSelected()) {
-                if (!mainActivity.get().everNoteManagement.pushed) {
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).onItemClickFromNoteScreen(holder.itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler), holder.itemView.findViewById(R.id.mainCard), holder.itemView.findViewById(R.id.info_title), holder.itemView.findViewById(R.id.RecyclerNoteScren), holder.getAdapterPosition(), holder.getItem()), 40);
-                }
-            }
-        });
-
-        view.get().setOnTouchListener((v, event) -> {
-            mainActivity.get().pushDownOnTouch(holder.itemView.findViewById(R.id.mainCard), event, 0.85f, 50);
-            return false;
-        });
-
-        swipe.get().setShowMode(SwipeLayout.ShowMode.PullOut);
-        swipe.get().setClickToClose(true);
-     // if (holder.getAdapterPosition() == mainActivity.get().noteModelSection.getData().size()-1) {
-
-        new Handler(Looper.getMainLooper()).postDelayed(() -> mainActivity.get().noteScreen.StartPostpone(), 25);
-
-      //  }
-
-        if (!mainActivity.get().everNoteManagement.holders.contains(holder)) {
-            mainActivity.get().everNoteManagement.holders.add(holder);
         }
 
+        if (!mainActivity.get().getEverNoteManagement().isPushed()) {
+            if (!mainActivity.get().getEverNoteManagement().isSwipeChangeColorRefresh()) {
+                holder.initNote();
+            }
+        }
     }
 
-    private void SetupNoteEditorRecycler(@NotNull Note_Model item) {
+    public class NoteModelViewHolder extends ItemViewHolder<Note_Model> implements EverInterfaceHelper.OnHideListener {
 
-        ArrayList<EverLinkedMap> items = new ArrayList<>();
+        private final ListSection<String> listImages = new ListSection<>();
+        private final ListSection<EverLinkedMap> listContents = new ListSection<>();
+        private ImagesBinder imagesBinder;
+        private Note_Model lastProcessedNote;
 
-        int i;
-
-        List<String> bitmaps;
-        List<String> content_split;
-        List<String> records;
-        bitmaps = item.getDraws();
-        content_split = item.getContents();
-        records = item.getRecords();
-
-
-        if (content_split.size() != bitmaps.size()) {
-            for (i = content_split.size(); i < bitmaps.size(); i++) {
-                content_split.add("▓");
-           }
-        }
-        if (bitmaps.size() != content_split.size()) {
-            for (i = bitmaps.size(); i < content_split.size(); i++) {
-                bitmaps.add("");
-            }
-        }
-        if (records.size() != content_split.size()) {
-            for (i = records.size(); i < content_split.size(); i++) {
-                records.add("");
-            }
-        }
-
-        int size = bitmaps.size();
-
-        for (i = 0; i < size; i++) {
-            items.add(new EverLinkedMap(content_split.get(i), bitmaps.get(i), records.get(i)));
-        }
-
-        LinearLayoutManager a = new LinearLayoutManager(context);
-        textRecycler.get().setLayoutManager(a);
-        item.getEverContents();
-        mainActivity.get().everNoteManagement.noteModelSection.get(item.getActualPosition()).everLinkedContents = item.everLinkedContents;
-        MultiViewAdapter adptr = new MultiViewAdapter();
-        ListSection<EverLinkedMap> list = new ListSection<>();
-        if (items.size() > 0) {
-            list.add(item.everLinkedContents.get(0));
-        }
-        if (items.size() > 1) {
-            list.add(item.everLinkedContents.get(1));
-        }
-        if (items.size() > 2) {
-            list.add(item.everLinkedContents.get(2));
-        }
-      //  list.addAll(items);
-        adptr.registerItemBinders(new NoteContentsNoteScreenBinder(context, items.size()));
-
-        adptr.addSection(list);
-
-        textRecycler.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
-        textRecycler.get().setAdapter(new AlphaInAnimationAdapter(adptr));
-
-    }
-
-    public class NoteModelViewHolder extends ItemViewHolder<Note_Model> {
+        private final NoteContentWithRecyclerviewVisualizationtestBinding binding;
 
         @SuppressLint("ClickableViewAccessibility")
         public NoteModelViewHolder(View itemView) {
             super(itemView);
 
-            WeakReference<ImageButton> delete = new WeakReference<>(itemView.findViewById(R.id.deleteSwipe));
-            WeakReference<ImageButton> changeColor = new WeakReference<>(itemView.findViewById(R.id.changeColorSwipe));
-
-            myTitleView = new WeakReference<>(itemView.findViewById(R.id.info_title));
-            myCardView = new WeakReference<>(itemView.findViewById(R.id.mainCard));
-            myRecyclerView = new WeakReference<>(itemView.findViewById(R.id.RecyclerNoteScren));
-            textRecycler = new WeakReference<>(itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler));
-
-
-
-            PushDownAnim.setPushDownAnimTo(delete.get())
-                    .setScale( MODE_SCALE,
-                            0.7f );
-            PushDownAnim.setPushDownAnimTo(changeColor.get())
-                    .setScale( MODE_SCALE,
-                            0.7f );
-        }
-    }
-    private void init(Note_Model note) {
-        SetupNoteEditorRecycler(note);
-
-        myTitleView.get().setText(note.getTitle());
-
-        if (note.getTitle().length() < 1) {
-            //   TransitionManager.beginDelayedTransition(holder.itemView.findViewById(R.id.mainCard), new TransitionSet()
-            //          .addTransition(new ChangeBounds()));
-            myTitleView.get().setVisibility(View.GONE);
+            binding = NoteContentWithRecyclerviewVisualizationtestBinding.bind(itemView);
 
         }
 
-        if (note.getImages().size() > 0) {
+        @Override
+        public void hide() {
+            itemView.setVisibility(View.GONE);
+        }
 
-            if (!note.getImages().get(0).equals("") && !note.getImages().get(0).equals("▓")) {
+        @Override
+        public void show() {
+            itemView.setVisibility(View.VISIBLE);
+        }
 
-                System.out.println(note.getImages().get(0));
-                StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
+        @SuppressLint("ClickableViewAccessibility")
+        void initNote() {
+            setTitle();
+            setRecycler();
+            setImages();
+        }
 
-                myRecyclerView.get().setLayoutManager(staggeredGridLayoutManager);
+        void setTitle() {
+            String title = getItem().getTitle();
+            if (!title.equals("")) {
 
-                MultiViewAdapter adapter = new MultiViewAdapter();
-                ListSection<String> list = new ListSection<>();
-                list.addAll(note.getImages());
-                adapter.addSection(list);
-                adapter.registerItemBinders(new ImagesBinder(context, list.size(), true));
-                myRecyclerView.get().setItemAnimator(new LandingAnimator(new EvershootInterpolator(1f)));
-                myRecyclerView.get().setVisibility(View.VISIBLE);
-                myRecyclerView.get().setAdapter(new AlphaInAnimationAdapter(adapter));
+                binding.infoTitle.setText(title);
+
+                ViewGroup.LayoutParams params = binding.infoTitle.getLayoutParams();
+
+                params.height = WRAP_CONTENT;
+
+                binding.infoTitle.setLayoutParams(params);
+                binding.infoTitle.setPadding(10, 5, 10, 5);
+            } else {
+                ViewGroup.LayoutParams params = binding.infoTitle.getLayoutParams();
+
+                binding.infoTitle.setText("");
+                binding.infoTitle.setPadding(0, 0, 0, 0);
+
+                params.height = 50;
+
+                binding.infoTitle.setLayoutParams(params);
+            }
+        }
+
+        @SuppressLint("ClickableViewAccessibility")
+        void setRecycler() {
+            if (binding.DrawAndTextNoteScreenRecycler.getAdapter() == null) {
+                Runnable r = () -> {
+                    LinearLayoutManager a = new LinearLayoutManager(context);
+                    a.setOrientation(RecyclerView.VERTICAL);
+                    a.setInitialPrefetchItemCount(3);
+                    //   binding.DrawAndTextNoteScreenRecycler.setHasFixedSize(true);
+                    binding.DrawAndTextNoteScreenRecycler.setLayoutManager(a);
+                    MultiViewAdapter adapter = new MultiViewAdapter();
+                    listContents.add(e);
+                    listContents.add(e);
+                    listContents.add(e);
+                    binding.DrawAndTextNoteScreenRecycler.setItemAnimator(new LandingAnimator(new LinearOutSlowInInterpolator()));
+                    adapter.registerItemBinders(new NoteContentsNoteScreenBinder(context));
+                    binding.DrawAndTextNoteScreenRecycler.setAdapter(new ScaleInAnimationAdapter(adapter));
+                    updateList();
+                    adapter.addSection(listContents);
+                };
+                mainActivity.get().runOnUiThread(r);
+                new Handler(Looper.myLooper()).post(() -> {
+                    binding.changeColorSwipe.setOnClickListener(v -> ((MainActivity) context).swipeItemsListener(v, getItem()));
+                    binding.deleteSwipe.setOnClickListener(v -> ((MainActivity) context).swipeItemsListener(v, getItem()));
+
+                    binding.testSwipe.setShowMode(SwipeLayout.ShowMode.PullOut);
+                    binding.testSwipe.setClickToClose(true);
+
+
+                    PushDownAnim.setPushDownAnimTo(binding.deleteSwipe)
+                            .setScale(MODE_SCALE,
+                                    0.7f);
+                    PushDownAnim.setPushDownAnimTo(binding.changeColorSwipe)
+                            .setScale(MODE_SCALE,
+                                    0.7f);
+
+                    EverInterfaceHelper.getInstance().setHideListener(this);
+
+
+                    binding.viewToApplyPushDown.setOnLongClickListener(v -> {
+                        getItem().setSelected(!getItem().isSelected());
+                        if (getItem().isSelected()) {
+                            mainActivity.get().getEverNoteManagement().getSelectedItems().add(getItem());
+                            mainActivity.get().getEverViewManagement().CloseOrOpenSelectionOptions(false);
+                            mainActivity.get().getEverNoteManagement().setPushed(true);
+                        } else {
+                            mainActivity.get().getEverNoteManagement().getSelectedItems().remove(mainActivity.get().getEverNoteManagement().getSelectedItems().getData().indexOf(getItem()));
+                            mainActivity.get().setSmoothColorChange(true);
+                            if (mainActivity.get().getEverNoteManagement().getSelectedItems().size() <= 0) {
+                                System.out.println(mainActivity.get().getEverNoteManagement().getSelectedItems().size() + " " + isItemSelected());
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> mainActivity.get().getEverNoteManagement().setPushed(false), 450);
+                                mainActivity.get().getEverViewManagement().CloseOrOpenSelectionOptions(true);
+                            }
+                        }
+                        mainActivity.get().getNoteScreen().get().getAdapter().notifyItemChanged(getAdapterPosition());
+                        return false;
+                    });
+
+                    binding.viewToApplyPushDown.setOnClickListener(v -> {
+                        if (!isItemSelected()) {
+                            if (!mainActivity.get().getEverNoteManagement().isPushed()) {
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).onItemClickFromNoteScreen(binding.DrawAndTextNoteScreenRecycler, binding.mainCard, binding.imageRecyclerNoteScreen, getAdapterPosition(), getItem()), 40);
+                            }
+                        }
+                    });
+
+                    binding.viewToApplyPushDown.setOnTouchListener((View v, MotionEvent event) -> {
+                        mainActivity.get().getEverViewManagement().pushDownOnTouch(binding.mainCard, event, 0.85f, 50);
+                        return false;
+                    });
+                });
+
+            } else {
+                mainActivity.get().runOnUiThread(this::updateList);
+            }
+        }
+
+        void setImages() {
+            List<String> images = getItem().getImages();
+            if (images.size() > 0) {
+               // if (!getItem().getImages().get(0).equals("") && !getItem().getImages().get(0).equals("▓")) {
+
+                    if (binding.imageRecyclerNoteScreen.getAdapter() == null) {
+                        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, GridLayoutManager.HORIZONTAL);
+                        binding.imageRecyclerNoteScreen.setLayoutManager(staggeredGridLayoutManager);
+
+                        MultiViewAdapter imageAdapter = new MultiViewAdapter();
+                        listImages.addAll(images);
+                        imageAdapter.addSection(listImages);
+                        imagesBinder = new ImagesBinder(context, true);
+                        imagesBinder.size = images.size();
+                        imageAdapter.registerItemBinders(imagesBinder);
+                        binding.imageRecyclerNoteScreen.setItemAnimator(new LandingAnimator(new LinearOutSlowInInterpolator()));
+                        binding.imageRecyclerNoteScreen.setVisibility(View.VISIBLE);
+                        binding.imageRecyclerNoteScreen.setAdapter(new AlphaInAnimationAdapter(imageAdapter));
+                        System.out.println("Image adapter set at = " + getAdapterPosition());
+                    } else {
+                        if (!listImages.getData().equals(images)) {
+                            binding.imageRecyclerNoteScreen.setVisibility(View.VISIBLE);
+                            imagesBinder.size = getItem().getImages().size();
+                            listImages.clear();
+                            listImages.addAll(images);
+                            System.out.println("Image adapter turned visible at = " + getAdapterPosition());
+                        } else {
+                            binding.imageRecyclerNoteScreen.setVisibility(View.VISIBLE);
+                        }
+                    }
+
+                } else {
+                    if (binding.imageRecyclerNoteScreen.getVisibility() == View.VISIBLE) {
+                        binding.imageRecyclerNoteScreen.setVisibility(View.GONE);
+                        System.out.println("Image adapter gone at = " + getAdapterPosition());
+                    }
+                }
+
+                //   EverScrollDecorator.setUpOverScroll(myRecyclerView.get(), EverScrollDecorator.ORIENTATION_HORIZONTAL);
+
+
+            mainActivity.get().getNoteScreen().get().StartPostpone();
+        }
+
+        void updateNoteColor(boolean smooth) {
+            int color = Integer.parseInt(getItem().getNoteColor());
+            if (binding.mainCard.getCardBackgroundColor() != ColorStateList.valueOf(color) || color == -1) {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (smooth) {
+                        mainActivity.get().getEverThemeHelper().tintView(binding.mainCard, color, 0);
+                        mainActivity.get().setSmoothColorChange(false);
+                    } else {
+                        binding.mainCard.setBackgroundTintList(ColorStateList.valueOf(color));
+                    }
+
+                    for (int i = 0; i < listContents.size(); i++) {
+                        if (!listContents.get(i).getRecord().equals("▓")) {
+                            View view = binding.DrawAndTextNoteScreenRecycler.getChildAt(i);
+                            if (view != null) {
+                                View cardView = view.findViewById(R.id.card_everNoteScreenPlayer);
+                                if (cardView != null) {
+                                    mainActivity.get().getEverThemeHelper().tintView(cardView, color, 0);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        void updateList() {
+            if (getItem() == lastProcessedNote) {
+                for (int i = 0; i < 3; i++) {
+                    if (getItem().everLinkedContents.size() >= i + 1) {
+                        if (!listContents.getData().get(i).equals(getItem().everLinkedContents.getData().get(i))) {
+                            listContents.set(i, getItem().everLinkedContents.get(i));
+                        }
+                    } else {
+                        listContents.set(i, e);
+                    }
+                }
+            } else {
+                for (int i = 0; i < 3; i++) {
+                    if (getItem().everLinkedContents.size() >= i + 1) {
+                            listContents.set(i, getItem().everLinkedContents.get(i));
+                    } else {
+                        listContents.set(i, e);
+                    }
+                }
+                lastProcessedNote = getItem();
             }
 
-            //   EverScrollDecorator.setUpOverScroll(myRecyclerView.get(), EverScrollDecorator.ORIENTATION_HORIZONTAL);
-
         }
-
     }
 }

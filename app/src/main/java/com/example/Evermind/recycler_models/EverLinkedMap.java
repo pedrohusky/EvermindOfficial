@@ -15,15 +15,17 @@ public class EverLinkedMap {
     private String content;
     private String drawLocation;
     private String record;
+    private Integer color;
 
     public void setRecord(String record) {
         this.record = record;
     }
 
-    public EverLinkedMap(String contents, String drawLocation, @Nullable String record) {
+    public EverLinkedMap(String contents, String drawLocation, @Nullable String record, @Nullable Integer color) {
         this.content = contents;
         this.drawLocation = drawLocation;
         this.record = record;
+        this.color = color;
     }
 
     public EverLinkedMap() {
@@ -60,10 +62,18 @@ public class EverLinkedMap {
         return drawLocation;
     }
 
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+         this.color = color;
+    }
+
     public EverLinkedMap get() { return this; }
 
     public boolean isFull() {
-        return !drawLocation.equals("▓") && !record.equals("▓");
+        return !drawLocation.equals("▓") || !record.equals("▓") || !content.equals("▓");
     }
 
 }

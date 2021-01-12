@@ -44,7 +44,7 @@
                 android:tag="second"
                 android:backgroundTint="@color/White"
                 app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="15dp"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="8dp">
 
                 <com.example.Evermind.EveRelativeLayout

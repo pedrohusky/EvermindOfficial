@@ -5,8 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.util.Log;
 
 import com.example.Evermind.recycler_models.EverLinkedMap;
 
@@ -21,20 +20,17 @@ import mva2.adapter.internal.ItemMetaData;
 
 public class Note_Model extends ItemMetaData implements Parcelable {
 
-    private int id;
-    private int actualPosition;
-    private String title;
-    private String content;
-    private String date;
-    private String ImageURLS;
-    private String drawLocation;
-    private String noteColor;
-    private String record;
-    private List<String> contents = new ArrayList<>();
-    private List<String> draws = new ArrayList<>();
-    private List<String> images = new ArrayList<>();
-    private List<String> records = new ArrayList<>();
-    public  ListSection<EverLinkedMap> everLinkedContents = new ListSection<>();
+    public static final Creator<Note_Model> CREATOR = new Creator<Note_Model>() {
+        @Override
+        public Note_Model createFromParcel(Parcel in) {
+            return new Note_Model(in);
+        }
+
+        @Override
+        public Note_Model[] newArray(int size) {
+            return new Note_Model[size];
+        }
+    };
 
     protected Note_Model(Parcel in) {
         id = in.readInt();
@@ -52,17 +48,60 @@ public class Note_Model extends ItemMetaData implements Parcelable {
         records = in.createStringArrayList();
     }
 
-    public static final Creator<Note_Model> CREATOR = new Creator<Note_Model>() {
-        @Override
-        public Note_Model createFromParcel(Parcel in) {
-            return new Note_Model(in);
-        }
+    @Override
+    public int describeContents() {
+        return Parcelable.CONTENTS_FILE_DESCRIPTOR;
+    }
 
-        @Override
-        public Note_Model[] newArray(int size) {
-            return new Note_Model[size];
-        }
-    };
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeInt(actualPosition);
+        dest.writeString(title);
+        dest.writeString(content);
+        dest.writeString(date);
+        dest.writeString(ImageURLS);
+        dest.writeString(drawLocation);
+        dest.writeString(noteColor);
+        dest.writeString(record);
+        dest.writeStringList(contents);
+        dest.writeStringList(draws);
+        dest.writeStringList(images);
+        dest.writeStringList(records);
+    }
+
+    public ListSection<EverLinkedMap> everLinkedContents = new ListSection<>();
+    private int id;
+    private int actualPosition;
+    private String title;
+    private String content;
+    private String date;
+    private String ImageURLS;
+    private String drawLocation;
+    private String noteColor;
+    private String record;
+    private List<String> contents = new ArrayList<>();
+    private List<String> draws = new ArrayList<>();
+    private List<String> images = new ArrayList<>();
+    private List<String> records = new ArrayList<>();
+
+
+    public Note_Model(int id, int actualPosition, String title, String content, String date, String imageURLS, String drawLocation, String color, String record) {
+        this.id = id;
+        this.actualPosition = actualPosition;
+        this.title = title;
+        this.content = content;
+        this.date = date;
+        ImageURLS = imageURLS;
+        this.drawLocation = drawLocation;
+        noteColor = color;
+        this.record = record;
+        Collections.addAll(contents, this.content.split("┼"));
+        Collections.addAll(draws, this.drawLocation.split("┼"));
+        Collections.addAll(images, ImageURLS.split("┼"));
+        Collections.addAll(records, this.record.split("┼"));
+        getEverContents(true);
+    }
 
     @NotNull
     @Override
@@ -84,33 +123,57 @@ public class Note_Model extends ItemMetaData implements Parcelable {
                 '}';
     }
 
-    public Note_Model(int id, int actualPosition, String title, String content, String date, String imageURLS, String drawLocation, String color, String record) {
-        this.id = id;
-        this.actualPosition = actualPosition;
-        this.title = title;
-        this.content = content;
-        this.date = date;
-        ImageURLS = imageURLS;
-        this.drawLocation = drawLocation;
-        noteColor = color;
-        this.record = record;
-        Collections.addAll(contents, this.content.split("┼"));
-        Collections.addAll(draws, this.drawLocation.split("┼"));
-        Collections.addAll(images, ImageURLS.split("┼"));
-        Collections.addAll(records, this.record.split("┼"));
-        getEverContents();
-    }
-
     public List<String> getContents() {
         return contents;
+    }
+
+    public void setContents(List<String> contents) {
+        new Thread(() -> {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.content = String.join("", contents);
+        } else {
+            this.content = contents.toString().replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", "");
+        }
+        this.contents = contents;
+        }).start();
     }
 
     public List<String> getDraws() {
         return draws;
     }
 
+    public void setDraws(List<String> draws) {
+        new Thread(() -> {
+        //  List<String> nString = new ArrayList<>();
+        // for (String path: this.draws) {
+        //      nString.add(path+"┼");
+        //  }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.drawLocation = String.join("", draws);
+        } else {
+            this.drawLocation = draws.toString().replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", "");
+        }
+        this.draws = draws;
+        }).start();
+    }
+
     public List<String> getImages() {
         return images;
+    }
+
+    public void setImages(List<String> images) {
+        new Thread(() -> {
+        //  List<String> nString = new ArrayList<>();
+        //  for (String path: this.images) {
+        //      nString.add(path+"┼");
+        //  }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.ImageURLS = String.join("", images);
+        } else {
+            this.ImageURLS = images.toString().replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", "");
+        }
+        this.images = images;
+        }).start();
     }
 
     public String getNoteColor() {
@@ -131,8 +194,8 @@ public class Note_Model extends ItemMetaData implements Parcelable {
 
     public String getRecordsAsString() {
         List<String> recordsAsString = new ArrayList<>();
-        for (String path: records) {
-            recordsAsString.add(path+"┼");
+        for (String path : records) {
+            recordsAsString.add(path + "┼");
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return String.join("", recordsAsString);
@@ -143,8 +206,8 @@ public class Note_Model extends ItemMetaData implements Parcelable {
 
     public String getContentsAsString() {
         List<String> contentAsString = new ArrayList<>();
-        for (String path: contents) {
-            contentAsString.add(path+"┼");
+        for (String path : contents) {
+            contentAsString.add(path + "┼");
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return String.join("", contentAsString);
@@ -155,8 +218,11 @@ public class Note_Model extends ItemMetaData implements Parcelable {
 
     public String getDrawsAsString() {
         List<String> drawsAsString = new ArrayList<>();
-        for (String path: draws) {
-            drawsAsString.add(path+"┼");
+        for (String path : draws) {
+            if (path.equals("")) {
+                path = "▓";
+            }
+            drawsAsString.add(path + "┼");
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return String.join("", drawsAsString);
@@ -167,8 +233,8 @@ public class Note_Model extends ItemMetaData implements Parcelable {
 
     public String getImagesAsString() {
         List<String> imagesAsString = new ArrayList<>();
-        for (String path: images) {
-            imagesAsString.add(path+"┼");
+        for (String path : images) {
+            imagesAsString.add(path + "┼");
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return String.join("", imagesAsString);
@@ -194,15 +260,19 @@ public class Note_Model extends ItemMetaData implements Parcelable {
     }
 
     public void setContent(String content) {
+        new Thread(() -> {
         this.content = content;
         contents.clear();
         Collections.addAll(contents, this.content.split("┼"));
+        }).start();
     }
 
     public void setImageURLS(String imageURLS) {
+        new Thread(() -> {
         ImageURLS = imageURLS;
         images.clear();
         Collections.addAll(images, ImageURLS.split("┼"));
+        }).start();
     }
 
     public String getDate() {
@@ -222,139 +292,93 @@ public class Note_Model extends ItemMetaData implements Parcelable {
     }
 
     public void setDrawLocation(String drawLocation) {
+
+        new Thread(() -> {
         this.drawLocation = drawLocation;
         draws.clear();
-        Collections.addAll(draws,  this.drawLocation.split("┼"));
+        Collections.addAll(draws, this.drawLocation.split("┼"));
+        }).start();
     }
 
-    public void setDraws(List<String> draws) {
-      //  List<String> nString = new ArrayList<>();
-       // for (String path: this.draws) {
-      //      nString.add(path+"┼");
-      //  }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.drawLocation = String.join("", draws);
-        } else {
-            this.drawLocation = draws.toString().replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", "");
-        }
-        this.draws = draws;
-    }
-
-    public void setImages(List<String> images) {
-      //  List<String> nString = new ArrayList<>();
-     //  for (String path: this.images) {
-      //      nString.add(path+"┼");
-      //  }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.ImageURLS = String.join("", images);
-        } else {
-            this.ImageURLS = images.toString().replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", "");
-        }
-        this.images = images;
-    }
-
-    public void setContents(List<String> contents) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.content = String.join("", contents);
-        } else {
-            this.content = contents.toString().replaceAll("[\\[\\](){}]", "").replaceAll(",", "").replaceAll(" ", "");
-        }
-        this.contents = contents;
-    }
-
-    @Override
-    public int describeContents() {
-        return Parcelable.CONTENTS_FILE_DESCRIPTOR;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
-        dest.writeInt(actualPosition);
-        dest.writeString(title);
-        dest.writeString(content);
-        dest.writeString(date);
-        dest.writeString(ImageURLS);
-        dest.writeString(drawLocation);
-        dest.writeString(noteColor);
-        dest.writeString(record);
-        dest.writeStringList(contents);
-        dest.writeStringList(draws);
-        dest.writeStringList(images);
-        dest.writeStringList(records);
-    }
-
-    public void addDraw(String drawLocation, MainActivity mainActivity) {
-       String s = everLinkedContents.get(everLinkedContents.size()-1).getContent();
+    public void addEverLinkedMap(String path, MainActivity mainActivity, boolean isDraw) {
+        String s = everLinkedContents.get(everLinkedContents.size() - 1).getContent();
         if (s.equals("") || s.equals("<br>") || s.equals(" ")) {
-            mainActivity.beginDelayedTransition(mainActivity.cardNoteCreator.get());
-            everLinkedContents.remove(everLinkedContents.size()-1);
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+
+                mainActivity.getEverViewManagement().beginDelayedTransition(mainActivity.getCardNoteCreator());
+
+                mainActivity.getNoteCreator().getTextAndDrawRecyclerView().scrollToPosition(everLinkedContents.size());
+
+                everLinkedContents.remove(everLinkedContents.size() - 1);
+
+            });
+
         }
-        draws.add(drawLocation);
-        records.add("▓");
-        contents.add("▓");
+
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            mainActivity.beginDelayedTransition(mainActivity.cardNoteCreator.get());
-            everLinkedContents.add(new EverLinkedMap(contents.get(contents.size()-1), draws.get(draws.size()-1), records.get(records.size()-1)));
-            everLinkedContents.add(new EverLinkedMap());
+
+            mainActivity.getEverViewManagement().beginDelayedTransition(mainActivity.getCardNoteCreator());
+
+            if (isDraw) {
+                everLinkedContents.add(new EverLinkedMap("▓", path, "▓", null));
+            } else {
+                everLinkedContents.add(new EverLinkedMap("▓", "▓", path, Integer.parseInt(getNoteColor())));
+            }
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                //   mainActivity.getEverViewManagement().beginDelayedTransition(mainActivity.getCardNoteCreator());
+                everLinkedContents.add(new EverLinkedMap());
+                everLinkedToString();
+                mainActivity.getNoteCreator().getTextAndDrawRecyclerView().scrollToPosition(everLinkedContents.size() - 1);
             }, 350);
+
+        }, 350);
     }
 
-    public void addRecord(String audioPath, MainActivity mainActivity) {
-        String s = everLinkedContents.get(everLinkedContents.size()-1).getContent();
-        if (s.equals("") || s.equals("<br>") || s.equals(" ")) {
-            mainActivity.beginDelayedTransition(mainActivity.cardNoteCreator.get());
-            everLinkedContents.remove(everLinkedContents.size()-1);
+    public void getEverContents(boolean fromNoteScreen) {
+        everLinkedContents.clear();
+      //  new Thread(() -> {
+        int size = contents.size();
+        if (fromNoteScreen) {
+            if (contents.size() == 3) {
+                size = 3;
+            }
         }
-
-        records.add(audioPath);
-        draws.add("▓");
-        contents.add("▓");
-
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            mainActivity.beginDelayedTransition(mainActivity.cardNoteCreator.get());
-            everLinkedContents.add(new EverLinkedMap(contents.get(contents.size()-1), draws.get(draws.size()-1), records.get(records.size()-1)));
-            everLinkedContents.add(new EverLinkedMap());
-        }, 35);
-    }
-
-    public void getEverContents() {
-        List<String> bitmaps;
-        List<String> records;
-
-        everLinkedContents = new ListSection<>();
-
-        int i;
-
-        bitmaps = getDraws();
-        records = getRecords();
-        List<String> contentsSplitted = getContents();
-
-        if (contentsSplitted.size() != bitmaps.size()) {
-            for (i = contentsSplitted.size(); i < bitmaps.size(); i++) {
-                contentsSplitted.add("▓");
+        for (int i = 0; i < size; i++) {
+            everLinkedContents.add(new EverLinkedMap(contents.get(i), draws.get(i), records.get(i), Integer.parseInt(noteColor)));
+                if (i + 1 == size) {
+                    String contentAtPosition = everLinkedContents.get(i).getContent();
+                    if (contentAtPosition.equals("<br>") && i == 1 || contentAtPosition.equals("▓")) {
+                        everLinkedContents.add(new EverLinkedMap("", "▓", "▓", Integer.parseInt(noteColor)));
+                    }
+                }
             }
         }
 
-        if (bitmaps.size() != contentsSplitted.size()) {
-            for (i = bitmaps.size(); i < contentsSplitted.size(); i++) {
-                bitmaps.add("▓");
+    public void everLinkedToString() {
+
+        new Thread(() -> {
+
+            List<String> contents = new ArrayList<>();
+            List<String> draws = new ArrayList<>();
+            List<String> records = new ArrayList<>();
+
+            for (EverLinkedMap e : everLinkedContents.getData()) {
+                if (e.getContent().endsWith("<br>") && e.getContent().length() > 4) {
+                    String subcontent = e.getContent().substring(0, e.getContent().length() - 4);
+                    e.setContent(subcontent);
+                }
+                contents.add(e.getContent());
+                draws.add(e.getDrawLocation());
+                records.add(e.getRecord());
+
             }
-        }
-        if (records.size() != contentsSplitted.size()) {
-            for (i = records.size(); i < contentsSplitted.size(); i++) {
-                records.add("▓");
-            }
-        }
 
-        for (i = 0; i < contentsSplitted.size(); i++) {
-            everLinkedContents.add(new EverLinkedMap(contentsSplitted.get(i), bitmaps.get(i), records.get(i)));
-        }
+            setContents(contents);
+            setDraws(draws);
+            setRecords(records);
 
-        if (everLinkedContents.size() == 0) {
-            everLinkedContents.add(new EverLinkedMap("", "▓", "▓"));
-        }
-        System.out.println(everLinkedContents.size() + " size " + contents.size() + " contents");
-
+        }).start();
     }
 }

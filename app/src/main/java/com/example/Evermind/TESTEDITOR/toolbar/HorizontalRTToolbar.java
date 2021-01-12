@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
+import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.RTToolbar;
 import com.example.Evermind.TESTEDITOR.rteditor.RTToolbarListener;
 import com.example.Evermind.TESTEDITOR.rteditor.effects.Effects;
@@ -81,8 +82,6 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     private RTToolbarImageButton mItalic;
     private RTToolbarImageButton mUnderline;
     private RTToolbarImageButton mStrikethrough;
-    private RTToolbarImageButton mSuperscript;
-    private RTToolbarImageButton mSubscript;
     private RTToolbarImageButton mAlignLeft;
     private RTToolbarImageButton mAlignCenter;
     private RTToolbarImageButton mAlignRight;
@@ -92,24 +91,9 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     /*
      * The Spinners and their SpinnerAdapters
      */
-    private Spinner mFont;
-    private SpinnerItemAdapter<FontSpinnerItem> mFontAdapter;
 
-    private Spinner mFontSize;
-    private SpinnerItemAdapter<FontSizeSpinnerItem> mFontSizeAdapter;
-
-    private Spinner mFontColor;
-    private SpinnerItemAdapter<? extends ColorSpinnerItem> mFontColorAdapter;
-
-    private Spinner mBGColor;
-    private SpinnerItemAdapter<? extends ColorSpinnerItem> mBGColorAdapter;
-
-    private final int mCustomColorFont = Color.BLACK;
     private Context context;
-    private final int mCustomColorBG = Color.BLACK;
 
-    private final int mPickerId = -1;
-    private MainActivity a;
     //  private ColorPickerListener mColorPickerListener;
 
     // ****************************************** Initialize Methods *******************************************
@@ -117,32 +101,34 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     public HorizontalRTToolbar(Context context) {
         super(context);
         this.context = context;
-        init();
     }
 
     public HorizontalRTToolbar(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
     public HorizontalRTToolbar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
     }
 
-    private void init() {
-       a =  ((MainActivity)context);
-        mBold = initImageButton(a.Bold);
-        mItalic = initImageButton(a.Italic);
-        mUnderline = initImageButton(a.Underline);
-        mStrikethrough = initImageButton(a.StrikeThrough);
+    public void init(boolean format) {
+        MainActivity a = ((MainActivity) context);
+        RTEditText editor = a.getNoteCreator().getActiveEditor();
+
+       if (format) {
+           mBold = initImageButton(a.getEverViewManagement().getBold());
+           mItalic = initImageButton(a.getEverViewManagement().getItalic());
+           mUnderline = initImageButton(a.getEverViewManagement().getUnderline());
+           mStrikethrough = initImageButton(a.getEverViewManagement().getStrikeThrough());
+       } else {
+           mAlignLeft = initImageButton(a.getEverViewManagement().getAlignLeft());
+           mAlignCenter = initImageButton(a.getEverViewManagement().getAlignCenter());
+           mAlignRight = initImageButton(a.getEverViewManagement().getAlignRight());
+           mBullet = initImageButton(a.getEverViewManagement().getBullets());
+           mNumber = initImageButton(a.getEverViewManagement().getNumbers());
+       }
    //     mSuperscript = initImageButton(R.id.toolbar_superscript);
     //    mSubscript = initImageButton(R.id.toolbar_subscript);
-        mAlignLeft = initImageButton(a.AlignLeft);
-       mAlignCenter = initImageButton(a.AlignCenter);
-        mAlignRight = initImageButton(a.AlignRight);
-        mBullet = initImageButton(a.Bullets);
-        mNumber = initImageButton(a.Numbers);
 
       //  initImageButton(R.id.toolbar_inc_indent);
       //  initImageButton(R.id.toolbar_dec_indent);
@@ -155,6 +141,8 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
             mId = sIdCounter.getAndIncrement();
         }
       //  SetColorPickerListenerEvent.setListener(mPickerId, mColorPickerListener);
+
+        a.getmRTManager().onSelectionChanged(editor, editor.getSelectionStart(), editor.getSelectionEnd());
     }
 
     @Override
@@ -166,11 +154,10 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     }
 
     private RTToolbarImageButton initImageButton(RTToolbarImageButton icon) {
-        RTToolbarImageButton button = icon;
-        if (button != null) {
-            button.setOnClickListener(this);
+        if (icon != null) {
+            icon.setOnClickListener(this);
         }
-        return button;
+        return icon;
     }
 
     @Override
@@ -231,12 +218,11 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
 
     @Override
     public void setSuperscript(boolean enabled) {
-        if (mSuperscript != null) mSuperscript.setChecked(enabled);
+
     }
 
     @Override
     public void setSubscript(boolean enabled) {
-        if (mSubscript != null) mSubscript.setChecked(enabled);
     }
 
     @Override
@@ -260,22 +246,22 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
 
     @Override
     public void setFont(RTTypeface typeface) {
-        if (mFont != null) {
-            if (typeface != null) {
-                for (int pos = 0; pos < mFontAdapter.getCount(); pos++) {
-                    FontSpinnerItem item = mFontAdapter.getItem(pos);
-                  //  if (typeface.equals(item.getTypeface())) {
+       // if (mFont != null) {
+       //     if (typeface != null) {
+       //         for (int pos = 0; pos < mFontAdapter.getCount(); pos++) {
+        //            FontSpinnerItem item = mFontAdapter.getItem(pos);
+       //           //  if (typeface.equals(item.getTypeface())) {
                    //     mFontAdapter.setSelectedItem(pos);
                    //     mFont.setSelection(pos);
                    //     break;
                    // }
-                }
-            }
-            else {
-                mFontAdapter.setSelectedItem(0);
-                mFont.setSelection(0);
-            }
-        }
+         //       }
+        //    }
+        //    else {
+      //          mFontAdapter.setSelectedItem(0);
+       //         mFont.setSelection(0);
+       //     }
+      //  }
     }
 
     /**
@@ -285,62 +271,50 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
      */
     @Override
     public void setFontSize(int size) {
-        if (mFontSize != null) {
-            if (size <= 0) {
-                mFontSizeAdapter.updateSpinnerTitle("");
-                mFontSizeAdapter.setSelectedItem(0);
-                mFontSize.setSelection(0);
-            } else {
-                size = Helper.convertSpToPx(size);
-                mFontSizeAdapter.updateSpinnerTitle(Integer.toString(size));
-                for (int pos = 0; pos < mFontSizeAdapter.getCount(); pos++) {
-                    FontSizeSpinnerItem item = mFontSizeAdapter.getItem(pos);
-                    if (size == item.getFontSize()) {
-                        mFontSizeAdapter.setSelectedItem(pos);
-                        mFontSize.setSelection(pos);
-                        break;
-                    }
-                }
-            }
-        }
+     //   if (mFontSize != null) {
+     //       if (size <= 0) {
+     //           mFontSizeAdapter.updateSpinnerTitle("");
+     //           mFontSizeAdapter.setSelectedItem(0);
+     //           mFontSize.setSelection(0);
+     //       } else {
+     //           size = Helper.convertSpToPx(size);
+      //          mFontSizeAdapter.updateSpinnerTitle(Integer.toString(size));
+      //          for (int pos = 0; pos < mFontSizeAdapter.getCount(); pos++) {
+       //             FontSizeSpinnerItem item = mFontSizeAdapter.getItem(pos);
+       //             if (size == item.getFontSize()) {
+        //                mFontSizeAdapter.setSelectedItem(pos);
+        //                mFontSize.setSelection(pos);
+        //                break;
+        //            }
+        //        }
+       //     }
+      //  }
     }
 
     @Override
     public void setFontColor(int color) {
-        if (mFontColor != null) setFontColor(color, mFontColor, mFontColorAdapter);
+        //if (mFontColor != null) setFontColor(color, mFontColor, mFontColorAdapter);
     }
 
     @Override
     public void setBGColor(int color) {
-        if (mBGColor != null) setFontColor(color, mBGColor, mBGColorAdapter);
+       // if (mBGColor != null) setFontColor(color, mBGColor, mBGColorAdapter);
     }
 
     @Override
     public void removeFontColor() {
-        if (mFontColor != null) {
-            mFontColorAdapter.setSelectedItem(0);
-            mFontColor.setSelection(0);
-        }
+      //  if (mFontColor != null) {
+      //      mFontColorAdapter.setSelectedItem(0);
+      //      mFontColor.setSelection(0);
+       // }
     }
 
     @Override
     public void removeBGColor() {
-        if (mBGColor != null) {
-            mBGColorAdapter.setSelectedItem(0);
-            mBGColor.setSelection(0);
-        }
-    }
-
-    private void setFontColor(int color, Spinner spinner, SpinnerItemAdapter<? extends ColorSpinnerItem> adapter) {
-        int color2Compare = color & 0xffffff;
-        for (int pos = 0; pos < adapter.getCount(); pos++) {
-            ColorSpinnerItem item = adapter.getItem(pos);
-            if (!item.isEmpty() && color2Compare == (item.getColor() & 0xffffff)) {
-                adapter.setSelectedItem(pos);
-                spinner.setSelection(pos);
-                break;
-            }
-        }
+     //   if (mBGColor != null) {
+     //       mBGColorAdapter.setSelectedItem(0);
+      //      mBGColor.setSelection(0);
+      //  }
     }
 
     // ****************************************** Item Selected Methods *******************************************
@@ -368,24 +342,6 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
             else if (id == R.id.toolbar_strikethrough) {
                 mStrikethrough.setChecked(!mStrikethrough.isChecked());
                 mListener.onEffectSelected(Effects.STRIKETHROUGH, mStrikethrough.isChecked());
-            }
-
-            else if (id == R.id.toolbar_superscript) {
-                mSuperscript.setChecked(!mSuperscript.isChecked());
-                mListener.onEffectSelected(Effects.SUPERSCRIPT, mSuperscript.isChecked());
-                if (mSuperscript.isChecked() && mSubscript != null) {
-                    mSubscript.setChecked(false);
-                    mListener.onEffectSelected(Effects.SUBSCRIPT, mSubscript.isChecked());
-                }
-            }
-
-            else if (id == R.id.toolbar_subscript) {
-                mSubscript.setChecked(!mSubscript.isChecked());
-                mListener.onEffectSelected(Effects.SUBSCRIPT, mSubscript.isChecked());
-                if (mSubscript.isChecked() && mSuperscript != null) {
-                    mSuperscript.setChecked(false);
-                    mListener.onEffectSelected(Effects.SUPERSCRIPT, mSuperscript.isChecked());
-                }
             }
 
             else if (id == R.id.toolbar_align_left) {

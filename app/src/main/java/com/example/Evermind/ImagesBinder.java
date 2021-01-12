@@ -1,8 +1,13 @@
 package com.example.Evermind;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 import com.bumptech.glide.GenericTransitionOptions;
 import com.bumptech.glide.Glide;
@@ -11,7 +16,6 @@ import com.stfalcon.imageviewer.StfalconImageViewer;
 
 import mva2.adapter.ItemBinder;
 import mva2.adapter.ItemViewHolder;
-import pl.droidsonroids.gif.GifImageView;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
@@ -19,15 +23,12 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
 
     private final Context context;
     private final boolean fromNoteScreen;
-    private final int size;
+    public int size;
 
-    public ImagesBinder(Context context, int size, boolean fromNoteScreen) {
+    public ImagesBinder(Context context, boolean fromNoteScreen) {
         this.fromNoteScreen = fromNoteScreen;
         this.context = context;
-        this.size = size;
     }
-
-
 
 
     @Override
@@ -45,13 +46,8 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
         if (fromNoteScreen) {
             if (holder.getAdapterPosition() == 0 && size <= 1) {
                 if (path.length() > 1) {
-                    Ion.with(holder.myImageView)
-                            .error(R.drawable.ic_baseline_clear_24)
-                            .animateLoad(R.anim.grid_new_item_anim)
-                            .animateIn(R.anim.grid_new_item_anim)
-                            .smartSize(true)
-                            .centerCrop()
-                            .load(path);
+
+                    Glide.with(holder.myImageView).load(path).centerCrop().into(holder.myImageView);
 
                     ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
 
@@ -60,17 +56,13 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
 
                     holder.myImageView.setLayoutParams(params);
 
+
                 }
 
             } else {
                 if (path.length() > 1) {
-                    Ion.with(holder.myImageView)
-                            .error(R.drawable.ic_baseline_clear_24)
-                            .animateLoad(R.anim.grid_new_item_anim)
-                            .animateIn(R.anim.grid_new_item_anim)
-                            .smartSize(true)
-                            .centerCrop()
-                            .load(path);
+
+                    Glide.with(holder.myImageView).load(path).centerCrop().into(holder.myImageView);
 
                     ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
 
@@ -78,72 +70,68 @@ public class ImagesBinder extends ItemBinder<String, ImagesBinder.ImageModelView
                     params.width = 350;
 
                     holder.myImageView.setLayoutParams(params);
+
+
                 }
             }
 
 
         } else {
 
-            if ((holder.getAdapterPosition() % 2) == 0 && (holder.getAdapterPosition() + 1) == ((MainActivity)context).noteCreator.get().everCreatorHelper.listImages.size()) {
+            if ((holder.getAdapterPosition() % 2) == 0 && (holder.getAdapterPosition() + 1) == ((MainActivity) context).getNoteCreator().getListImages().size()) {
 
                 if (!path.equals("")) {
-                    Ion.with(holder.myImageView)
-                            .error(R.drawable.ic_baseline_clear_24)
-                            .animateLoad(R.anim.grid_new_item_anim)
-                            .animateIn(R.anim.grid_new_item_anim)
-                            .smartSize(true)
-                            .centerCrop()
-                            .load(path);
+
+                    Glide.with(holder.myImageView).load(path).centerCrop().into(holder.myImageView);
 
 
                     ViewGroup.LayoutParams params = holder.myImageView.getLayoutParams();
 
 
                     params.height = 800;
-                    params.width = 1300;
+                    params.width = 1025;
 
 
                     holder.myImageView.setLayoutParams(params);
+
+
                 }
             } else {
 
                 if (!path.equals("")) {
-                    Ion.with(holder.myImageView)
-                            .error(R.drawable.ic_baseline_clear_24)
-                            .animateLoad(R.anim.grid_new_item_anim)
-                            .animateIn(R.anim.grid_new_item_anim)
-                            .smartSize(true)
-                            .centerCrop()
-                            .load(path);
 
-                    }
+                    Glide.with(holder.myImageView).load(path).centerCrop().into(holder.myImageView);
+
                 }
             }
         }
-
+    }
 
 
     class ImageModelViewHolder extends ItemViewHolder<String> {
 
-        GifImageView myImageView;
+        ImageView myImageView;
+        Note_Model note;
 
         public ImageModelViewHolder(View itemView) {
             super(itemView);
             myImageView = itemView.findViewById(R.id.recyclerImage);
-
-            myImageView.setOnClickListener(view ->
-                    new StfalconImageViewer.Builder<>(context, ((MainActivity) context).everNoteManagement.noteModelSection.get(((MainActivity) context).actualNote.get().getActualPosition()).getImages(), (imageView, image) ->
-                            Glide.with(context)
-                                    .asBitmap()
-                                    .transition(GenericTransitionOptions.with(R.anim.grid_new_item_anim))
-                                    .error(R.drawable.ic_baseline_clear_24)
-                                    .load(image)
-                                    .into(imageView)).show(true).setCurrentPosition(getAdapterPosition()));
-
-
-
-
+            myImageView.setOnClickListener(v -> new Handler(Looper.getMainLooper()).post(() -> {
+                if (note == null) {
+                    for (Note_Model n : ((MainActivity) context).getEverNoteManagement().getNoteModelSection().getData()) {
+                        if (n.getImages().contains(getItem())) {
+                            note = n;
+                        }
+                    }
+                }
+                new StfalconImageViewer.Builder<>(context, note.getImages(), (imageView, image) ->
+                        Glide.with(context)
+                                .asBitmap()
+                                .transition(GenericTransitionOptions.with(R.anim.grid_new_item_anim))
+                                .error(R.drawable.ic_baseline_clear_24)
+                                .load(image)
+                                .into(imageView)).show(true).setCurrentPosition(getAdapterPosition());
+            }));
         }
     }
-
 }

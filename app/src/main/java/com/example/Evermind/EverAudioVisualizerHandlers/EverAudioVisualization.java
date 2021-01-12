@@ -10,9 +10,10 @@ public interface EverAudioVisualization {
 
     /**
      * Link view to custom implementation of {@link EverDbmHandler}.
-     * @param dbmHandler instance of DbmHandler
+     * @param EverDbmHandler instance of EverDbmHandler
      */
-    <T> void linkTo(@NonNull EverDbmHandler<T> dbmHandler);
+    <T> void linkTo(@NonNull EverDbmHandler<T> EverDbmHandler);
+
 
     /**
      * Resume audio visualization.

@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainConstrainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
@@ -9,10 +10,10 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="@drawable/top_bar_corner"
+        android:background="@color/White"
         android:backgroundTint="@color/White"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@id/include"
@@ -26,98 +27,108 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:animateLayoutChanges="true"
-            android:orientation="horizontal"
-            android:visibility="visible"
-            tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="13dp">
+            android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/toolbar_undo"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/selected_background"
-                android:onClick="undoClick"
-                android:padding="3dp"
-                android:scaleType="fitCenter"
-                android:visibility="invisible"
-                app:srcCompat="@drawable/ic_baseline_undo_24" />
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/toolbar_redo"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/selected_background"
-                android:onClick="redoClick"
-                android:padding="3dp"
-                android:scaleType="fitCenter"
-                android:visibility="invisible"
-                app:srcCompat="@drawable/ic_baseline_redo_24" />
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/changeNotecolorButton"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_marginEnd="10dp"
                 android:layout_weight="1"
-                android:background="@drawable/selected_background"
-                android:onClick="changeNoteBalls"
-                android:padding="3dp"
-                android:scaleType="fitCenter"
-                android:tag="search"
-                android:tint="@color/Black"
-                android:visibility="gone"
-                app:srcCompat="@drawable/color_selector_icon" />
+                android:animateLayoutChanges="true">
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/toolbar_undo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/selected_background"
+                    android:onClick="undoClick"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_undo_24"
+                    android:visibility="gone" />
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/changeNotecolorButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/selected_background"
+                    android:onClick="changeNoteBalls"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/color_selector_icon"
+                    android:tag="search"
+                    android:tint="@color/Black"
+                    android:visibility="gone" />
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/toolbar_redo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/selected_background"
+                    android:onClick="redoClick"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_redo_24"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
 
             <com.alimuzaffar.lib.widgets.AnimatedEditText
                 android:id="@+id/searchBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/Transparent"
+                android:layout_weight="2"
+                android:background="@color/White"
                 android:gravity="center"
                 android:inputType="textAutoCorrect|textNoSuggestions|textAutoComplete"
                 android:selectAllOnFocus="true"
                 android:singleLine="true"
                 android:tag="search"
                 android:text="EVERMEMO"
+                android:textAlignment="gravity"
                 android:textColor="#737373"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:animateCursor="true"
                 app:animateTextClear="true" />
 
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/Save"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/selected_background"
-                android:onClick="saveButtonClick"
-                android:padding="3dp"
-                android:scaleType="fitCenter"
-                android:tag="Search"
-                android:tint="@color/Black"
-                android:visibility="visible"
-                app:srcCompat="@drawable/ic_baseline_search_24"
-                tools:layout_editor_absoluteX="382dp"
-                tools:layout_editor_absoluteY="13dp" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/Delete"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="14dp"
-                android:background="@drawable/selected_background"
-                android:onClick="deleteButtonClick"
-                android:padding="3dp"
-                android:scaleType="fitCenter"
-                android:tag="GridLayout"
-                android:tint="@color/Black"
-                android:visibility="visible"
-                app:srcCompat="@drawable/ic_baseline_library_books_24"
-                tools:layout_editor_absoluteX="413dp"
-                tools:layout_editor_absoluteY="13dp" />
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/Save"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/selected_background"
+                    android:onClick="saveButtonClick"
+                    android:scaleType="fitCenter"
+                    android:tag="Search"
+                    android:tint="@color/Black"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/ic_baseline_search_24"
+                    tools:layout_editor_absoluteX="382dp"
+                    tools:layout_editor_absoluteY="13dp" />
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/Delete"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/selected_background"
+                    android:onClick="deleteButtonClick"
+                    android:scaleType="fitCenter"
+                    android:tag="GridLayout"
+                    android:tint="@color/Black"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/ic_baseline_library_books_24"
+                    tools:layout_editor_absoluteX="413dp"
+                    tools:layout_editor_absoluteY="13dp" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -129,775 +140,27 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:animateLayoutChanges="true"
-        app:layout_constraintBottom_toBottomOf="@id/bottom_bar"
+        app:layout_constraintBottom_toBottomOf="@id/tester"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <me.ibrahimsn.lib.SmoothBottomBar
-        android:id="@+id/bottom_bar"
-        android:layout_width="match_parent"
-        android:layout_height="0.1dp"
-        android:backgroundTint="@color/White"
-        app:duration="400"
-        app:iconSize="35dp"
-        app:iconTint="@color/Grey"
-        app:iconTintActive="@color/Black"
-        app:indicatorColor="@color/SkyBlueHighlight"
-        app:indicatorRadius="20dp"
-        app:itemPadding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/include"
-        app:menu="@menu/note_bottom_options"
-        app:sideMargins="10dp"
-        app:textColor="@color/Black"
-        app:textSize="0sp" />
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/audio_options"
-        android:layout_width="match_parent"
-        android:layout_height="0.1dp"
-        android:layout_margin="0dp"
-        android:animateLayoutChanges="true"
-        android:paddingBottom="5dp"
-        android:visibility="visible"
-        app:cardBackgroundColor="@color/White"
-        app:cardCornerRadius="30dp"
-        app:cardElevation="0dp"
-        app:contentPadding="0dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_bar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <RelativeLayout
-            android:id="@+id/relativeAudio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true">
-
-            <ImageView
-                android:id="@+id/imageAudioDecoy"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/White" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/audio_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="00:00:00"
-                    android:textAlignment="center"
-                    android:textSize="25sp" />
-
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:orientation="horizontal">
-
-                    <ImageButton
-                        android:id="@+id/play"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginBottom="10dp"
-                        android:layout_weight="1"
-                        android:background="@color/Transparent"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/aar_ic_play"
-                        android:tint="@color/Grey" />
-
-                    <ImageButton
-                        android:id="@+id/stop"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginBottom="10dp"
-                        android:layout_weight="1"
-                        android:background="@color/Transparent"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/aar_ic_stop"
-                        android:tint="@color/Grey" />
-
-                    <ImageButton
-                        android:id="@+id/saveAudio"
-                        android:layout_width="130dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginBottom="10dp"
-                        android:layout_weight="1"
-                        android:background="@color/Transparent"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_baseline_save_24"
-                        android:tint="@color/Grey" />
-                </LinearLayout>
-            </LinearLayout>
-        </RelativeLayout>
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/selectOptions"
-        android:layout_width="wrap_content"
-        android:layout_height="0.1dp"
-        android:layout_marginStart="150dp"
-        android:layout_marginEnd="150dp"
-        android:animateLayoutChanges="true"
-        android:visibility="visible"
-        app:cardBackgroundColor="@color/White"
-        app:cardCornerRadius="30dp"
-        app:cardElevation="0dp"
-        app:contentPadding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:gravity="bottom|center_horizontal"
-            android:paddingLeft="0dp"
-            android:paddingTop="0dp"
-            android:paddingRight="0dp"
-            android:paddingBottom="0dp"
-            android:visibility="visible">
-
-            <ImageButton
-                android:id="@+id/selectAll"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="7dp"
-                android:layout_weight="1"
-                android:background="@drawable/selected_background"
-                android:onClick="selectAllClick"
-                android:padding="4dp"
-                android:scaleType="center"
-                android:scaleX="1.35"
-                android:scaleY="1.35"
-                android:tint="@color/Black"
-                android:visibility="visible"
-                app:srcCompat="@android:drawable/ic_secure" />
-
-            <ImageButton
-                android:id="@+id/selectChangeColor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="7dp"
-                android:layout_weight="1"
-                android:background="@drawable/selected_background"
-                android:elevation="2dp"
-                android:onClick="openColorSelectorSelection"
-                android:padding="4dp"
-                android:scaleType="center"
-                android:scaleX="1.35"
-                android:scaleY="1.35"
-                android:visibility="visible"
-                app:srcCompat="@drawable/color_selector_icon" />
-
-            <ImageButton
-                android:id="@+id/selectDelete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="7dp"
-                android:layout_weight="1"
-                android:background="@drawable/selected_background"
-                android:onClick="deleteSelection"
-                android:padding="4dp"
-                android:scaleType="center"
-                android:scaleX="1.35"
-                android:scaleY="1.35"
-                android:tint="@color/Black"
-                android:visibility="visible"
-                app:srcCompat="@android:drawable/ic_menu_delete" />
-
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/import_options"
-            android:layout_width="wrap_content"
-            android:layout_height="0.1dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="55dp"
-            android:layout_marginEnd="55dp"
-            android:animateLayoutChanges="true"
-            android:visibility="visible"
-            app:cardBackgroundColor="@color/White"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="0dp"
-            app:contentPadding="5dp"
-            app:layout_constraintBottom_toTopOf="@id/bottom_bar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <HorizontalScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:scrollbars="none"
-                android:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:gravity="bottom|center_horizontal"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="0dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="0dp"
-                    android:visibility="visible">
-
-                    <ImageButton
-                        android:id="@+id/Gallery"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="7dp"
-                        android:layout_marginRight="15dp"
-                        android:layout_marginBottom="7dp"
-                        android:background="@drawable/selected_background"
-                        android:onClick="importerClick"
-                        android:padding="4dp"
-                        android:scaleType="fitCenter"
-                        android:scaleX="1.15"
-                        android:scaleY="1.15"
-                        android:tag="gallery"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/gallery" />
-
-                    <ImageButton
-                        android:id="@+id/GooglePhotos"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="7dp"
-                        android:layout_marginRight="15dp"
-                        android:layout_marginBottom="7dp"
-                        android:background="@drawable/selected_background"
-                        android:onClick="importerClick"
-                        android:padding="4dp"
-                        android:scaleType="fitCenter"
-                        android:scaleX="1.15"
-                        android:scaleY="1.15"
-                        android:tag="googlePhotos"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/googlephotos" />
-
-                    <ImageButton
-                        android:id="@+id/Files"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="7dp"
-                        android:layout_marginRight="15dp"
-                        android:layout_marginBottom="7dp"
-                        android:background="@drawable/selected_background"
-                        android:onClick="importerClick"
-                        android:padding="4dp"
-                        android:scaleType="fitCenter"
-                        android:scaleX="1.15"
-                        android:scaleY="1.15"
-                        android:tag="files"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/ic_baseline_save_24" />
-
-
-                </LinearLayout>
-            </HorizontalScrollView>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/format_selectors"
-            android:layout_width="wrap_content"
-            android:layout_height="0.1dp"
-            android:layout_marginStart="55dp"
-            android:layout_marginEnd="55dp"
-            android:animateLayoutChanges="true"
-            android:visibility="visible"
-            app:cardBackgroundColor="@color/White"
-            app:layout_constraintBottom_toTopOf="@id/bottom_bar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="0dp"
-            app:contentPadding="5dp">
-
-            <HorizontalScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:scrollbars="none"
-                android:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:gravity="bottom|center_horizontal"
-                    android:orientation="horizontal"
-                    android:paddingLeft="0dp"
-                    android:paddingTop="0dp"
-                    android:paddingRight="0dp"
-                    android:paddingBottom="0dp"
-                    android:visibility="visible">
-
-                    <ImageButton
-                        android:id="@+id/IncreaseSize1"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:layout_margin="7dp"
-                        android:background="@drawable/selected_background"
-                        android:onClick="formatClick"
-                        android:padding="4dp"
-                        android:scaleType="centerInside"
-                        android:scaleX="1.15"
-                        android:scaleY="1.15"
-                        android:tag="increaseSize"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/increase" />
-
-                    <ImageButton
-                        android:id="@+id/DecreaseSize1"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:layout_margin="7dp"
-                        android:background="@drawable/selected_background"
-                        android:onClick="formatClick"
-                        android:padding="4dp"
-                        android:scaleType="centerInside"
-                        android:scaleX="1.15"
-                        android:scaleY="1.15"
-                        android:tag="decreaseSize"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/decrease" />
-
-                    <ImageButton
-                        android:id="@+id/ChangeColor1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:background="@drawable/selected_background"
-                        android:onClick="formatClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:tag="changeColor"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/color_selector_icon" />
-
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
-                        android:id="@+id/toolbar_bold"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:background="@drawable/selected_background"
-                        android:backgroundTint="@color/White"
-                        android:onClick="formatClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:tag="bold"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/bold_icon" />
-
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
-                        android:id="@+id/toolbar_italic"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:background="@drawable/selected_background"
-                        android:backgroundTint="@color/White"
-                        android:onClick="formatClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:tag="italic"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/italic_icon" />
-
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
-                        android:id="@+id/toolbar_underline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:background="@drawable/selected_background"
-                        android:backgroundTint="@color/White"
-                        android:onClick="formatClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:tag="underline"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/underline_icon" />
-
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
-                        android:id="@+id/toolbar_strikethrough"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:background="@drawable/selected_background"
-                        android:backgroundTint="@color/White"
-                        android:onClick="formatClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:tag="striketrough"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/striketrough_icon" />
-
-                    <ImageButton
-                        android:id="@+id/HighlightText1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:background="@drawable/selected_background"
-                        android:backgroundTint="@color/White"
-                        android:onClick="formatClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:tag="highlight"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/highlight_text_icon" />
-
-                </LinearLayout>
-            </HorizontalScrollView>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/draw_options"
-            android:layout_width="wrap_content"
-            android:layout_height="0.1dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="80dp"
-            android:layout_marginEnd="80dp"
-            android:animateLayoutChanges="true"
-            app:layout_constraintBottom_toTopOf="@id/bottom_bar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:visibility="visible"
-            app:cardBackgroundColor="@color/White"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="0dp"
-            app:contentPadding="5dp">
-
-            <HorizontalScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:scrollbars="none"
-                android:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:gravity="bottom|center_horizontal"
-                    android:paddingLeft="0dp"
-                    android:paddingTop="0dp"
-                    android:paddingRight="0dp"
-                    android:paddingBottom="0dp"
-                    android:visibility="visible">
-
-                    <ImageButton
-                        android:id="@+id/DrawChangeSize"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_margin="7dp"
-                        android:layout_weight="1"
-                        android:onClick="drawChangeSizeClick"
-                        android:background="@drawable/selected_background"
-                        android:elevation="2dp"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/circle_draw_size" />
-
-                    <ImageButton
-                        android:id="@+id/DrawChangeColor"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:layout_weight="1"
-                        android:onClick="drawColorClick"
-                        android:background="@drawable/selected_background"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/color_selector_icon" />
-
-                    <ImageButton
-                        android:id="@+id/eraser"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/selected_background"
-                        android:onClick="eraserClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:tag="white"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/clear" />
-
-                    <ImageButton
-                        android:id="@+id/fillCanvas"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/selected_background"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:tag="white"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/color_selector_icon" />
-
-                    <ImageButton
-                        android:id="@+id/paintTypes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/selected_background"
-                        android:onClick="changePaintBalls"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.35"
-                        android:scaleY="1.35"
-                        android:tag="white"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/ic_baseline_format_paint_24" />
-
-                    <SeekBar
-                        android:id="@+id/draw_size_seekbar"
-                        android:layout_width="150dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_margin="7dp"
-                        android:max="50"
-                        android:padding="4dp"
-                        android:visibility="gone" />
-
-                </LinearLayout>
-            </HorizontalScrollView>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/format_paragraph"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:animateLayoutChanges="true"
-            android:visibility="visible"
-            app:cardBackgroundColor="@color/White"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="0dp"
-            app:layout_constraintBottom_toTopOf="@id/bottom_bar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:contentPadding="5dp"
-            app:contentPaddingLeft="20dp"
-            app:contentPaddingRight="20dp">
-
-            <HorizontalScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:scrollbars="none"
-                android:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:gravity="bottom|center_horizontal"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="0dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="0dp"
-                    android:visibility="visible">
-
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
-                        android:id="@+id/toolbar_bullet"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="7dp"
-                        android:layout_marginRight="15dp"
-                        android:layout_marginBottom="7dp"
-                        android:background="@drawable/selected_background"
-                        android:backgroundTint="@color/White"
-                        android:onClick="paragraphClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.15"
-                        android:scaleY="1.15"
-                        android:tag="bullets"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/bullets" />
-
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
-                        android:id="@+id/toolbar_number"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="7dp"
-                        android:layout_marginRight="15dp"
-                        android:layout_marginBottom="7dp"
-                        android:background="@drawable/selected_background"
-                        android:backgroundTint="@color/White"
-                        android:onClick="paragraphClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.15"
-                        android:scaleY="1.15"
-                        android:tag="numbers"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/numbers" />
-
-                    <ImageView
-                        android:layout_width="1dp"
-                        android:layout_height="35dp"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:background="@color/Black"
-                        android:visibility="visible" />
-
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
-                        android:id="@+id/toolbar_align_right"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="7dp"
-                        android:layout_marginRight="15dp"
-                        android:layout_marginBottom="7dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/selected_background"
-                        android:backgroundTint="@color/White"
-                        android:onClick="paragraphClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.15"
-                        android:scaleY="1.15"
-                        android:tag="alignRight"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/align_right" />
-
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
-                        android:id="@+id/toolbar_align_left"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="7dp"
-                        android:layout_marginRight="15dp"
-                        android:layout_marginBottom="7dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/selected_background"
-                        android:backgroundTint="@color/White"
-                        android:onClick="paragraphClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.15"
-                        android:scaleY="1.15"
-                        android:tag="alignLeft"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/align_left" />
-
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
-                        android:id="@+id/toolbar_align_center"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="7dp"
-                        android:layout_marginRight="15dp"
-                        android:layout_marginBottom="7dp"
-
-                        android:layout_weight="1"
-                        android:background="@drawable/selected_background"
-                        android:backgroundTint="@color/White"
-                        android:onClick="paragraphClick"
-                        android:padding="4dp"
-                        android:scaleType="center"
-                        android:scaleX="1.15"
-                        android:scaleY="1.15"
-                        android:tag="alignCenter"
-                        android:tint="@color/Black"
-                        android:visibility="visible"
-                        app:srcCompat="@drawable/align_center" />
-
-                </LinearLayout>
-            </HorizontalScrollView>
-        </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/draw_sizeVisualizerCardView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="120dp"
         android:animateLayoutChanges="true"
         android:paddingBottom="5dp"
-        android:translationY="-130dp"
         android:visibility="gone"
         app:cardBackgroundColor="@color/White"
         app:cardCornerRadius="30dp"
         app:cardElevation="9dp"
         app:contentPadding="5dp"
-        app:layout_constraintBottom_toBottomOf="@+id/draw_options"
+        app:layout_constraintBottom_toTopOf="@id/tester"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <ImageView
             android:id="@+id/draw_size_visualizer"
@@ -912,24 +175,47 @@
 
     </androidx.cardview.widget.CardView>
 
-    <io.alterac.blurkit.BlurLayout
-        android:id="@+id/viewblur"
-        app:blk_fps="30"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:blk_blurRadius="25"
-        app:blk_downscaleFactor="0.3"
+
+    <LinearLayout
+        android:id="@+id/tester"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/include">
+
+        <RelativeLayout
+            android:id="@+id/relativeLayout_Buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <me.ibrahimsn.lib.SmoothBottomBar
+            android:id="@+id/bottom_bar"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:backgroundTint="@color/White"
+            app:duration="400"
+            app:iconSize="35dp"
+            app:iconTint="@color/Grey"
+            app:iconTintActive="@color/Black"
+            app:indicatorColor="@color/SkyBlueHighlight"
+            app:indicatorRadius="20dp"
+            app:itemPadding="5dp"
+            app:menu="@menu/note_bottom_options"
+            app:sideMargins="10dp"
+            app:textColor="@color/Black"
+            app:textSize="0sp" />
+
+    </LinearLayout>
 
     <com.example.Evermind.EverCircularColorSelect
         android:id="@+id/metaBallMenu"
         android:layout_width="match_parent"
         android:layout_height="0dp"
 
+        android:backgroundTint="@color/White"
         android:tag="empty"
         android:visibility="gone"
         app:angle_between_menu_items="30"
@@ -941,12 +227,50 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/include"
         app:main_button_color="@color/White"
-        android:backgroundTint="@color/White"
         app:main_button_icon="@drawable/color_selector_icon"
         app:main_button_icon_color="@color/Black"
         app:open_animation_duration="1300"
         app:open_interpolator_resource="@anim/interpolator_slight_overshoot"
         app:position_gravity="center"
         app:radius="70dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/firstView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/transitionlist"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/EvermindBlack"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="24dp"
+            android:contentDescription="@string/DescriptionEvermindblack"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="@+id/startButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/evermindblack" />
+
+        <Button
+            android:id="@+id/startButton"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="158dp"
+            android:layout_height="144dp"
+            android:layout_marginTop="64dp"
+            android:background="@drawable/elephantpressedandpush"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

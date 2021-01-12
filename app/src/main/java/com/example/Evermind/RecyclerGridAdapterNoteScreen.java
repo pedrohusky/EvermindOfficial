@@ -23,7 +23,6 @@ import androidx.transition.TransitionSet;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
-import com.example.Evermind.recycler_models.EverAdapter;
 import com.example.Evermind.recycler_models.EverLinkedMap;
 
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.LandingAnimator;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
@@ -73,7 +71,7 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerSwipeAdapter<Recycler
 
         myTitleView =holder.itemView.findViewById(R.id.info_title);
         myCardView = holder.itemView.findViewById(R.id.mainCard);
-        myRecyclerView = holder.itemView.findViewById(R.id.RecyclerNoteScren);
+        myRecyclerView = holder.itemView.findViewById(R.id.imageRecyclerNoteScreen);
         textRecycler = holder.itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler);
 
         if (position == getItemCount()-1) {
@@ -85,7 +83,7 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerSwipeAdapter<Recycler
         ViewCompat.setTransitionName(myRecyclerView, "imageRecycler"+ID);
         ViewCompat.setTransitionName(myTitleView, "title"+ID);
 
-        if (!models.get(position).getNoteColor().equals("16777215")) {
+        if (!models.get(position).getNoteColor().equals("-1")) {
             myCardView.setBackgroundTintList(ColorStateList.valueOf(Integer.parseInt(models.get(position).getNoteColor())));
         }
 
@@ -186,7 +184,7 @@ public class RecyclerGridAdapterNoteScreen extends RecyclerSwipeAdapter<Recycler
 
             myTitleView = itemView.findViewById(R.id.info_title);
             myCardView = itemView.findViewById(R.id.mainCard);
-            myRecyclerView = itemView.findViewById(R.id.RecyclerNoteScren);
+            myRecyclerView = itemView.findViewById(R.id.imageRecyclerNoteScreen);
             textRecycler = itemView.findViewById(R.id.DrawAndTextNoteScreenRecycler);
             linearLayout = itemView.findViewById(R.id.bkg);
             swipe = itemView.findViewById(R.id.testSwipe);

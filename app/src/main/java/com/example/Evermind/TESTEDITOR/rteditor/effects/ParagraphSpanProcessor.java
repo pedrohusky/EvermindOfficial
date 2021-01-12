@@ -88,6 +88,9 @@ class ParagraphSpanProcessor<V extends Object> {
                             paragraph.isLast() && paragraph.isFirst() ? Spanned.SPAN_INCLUSIVE_INCLUSIVE :
                             paragraph.isLast() ? Spanned.SPAN_EXCLUSIVE_INCLUSIVE :
                             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
+                if (paraEnd > str.length()) {
+                    paraEnd = str.length();
+                }
                 str.setSpan(span, paraStart, paraEnd, flags);
             }
         }

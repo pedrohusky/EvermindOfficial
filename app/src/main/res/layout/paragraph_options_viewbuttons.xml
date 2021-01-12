@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/format_paragraph"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:visibility="visible"
+    app:cardBackgroundColor="@color/White"
+    app:cardCornerRadius="0dp"
+    app:contentPadding="5dp"
+    app:contentPaddingLeft="20dp"
+    app:contentPaddingRight="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal">
+
+        <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+            android:id="@+id/toolbar_bullet"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_background"
+            android:backgroundTint="@color/White"
+            android:onClick="paragraphClick"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:tag="bullets"
+            android:tint="@color/Black"
+            app:srcCompat="@drawable/bullets" />
+
+        <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+            android:id="@+id/toolbar_number"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_background"
+            android:backgroundTint="@color/White"
+            android:onClick="paragraphClick"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:tag="numbers"
+            android:tint="@color/Black"
+            app:srcCompat="@drawable/numbers" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/listDivider" />
+
+        <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+            android:id="@+id/toolbar_align_right"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_background"
+            android:backgroundTint="@color/White"
+            android:onClick="paragraphClick"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:tag="alignRight"
+            android:tint="@color/Black"
+            app:srcCompat="@drawable/align_right" />
+
+        <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+            android:id="@+id/toolbar_align_left"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_background"
+            android:backgroundTint="@color/White"
+            android:onClick="paragraphClick"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:tag="alignLeft"
+            android:tint="@color/Black"
+            app:srcCompat="@drawable/align_left" />
+
+        <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+            android:id="@+id/toolbar_align_center"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_background"
+            android:backgroundTint="@color/White"
+            android:onClick="paragraphClick"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:tag="alignCenter"
+            android:tint="@color/Black"
+            app:srcCompat="@drawable/align_center" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

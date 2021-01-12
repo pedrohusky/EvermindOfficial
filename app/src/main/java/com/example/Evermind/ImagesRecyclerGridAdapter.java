@@ -115,7 +115,7 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
                             .animateIn(R.anim.grid_new_item_anim)
                             .load(mImageURLs.get(position)).success(value -> {
                         if (position == getItemCount() - 1) {
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).noteCreator.get().startPostponeTransition(), 25);
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).getNoteCreator().startPostponeTransition(), 25);
                         }
                     }); // was position
 
@@ -141,7 +141,7 @@ public class ImagesRecyclerGridAdapter extends RecyclerView.Adapter<ImagesRecycl
                             .centerCrop()
                             .load(mImageURLs.get(position)).success(value -> {
                         if (position == getItemCount() - 1) {
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).noteCreator.get().startPostponeTransition(), 25);
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> ((MainActivity) context).getNoteCreator().startPostponeTransition(), 25);
                         }
                     });
                 }

@@ -343,7 +343,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
      * us to apply styles and such.
      */
     public void setText(RTText rtText) {
-        new Handler(Looper.getMainLooper()).post(() -> {
+       // new Handler(Looper.getMainLooper()).post(() -> {
             assertRegistration();
             if (rtText.getFormat() instanceof RTFormat.Html) {
                 if (mUseRTFormatting) {
@@ -370,7 +370,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
             }
 
             onSelectionChanged(0, 0);
-        });
+    //    });
     }
 
     public boolean usesRTFormatting() {

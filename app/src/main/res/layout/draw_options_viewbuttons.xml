@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/draw_options"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    app:cardBackgroundColor="@color/White"
+    app:cardCornerRadius="5dp"
+    app:contentPadding="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+
+        <SeekBar
+            android:id="@+id/draw_size_seekbar"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:max="50"
+            android:padding="4dp"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/DrawChangeSize"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_background"
+            android:onClick="drawChangeSizeClick"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/circle_draw_size" />
+
+        <ImageButton
+            android:id="@+id/DrawChangeColor"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_background"
+            android:onClick="drawColorClick"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:tint="@color/Black"
+            app:srcCompat="@drawable/color_selector_icon" />
+
+        <ImageButton
+            android:id="@+id/eraser"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_background"
+            android:onClick="eraserClick"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:tag="white"
+            android:tint="@color/Black"
+            app:srcCompat="@drawable/clear" />
+
+        <ImageButton
+            android:id="@+id/fillCanvas"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_background"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:tag="white"
+            android:tint="@color/Black"
+            app:srcCompat="@drawable/color_selector_icon" />
+
+        <ImageButton
+            android:id="@+id/paintTypes"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_background"
+            android:onClick="changePaintBalls"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:tag="white"
+            android:tint="@color/Black"
+            app:srcCompat="@drawable/ic_baseline_format_paint_24" />
+
+    </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>

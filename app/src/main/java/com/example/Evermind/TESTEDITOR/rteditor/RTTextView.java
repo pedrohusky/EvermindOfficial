@@ -93,13 +93,17 @@ public class RTTextView extends androidx.appcompat.widget.AppCompatTextView {
                 RTText rtSpanned = rtText.convertTo(RTFormat.SPANNED, null);
 
                 super.setText(rtSpanned.getText(), BufferType.EDITABLE);
-                new NumberEffect().applyToSelectionTextView(this, null, null);
-
-                // collect all current media
-                Spannable text = getEditableText();
-                for (MediaSpan span : text.getSpans(0, text.length(), MediaSpan.class)) {
-                    mOriginalMedia.add(span.getMedia());
+                String numberText = rtText.getText().toString();
+                if (numberText.contains("</li><li>") || numberText.contains("<ol><li>") || numberText.contains("</li></ol>")) {
+                    new NumberEffect().applyToSelectionTextView(this, null, false);
                 }
+
+                //TODO TO EDIT \/
+                // collect all current media
+             //   Spannable text = getEditableText();
+             //   for (MediaSpan span : text.getSpans(0, text.length(), MediaSpan.class)) {
+               ///     mOriginalMedia.add(span.getMedia());
+             //   }
 
                 //   Effects.cleanupParagraphs(this);
             } else {

@@ -22,23 +22,11 @@ import kotlinx.android.synthetic.main.startup_activity.*
 
 class StartupActivity : AppCompatActivity() {
 
-    private var notes = java.util.ArrayList<String>()
-    private var titles = java.util.ArrayList<String>()
-    private var dates = java.util.ArrayList<String>()
-    private var ids = java.util.ArrayList<Int>()
-    private var imageURL = java.util.ArrayList<String>()
-    private var draws = java.util.ArrayList<String>()
-    private var colors = java.util.ArrayList<String>()
-    private val noteModels = java.util.ArrayList<Note_Model>()
-    private var record = java.util.ArrayList<String>()
-
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.startup_activity)
 
-        val everDataBase = EverDataBase(this)
 
         fun setWindowFlag(bits: Int, on: Boolean) {
                 val win = window
@@ -63,7 +51,7 @@ class StartupActivity : AppCompatActivity() {
         /////ABOVE SET STATUS BAR TRANSPARENT
 
             val animationDrawable = background.background as AnimationDrawable
-            animationDrawable.setEnterFadeDuration(20)
+            animationDrawable.setEnterFadeDuration(1000)
             animationDrawable.setExitFadeDuration(1000)
             animationDrawable.start()
 
@@ -76,61 +64,7 @@ class StartupActivity : AppCompatActivity() {
                 MotionEvent.ACTION_DOWN -> findViewById<MotionLayout>(R.id.background).setTransitionListener(
                     object : MotionLayout.TransitionListener {
                         override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
-                            noteModels.clear()
 
-                            everDataBase.getAllContentsFromAllNotes()
-
-                            ids = everDataBase.idFromDatabase
-
-                            notes = everDataBase.contentsFromDatabase
-
-                            titles = everDataBase.titlesFromDatabase
-
-                            dates = everDataBase.dateFromDatabase
-
-                            imageURL = everDataBase.imageURLFromDatabase
-
-                            draws = everDataBase.drawLocationFromDatabase
-
-                            colors = everDataBase.noteColorsFromDatabase
-
-                            record = everDataBase.recordsFromDatabase
-
-                            for (i in ids.indices) {
-                                //this is for clean the database when theres notes with nothing in it
-                                if (notes[i] == "┼" && draws[i] == "" && imageURL[i] == "") {
-                                    everDataBase.deleteNote(ids[i])
-                                } else if (notes[i] == "┼┼" && draws[i] == "" && imageURL[i] == "") {
-                                    everDataBase.deleteNote(ids[i])
-                                } else if (notes[i] == "" && draws[i] == "" && imageURL[i] == "") {
-                                    everDataBase.deleteNote(ids[i])
-                                }
-                                //after clean, then add the notes
-                                else {
-                                    noteModels.add(Note_Model(
-                                        ids[i],
-                                        i,
-                                        titles[i],
-                                        notes[i],
-                                        dates[i],
-                                        imageURL[i],
-                                        draws[i],
-                                        colors[i],
-                                        record[i]
-                                    ))
-                                }
-                            }
-
-
-                            //and sort them to make the last become the first
-                            noteModels.sortWith { obj1: Note_Model, obj2: Note_Model ->
-                                obj2.id.compareTo(obj1.id)
-                            }
-                            for ((p, i) in noteModels.withIndex()) {
-                                i.actualPosition = p
-                            }
-
-                            intentToStart.putExtra("notes", noteModels)
                         }
 
                         override fun onTransitionChange(
@@ -139,9 +73,11 @@ class StartupActivity : AppCompatActivity() {
                             p2: Int,
                             p3: Float
                         ) {
+
                         }
 
                         override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
+                            animationDrawable.stop()
                             startActivity(intentToStart)
                             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_in)
                         }

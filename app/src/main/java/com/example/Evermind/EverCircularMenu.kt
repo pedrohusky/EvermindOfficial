@@ -153,18 +153,18 @@ abstract class EverCircularMenu : CompBatMBLayout {
                 noteColorChange -> {
                 }
                 highlight -> {
-                    (context as MainActivity).blur.visibility = VISIBLE
-                    (context as MainActivity).blur.startBlur()
+                 //   (context as MainActivity).everViewManagement.blur.visibility = VISIBLE
+                 //   (context as MainActivity).everViewManagement.blur.startBlur()
                     Handler(Looper.getMainLooper()).postDelayed({
-                        (context as MainActivity).blur.pauseBlur()
-                    }, 150)
+                 //       (context as MainActivity).everViewManagement.blur.pauseBlur()
+                    }, 50)
                 }
                 else -> {
-                    (context as MainActivity).blur.visibility = VISIBLE
-                    (context as MainActivity).blur.startBlur()
+                 //   (context as MainActivity).everViewManagement.blur.visibility = VISIBLE
+                 //   (context as MainActivity).everViewManagement.blur.startBlur()
                     Handler(Looper.getMainLooper()).postDelayed({
-                        (context as MainActivity).blur.pauseBlur()
-                    }, 150)
+                  //      (context as MainActivity).everViewManagement.blur.pauseBlur()
+                    }, 50)
                 }
             }
 
@@ -467,13 +467,13 @@ abstract class EverCircularMenu : CompBatMBLayout {
             if (i == 0) {
 
                 if (noteColorChange) {
-                   // (context as MainActivity).blur.startBlur()
+                  //  (context as MainActivity).everViewManagement.blur.startBlur()
                 }
                 Handler(Looper.getMainLooper()).postDelayed({
+                  //  (context as MainActivity).everViewManagement.blur.pauseBlur()
                     (context as MainActivity).everBallsHelper.metaColors.visibility = GONE
-                    (context as MainActivity).blur.visibility = GONE
-                    (context as MainActivity).blur.pauseBlur()
-                }, 700)
+                   // (context as MainActivity).everViewManagement.blur.visibility = GONE
+                }, 250)
                 positionAnim.addListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator?) {
                         super.onAnimationEnd(animation)

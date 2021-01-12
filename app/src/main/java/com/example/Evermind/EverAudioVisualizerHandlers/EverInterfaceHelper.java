@@ -3,7 +3,7 @@ package com.example.Evermind.EverAudioVisualizerHandlers;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CloseAudioVisualizationHelper {
+public class EverInterfaceHelper {
 
     public interface OnOpenAudioStateListener {
         void open();
@@ -14,14 +14,20 @@ public class CloseAudioVisualizationHelper {
         void changeColor(int color);
     }
 
-    private static CloseAudioVisualizationHelper mInstance;
+    public interface OnHideListener {
+        void hide();
+        void show();
+    }
+
+    private static EverInterfaceHelper mInstance;
     private final List<OnOpenAudioStateListener> audioStateListeners = new ArrayList<>();
     private final List<OnChangeColorListener> colorListeners = new ArrayList<>();
-    private CloseAudioVisualizationHelper() {}
+    private final List<OnHideListener> hideListeners = new ArrayList<>();
+    private EverInterfaceHelper() {}
 
-    public static CloseAudioVisualizationHelper getInstance() {
+    public static EverInterfaceHelper getInstance() {
         if(mInstance == null) {
-            mInstance = new CloseAudioVisualizationHelper();
+            mInstance = new EverInterfaceHelper();
         }
         return mInstance;
     }
@@ -32,10 +38,20 @@ public class CloseAudioVisualizationHelper {
         }
     }
 
+    public void setHideListener(OnHideListener listener) {
+        if (!hideListeners.contains(listener)) {
+            hideListeners.add(listener);
+        }
+    }
+
     public void setColorListener(OnChangeColorListener listener) {
         if (!colorListeners.contains(listener)) {
             colorListeners.add(listener);
         }
+    }
+
+    public void removeColorListener(OnChangeColorListener listener) {
+        colorListeners.remove(listener);
     }
 
     public void changeState(boolean state) {
@@ -54,8 +70,21 @@ public class CloseAudioVisualizationHelper {
         }
     }
 
+    public void hide() {
+        for (OnHideListener listener: hideListeners) {
+            listener.hide();
+        }
+    }
+
+    public void show() {
+        for (OnHideListener listener: hideListeners) {
+            listener.show();
+        }
+    }
+
 
     public void clearListeners() {
         audioStateListeners.clear();
+        colorListeners.clear();
     }
 }

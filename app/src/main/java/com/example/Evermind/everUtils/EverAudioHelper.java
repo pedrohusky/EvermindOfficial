@@ -35,68 +35,27 @@ import omrecorder.Recorder;
 
 public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener, MediaPlayer.OnCompletionListener {
 
-    private final TextView timerView;
-    private final ImageButton restartView;
-    private final ImageButton recordView;
-    private final ImageButton playView;
-    private final RelativeLayout relativeLayout;
-    private final TextView statusView;
     private final WeakReference<MainActivity> mainActivity;
+    private final EverVisualizerHandler visualizerHandler;
+    private TextView timerView;
+    private ImageButton playView;
+    private RelativeLayout relativeLayout;
     private String filePath;
     private AudioSource source;
     private AudioChannel channel;
     private AudioSampleRate sampleRate;
-    private MediaPlayer player;
     private Recorder recorder;
-    private EverVisualizerHandler visualizerHandler;
     private Timer timer;
     private int recorderSecondsElapsed;
-    private int playerSecondsElapsed;
     private boolean isRecording;
     private View added;
     private String ORIGINAL_PATH = "";
+    private final String restartTimer = "00:00:00";
     private EverGLAudioVisualizationView visualizerView;
 
     public EverAudioHelper(Context context) {
         mainActivity = new WeakReference<>(((MainActivity) context));
-        statusView = mainActivity.get().findViewById(R.id.status);
-        timerView = mainActivity.get().findViewById(R.id.audio_time);
-        restartView = mainActivity.get().findViewById(R.id.restart);
-        recordView = mainActivity.get().findViewById(R.id.record);
-        playView = mainActivity.get().findViewById(R.id.play);
-        ImageButton stopView = mainActivity.get().findViewById(R.id.stop);
-        ImageButton saveView = mainActivity.get().findViewById(R.id.saveAudio);
-        relativeLayout = mainActivity.get().findViewById(R.id.relativeAudio);
-        PushDownAnim.setPushDownAnimTo(playView).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-        PushDownAnim.setPushDownAnimTo(stopView).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-        PushDownAnim.setPushDownAnimTo(saveView).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-        //  togglePlaying(v);
-        playView.setOnClickListener(this::toggleRecording);
-        stopView.setOnClickListener(v -> stopRecording());
-        saveView.setOnClickListener(v -> {
-            stopRecording();
-            IConvertCallback callback = new IConvertCallback() {
-                @Override
-                public void onSuccess(File convertedFile) {
-                    Note_Model note = mainActivity.get().actualNote.get();
-                    note.addRecord(convertedFile.getPath(), mainActivity.get());
-                    mainActivity.get().CloseOrOpenAudioOptions(true);
-                }
-
-                @Override
-                public void onFailure(Exception error) {
-                    error.printStackTrace();
-                }
-            };
-            AndroidAudioConverter.with(mainActivity.get())
-                    .setFile(new File(filePath))
-                    .setFormat(AudioFormat.MP3)
-                    .setCallback(callback)
-                    .convert();
-
-        });
-
-
+        visualizerHandler = new EverVisualizerHandler();
     }
 
 
@@ -106,28 +65,71 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
         this.source = source;
         this.channel = channel;
         this.sampleRate = sampleRate;
+        int ifColor;
+        if (color == -1) {
+            ifColor = Util.getDarkerColor(color);
+        } else {
+            ifColor = color;
+        }
         visualizerView = new EverGLAudioVisualizationView.Builder(mainActivity.get())
                 .setLayersCount(1)
                 .setWavesCount(6)
-                .setWavesHeight(800f)
+                .setWavesHeight(1300f)
                 .setWavesFooterHeight(R.dimen.aar_footer_height)
                 .setBubblesPerLayer(20)
                 .setBubblesSize(R.dimen.aar_bubble_size)
                 .setBubblesRandomizeSize(true)
-                .setBackgroundColor(Util.getDarkerColor(color))
-                .setLayerColors(new int[]{color})
+                .setBackgroundColor(ifColor)
+                .setLayerColors(new int[]{mainActivity.get().getColor(R.color.White)})
                 .setIsTop(true)
                 .build();
+        mainActivity.get().getEverViewManagement().CloseOrOpenAudioOptions(false);
+
+        relativeLayout = mainActivity.get().getEverViewManagement().getAudioOptions().findViewById(R.id.relativeAudio);
+        timerView = mainActivity.get().getEverViewManagement().getTimerView();
+        playView = mainActivity.get().getEverViewManagement().getPlayView();
+
         if (added != null) {
             relativeLayout.removeView(added);
         }
         relativeLayout.addView(visualizerView, 0);
         added = visualizerView;
+        visualizerView.linkTo(visualizerHandler);
         visualizerView.onPause();
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            mainActivity.get().CloseOrOpenAudioOptions(false);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> visualizerView.onResume(), 500);
-        }, 250);
+            visualizerView.onResume();
+            ImageButton stopView = mainActivity.get().getEverViewManagement().getStopView();
+            ImageButton saveView = mainActivity.get().getEverViewManagement().getSaveView();
+            PushDownAnim.setPushDownAnimTo(playView).setScale(PushDownAnim.MODE_SCALE, 0.7f);
+            PushDownAnim.setPushDownAnimTo(stopView).setScale(PushDownAnim.MODE_SCALE, 0.7f);
+            PushDownAnim.setPushDownAnimTo(saveView).setScale(PushDownAnim.MODE_SCALE, 0.7f);
+            //  togglePlaying(v);
+            playView.setOnClickListener(this::toggleRecording);
+            stopView.setOnClickListener(v -> stopRecording());
+            saveView.setOnClickListener(v -> {
+                stopRecording();
+
+                new Thread(() -> AndroidAudioConverter.with(mainActivity.get())
+                        .setFile(new File(this.filePath))
+                        .setFormat(AudioFormat.MP3)
+                        .setCallback(new IConvertCallback() {
+                            @Override
+                            public void onSuccess(File convertedFile) {
+                               mainActivity.get().runOnUiThread(() -> {
+                                   mainActivity.get().getActualNote().addEverLinkedMap(convertedFile.getPath(), mainActivity.get(), false);
+                                   stop(true);
+                               });
+                            }
+                            @Override
+                            public void onFailure(Exception error) {
+                                error.printStackTrace();
+                            }
+                        })
+                        .convert()).start();
+
+            });
+        }, 350);
+        // });
 
 
     }
@@ -144,163 +146,52 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
     }
 
     public void toggleRecording(View v) {
-        stopPlaying();
         if (isRecording) {
-            pauseRecording();
-        } else {
-            resumeRecording();
-        }
-    }
-
-    public void togglePlaying(View v) {
-        pauseRecording();
-        if (isPlaying()) {
-            stopPlaying();
-        } else {
-            startPlaying();
-        }
-    }
-
-    public void restartRecording(View v) {
-        if (isRecording) {
-            stopRecording();
-        } else if (isPlaying()) {
-            stopPlaying();
-        } else {
-            visualizerHandler = new EverVisualizerHandler();
-            visualizerView.linkTo(visualizerHandler);
-            visualizerView.release();
-            if (visualizerHandler != null) {
-                visualizerHandler.stop();
+            isRecording = false;
+            playView.setImageResource(R.drawable.aar_ic_play);
+            if (recorder != null) {
+                recorder.pauseRecording();
             }
+            stopTimer();
+        } else {
+            isRecording = true;
+            playView.setImageResource(R.drawable.aar_ic_pause);
+
+            visualizerView.onResume();
+            if (recorder == null) {
+                timerView.setText(restartTimer);
+
+                filePath = ORIGINAL_PATH + "record_" + System.currentTimeMillis() + ".wav";
+                recorder = OmRecorder.wav(
+                        new PullTransport.Default(Util.getMic(source, channel, sampleRate), this),
+                        new File(filePath));
+            }
+            recorder.resumeRecording();
+            startTimer();
         }
-        statusView.setVisibility(View.INVISIBLE);
-        restartView.setVisibility(View.INVISIBLE);
-        playView.setVisibility(View.INVISIBLE);
-        recordView.setImageResource(R.drawable.aar_ic_rec);
-        timerView.setText("00:00:00");
-        recorderSecondsElapsed = 0;
-        playerSecondsElapsed = 0;
+      //  toggleTimer();
     }
 
-    private void resumeRecording() {
-        isRecording = true;
-//            statusView.setText(R.string.aar_recording);
-        //    statusView.setVisibility(View.VISIBLE);
-        //    restartView.setVisibility(View.INVISIBLE);
-        //playView.setVisibility(View.INVISIBLE);
-//            recordView.setImageResource(R.drawable.aar_ic_pause);
-        playView.setImageResource(R.drawable.aar_ic_pause);
-
-        visualizerHandler = new EverVisualizerHandler();
-        visualizerView.linkTo(visualizerHandler);
-//            player.setOnCompletionListener(this);
-        if (recorder == null) {
-            timerView.setText("00:00:00");
-
-            filePath = ORIGINAL_PATH + "record_" + System.currentTimeMillis() + ".wav";
-            recorder = OmRecorder.wav(
-                    new PullTransport.Default(Util.getMic(source, channel, sampleRate), this),
-                    new File(filePath));
-        }
-        recorder.resumeRecording();
-
-        startTimer();
-    }
-
-    private void pauseRecording() {
+    private void stopPlaying() {
         isRecording = false;
-//            statusView.setText(R.string.aar_paused);
-//            statusView.setVisibility(View.VISIBLE);
-        //   restartView.setVisibility(View.VISIBLE);
-        playView.setVisibility(View.VISIBLE);
-//            recordView.setImageResource(R.drawable.aar_ic_rec);
         playView.setImageResource(R.drawable.aar_ic_play);
-
-        visualizerView.release();
-        if (visualizerHandler != null) {
-            visualizerHandler.stop();
-        }
-
-        if (recorder != null) {
-            recorder.pauseRecording();
-        }
-
         stopTimer();
+        timerView.setText(restartTimer);
     }
 
     private void stopRecording() {
-        visualizerView.release();
-        //TODO FIX THE RECORDED AUDIo BEING SAVED
-        if (visualizerHandler != null) {
-            visualizerHandler.stop();
-        }
-
         recorderSecondsElapsed = 0;
         if (recorder != null) {
             recorder.stopRecording();
             recorder = null;
+            playView.setImageResource(R.drawable.aar_ic_play);
+            isRecording = false;
         }
-
         stopTimer();
-    }
-
-    private void startPlaying() {
-        try {
-            stopRecording();
-            player = new MediaPlayer();
-            player.setDataSource(filePath);
-            player.prepare();
-            player.start();
-
-
-            //  visualizerView.linkTo(EverDbmHandler.Factory.newVisualizerHandler(mainActivity.get(), player));
-            visualizerView.post(() -> player.setOnCompletionListener(EverAudioHelper.this));
-
-            timerView.setText("00:00:00");
-            statusView.setText(R.string.aar_playing);
-            statusView.setVisibility(View.VISIBLE);
-            playView.setImageResource(R.drawable.aar_ic_stop);
-
-            playerSecondsElapsed = 0;
-            startTimer();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void stopPlaying() {
-//            statusView.setText("");
-        //        statusView.setVisibility(View.INVISIBLE);
-        playView.setImageResource(R.drawable.aar_ic_play);
-
-        visualizerView.release();
-        if (visualizerHandler != null) {
-            visualizerHandler.stop();
-        }
-
-        if (player != null) {
-            try {
-                player.stop();
-                player.reset();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        stopTimer();
-    }
-
-    private boolean isPlaying() {
-        try {
-            return player != null && player.isPlaying() && !isRecording;
-        } catch (Exception e) {
-            return false;
-        }
+        timerView.setText(restartTimer);
     }
 
     private void startTimer() {
-        stopTimer();
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -323,16 +214,12 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
             if (isRecording) {
                 recorderSecondsElapsed++;
                 timerView.setText(Util.formatSeconds(recorderSecondsElapsed));
-            } else if (isPlaying()) {
-                playerSecondsElapsed++;
-                timerView.setText(Util.formatSeconds(playerSecondsElapsed));
             }
         });
     }
 
     public void stop(boolean close) {
         visualizerView.onPause();
-        //visualizerView.stopRendering();
-        mainActivity.get().CloseOrOpenAudioOptions(close);
+        mainActivity.get().getEverViewManagement().CloseOrOpenAudioOptions(close);
     }
 }

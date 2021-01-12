@@ -16,6 +16,7 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,6 +32,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.Toast;
 
+import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTApi;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
@@ -167,8 +169,10 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
      *                           being shut down then this Bundle contains the data it most
      *                           recently supplied in onSaveInstanceState(Bundle).
      */
-    public RTManager(RTApi rtApi, Bundle savedInstanceState) {
+    private final Context context;
+    public RTManager(RTApi rtApi, Bundle savedInstanceState, Context context) {
         mRTApi = rtApi;
+        this.context = context;
 
         mHandler = new Handler();
         mEditors = new ConcurrentHashMap<Integer, RTEditText>();
@@ -280,6 +284,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
      * @param toolbar          The toolbar to register.
      */
     public void registerToolbar(ViewGroup toolbarContainer, RTToolbar toolbar) {
+        mToolbars.clear();
         mToolbars.put(toolbar.getId(), toolbar);
         toolbar.setToolbarListener(this);
         toolbar.setToolbarContainer(toolbarContainer);
@@ -508,12 +513,11 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
     }
 
     private RTEditText getActiveEditor() {
-        for (RTEditText editor : mEditors.values()) {
-            if (editor.hasFocus()) {
-                return editor;
-            }
+        if (((MainActivity)context).getNoteCreator() != null) {
+            return ((MainActivity)context).getNoteCreator().getActiveEditor();
+        } else {
+            return null;
         }
-        return null;
     }
 
     // ****************************************** RTEditTextListener *******************************************

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/audio_options"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    app:cardBackgroundColor="@color/White"
+    app:cardCornerRadius="0dp"
+    app:contentPadding="0dp">
+
+    <RelativeLayout
+        android:id="@+id/relativeAudio"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
+
+        <ImageView
+            android:id="@+id/imageAudioDecoy"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/White" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/audio_time"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_gravity="center|fill_horizontal"
+                android:layout_weight="2"
+                android:text="00:00:00"
+                android:textAlignment="center"
+                android:textSize="25sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:animateLayoutChanges="true"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <ImageButton
+                    android:id="@+id/play"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="1"
+                    android:background="@color/Transparent"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/aar_ic_play"
+                    android:tint="@color/Grey" />
+
+                <ImageButton
+                    android:id="@+id/stop"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="1"
+                    android:background="@color/Transparent"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/aar_ic_stop"
+                    android:tint="@color/Grey" />
+
+                <ImageButton
+                    android:id="@+id/saveAudio"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="1"
+                    android:background="@color/Transparent"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_save_24"
+                    android:tint="@color/Grey" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
