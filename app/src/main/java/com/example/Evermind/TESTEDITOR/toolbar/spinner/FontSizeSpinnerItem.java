@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.toolbar.spinner;
 
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 /**
  * The spinner item for the font size.
  */
@@ -40,7 +42,7 @@ public class FontSizeSpinnerItem extends SpinnerItem {
     }
 
     @Override
-    void formatNameView(TextView view) {
+    void formatNameView(@NonNull TextView view) {
         super.formatNameView(view);
         view.setTextSize(mFontSize);
     }

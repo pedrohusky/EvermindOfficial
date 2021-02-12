@@ -16,6 +16,9 @@
  */
 package com.example.Evermind.TESTEDITOR.rteditor.utils.io;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 
 /**
@@ -77,6 +80,7 @@ public final class IOCase implements Serializable {
      * @return the IOCase object
      * @throws IllegalArgumentException if the name is invalid
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.utils.io.IOCase forName(String name) {
         if (com.example.Evermind.TESTEDITOR.rteditor.utils.io.IOCase.SENSITIVE.name.equals(name)){
             return com.example.Evermind.TESTEDITOR.rteditor.utils.io.IOCase.SENSITIVE;
@@ -108,6 +112,7 @@ public final class IOCase implements Serializable {
      * 
      * @return the resolved object
      */
+    @NonNull
     private Object readResolve() {
         return forName(name);
     }
@@ -143,7 +148,7 @@ public final class IOCase implements Serializable {
      * @return true if equal using the case rules
      * @throws NullPointerException if either string is null
      */
-    public int checkCompareTo(String str1, String str2) {
+    public int checkCompareTo(@Nullable String str1, @Nullable String str2) {
         if (str1 == null || str2 == null) {
             throw new NullPointerException("The strings must not be null");
         }
@@ -161,7 +166,7 @@ public final class IOCase implements Serializable {
      * @return true if equal using the case rules
      * @throws NullPointerException if either string is null
      */
-    public boolean checkEquals(String str1, String str2) {
+    public boolean checkEquals(@Nullable String str1, @Nullable String str2) {
         if (str1 == null || str2 == null) {
             throw new NullPointerException("The strings must not be null");
         }
@@ -179,7 +184,7 @@ public final class IOCase implements Serializable {
      * @return true if equal using the case rules
      * @throws NullPointerException if either string is null
      */
-    public boolean checkStartsWith(String str, String start) {
+    public boolean checkStartsWith(@NonNull String str, @NonNull String start) {
         return str.regionMatches(!sensitive, 0, start, 0, start.length());
     }
 
@@ -194,7 +199,7 @@ public final class IOCase implements Serializable {
      * @return true if equal using the case rules
      * @throws NullPointerException if either string is null
      */
-    public boolean checkEndsWith(String str, String end) {
+    public boolean checkEndsWith(@NonNull String str, @NonNull String end) {
         int endLen = end.length();
         return str.regionMatches(!sensitive, str.length() - endLen, end, 0, endLen);
     }
@@ -214,7 +219,7 @@ public final class IOCase implements Serializable {
      * @throws NullPointerException if either string is null
      * @since 2.0
      */
-    public int checkIndexOf(String str, int strStartIndex, String search) {
+    public int checkIndexOf(@NonNull String str, int strStartIndex, @NonNull String search) {
         int endIndex = str.length() - search.length();
         if (endIndex >= strStartIndex) {
             for (int i = strStartIndex; i <= endIndex; i++) {
@@ -238,7 +243,7 @@ public final class IOCase implements Serializable {
      * @return true if equal using the case rules
      * @throws NullPointerException if either string is null
      */
-    public boolean checkRegionMatches(String str, int strStartIndex, String search) {
+    public boolean checkRegionMatches(@NonNull String str, int strStartIndex, @NonNull String search) {
         return str.regionMatches(!sensitive, strStartIndex, search, 0, search.length());
     }
 
@@ -248,6 +253,7 @@ public final class IOCase implements Serializable {
      * 
      * @return a string describing the sensitivity
      */
+    @NonNull
     @Override
     public String toString() {
         return name;

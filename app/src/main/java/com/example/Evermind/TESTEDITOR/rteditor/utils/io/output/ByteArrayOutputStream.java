@@ -16,6 +16,8 @@
  */
 package com.example.Evermind.TESTEDITOR.rteditor.utils.io.output;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.utils.io.input.ClosedInputStream;
 
 import java.io.ByteArrayInputStream;
@@ -131,7 +133,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @param len The number of bytes to write
      */
     @Override
-    public void write(byte[] b, int off, int len) {
+    public void write(@NonNull byte[] b, int off, int len) {
         if ((off < 0) 
                 || (off > b.length) 
                 || (len < 0) 
@@ -184,7 +186,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @throws IOException if an I/O error occurs while reading the input stream
      * @since 1.4
      */
-    public synchronized int write(InputStream in) throws IOException {
+    public synchronized int write(@NonNull InputStream in) throws IOException {
         int readCount = 0;
         int inBufferPos = count - filledBufferSum;
         int n = in.read(currentBuffer, inBufferPos, currentBuffer.length - inBufferPos);
@@ -240,7 +242,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @throws IOException if an I/O error occurs, such as if the stream is closed
      * @see java.io.ByteArrayOutputStream#writeTo(OutputStream)
      */
-    public synchronized void writeTo(OutputStream out) throws IOException {
+    public synchronized void writeTo(@NonNull OutputStream out) throws IOException {
         int remaining = count;
         for (byte[] buf : buffers) {
             int c = Math.min(buf.length, remaining);
@@ -273,7 +275,8 @@ public class ByteArrayOutputStream extends OutputStream {
      * @throws IOException if an I/O error occurs
      * @since 2.0
      */
-    public static InputStream toBufferedInputStream(InputStream input)
+    @NonNull
+    public static InputStream toBufferedInputStream(@NonNull InputStream input)
             throws IOException {
         com.example.Evermind.TESTEDITOR.rteditor.utils.io.output.ByteArrayOutputStream output = new com.example.Evermind.TESTEDITOR.rteditor.utils.io.output.ByteArrayOutputStream();
         output.write(input);
@@ -290,6 +293,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @see #reset()
      * @since 2.0
      */
+    @NonNull
     private InputStream toBufferedInputStream() {
         int remaining = count;
         if (remaining == 0) {
@@ -314,6 +318,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @return the current contents of this output stream, as a byte array
      * @see java.io.ByteArrayOutputStream#toByteArray()
      */
+    @NonNull
     public synchronized byte[] toByteArray() {
         int remaining = count;
         if (remaining == 0) {
@@ -338,6 +343,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @return the contents of the byte array as a String
      * @see java.io.ByteArrayOutputStream#toString()
      */
+    @NonNull
     @Override
     public String toString() {
         return new String(toByteArray());
@@ -352,7 +358,8 @@ public class ByteArrayOutputStream extends OutputStream {
      * @throws UnsupportedEncodingException if the encoding is not supported
      * @see java.io.ByteArrayOutputStream#toString(String)
      */
-    public String toString(String enc) throws UnsupportedEncodingException {
+    @NonNull
+    public String toString(@NonNull String enc) throws UnsupportedEncodingException {
         return new String(toByteArray(), enc);
     }
 

@@ -1,5 +1,6 @@
 package com.example.Evermind.recycler_models;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class EverLinkedMap {
@@ -15,9 +16,10 @@ public class EverLinkedMap {
     private String content;
     private String drawLocation;
     private String record;
+    @Nullable
     private Integer color;
 
-    public void setRecord(String record) {
+    public void setRecord(@Nullable String record) {
         this.record = record;
     }
 
@@ -42,6 +44,7 @@ public class EverLinkedMap {
 
     }
 
+    @Nullable
     public String getRecord() {
         return record;
     }
@@ -70,10 +73,11 @@ public class EverLinkedMap {
          this.color = color;
     }
 
+    @NonNull
     public EverLinkedMap get() { return this; }
 
-    public boolean isFull() {
-        return !drawLocation.equals("▓") || !record.equals("▓") || !content.equals("▓");
+    public boolean isEmpty() {
+        return drawLocation.equals("▓") && record.equals("▓") && content.equals("▓") || content.equals("<br>") || content.equals("");
     }
 
 }

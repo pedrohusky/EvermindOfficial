@@ -17,6 +17,9 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
@@ -29,6 +32,7 @@ import java.util.HashMap;
  */
 public class LookupTranslator extends CharSequenceTranslator {
 
+    @NonNull
     private final HashMap<String, CharSequence> lookupMap;
     private final int shortest;
     private final int longest;
@@ -43,7 +47,7 @@ public class LookupTranslator extends CharSequenceTranslator {
      *
      * @param lookup CharSequence[][] table of size [*][2]
      */
-    public LookupTranslator(final CharSequence[]... lookup) {
+    public LookupTranslator(@Nullable final CharSequence[]... lookup) {
         lookupMap = new HashMap<String, CharSequence>();
         int _shortest = Integer.MAX_VALUE;
         int _longest = 0;
@@ -67,7 +71,7 @@ public class LookupTranslator extends CharSequenceTranslator {
      * {@inheritDoc}
      */
     @Override
-    public int translate(final CharSequence input, final int index, final Writer out) throws IOException {
+    public int translate(@NonNull final CharSequence input, final int index, @NonNull final Writer out) throws IOException {
         int max = longest;
         if (index + longest > input.length()) {
             max = input.length() - index;

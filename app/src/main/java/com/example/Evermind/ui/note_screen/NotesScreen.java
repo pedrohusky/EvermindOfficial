@@ -1,8 +1,7 @@
 package com.example.Evermind.ui.note_screen;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,28 +15,27 @@ import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.example.Evermind.EverAudioVisualizerHandlers.EverInterfaceHelper;
 import com.example.Evermind.MainActivity;
-import com.example.Evermind.NoteModelBinder;
-import com.example.Evermind.Note_Model;
 import com.example.Evermind.R;
+import com.example.Evermind.customLandingAnimator;
 import com.example.Evermind.everUtils.EverNoteManagement;
+import com.example.Evermind.noteModelsAdapter;
+import com.mlsdev.animatedrv.AnimatedRecyclerView;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 
+import cafe.adriel.androidaudiorecorder.Util;
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.LandingAnimator;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
-import mva2.adapter.MultiViewAdapter;
-import mva2.adapter.util.Mode;
 
-public class NotesScreen extends Fragment implements AdapterView.OnItemLongClickListener {
+public class NotesScreen extends Fragment implements AdapterView.OnItemLongClickListener, EverInterfaceHelper.OnEnterDarkMode {
 
-    private MultiViewAdapter adapter;
-    private RecyclerView recyclerView;
+    private noteModelsAdapter adapter;
+    private AnimatedRecyclerView recyclerView;
     private  View rootView;
-    private boolean hasInitialized = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -49,6 +47,7 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
         //setSharedElementReturnTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
 
         ((MainActivity) requireActivity()).setNoteScreen(new WeakReference<>(this));
+        EverInterfaceHelper.getInstance().setDarkModeListeners(this);
         return rootView;
     }
 
@@ -76,20 +75,36 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
         return true;
     }
 
-    public void init(EverNoteManagement noteManagement) {
-        hasInitialized = true;
+    public void init(@NonNull EverNoteManagement noteManagement) {
         setLayoutManager(noteManagement);
-        adapter = new MultiViewAdapter();
-        adapter.registerItemBinders(new NoteModelBinder(requireActivity()));
-        adapter.addSection(noteManagement.getNoteModelSection());
-        adapter.setSelectionMode(Mode.MULTIPLE);
-        recyclerView.setItemAnimator(new LandingAnimator(new LinearOutSlowInInterpolator()));
-        recyclerView.setAdapter(new ScaleInAnimationAdapter(adapter));
+        adapter = new noteModelsAdapter(getContext(), noteManagement.getNoteModelSection());
+        recyclerView.setItemAnimator(new customLandingAnimator());
+        recyclerView.setAdapter(adapter);
+        try {
+            recyclerView.notifyDataSetChanged();
+            ((MainActivity)getContext()).holdViewsToDarken(recyclerView);
+            ((MainActivity)getContext()).holdViewsToDarken(rootView.findViewById(R.id.imageButton));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         noteManagement.setNoteScreenRecycler(recyclerView);
-        OverScrollDecoratorHelper.setUpOverScroll(recyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+
+        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                startPostponedEnterTransition();
+                OverScrollDecoratorHelper.setUpOverScroll(recyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+                recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                return false;
+            }
+        });
     }
 
-    public void setLayoutManager(EverNoteManagement noteManagement) {
+    public RecyclerView getRecyclerView() {
+        return recyclerView;
+    }
+
+    public void setLayoutManager(@NonNull EverNoteManagement noteManagement) {
         int count;
         if (noteManagement.isGrid()) {
             count = 2;
@@ -98,16 +113,25 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
         }
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(count, StaggeredGridLayoutManager.VERTICAL);
         recyclerView = rootView.findViewById(R.id.notesRecycler);
-        if (adapter != null) {
-            adapter.removeAllSections();
-            adapter.addSection(((MainActivity)getContext()).getEverNoteManagement().getNoteModelSection());
-        }
+
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
+        if (adapter != null) {
+
+            recyclerView.scheduleLayoutAnimation();
+        //    adapter.changeLayout();
+        }
     }
 
-    public MultiViewAdapter getAdapter() {
+    public noteModelsAdapter getAdapter() {
         return adapter;
+    }
+
+    @Override
+    public void enterDarkMode(int color) {
+        rootView.findViewById(R.id.homeNotesrelative).setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(getContext().getColor(R.color.NightBlack))));
+        recyclerView.setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(getContext().getColor(R.color.NightBlack))));
+        rootView.findViewById(R.id.imageButton).setBackgroundTintList(ColorStateList.valueOf(getContext().getColor(R.color.NightBlack)));
     }
 }
 

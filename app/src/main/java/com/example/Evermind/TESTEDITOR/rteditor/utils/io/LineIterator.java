@@ -16,6 +16,9 @@
  */
 package com.example.Evermind.TESTEDITOR.rteditor.utils.io;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -52,8 +55,10 @@ public class LineIterator implements Iterator<String> {
     // N.B. This class deliberately does not implement Iterable, see https://issues.apache.org/jira/browse/IO-181
     
     /** The reader that is being read. */
+    @NonNull
     private final BufferedReader bufferedReader;
     /** The current line. */
+    @Nullable
     private String cachedLine;
     /** A flag indicating if the iterator has been fully read. */
     private boolean finished = false;
@@ -64,7 +69,7 @@ public class LineIterator implements Iterator<String> {
      * @param reader the <code>Reader</code> to read from, not null
      * @throws IllegalArgumentException if the reader is null
      */
-    public LineIterator(final Reader reader) throws IllegalArgumentException {
+    public LineIterator(@Nullable final Reader reader) throws IllegalArgumentException {
         if (reader == null) {
             throw new IllegalArgumentException("Reader must not be null");
         }
@@ -124,6 +129,7 @@ public class LineIterator implements Iterator<String> {
      * @return the next line from the input
      * @throws NoSuchElementException if there is no line to return
      */
+    @Nullable
     public String next() {
         return nextLine();
     }
@@ -134,6 +140,7 @@ public class LineIterator implements Iterator<String> {
      * @return the next line from the input
      * @throws NoSuchElementException if there is no line to return
      */
+    @Nullable
     public String nextLine() {
         if (!hasNext()) {
             throw new NoSuchElementException("No more lines");
@@ -171,7 +178,7 @@ public class LineIterator implements Iterator<String> {
      *
      * @param iterator  the iterator to close
      */
-    public static void closeQuietly(com.example.Evermind.TESTEDITOR.rteditor.utils.io.LineIterator iterator) {
+    public static void closeQuietly(@Nullable com.example.Evermind.TESTEDITOR.rteditor.utils.io.LineIterator iterator) {
         if (iterator != null) {
             iterator.close();
         }

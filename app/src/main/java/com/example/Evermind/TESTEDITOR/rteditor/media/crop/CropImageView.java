@@ -23,11 +23,16 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 
 public class CropImageView extends ImageViewTouchBase {
 
+    @NonNull
     ArrayList<com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView> mHighlightViews = new ArrayList<com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView>();
+    @Nullable
     com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView mMotionHighlightView = null;
     float mLastX, mLastY;
     int mMotionEdge;
@@ -92,7 +97,7 @@ public class CropImageView extends ImageViewTouchBase {
 
     // According to the event's position, change the focus to the first
     // hitting cropping rectangle.
-    private void recomputeFocus(MotionEvent event) {
+    private void recomputeFocus(@NonNull MotionEvent event) {
         for (int i = 0; i < mHighlightViews.size(); i++) {
             com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView hv = mHighlightViews.get(i);
             hv.setFocus(false);
@@ -115,7 +120,7 @@ public class CropImageView extends ImageViewTouchBase {
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         CropImageActivity cropImage = (CropImageActivity) mContext;
         if (cropImage.mSaving) {
             return false;
@@ -205,7 +210,7 @@ public class CropImageView extends ImageViewTouchBase {
     }
 
     // Pan the displayed image to make sure the cropping rectangle is visible.
-    private void ensureVisible(com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView hv) {
+    private void ensureVisible(@NonNull com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView hv) {
         Rect r = hv.mDrawRect;
 
         int panDeltaX1 = Math.max(0, mLeft - r.left);
@@ -224,7 +229,7 @@ public class CropImageView extends ImageViewTouchBase {
 
     // If the cropping rectangle's size changed significantly, change the
     // view's center and scale according to the cropping rectangle.
-    private void centerBasedOnHighlightView(com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView hv) {
+    private void centerBasedOnHighlightView(@NonNull com.example.Evermind.TESTEDITOR.rteditor.media.crop.HighlightView hv) {
         Rect drawRect = hv.mDrawRect;
 
         float width = drawRect.width();

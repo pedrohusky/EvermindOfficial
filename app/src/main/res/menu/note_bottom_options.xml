@@ -2,28 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_formatText"
         android:icon="@drawable/text_edi"
         android:title="Format Text" />
 
     <item
-        android:id="@+id/nav_paragraph"
         android:icon="@drawable/format_paragraph_icon"
         android:title="Checkbox" />
 
     <item
-        android:id="@+id/nav_import"
         android:icon="@drawable/import_icon"
         android:title="Import" />
 
 
     <item
-        android:id="@+id/nav_record"
         android:icon="@drawable/ic_baseline_mic_24"
         android:title="Record Audio" />
 
     <item
-        android:id="@+id/nav_draw"
         android:icon="@drawable/draw_icon"
         android:title="Draw" />
 

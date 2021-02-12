@@ -16,11 +16,14 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.spans;
 
+import androidx.annotation.Nullable;
+
 /**
  * All paragraph spans that are managed through an Effect need to implement this interface.
  */
 public interface RTParagraphSpan<V> {
 
+    @Nullable
     RTParagraphSpan<V> createClone();
 
 }

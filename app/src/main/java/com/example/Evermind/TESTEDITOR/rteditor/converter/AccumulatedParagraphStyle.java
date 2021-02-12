@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter;
 
+import androidx.annotation.NonNull;
+
 /*
  * This is a helper class for converting from Spanned to HTML and back.
  * It's the accumulated paragraph styles (all SingleParagraphStyle of a paragraph together)
@@ -51,6 +53,7 @@ public class AccumulatedParagraphStyle {
         mRelativeIndent = relativeIndent;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return mType.name() + " - " + mAbsoluteIndent + "/" + mRelativeIndent;

@@ -12,10 +12,10 @@ import androidx.annotation.RequiresApi
 import com.masoudss.lib.*
 import com.masoudss.lib.exception.SampleDataException
 import java.io.File
+import java.util.*
 import kotlin.math.abs
 
 class EverWave : View {
-
     private var mCanvasWidth = 0
     private var mCanvasHeight = 0
 
@@ -72,7 +72,7 @@ class EverWave : View {
         if (sample == null || sample!!.isEmpty())
             throw SampleDataException()
 
-        mMaxValue  = sample!!.max()!!
+        mMaxValue  = sample!!.maxOrNull()!!
         val step = (getAvailableWith() / (waveGap+waveWidth))/sample!!.size
 
         var i = 0F
@@ -191,34 +191,17 @@ class EverWave : View {
         return true
     }
 
-     fun getAvailableWith() = mCanvasWidth-paddingLeft-paddingRight
+    private fun getAvailableWith() = mCanvasWidth-paddingLeft-paddingRight
     private fun getAvailableHeight() = mCanvasHeight-paddingTop-paddingBottom
 
-    var onProgressChanged : EverWave.SeekBarOnProgressChanged? = null
+    interface SeekBarOnProgressChanged {
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-    fun setSampleFrom(path: String, ignoreExtension: Boolean = false) {
-        WaveformOptions.getSampleFrom(path) {
-            sample = it
-        }
+        fun onProgressChanged(waveformSeekBar: EverWave, progress: Int, fromUser: Boolean)
     }
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-    fun setSampleFrom(file: File, ignoreExtension: Boolean = false) {
-        WaveformOptions.getSampleFrom(file) {
-            sample = it
-        }
-    }
+    var onProgressChanged : SeekBarOnProgressChanged? = null
 
-    fun addCustomExtension(extension: String) = WaveformOptions.addCustomExtension(extension)
-
-    fun removeCustomExtension(extension: String) = WaveformOptions.removeCustomExtension(extension)
-
-    fun addCustomExtensions(extensions: List<String>) = WaveformOptions.addCustomExtensions(extensions)
-
-    fun removeCustomExtensions(extensions: List<String>) = WaveformOptions.removeCustomExtensions(extensions)
-
-    var sample: IntArray? = null
+    var sample: List<Int>? = null
         set(value){
             field = value
             invalidate()
@@ -274,9 +257,4 @@ class EverWave : View {
             field = value
             invalidate()
         }
-
-    interface SeekBarOnProgressChanged {
-
-        fun onProgressChanged(waveformSeekBar: EverWave, progress: Int, fromUser: Boolean)
-    }
 }

@@ -20,6 +20,9 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
@@ -50,11 +53,12 @@ abstract class MediaChooserManager implements MediaProcessorListener {
 
     // the file path and name of the original file
     // the MediaChooserManager sets this once the user picked a file
+    @Nullable
     private String mOriginalFile;
 
     MediaChooserManager(MonitoredActivity activity, MediaAction mediaAction,
                         RTMediaFactory<RTImage, RTAudio, RTVideo> mediaFactory,
-                        MediaChooserListener listener, Bundle savedInstanceState) {
+                        MediaChooserListener listener, @Nullable Bundle savedInstanceState) {
         mActivity = activity;
         mMediaFactory = mediaFactory;
         mMediaAction = mediaAction;
@@ -65,7 +69,7 @@ abstract class MediaChooserManager implements MediaProcessorListener {
         }
     }
 
-    void onSaveInstanceState(Bundle outState) {
+    void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString("mOriginalFile", mOriginalFile);
     }
 
@@ -106,6 +110,7 @@ abstract class MediaChooserManager implements MediaProcessorListener {
         mActivity.startBackgroundJob(R.string.rte_processing_image, processor);
     }
 
+    @Nullable
     protected String getOriginalFile() {
         return mOriginalFile;
     }
@@ -114,7 +119,8 @@ abstract class MediaChooserManager implements MediaProcessorListener {
         mOriginalFile = originalFile;
     }
 
-    protected String determineOriginalFile(Intent data) {
+    @Nullable
+    protected String determineOriginalFile(@Nullable Intent data) {
         mOriginalFile = null;
         if (data != null && data.getDataString() != null) {
             try {

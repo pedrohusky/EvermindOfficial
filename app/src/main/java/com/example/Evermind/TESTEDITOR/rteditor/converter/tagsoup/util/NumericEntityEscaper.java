@@ -17,6 +17,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -61,6 +63,7 @@ public class NumericEntityEscaper extends CodePointTranslator {
      * @param codepoint below which to escape
      * @return the newly created {@code NumericEntityEscaper} instance
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.NumericEntityEscaper below(final int codepoint) {
         return outsideOf(codepoint, Integer.MAX_VALUE);
     }
@@ -71,6 +74,7 @@ public class NumericEntityEscaper extends CodePointTranslator {
      * @param codepoint above which to escape
      * @return the newly created {@code NumericEntityEscaper} instance
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.NumericEntityEscaper above(final int codepoint) {
         return outsideOf(0, codepoint);
     }
@@ -82,6 +86,7 @@ public class NumericEntityEscaper extends CodePointTranslator {
      * @param codepointHigh below which to escape
      * @return the newly created {@code NumericEntityEscaper} instance
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.NumericEntityEscaper between(final int codepointLow, final int codepointHigh) {
         return new com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.NumericEntityEscaper(codepointLow, codepointHigh, true);
     }
@@ -93,6 +98,7 @@ public class NumericEntityEscaper extends CodePointTranslator {
      * @param codepointHigh above which to escape
      * @return the newly created {@code NumericEntityEscaper} instance
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.NumericEntityEscaper outsideOf(final int codepointLow, final int codepointHigh) {
         return new com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.NumericEntityEscaper(codepointLow, codepointHigh, false);
     }
@@ -101,7 +107,7 @@ public class NumericEntityEscaper extends CodePointTranslator {
      * {@inheritDoc}
      */
     @Override
-    public boolean translate(final int codepoint, final Writer out) throws IOException {
+    public boolean translate(final int codepoint, @NonNull final Writer out) throws IOException {
         if (between) {
             if (codepoint < below || codepoint > above) {
                 return false;

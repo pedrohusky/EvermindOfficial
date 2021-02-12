@@ -25,6 +25,8 @@ import android.text.Spanned;
 import android.text.style.ParagraphStyle;
 import android.util.AttributeSet;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTHtml;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTText;
@@ -52,18 +54,19 @@ public class RTTextView extends androidx.appcompat.widget.AppCompatTextView {
     private Thread thread;
     private final Set<RTMedia> mOriginalMedia = new HashSet<RTMedia>();
 
-    public RTTextView(Context context) {
+    public RTTextView(@NonNull Context context) {
         super(context);
     }
 
-    public RTTextView(Context context, AttributeSet attrs) {
+    public RTTextView(@NonNull Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public RTTextView(Context context, AttributeSet attrs, int defStyle) {
+    public RTTextView(@NonNull Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
+    @NonNull
     public ArrayList<Paragraph> getParagraphs() {
         return getRTLayout().getParagraphs();
     }
@@ -86,7 +89,7 @@ public class RTTextView extends androidx.appcompat.widget.AppCompatTextView {
         setText(rtText);
     }
 
-    public void setText(RTText rtText) {
+    public void setText(@NonNull RTText rtText) {
         new Handler(Looper.getMainLooper()).post(() -> {
         if (rtText.getFormat() instanceof RTFormat.Html) {
             if (mUseRTFormatting) {

@@ -1,140 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/testSwipe"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/Transparent"
     android:orientation="vertical"
     app:layout_minHeight="150dp">
 
-    <LinearLayout
-        android:id="@+id/bkg"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="@color/Transparent"
-        android:orientation="horizontal"
-        android:weightSum="1">
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="5dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <ImageButton
-                    android:id="@+id/deleteSwipe"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/roundcorners"
-                    android:src="@android:drawable/ic_menu_delete"
-                    android:tag="delete"
-                    android:tint="#FF5722" />
-
-                <ImageButton
-                    android:id="@+id/changeColorSwipe"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/roundcorners"
-                    android:src="@drawable/color_selector_icon"
-                    android:tag="changeColor"
-                    android:tint="#2196F3" />
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/mainCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/Transparent"
-        android:backgroundTint="@color/Transparent"
-        android:foregroundTint="@color/Transparent">
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/White"
+        android:minHeight="100dp"
+        app:cardCornerRadius="15dp"
+        app:cardElevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/mainCard"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginBottom="10dp"
-            android:animateLayoutChanges="true"
-            android:backgroundTint="@color/White"
-            android:minHeight="150dp"
-            android:tag="second"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="4dp">
+            android:layout_height="match_parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/info_title"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:background="@color/Transparent"
+                android:backgroundTint="@color/Transparent"
+                android:elevation="5dp"
+                android:gravity="center|top"
+                android:includeFontPadding="false"
+                android:maxLength="20"
                 android:minWidth="185dp"
-                android:orientation="vertical">
+                android:padding="3dp"
+                android:singleLine="true"
+                android:textColor="@color/Black"
+                android:textSize="24sp"
+                android:visibility="visible"
+                app:autoSizeMaxTextSize="24dp"
+                app:autoSizeMinTextSize="18dp"
+                app:autoSizeTextType="uniform"
+                app:layout_constraintBottom_toTopOf="@id/DrawAndTextNoteScreenRecycler"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/info_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@color/Transparent"
-                    android:backgroundTint="@color/Transparent"
-                    android:gravity="center"
-                    android:includeFontPadding="false"
-                    android:maxLength="20"
-                    android:minWidth="185dp"
-                    android:padding="3dp"
-                    android:singleLine="true"
-                    android:textColor="@color/Black"
-                    android:textSize="24sp"
-                    android:visibility="visible"
-                    app:autoSizeMaxTextSize="24dp"
-                    app:autoSizeMinTextSize="18dp"
-                    app:autoSizeTextType="uniform" />
+            <com.mlsdev.animatedrv.AnimatedRecyclerView
+                android:id="@+id/DrawAndTextNoteScreenRecycler"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/White"
+                android:minHeight="100dp"
+                app:animationDuration="600"
+                app:layoutAnimation="@anim/layout_animation_from_scale"
+                app:layoutManagerOrientation="vertical"
+                app:layoutManagerReverse="false"
+                app:layoutManagerType="linear"
+                app:layout_constraintBottom_toTopOf="@id/imageRecyclerNoteScreen"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/info_title">
 
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cardNoteCreatorDecoy"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:animateLayoutChanges="true"
-                    android:minHeight="150dp"
-                    app:cardCornerRadius="0dp"
-                    app:cardElevation="0dp"
-                    app:cardPreventCornerOverlap="true">
+            </com.mlsdev.animatedrv.AnimatedRecyclerView>
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/DrawAndTextNoteScreenRecycler"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+            <View
+                android:id="@+id/viewToApplyPushDown"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:elevation="2dp"
+                android:minHeight="100dp"
+                app:layout_constraintBottom_toTopOf="@id/imageRecyclerNoteScreen"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                    <View
-                        android:id="@+id/viewToApplyPushDown"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/imageRecyclerNoteScreen"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layoutAnimation="@anim/grid_appear_layout_animation"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/viewToApplyPushDown" />
 
-                </androidx.cardview.widget.CardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/imageRecyclerNoteScreen"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layoutAnimation="@anim/grid_appear_layout_animation"
-                    android:visibility="gone" />
+    </androidx.cardview.widget.CardView>
 
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-    </RelativeLayout>
-
-</com.daimajia.swipe.SwipeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
 
+import androidx.annotation.NonNull;
+
 import java.io.InputStream;
 import java.io.Reader;
 
@@ -40,6 +42,7 @@ public interface AutoDetector {
      * @return A Reader that reads from the InputStream
      */
 
+    @NonNull
     Reader autoDetectingReader(InputStream i);
 
 }

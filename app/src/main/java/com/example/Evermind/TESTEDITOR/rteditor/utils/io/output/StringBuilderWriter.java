@@ -16,6 +16,9 @@
  */
 package com.example.Evermind.TESTEDITOR.rteditor.utils.io.output;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 import java.io.Writer;
 
@@ -33,6 +36,7 @@ import java.io.Writer;
  */
 public class StringBuilderWriter extends Writer implements Serializable {
 
+    @NonNull
     private final StringBuilder builder;
 
     /**
@@ -56,7 +60,7 @@ public class StringBuilderWriter extends Writer implements Serializable {
      *
      * @param builder The String builder
      */
-    public StringBuilderWriter(StringBuilder builder) {
+    public StringBuilderWriter(@Nullable StringBuilder builder) {
         this.builder = builder != null ? builder : new StringBuilder();
     }
 
@@ -66,6 +70,7 @@ public class StringBuilderWriter extends Writer implements Serializable {
      * @param value The character to append
      * @return This writer instance
      */
+    @NonNull
     @Override
     public Writer append(char value) {
         builder.append(value);
@@ -78,6 +83,7 @@ public class StringBuilderWriter extends Writer implements Serializable {
      * @param value The character to append
      * @return This writer instance
      */
+    @NonNull
     @Override
     public Writer append(CharSequence value) {
         builder.append(value);
@@ -92,6 +98,7 @@ public class StringBuilderWriter extends Writer implements Serializable {
      * @param end The index of the last character + 1
      * @return This writer instance
      */
+    @NonNull
     @Override
     public Writer append(CharSequence value, int start, int end) {
         builder.append(value, start, end);
@@ -119,7 +126,7 @@ public class StringBuilderWriter extends Writer implements Serializable {
      * @param value The value to write
      */
     @Override
-    public void write(String value) {
+    public void write(@Nullable String value) {
         if (value != null) {
             builder.append(value);
         }
@@ -133,7 +140,7 @@ public class StringBuilderWriter extends Writer implements Serializable {
      * @param length The number of characters to write
      */
     @Override
-    public void write(char[] value, int offset, int length) {
+    public void write(@Nullable char[] value, int offset, int length) {
         if (value != null) {
             builder.append(value, offset, length);
         }
@@ -144,6 +151,7 @@ public class StringBuilderWriter extends Writer implements Serializable {
      *
      * @return The underlying builder
      */
+    @NonNull
     public StringBuilder getBuilder() {
         return builder;
     }
@@ -153,6 +161,7 @@ public class StringBuilderWriter extends Writer implements Serializable {
      *
      * @return The contents of the String builder.
      */
+    @NonNull
     @Override
     public String toString() {
         return builder.toString();

@@ -17,6 +17,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
@@ -53,7 +55,7 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
      *
      * @param options to apply to this unescaper
      */
-    public NumericEntityUnescaper(final OPTION... options) {
+    public NumericEntityUnescaper(@NonNull final OPTION... options) {
         if (options.length > 0) {
             this.options = EnumSet.copyOf(Arrays.asList(options));
         } else {
@@ -75,7 +77,7 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
      * {@inheritDoc}
      */
     @Override
-    public int translate(final CharSequence input, final int index, final Writer out) throws IOException {
+    public int translate(@NonNull final CharSequence input, final int index, @NonNull final Writer out) throws IOException {
         final int seqEnd = input.length();
         // Uses -2 to ensure there is something after the &#
         if (input.charAt(index) == '&' && index < seqEnd - 2 && input.charAt(index + 1) == '#') {
@@ -118,7 +120,7 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
                 } else {
                     entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 10);
                 }
-            } catch (final NumberFormatException nfe) {
+            } catch (@NonNull final NumberFormatException nfe) {
                 return 0;
             }
 

@@ -17,6 +17,8 @@
 package com.example.Evermind.TESTEDITOR.rteditor.spans;
 
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTApi;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTMedia;
@@ -24,18 +26,20 @@ import com.example.Evermind.TESTEDITOR.rteditor.media.MediaUtils;
 
 public abstract class MediaSpan extends android.text.style.ImageSpan {
 
+    @NonNull
     final protected RTMedia mMedia;
 
     // when saving the text delete the Media if the MediaSpan was removed from the text
     // when dismissing the text delete the Media if the MediaSpan was removed from the text and if the Media wasn't saved
     final private boolean mIsSaved;
 
-    public MediaSpan(RTMedia media, boolean isSaved) {
+    public MediaSpan(@NonNull RTMedia media, boolean isSaved) {
         super(RTApi.getApplicationContext(), MediaUtils.createFileUri(media.getFilePath(RTFormat.SPANNED)));
         mMedia = media;
         mIsSaved = isSaved;
     }
 
+    @NonNull
     public RTMedia getMedia() {
         return mMedia;
     }

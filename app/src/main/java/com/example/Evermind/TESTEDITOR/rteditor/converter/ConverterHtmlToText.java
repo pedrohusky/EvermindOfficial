@@ -21,6 +21,9 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTHtml;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTPlainText;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
@@ -54,7 +57,8 @@ public class ConverterHtmlToText {
     private static final char NBSP_CHARACTER = (char) 0x00a0;    // utf-8 non-breaking space
     private static final char NBSP_REPLACEMENT = (char) 0x20;    // space
 
-    public static RTPlainText convert(RTHtml<? extends RTImage, ? extends RTAudio, ? extends RTVideo> input) {
+    @NonNull
+    public static RTPlainText convert(@NonNull RTHtml<? extends RTImage, ? extends RTAudio, ? extends RTVideo> input) {
         String result = Html.fromHtml(input.getText(), null, new HtmlToTextTagHandler())
                 .toString()
                 .replace(PREVIEW_OBJECT_CHARACTER, PREVIEW_OBJECT_REPLACEMENT)
@@ -62,6 +66,7 @@ public class ConverterHtmlToText {
         return new RTPlainText(result);
     }
 
+    @NonNull
     public static String convert(String text) {
         return Html.fromHtml(text, null, new HtmlToTextTagHandler())
                 .toString()
@@ -76,6 +81,7 @@ public class ConverterHtmlToText {
      */
     private static class HtmlToTextTagHandler implements Html.TagHandler {
         // List of tags whose content should be ignored.
+        @NonNull
         private static final Set<String> TAGS_WITH_IGNORED_CONTENT;
 
         static {
@@ -88,7 +94,7 @@ public class ConverterHtmlToText {
         }
 
         @Override
-        public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
+        public void handleTag(boolean opening, String tag, @NonNull Editable output, XMLReader xmlReader) {
             tag = tag.toLowerCase(Locale.US);
             if (tag.equals("hr") && opening) {
                 // In the case of an <hr>, replace it with a bunch of underscores. This is roughly
@@ -111,7 +117,7 @@ public class ConverterHtmlToText {
          * @param opening If this is an opening tag or not.
          * @param output  Spannable string that we're working with.
          */
-        private void handleIgnoredTag(boolean opening, Editable output) {
+        private void handleIgnoredTag(boolean opening, @NonNull Editable output) {
             int len = output.length();
             if (opening) {
                 output.setSpan(new Annotation(IGNORED_ANNOTATION_KEY, IGNORED_ANNOTATION_VALUE), len,
@@ -135,7 +141,8 @@ public class ConverterHtmlToText {
          * @param output Spannable string we're working with.
          * @return Starting Annotation object.
          */
-        private Object getOpeningAnnotation(Editable output) {
+        @Nullable
+        private Object getOpeningAnnotation(@NonNull Editable output) {
             Object[] objs = output.getSpans(0, output.length(), Annotation.class);
             for (int i = objs.length - 1; i >= 0; i--) {
                 Annotation span = (Annotation) objs[i];

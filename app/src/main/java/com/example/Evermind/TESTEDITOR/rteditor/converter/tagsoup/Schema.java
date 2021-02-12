@@ -18,6 +18,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.HashMap;
 
 /**
@@ -40,6 +43,7 @@ public abstract class Schema {
 
     private String theURI = "";
     private String thePrefix = "";
+    @Nullable
     private ElementType theRoot = null;
 
     /**
@@ -52,7 +56,7 @@ public abstract class Schema {
      */
 
     @SuppressLint("DefaultLocale")
-    public void elementType(String name, int model, int memberOf, int flags) {
+    public void elementType(@NonNull String name, int model, int memberOf, int flags) {
         ElementType e = new ElementType(name, model, memberOf, flags, this);
         theElementTypes.put(name.toLowerCase(), e);
         if (memberOf == M_ROOT)
@@ -63,6 +67,7 @@ public abstract class Schema {
      * Get the root element of this schema
      */
 
+    @Nullable
     public ElementType rootElementType() {
         return theRoot;
     }
@@ -76,7 +81,7 @@ public abstract class Schema {
      * @param value    Default value of the attribute; null if no default
      */
 
-    public void attribute(String elemName, String attrName, String type,
+    public void attribute(@NonNull String elemName, String attrName, String type,
                           String value) {
         ElementType e = getElementType(elemName);
         if (e == null) {
@@ -93,7 +98,7 @@ public abstract class Schema {
      * @param parentName Name of the parent element
      */
 
-    public void parent(String name, String parentName) {
+    public void parent(@NonNull String name, @NonNull String parentName) {
         ElementType child = getElementType(name);
         ElementType parent = getElementType(parentName);
         if (child == null) {
@@ -123,8 +128,9 @@ public abstract class Schema {
      * @return The corresponding ElementType
      */
 
+    @Nullable
     @SuppressLint("DefaultLocale")
-    public ElementType getElementType(String name) {
+    public ElementType getElementType(@NonNull String name) {
         return theElementTypes.get(name.toLowerCase());
     }
 

@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ScrollView;
 
+import androidx.annotation.NonNull;
+
 public class EverFlowScrollView extends ScrollView{
 
     private boolean mScrollable = true;
@@ -31,7 +33,7 @@ public class EverFlowScrollView extends ScrollView{
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent ev) {
+    public boolean onTouchEvent(@NonNull MotionEvent ev) {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 // if we can scroll pass the event to the superclass

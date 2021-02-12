@@ -20,6 +20,7 @@ public class EverVisualizerDbmHandler extends EverDbmHandler<byte[]> implements 
      */
     private static final float MAX_DB_VALUE = 76;
 
+    @NonNull
     private final EverVisualizerWrapper visualizerWrapper;
     private float[] dbs;
     private float[] allAmps;
@@ -43,7 +44,7 @@ public class EverVisualizerDbmHandler extends EverDbmHandler<byte[]> implements 
     }
 
     @Override
-    protected void onDataReceivedImpl(byte[] fft, int layersCount, float[] dBmArray, float[] ampArray) {
+    protected void onDataReceivedImpl(@NonNull byte[] fft, int layersCount, float[] dBmArray, float[] ampArray) {
         // calculate dBs and amplitudes
         int dataSize = fft.length / 2 - 1;
         if (dbs == null || dbs.length != dataSize) {

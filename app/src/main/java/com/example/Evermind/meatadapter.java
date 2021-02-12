@@ -49,7 +49,6 @@ public class meatadapter implements MetaBallAdapter {
         return colors.get(i);
     }
 
-    @Nullable
     @Override
     public Drawable menuItemIcon(int i) {
         return backgrounds.get(i);

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:animateLayoutChanges="true"
     android:orientation="vertical">
 
     <com.example.Evermind.TESTEDITOR.rteditor.RTEditText
@@ -11,200 +12,133 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="5dp"
         android:background="@color/Transparent"
         android:bufferType="editable"
         android:elegantTextHeight="true"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <com.daimajia.swipe.SwipeLayout
-        android:id="@+id/swipeDraw"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardDrawRecycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/Transparent"
-        android:backgroundTint="@color/Transparent"
-        android:foregroundTint="@color/Transparent"
-        android:orientation="vertical"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:visibility="gone"
-        app:drag_edge="left">
+        app:cardCornerRadius="0dp"
+        app:cardElevation="3dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:weightSum="1">
-
-            <ImageButton
-                android:id="@+id/deleteDrawRecycler"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:background="@drawable/roundcorners"
-                android:contentDescription="jooj"
-                android:elevation="10dp"
-                android:src="@android:drawable/ic_menu_delete" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <ImageView
+            android:id="@+id/recycler_imageView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical"
-            android:weightSum="1">
+            android:layout_height="wrap_content"/>
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardDrawRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="7dp"
-                android:visibility="visible"
-                app:cardCornerRadius="0dp"
-                app:cardElevation="3dp">
+        <com.example.Evermind.EverDraw
+            android:id="@+id/everDrawCanvas"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:animateLayoutChanges="true">
+    </androidx.cardview.widget.CardView>
 
-                    <ImageView
-                        android:id="@+id/recycler_imageView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:scaleType="fitXY" />
-
-                    <com.example.Evermind.EverDraw
-                        android:id="@+id/everDraw"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:visibility="gone" />
-
-                </RelativeLayout>
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-    </com.daimajia.swipe.SwipeLayout>
-
-    <com.daimajia.swipe.SwipeLayout
-        android:id="@+id/swipeRecord"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_everPlayer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
-        android:background="@color/Transparent"
-        android:backgroundTint="@color/Transparent"
-        android:foregroundTint="@color/Transparent"
-        android:orientation="vertical"
+        android:layout_height="50dp"
+        android:layout_margin="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="5dp"
         android:visibility="gone"
-        app:drag_edge="left">
+        app:cardBackgroundColor="@color/White"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="3dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical"
-            android:weightSum="1">
-
-            <ImageButton
-                android:id="@+id/deleteRecordRecycler"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:background="@drawable/roundcorners"
-                android:contentDescription="TODO"
-                android:elevation="10dp"
-                android:src="@android:drawable/ic_menu_delete" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <com.example.Evermind.EverAudioVisualizerHandlers.EverGLAudioVisualizationView
+            android:id="@+id/everGLAudioVisualizationView2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical"
-            android:weightSum="1">
+            android:visibility="gone"
+            app:av_bubblesSize="30dp"
+            app:av_bubblesRandomizeSizes="true"
+            app:av_wavesHeight="500dp"
+            app:av_wavesFooterHeight="350dp"
+            app:av_wavesCount="4"
+            app:av_layersCount="1"
+            app:av_backgroundColor="@color/White"
+            app:av_bubblesPerLayer="15"/>
+
+        <ImageView
+            android:id="@+id/imageDecoy"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:tag="audioImageDecoy"
+            android:visibility="visible"
+            tools:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/linear_player"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/Transparent"
+            android:orientation="horizontal">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/card_everPlayer"
-                android:layout_width="match_parent"
+                android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_margin="5dp"
-                android:animateLayoutChanges="true"
                 app:cardBackgroundColor="@color/White"
-                app:cardCornerRadius="30dp"
+                app:cardCornerRadius="25dp"
                 app:cardElevation="3dp">
 
-                <ImageView
-                    android:id="@+id/imageDecoy"
+                <ImageButton
+                    android:id="@+id/AudioViewButton"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:tag="audioImageDecoy"
-                    android:visibility="visible"
-                    tools:visibility="gone" />
-
-                <RelativeLayout
-                    android:id="@+id/relative_layout_player"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:animateLayoutChanges="true"
-                    android:background="@color/Transparent">
-
-
-                    <LinearLayout
-                        android:id="@+id/linear_player"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:animateLayoutChanges="true"
-                        android:background="@color/Transparent"
-                        android:orientation="horizontal">
-
-                        <androidx.cardview.widget.CardView
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_margin="5dp"
-                            android:layout_weight="1"
-                            app:cardBackgroundColor="@color/White"
-                            app:cardCornerRadius="30dp"
-                            app:cardElevation="3dp">
-
-                            <ImageButton
-                                android:id="@+id/AudioViewButton"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_gravity="center"
-                                android:background="@color/Transparent"
-                                android:scaleType="fitXY"
-                                android:src="@drawable/aar_ic_play"
-                                android:tint="@color/Black" />
-                        </androidx.cardview.widget.CardView>
-
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/card_visualizer"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="1dp"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginEnd="5dp"
-                            android:layout_marginBottom="5dp"
-                            android:layout_weight="8"
-                            app:cardBackgroundColor="@color/Transparent"
-                            app:cardCornerRadius="0dp"
-                            app:cardElevation="0dp">
-
-                            <com.example.Evermind.EverWave
-                                android:id="@+id/everWave2"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:tag="wave" />
-                        </androidx.cardview.widget.CardView>
-
-                    </LinearLayout>
-
-                </RelativeLayout>
-
+                    android:background="@color/Transparent"
+                    android:padding="1dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/aar_ic_play"
+                    android:tint="@color/Black" />
             </androidx.cardview.widget.CardView>
+
+            <com.example.Evermind.EverWave
+                android:id="@+id/everWave2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp"
+                android:tag="wave" />
 
         </LinearLayout>
 
-    </com.daimajia.swipe.SwipeLayout>
-</LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:id="@+id/view2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/selected_background"
+        android:clickable="true"
+        android:focusable="auto"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

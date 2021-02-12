@@ -22,6 +22,9 @@ import android.net.Uri;
 import android.provider.MediaStore.MediaColumns;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Helper;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.io.FilenameUtils;
 
@@ -40,11 +43,13 @@ public class MediaUtils {
      * @param originalFile The source file including the path (e.g. /sdcard/image.jpg)
      * @return The non-conflicting file name in targetFolder (e.g. /sdcard/Android/data/158867324_201308071234568.jpg)
      */
+    @NonNull
     public static File createUniqueFile(File targetFolder, String originalFile, boolean keepOriginal) {
         String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(originalFile);
         return createUniqueFile(targetFolder, originalFile, mimeType, keepOriginal);
     }
 
+    @NonNull
     public static File createUniqueFile(File targetFolder, String originalFile, String mimeType, boolean keepOriginal) {
         /*
          * We try to get the extension from the file name first.
@@ -74,7 +79,7 @@ public class MediaUtils {
      * The method can handle the case of an absolute path (e.g. /data/data....)
      * and a Uri path containing the file:// scheme (e.g. file:///data/data...)
      */
-    public static Uri createFileUri(String path) {
+    public static Uri createFileUri(@NonNull String path) {
         if (path.startsWith("file://")) {
             return Uri.parse(path);
         }
@@ -87,7 +92,8 @@ public class MediaUtils {
      * @throws IllegalArgumentException If the uri is null or we can't resolve the uri to an absolute file path
      *                                  (meaning the uri isn't valid)
      */
-    public static String determineOriginalFile(Context context, Uri uri) throws IllegalArgumentException {
+    @Nullable
+    public static String determineOriginalFile(@NonNull Context context, @Nullable Uri uri) throws IllegalArgumentException {
         String originalFile = null;
 
         if (uri != null) {
@@ -116,7 +122,7 @@ public class MediaUtils {
         return originalFile;
     }
 
-    private static String getPathFromUri(Context context, Uri imageUri) {
+    private static String getPathFromUri(@NonNull Context context, @NonNull Uri imageUri) {
         String filePath = "";
 
         if (imageUri.toString().startsWith("content://com.android.gallery3d.provider")) {
@@ -151,7 +157,7 @@ public class MediaUtils {
         return filePath;
     }
 
-    private static boolean isNullOrEmpty(String string) {
+    private static boolean isNullOrEmpty(@Nullable String string) {
         return string == null || string.length() == 0;
     }
 }

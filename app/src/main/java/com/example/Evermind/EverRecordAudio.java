@@ -7,6 +7,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Environment;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -17,14 +18,16 @@ public class EverRecordAudio {
 
     final MediaRecorder recorder = new MediaRecorder();
     final Context context;
+    @NonNull
     public final String path;
 
-    public EverRecordAudio(String path, Context context) {
+    public EverRecordAudio(@NonNull String path, Context context) {
         this.path = sanitizePath(path);
         this.context = context;
     }
 
-    private String sanitizePath(String path) {
+    @NonNull
+    private String sanitizePath(@NonNull String path) {
         if (!path.startsWith("/")) {
             path = "/" + path;
         }

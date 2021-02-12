@@ -17,36 +17,52 @@
 package com.example.Evermind.TESTEDITOR.toolbar;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.os.Looper;
 import android.util.AttributeSet;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.example.Evermind.EverAudioVisualizerHandlers.EverInterfaceHelper;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 
+import java.util.logging.Handler;
+
+import cafe.adriel.androidaudiorecorder.Util;
+
 /**
  * An ImageButton for the toolbar.
  * It adds a checked state.
  */
-public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatImageButton implements EverInterfaceHelper.OnChangeColorListener {
+public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatImageButton implements EverInterfaceHelper.OnChangeColorListener, EverInterfaceHelper.OnEnterDarkMode {
     private static final int[] CHECKED_STATE_SET = {R.attr.state_checked};
 
     private boolean mChecked;
 
-    public RTToolbarImageButton(Context context) {
+    public RTToolbarImageButton(@NonNull Context context) {
         this(context, null);
     }
 
-    public RTToolbarImageButton(Context context, AttributeSet attrs) {
+    public RTToolbarImageButton(@NonNull Context context, AttributeSet attrs) {
         this(context, attrs, R.attr.rte_ToolbarButton);
     }
 
-    public RTToolbarImageButton(Context context, AttributeSet attrs, int defStyle) {
+    public RTToolbarImageButton(@NonNull Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RTToolbarImageButton, defStyle, 0);
         mChecked = a.getBoolean(R.styleable.RTToolbarImageButton_checked, false);
         a.recycle();
-        EverInterfaceHelper.getInstance().setColorListener(this);
+        this.setTag("");
+    }
+
+    public void initButton() {
+
+        EverInterfaceHelper.getInstance().setAccentColorListener(this);
+        EverInterfaceHelper.getInstance().setDarkModeListeners(this);
     }
 
     public boolean isChecked() {
@@ -58,14 +74,23 @@ public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatIma
             mChecked = checked;
             if (mChecked) {
                 if (!((MainActivity)getContext()).getActualNote().getNoteColor().equals("-1")) {
-                    ((MainActivity)getContext()).getEverThemeHelper().tintView(this, Integer.parseInt(((MainActivity)getContext()).getActualNote().getNoteColor()), 0);
+                    ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(this, Integer.parseInt(((MainActivity)getContext()).getActualNote().getNoteColor()), 0);
                 } else {
-                    ((MainActivity)getContext()).getEverThemeHelper().tintView(this, getContext().getColor(R.color.SkyBlueHighlight), 0);
+                    ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(this, getContext().getColor(R.color.NightLessBlack), 0);
                 }
+                this.setImageTintList(ColorStateList.valueOf( getContext().getColor(R.color.White)));
+
             } else {
-                ((MainActivity)getContext()).getEverThemeHelper().tintView(this, ((MainActivity)getContext()).getEverThemeHelper().defaultTheme, 0);
+
+                if (!((MainActivity)getContext()).getActualNote().getNoteColor().equals("-1")) {
+                    this.setImageTintList(ColorStateList.valueOf(Integer.parseInt(((MainActivity)getContext()).getActualNote().getNoteColor())));
+                } else {
+                    this.setImageTintList(ColorStateList.valueOf( getContext().getColor(R.color.NightLessBlack)));
+                }
+                ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(this, ((MainActivity)getContext()).getEverThemeHelper().defaultTheme, 0);
             }
         }
+
     }
 
     @Override
@@ -76,14 +101,47 @@ public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatIma
     }
 
     @Override
-    public void changeColor(int color) {
+    public void changeAccentColor(int color) {
+
+                if (color != getContext().getColor(R.color.White)) {
+                    RTToolbarImageButton.this.setImageTintList(ColorStateList.valueOf(color));
+                } else {
+                    RTToolbarImageButton.this.setImageTintList(ColorStateList.valueOf( getContext().getColor(R.color.NightLessBlack)));
+                }
+                if (mChecked) {
+                    if (color != getContext().getColor(R.color.White)) {
+                        ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(RTToolbarImageButton.this, color, 0);
+                    } else {
+                        ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(RTToolbarImageButton.this, getContext().getColor(R.color.NightLessBlack), 0);
+                    }
+                    RTToolbarImageButton.this.setImageTintList(ColorStateList.valueOf( getContext().getColor(R.color.White)));
+
+                } else {
+
+                    ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(RTToolbarImageButton.this, ((MainActivity)getContext()).getEverThemeHelper().defaultTheme, 0);
+                }
+
+
+    }
+
+    @Override
+    public void enterDarkMode(int color) {
+         if (color != getContext().getColor(R.color.White)) {
+             this.setImageTintList(ColorStateList.valueOf(color));
+         } else {
+             this.setImageTintList(ColorStateList.valueOf( getContext().getColor(R.color.SkyBlueHighlight)));
+         }
         if (mChecked) {
-            System.out.println(color);
             if (color == getContext().getColor(R.color.White)) {
-                ((MainActivity)getContext()).getEverThemeHelper().tintView(this, getContext().getColor(R.color.SkyBlueHighlight), 0);
+                this.setImageTintList(ColorStateList.valueOf( getContext().getColor(R.color.White)));
+                ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(this, Util.getDarkerColor(getContext().getColor(R.color.SkyBlueHighlight)), 0);
             } else {
-                ((MainActivity)getContext()).getEverThemeHelper().tintView(this, color, 0);
+                this.setImageTintList(ColorStateList.valueOf( color));
+                ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(this, Util.getDarkerColor(color), 0);
             }
+        } else {
+
+            ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(RTToolbarImageButton.this, ((MainActivity)getContext()).getEverThemeHelper().defaultTheme, 0);
         }
     }
 }

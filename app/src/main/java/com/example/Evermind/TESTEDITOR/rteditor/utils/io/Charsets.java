@@ -16,6 +16,8 @@
  */
 package com.example.Evermind.TESTEDITOR.rteditor.utils.io;
 
+import androidx.annotation.Nullable;
+
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
@@ -64,7 +66,7 @@ public class Charsets {
      *            A charset or null.
      * @return the given Charset or the default Charset if the given Charset is null
      */
-    public static Charset toCharset(Charset charset) {
+    public static Charset toCharset(@Nullable Charset charset) {
         return charset == null ? Charset.defaultCharset() : charset;
     }
 
@@ -77,7 +79,7 @@ public class Charsets {
      * @throws UnsupportedCharsetException
      *             If the named charset is unavailable
      */
-    public static Charset toCharset(String charset) {
+    public static Charset toCharset(@Nullable String charset) {
         return charset == null ? Charset.defaultCharset() : Charset.forName(charset);
     }
 

@@ -32,6 +32,9 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTApi;
@@ -136,6 +139,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
     /*
      * We need these to delay hiding the toolbar after a focus loss of an editor
      */
+    @NonNull
     final transient private Handler mHandler;
     transient private boolean mIsPendingFocusLoss;
     transient private boolean mCancelPendingFocusLoss;
@@ -143,22 +147,26 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
     /*
      * Map the registered editors by editor id (RTEditText.getId())
      */
+    @NonNull
     final transient private Map<Integer, RTEditText> mEditors;
 
     /*
      * Map the registered toolbars by toolbar id (RTToolbar.getId())
      */
+    @NonNull
     final transient private Map<Integer, RTToolbar> mToolbars;
 
     /*
      * That's our link to "the outside world" to perform operations that need
      * access to a Context or an Activity
      */
+    @Nullable
     transient private RTApi mRTApi;
 
     /*
      * The RTOperationManager is used to undo/redo operations
      */
+    @NonNull
     final transient private RTOperationManager mOPManager;
 
     // ****************************************** Lifecycle Methods *******************************************
@@ -170,7 +178,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
      *                           recently supplied in onSaveInstanceState(Bundle).
      */
     private final Context context;
-    public RTManager(RTApi rtApi, Bundle savedInstanceState, Context context) {
+    public RTManager(RTApi rtApi, @Nullable Bundle savedInstanceState, Context context) {
         mRTApi = rtApi;
         this.context = context;
 
@@ -198,7 +206,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
      *
      * @param outState Bundle in which to place your saved state.
      */
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString("mToolbarVisibility", mToolbarVisibility.name());
         outState.putBoolean("mToolbarIsVisible", mToolbarIsVisible);
         outState.putInt("mActiveEditor", mActiveEditor);
@@ -242,7 +250,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
      *
      * @param editor The rich text editor to register.
      */
-    public void registerEditor(RTEditText editor, boolean useRichTextEditing) {
+    public void registerEditor(@NonNull RTEditText editor, boolean useRichTextEditing) {
         mEditors.put(editor.getId(), editor);
         editor.register(this, mRTApi);
         editor.setRichTextEditing(useRichTextEditing, false);
@@ -265,7 +273,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
      *
      * @param editor The rich text editor to unregister.
      */
-    public void unregisterEditor(RTEditText editor) {
+    public void unregisterEditor(@NonNull RTEditText editor) {
         mEditors.remove(editor.getId());
         editor.unregister();
 
@@ -283,7 +291,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
      *                         We can't use the toolbar itself because there could be multiple and they could be embedded in a complex layout hierarchy.
      * @param toolbar          The toolbar to register.
      */
-    public void registerToolbar(ViewGroup toolbarContainer, RTToolbar toolbar) {
+    public void registerToolbar(ViewGroup toolbarContainer, @NonNull RTToolbar toolbar) {
         mToolbars.clear();
         mToolbars.put(toolbar.getId(), toolbar);
         toolbar.setToolbarListener(this);
@@ -307,7 +315,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
      *
      * @param toolbar The toolbar to unregister.
      */
-    public void unregisterToolbar(RTToolbar toolbar) {
+    public void unregisterToolbar(@NonNull RTToolbar toolbar) {
         mToolbars.remove(toolbar.getId());
         toolbar.removeToolbarListener();
         updateToolbarVisibility();
@@ -336,7 +344,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
         }
     }
 
-    private void setToolbarVisibility(final RTToolbar toolbar, final boolean visible) {
+    private void setToolbarVisibility(@NonNull final RTToolbar toolbar, final boolean visible) {
         mToolbarIsVisible = visible;
 
         final ViewGroup toolbarContainer = toolbar.getToolbarContainer();
@@ -464,7 +472,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
         onPickCaptureImage(MediaAction.CAPTURE_PICTURE);
     }
 
-    private void onPickCaptureImage(MediaAction mediaAction) {
+    private void onPickCaptureImage(@NonNull MediaAction mediaAction) {
         RTEditText editor = getActiveEditor();
         if (editor != null && mRTApi != null) {
             mActiveEditor = editor.getId();
@@ -478,7 +486,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
     }
 
     /* called from onEventMainThread(MediaEvent) */
-    public void insertImage(final RTEditText editor, final RTImage image) {
+    public void insertImage(@Nullable final RTEditText editor, @Nullable final RTImage image) {
         new Handler(Looper.getMainLooper()).post(() -> {
 
             if (image != null && editor != null) {
@@ -512,6 +520,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
 
     }
 
+    @Nullable
     private RTEditText getActiveEditor() {
         if (((MainActivity)context).getNoteCreator() != null) {
             return ((MainActivity)context).getNoteCreator().getActiveEditor();
@@ -536,7 +545,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
 
     @Override
     /* @inheritDoc */
-    public void onFocusChanged(RTEditText editor, boolean focused) {
+    public void onFocusChanged(@NonNull RTEditText editor, boolean focused) {
         if (editor.usesRTFormatting()) {
             synchronized (this) {
                 // if a focus loss is pending then we cancel it
@@ -570,7 +579,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
 
     @Override
     /* @inheritDoc */
-    public void onSelectionChanged(RTEditText editor, int start, int end) {
+    public void onSelectionChanged(@Nullable RTEditText editor, int start, int end) {
         if (editor == null) return;
 
         // default values
@@ -685,14 +694,15 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
 
     @Override
     /* @inheritDoc */
-    public void onClick(RTEditText editor, LinkSpan span) {
+    public void onClick(@Nullable RTEditText editor, @NonNull LinkSpan span) {
         if (editor != null) {
             String linkText = getLinkText(editor, span);
             mRTApi.openDialogFragment(ID_01_LINK_FRAGMENT, LinkFragment.newInstance(linkText, span.getURL()));
         }
     }
 
-    private String getLinkText(RTEditText editor, RTSpan<String> span) {
+    @Nullable
+    private String getLinkText(@NonNull RTEditText editor, RTSpan<String> span) {
         Spannable text = editor.getText();
         final int spanStart = text.getSpanStart(span);
         final int spanEnd = text.getSpanEnd(span);
@@ -710,7 +720,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
      * Media file was picked -> process the result.
      */
     //@Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(MediaEvent event) {
+    public void onEventMainThread(@NonNull MediaEvent event) {
         RTEditText editor = mEditors.get(mActiveEditor);
         RTMedia media = event.getMedia();
         if (editor != null && media instanceof RTImage) {
@@ -724,7 +734,7 @@ public class RTManager implements RTToolbarListener, RTEditTextListener {
      * LinkFragment has closed -> process the result.
      */
    // @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(LinkFragment.LinkEvent event) {
+    public void onEventMainThread(@NonNull LinkFragment.LinkEvent event) {
         final String fragmentTag = event.getFragmentTag();
         mRTApi.removeFragment(fragmentTag);
 

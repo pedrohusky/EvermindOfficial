@@ -16,19 +16,23 @@
 
 package com.example.Evermind.TESTEDITOR.toolbar.spinner;
 
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.fonts.RTTypeface;
 
 /**
  * The spinner item for the font.
  */
 public class FontSpinnerItem extends SpinnerItem {
+    @Nullable
     final private RTTypeface mTypeface;
 
-    public FontSpinnerItem(RTTypeface typeface) {
+    public FontSpinnerItem(@Nullable RTTypeface typeface) {
         super(typeface == null ? "" : typeface.getName());
         mTypeface = typeface;
     }
 
+    @Nullable
     public RTTypeface getTypeface() {
         return mTypeface;
     }

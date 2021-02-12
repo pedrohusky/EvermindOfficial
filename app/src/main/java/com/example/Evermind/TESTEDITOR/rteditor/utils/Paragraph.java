@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.utils;
 
+import androidx.annotation.Nullable;
+
 /**
  * A Paragraph is a Selection but represents a whole text paragraph.
  */
@@ -53,7 +55,7 @@ public class Paragraph extends Selection {
      * - the selection is a point within or at the end of the LAST paragraph ("01" -> 0 till 2 intersects while the span is [0, 2]),
      * e.g. [10, 10] will intersect the paragraph [0, 10] only if it's the last paragraph
      */
-    public boolean isSelected(Selection sel) {
+    public boolean isSelected(@Nullable Selection sel) {
         if (sel == null) {
             return false;
         }

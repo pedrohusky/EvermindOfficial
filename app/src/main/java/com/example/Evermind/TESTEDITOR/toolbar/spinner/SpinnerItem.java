@@ -19,6 +19,8 @@ package com.example.Evermind.TESTEDITOR.toolbar.spinner;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 /**
  * An abstract spinner item.
  * The base class for the color and font spinners.
@@ -41,7 +43,7 @@ public abstract class SpinnerItem {
         return mTitle;
     }
 
-    void formatNameView(TextView view) {
+    void formatNameView(@Nullable TextView view) {
         if (view != null) {
             view.setText(getName());
             view.setHorizontallyScrolling(true);

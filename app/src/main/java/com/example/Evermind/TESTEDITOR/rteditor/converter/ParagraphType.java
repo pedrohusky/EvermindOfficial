@@ -19,6 +19,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.converter;
 import android.text.Layout;
 import android.text.style.ParagraphStyle;
 
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.spans.AlignmentSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.BulletSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.IndentationSpan;
@@ -37,6 +39,7 @@ public enum ParagraphType {
     INDENTATION_UL("<ul style='list-style-type:none;'>", "</ul>", "<li style='list-style-type:none;'>", "</li>", false, true),
     INDENTATION_OL("<ol style='list-style-type:none;'>", "</ol>", "<li style='list-style-type:none;'>", "</li>", false, true);
 
+    @Nullable
     public static ParagraphType getInstance(ParagraphStyle style) {
         if (style instanceof AlignmentSpan) {
             Layout.Alignment align = ((AlignmentSpan) style).getValue();

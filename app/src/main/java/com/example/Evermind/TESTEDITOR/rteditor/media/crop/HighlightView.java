@@ -27,6 +27,8 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.R;
 
 
@@ -74,7 +76,7 @@ class HighlightView {
         mHidden = hidden;
     }
 
-    protected void draw(Canvas canvas) {
+    protected void draw(@NonNull Canvas canvas) {
         if (mHidden) {
             return;
         }
@@ -374,11 +376,13 @@ class HighlightView {
     }
 
     // Returns the cropping rectangle in image space.
+    @NonNull
     public Rect getCropRect() {
         return new Rect((int) mCropRect.left, (int) mCropRect.top, (int) mCropRect.right, (int) mCropRect.bottom);
     }
 
     // Maps the cropping rectangle from image space to screen space.
+    @NonNull
     private Rect computeLayout() {
         RectF r = new RectF(mCropRect.left, mCropRect.top, mCropRect.right, mCropRect.bottom);
         mMatrix.mapRect(r);

@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
 
+import androidx.annotation.NonNull;
+
 import jp.wasabeef.blurry.Blurry;
 
 /**
@@ -44,11 +46,11 @@ public class EverPopup {
         }
     }
 
-    public void showAsPopUp(View anchor) {
+    public void showAsPopUp(@NonNull View anchor) {
         showAsPopUp(anchor, 0, 0);
     }
 
-    public void showAsPopUp(View anchor, int xoff, int yoff) {
+    public void showAsPopUp(@NonNull View anchor, int xoff, int yoff) {
         initPopupWindow(TYPE_WRAP_CONTENT);
         mPopupWindow.setAnimationStyle(R.style.AnimationUpPopup);
         popupView.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

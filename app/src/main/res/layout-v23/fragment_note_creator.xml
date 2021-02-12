@@ -1,69 +1,85 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nestedScroll"
+    android:id="@+id/toColorLinearLayoutNoteCreator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
     android:background="@color/White"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
+    android:backgroundTint="@color/White"
+    android:isScrollContainer="true"
+    android:nestedScrollingEnabled="true"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/toColorLinearLayoutNoteCreator"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardNoteCreator"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="25dp"
         android:animateLayoutChanges="true"
-        android:background="@color/White"
-        android:backgroundTint="@color/White"
-        android:orientation="vertical">
+        android:nestedScrollingEnabled="true"
+        android:tag="card"
+        app:cardBackgroundColor="@color/White"
+        app:cardCornerRadius="15dp"
+        app:cardElevation="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_note_creator"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/textRecyclerCreator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:isScrollContainer="true">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="6dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/bottomSheet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="15dp"
-            android:animateLayoutChanges="true"
-            android:backgroundTint="@color/White"
-            android:layoutAnimation="@anim/grid_appear_layout_animation"
-            android:nestedScrollingEnabled="true"
-            android:tag="second"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="5dp">
+            android:orientation="vertical"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
+            <com.example.Evermind.EverExpandArrow
+                android:id="@+id/expandIcon"
+                android:layout_width="match_parent"
+                android:layout_height="25dp" />
 
-            <LinearLayout
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:animateLayoutChanges="true"
-                android:orientation="vertical">
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="8dp">
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/TextAndDrawRecyclerView"
+                    android:id="@+id/imageRecyclerCreator"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:isScrollContainer="true">
+                    android:layout_height="300dp"
+                    android:background="@color/White"
+                    android:visibility="visible" />
 
-                </androidx.recyclerview.widget.RecyclerView>
+            </androidx.cardview.widget.CardView>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/ImagesRecycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layoutAnimation="@anim/grid_appear_layout_animation"
-                    android:visibility="gone" />
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-            </LinearLayout>
-
-
-        </androidx.cardview.widget.CardView>
-
-    </LinearLayout>
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

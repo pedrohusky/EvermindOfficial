@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.api.format;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
@@ -49,6 +51,7 @@ public class RTHtml<I extends RTImage, A extends RTAudio, V extends RTVideo> ext
         mImages = images;
     }
 
+    @NonNull
     @Override
     public String getText() {
         CharSequence text = super.getText();

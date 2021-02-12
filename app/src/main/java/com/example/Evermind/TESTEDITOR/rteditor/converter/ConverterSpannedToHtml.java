@@ -29,6 +29,8 @@ import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.URLSpan;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTHtml;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
@@ -77,6 +79,7 @@ public class ConverterSpannedToHtml {
     /**
      * Converts a spanned text to HTML
      */
+    @NonNull
     public RTHtml<RTImage, RTAudio, RTVideo> convert(final Spanned text, RTFormat.Html rtFormat) {
         mText = text;
         mRTFormat = rtFormat;
@@ -165,7 +168,7 @@ public class ConverterSpannedToHtml {
         }
     }
 
-    private void removeTrailingLineBreak(ParagraphType type) {
+    private void removeTrailingLineBreak(@NonNull ParagraphType type) {
         if (type.endTagAddsLineBreak() && mOut.length() >= BR.length()) {
             int start = mOut.length() - BR.length();
             int end = mOut.length();
@@ -175,7 +178,8 @@ public class ConverterSpannedToHtml {
         }
     }
 
-    private Set<SingleParagraphStyle> getParagraphStyles(final Spanned text, Selection selection) {
+    @NonNull
+    private Set<SingleParagraphStyle> getParagraphStyles(@NonNull final Spanned text, @NonNull Selection selection) {
         Set<SingleParagraphStyle> styles = new HashSet<SingleParagraphStyle>();
 
         for (ParagraphStyle style : text.getSpans(selection.start(), selection.end(), ParagraphStyle.class)) {
@@ -188,7 +192,7 @@ public class ConverterSpannedToHtml {
         return styles;
     }
 
-    private void processLeadingMarginStyle(AccumulatedParagraphStyle newStyle) {
+    private void processLeadingMarginStyle(@NonNull AccumulatedParagraphStyle newStyle) {
         int currentIndent = 0;
         ParagraphType currentType = ParagraphType.NONE;
         if (!mParagraphStyles.isEmpty()) {
@@ -222,7 +226,7 @@ public class ConverterSpannedToHtml {
         return 0;
     }
 
-    private void addParagraph(AccumulatedParagraphStyle style) {
+    private void addParagraph(@NonNull AccumulatedParagraphStyle style) {
         String tag = style.getType().getStartTag();
         int indent = style.getRelativeIndent();
         for (int i = 0; i < indent; i++) {
@@ -236,7 +240,7 @@ public class ConverterSpannedToHtml {
     /**
      * Convert a spanned text within a paragraph
      */
-    private void withinParagraph(final Spanned text, int start, int end) {
+    private void withinParagraph(@NonNull final Spanned text, int start, int end) {
         // create sorted set of CharacterStyles
         SortedSet<CharacterStyle> sortedSpans = new TreeSet<>((s1, s2) -> {
             int start1 = text.getSpanStart(s1);
@@ -259,7 +263,7 @@ public class ConverterSpannedToHtml {
         convertText(text, start, end, sortedSpans);
     }
 
-    private void convertText(Spanned text, int start, int end, SortedSet<CharacterStyle> spans) {
+    private void convertText(@NonNull Spanned text, int start, int end, @NonNull SortedSet<CharacterStyle> spans) {
         while (start < end) {
 
             // get first CharacterStyle
@@ -394,7 +398,7 @@ public class ConverterSpannedToHtml {
     /**
      * Escape plain text parts: <, >, &, Space --> ^lt;, &gt; etc.
      */
-    private void escape(CharSequence text, int start, int end) {
+    private void escape(@NonNull CharSequence text, int start, int end) {
         for (int i = start; i < end; i++) {
             char c = text.charAt(i);
             if (c == '\n') {

@@ -29,6 +29,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Helper;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.validator.EmailValidator;
@@ -78,7 +81,7 @@ public class LinkFragment extends DialogFragment {
         private final Link mLink;
         private final boolean mWasCancelled;
 
-        public LinkEvent(Fragment fragment, Link link, boolean wasCancelled) {
+        public LinkEvent(@NonNull Fragment fragment, Link link, boolean wasCancelled) {
             mFragmentTag = fragment.getTag();
             mLink = link;
             mWasCancelled = wasCancelled;
@@ -100,6 +103,7 @@ public class LinkFragment extends DialogFragment {
     private static final UrlValidator sUrlValidator = new UrlValidator(UrlValidator.ALLOW_2_SLASHES + UrlValidator.ALLOW_ALL_SCHEMES);
     private static final EmailValidator sEmailValidator = EmailValidator.getInstance(false);
 
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.LinkFragment newInstance(String linkText, String url) {
         com.example.Evermind.TESTEDITOR.rteditor.LinkFragment fragment = new com.example.Evermind.TESTEDITOR.rteditor.LinkFragment();
         Bundle args = new Bundle();
@@ -150,7 +154,7 @@ public class LinkFragment extends DialogFragment {
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(@NonNull DialogInterface dialog, int which) {
                         // OK button
                         validate(dialog, addressView, textView);
                     }
@@ -176,7 +180,7 @@ public class LinkFragment extends DialogFragment {
         return builder.create();
     }
 
-    private void validate(DialogInterface dialog, TextView addressView, TextView textView) {
+    private void validate(@NonNull DialogInterface dialog, @NonNull TextView addressView, @NonNull TextView textView) {
         // retrieve link address and do some cleanup
         final String address = addressView.getText().toString().trim();
 
@@ -208,7 +212,7 @@ public class LinkFragment extends DialogFragment {
         }
     }
 
-    private boolean startsWithMailto(String address) {
+    private boolean startsWithMailto(@Nullable String address) {
         return address != null && address.toLowerCase(Locale.getDefault()).startsWith("mailto:");
     }
 
@@ -218,7 +222,7 @@ public class LinkFragment extends DialogFragment {
        // EventBus.getDefault().post(new LinkEvent(com.example.Evermind.TESTEDITOR.rteditor.LinkFragment.this, null, true));
     }
 
-    private boolean requiredFieldValid(TextView view) {
+    private boolean requiredFieldValid(@NonNull TextView view) {
         return view.getText() != null && view.getText().length() > 0;
     }
 }

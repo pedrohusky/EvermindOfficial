@@ -19,6 +19,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 import android.text.Spannable;
 import android.util.SparseIntArray;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.RTTextView;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.NumberSpan;
@@ -42,7 +44,7 @@ public class NumberEffect extends ParagraphEffect<Boolean, NumberSpan> {
 
     private final ParagraphSpanProcessor<Boolean> mSpans2Process = new ParagraphSpanProcessor();
 
-    public void applyToSelectionTextView (RTTextView editor, Selection selectedParagraphs, Boolean enable) {
+    public void applyToSelectionTextView (@NonNull RTTextView editor, Selection selectedParagraphs, Boolean enable) {
         final Spannable str = (Spannable) editor.getText();
 
         mSpans2Process.clear();
@@ -117,7 +119,7 @@ public class NumberEffect extends ParagraphEffect<Boolean, NumberSpan> {
     }
 
     @Override
-    public synchronized void applyToSelection(RTEditText editor, Selection selectedParagraphs, Boolean enable) {
+    public synchronized void applyToSelection(@NonNull RTEditText editor, Selection selectedParagraphs, Boolean enable) {
         final Spannable str = editor.getText();
 
         mSpans2Process.clear();

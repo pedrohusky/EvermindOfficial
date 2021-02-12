@@ -70,7 +70,7 @@ abstract class EverCircularMenu : CompBatMBLayout {
     /**
      * The background color for the main menu button.
      */
-    public var mainButtonColor = Color.WHITE
+    var mainButtonColor = Color.WHITE
         set(value) {
             field = value
             menuButton?.background?.setTint(value)
@@ -134,7 +134,7 @@ abstract class EverCircularMenu : CompBatMBLayout {
      */
     var onItemSelectedListener: ((index: Int) -> Unit)? = null
 
- public fun init(changeNoteColor: Boolean, highlight: Boolean, color: Int) {
+ fun init(changeNoteColor: Boolean, highlight: Boolean, color: Int) {
      menuButton?.background?.setTint(color)
      (context as MainActivity).everBallsHelper.metaColors.visibility = VISIBLE
           toggleMenu(changeNoteColor, highlight)

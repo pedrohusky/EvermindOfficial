@@ -19,6 +19,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 import android.text.Layout.Alignment;
 import android.text.Spannable;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.AlignmentSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
@@ -42,7 +44,7 @@ public class AlignmentEffect extends ParagraphEffect<Alignment, AlignmentSpan> {
     private final com.example.Evermind.TESTEDITOR.rteditor.effects.ParagraphSpanProcessor<Alignment> mSpans2Process = new com.example.Evermind.TESTEDITOR.rteditor.effects.ParagraphSpanProcessor();
 
     @Override
-    public void applyToSelection(RTEditText editor, Selection selectedParagraphs, Alignment alignment) {
+    public void applyToSelection(@NonNull RTEditText editor, Selection selectedParagraphs, Alignment alignment) {
         final Spannable str = editor.getText();
 
         mSpans2Process.clear();

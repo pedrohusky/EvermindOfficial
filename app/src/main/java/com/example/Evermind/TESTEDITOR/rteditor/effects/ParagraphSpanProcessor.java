@@ -19,6 +19,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 import android.text.Spannable;
 import android.text.Spanned;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTParagraphSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Paragraph;
@@ -50,7 +52,7 @@ class ParagraphSpanProcessor<V extends Object> {
         mParagraphSpans.clear();
     }
 
-    void removeSpans(List<RTSpan<V>> spans, Paragraph paragraph) {
+    void removeSpans(@NonNull List<RTSpan<V>> spans, Paragraph paragraph) {
         for (RTSpan<V> span : spans) {
             removeSpan(span, paragraph);
         }
@@ -66,7 +68,7 @@ class ParagraphSpanProcessor<V extends Object> {
         mParagraphSpans.add( new ParagraphSpan<V>(span, paragraph, false) );
     }
 
-    void process(Spannable str) {
+    void process(@NonNull Spannable str) {
         for (ParagraphSpan paragraphSpan : mParagraphSpans) {
             RTParagraphSpan<V> span = paragraphSpan.mSpan;
             int paraStart = paragraphSpan.mParagraph.start();

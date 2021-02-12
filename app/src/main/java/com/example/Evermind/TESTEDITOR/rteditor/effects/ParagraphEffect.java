@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 
 import android.text.Spannable;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Paragraph;
@@ -32,6 +34,7 @@ import java.util.List;
  */
 abstract class ParagraphEffect<V, C extends RTSpan<V>> extends Effect<V, C> {
 
+    @NonNull
     @Override
     final protected SpanCollector<V> newSpanCollector(Class<? extends RTSpan<V>> spanClazz) {
         return new ParagraphSpanCollector<V>(spanClazz);
@@ -42,7 +45,7 @@ abstract class ParagraphEffect<V, C extends RTSpan<V>> extends Effect<V, C> {
      *         ParagraphEffects always operate on whole paragraphs.
      */
     @Override
-    final protected Selection getSelection(RTEditText editor) {
+    final protected Selection getSelection(@NonNull RTEditText editor) {
         return editor.getParagraphsInSelection();
     }
 
@@ -51,7 +54,7 @@ abstract class ParagraphEffect<V, C extends RTSpan<V>> extends Effect<V, C> {
      * Effects.cleanupParagraphs(RTEditText) afterwards.
      */
     @Override
-    public final void applyToSelection(RTEditText editor, V value) {
+    public final void applyToSelection(@NonNull RTEditText editor, V value) {
         Selection selection = getSelection(editor);
         applyToSelection(editor, selection, value);
         Effects.cleanupParagraphs(editor, this);
@@ -77,7 +80,7 @@ abstract class ParagraphEffect<V, C extends RTSpan<V>> extends Effect<V, C> {
      * once the ParagraphSpanProcessor processes its spans.
      */
     protected void findSpans2Remove(Spannable str, Paragraph paragraph,
-                                    ParagraphSpanProcessor<V> spanProcessor) {
+                                    @NonNull ParagraphSpanProcessor<V> spanProcessor) {
         List<RTSpan<V>> spans = getSpans(str, paragraph, SpanCollectMode.EXACT);
         spanProcessor.removeSpans(spans, paragraph);
     }

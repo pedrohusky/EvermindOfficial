@@ -3,6 +3,8 @@ package com.example.Evermind.EverAudioVisualizerHandlers;
 
 import android.opengl.GLES20;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -13,7 +15,9 @@ import java.nio.ShortBuffer;
  */
 class EverGLRectangle extends EverGLShape {
 
+    @NonNull
     private final FloatBuffer vertexBuffer;
+    @NonNull
     private final ShortBuffer shortBuffer;
 
     public EverGLRectangle(float[] color, float fromX, float toX, float fromY, float toY) {

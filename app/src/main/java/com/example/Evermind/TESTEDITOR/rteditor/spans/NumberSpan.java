@@ -22,6 +22,8 @@ import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.LeadingMarginSpan;
 
+import androidx.annotation.NonNull;
+
 /**
  * Paragraph numbering.
  * <p>
@@ -55,7 +57,7 @@ public class NumberSpan extends com.example.Evermind.TESTEDITOR.rteditor.spans.B
     }
 
     @Override
-    public void drawLeadingMargin(Canvas c, Paint p, int x, int dir, int top, int baseline, int bottom,
+    public void drawLeadingMargin(@NonNull Canvas c, @NonNull Paint p, int x, int dir, int top, int baseline, int bottom,
                                   CharSequence text, int start, int end, boolean first, Layout l) {
 
         Spanned spanned = (Spanned) text;
@@ -82,6 +84,7 @@ public class NumberSpan extends com.example.Evermind.TESTEDITOR.rteditor.spans.B
         return Boolean.TRUE;
     }
 
+    @NonNull
     @Override
     public com.example.Evermind.TESTEDITOR.rteditor.spans.NumberSpan createClone() {
         return new com.example.Evermind.TESTEDITOR.rteditor.spans.NumberSpan(mNr, mGapWidth, mIgnoreSpan);

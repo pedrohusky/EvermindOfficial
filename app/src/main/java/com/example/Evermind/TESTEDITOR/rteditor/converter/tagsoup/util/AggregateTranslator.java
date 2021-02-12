@@ -17,6 +17,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util;
 
+import androidx.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -29,6 +31,7 @@ import java.io.Writer;
  */
 public class AggregateTranslator extends CharSequenceTranslator {
 
+    @Nullable
     private final CharSequenceTranslator[] translators;
 
     /**
@@ -40,7 +43,8 @@ public class AggregateTranslator extends CharSequenceTranslator {
         this.translators = clone(translators);
     }
 
-    public static <T> T[] clone(final T[] array) {
+    @Nullable
+    public static <T> T[] clone(@Nullable final T[] array) {
         if (array == null) {
             return null;
         }

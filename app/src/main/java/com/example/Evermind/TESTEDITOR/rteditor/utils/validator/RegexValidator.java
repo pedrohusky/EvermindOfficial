@@ -16,6 +16,9 @@
  */
 package com.example.Evermind.TESTEDITOR.rteditor.utils.validator;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -69,6 +72,7 @@ public class RegexValidator implements Serializable {
 
     private static final long serialVersionUID = -8832409930574867162L;
 
+    @NonNull
     private final Pattern[] patterns;
 
     /**
@@ -115,7 +119,7 @@ public class RegexValidator implements Serializable {
      * @param caseSensitive when <code>true</code> matching is <i>case
      * sensitive</i>, otherwise matching is <i>case in-sensitive</i>
      */
-    public RegexValidator(String[] regexs, boolean caseSensitive) {
+    public RegexValidator(@Nullable String[] regexs, boolean caseSensitive) {
         if (regexs == null || regexs.length == 0) {
             throw new IllegalArgumentException("Regular expressions are missing");
         }
@@ -136,7 +140,7 @@ public class RegexValidator implements Serializable {
      * @return <code>true</code> if the value is valid
      * otherwise <code>false</code>.
      */
-    public boolean isValid(String value) {
+    public boolean isValid(@Nullable String value) {
         if (value == null) {
             return false;
         }
@@ -156,7 +160,8 @@ public class RegexValidator implements Serializable {
      * @return String array of the <i>groups</i> matched if
      * valid or <code>null</code> if invalid
      */
-    public String[] match(String value) {
+    @Nullable
+    public String[] match(@Nullable String value) {
         if (value == null) {
             return null;
         }
@@ -183,7 +188,8 @@ public class RegexValidator implements Serializable {
      * @return Aggregated String value comprised of the
      * <i>groups</i> matched if valid or <code>null</code> if invalid
      */
-    public String validate(String value) {
+    @Nullable
+    public String validate(@Nullable String value) {
         if (value == null) {
             return null;
         }
@@ -211,6 +217,7 @@ public class RegexValidator implements Serializable {
      * Provide a String representation of this validator.
      * @return A String representation of this validator
      */
+    @NonNull
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("RegexValidator{");

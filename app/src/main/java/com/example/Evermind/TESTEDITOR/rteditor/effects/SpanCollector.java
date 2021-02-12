@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 
 import android.text.Spannable;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Selection;
 
@@ -74,13 +76,15 @@ abstract class SpanCollector<V> {
      *
      * @return the list of spans in this Spannable/Selection, never Null
      */
+    @NonNull
     protected abstract List<RTSpan<V>> getSpans(Spannable str, Selection selection, SpanCollectMode mode);
 
     /**
      * Return an array of the markup objects attached to the specified slice of a Spannable and whose
      * type is the specified type or a subclass of it (see Spanned.getSpans(int, int, Class<T>)).
      */
-    final protected RTSpan<V>[] getSpansAndroid(Spannable str, int selStart, int selEnd) {
+    @NonNull
+    final protected RTSpan<V>[] getSpansAndroid(@NonNull Spannable str, int selStart, int selEnd) {
         RTSpan<V>[] spans = str.getSpans(selStart, selEnd, mSpanClazz);
         return spans == null ? (RTSpan<V>[]) Array.newInstance(mSpanClazz) : spans;
     }
@@ -88,7 +92,7 @@ abstract class SpanCollector<V> {
     /**
      * @return True if the flags contain at least one of the values, False otherwise.
      */
-    final protected boolean isOneFlagSet(int flags, int...value) {
+    final protected boolean isOneFlagSet(int flags, @NonNull int...value) {
         for (int flag : value) {
             if ((flags & flag) == flag) {
                 return true;

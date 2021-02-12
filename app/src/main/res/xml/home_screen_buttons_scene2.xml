@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        android:id="@+id/startAnim"
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@id/transition"
+        motion:duration="1000"
+        motion:motionInterpolator="easeInOut"
+        motion:autoTransition="none">
+       <KeyFrameSet>
+           <KeyAttribute
+               motion:motionTarget="@+id/startButton"
+               motion:framePosition="0"
+               android:scaleX="1" />
+           <KeyAttribute
+               motion:motionTarget="@+id/startButton"
+               motion:framePosition="0"
+               android:scaleY="1" />
+           <KeyAttribute
+               motion:motionTarget="@+id/startButton"
+               motion:framePosition="50"
+               android:scaleX="0.45" />
+           <KeyAttribute
+               motion:motionTarget="@+id/startButton"
+               motion:framePosition="50"
+               android:scaleY="0.45" />
+           <KeyAttribute
+               motion:motionTarget="@+id/startButton"
+               motion:framePosition="100"
+               android:scaleY="100" />
+           <KeyAttribute
+               motion:motionTarget="@+id/startButton"
+               motion:framePosition="100"
+               android:scaleX="100" />
+           <KeyAttribute
+               motion:motionTarget="@+id/startButton"
+               motion:framePosition="0"
+               android:translationY="30dp" />
+           <KeyAttribute
+               motion:motionTarget="@+id/startButton"
+               motion:framePosition="50"
+               android:translationY="30dp" />
+           <KeyAttribute
+               motion:motionTarget="@+id/startButton"
+               motion:framePosition="65"
+               android:translationY="-100dp" />
+           <KeyAttribute
+               motion:motionTarget="@+id/startButton"
+               motion:framePosition="100"
+               android:translationY="-1000dp" />
+           <KeyAttribute
+               motion:motionTarget="@+id/view"
+               motion:framePosition="0"
+               android:alpha="1" />
+           <KeyAttribute
+               motion:motionTarget="@+id/view"
+               motion:framePosition="55"
+               android:alpha="1" />
+           <KeyAttribute
+               motion:motionTarget="@+id/view"
+               motion:framePosition="80"
+               android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/EvermindBlack"
+               motion:framePosition="55"
+               android:alpha="1" />
+           <KeyAttribute
+               motion:motionTarget="@+id/EvermindBlack"
+               motion:framePosition="80"
+               android:alpha="0" />
+       </KeyFrameSet>  />
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+    </ConstraintSet>
+    <ConstraintSet android:id="@+id/transition" />
+</MotionScene>

@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.spans;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
 
 /**
@@ -23,10 +25,11 @@ import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
  */
 public class AudioSpan extends MediaSpan {
 
-    public AudioSpan(RTAudio audio, boolean isSaved) {
+    public AudioSpan(@NonNull RTAudio audio, boolean isSaved) {
         super(audio, isSaved);
     }
 
+    @NonNull
     public RTAudio getAudio() {
         return (RTAudio) mMedia;
     }

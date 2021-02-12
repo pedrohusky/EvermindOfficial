@@ -19,6 +19,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 import android.text.Spannable;
 import android.text.Spanned;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Selection;
 
@@ -31,8 +33,9 @@ class CharacterSpanCollector<V> extends SpanCollector<V> {
         super(spanClazz);
     }
 
+    @NonNull
     @Override
-    final protected List<RTSpan<V>> getSpans(Spannable str, Selection selection, SpanCollectMode mode) {
+    final protected List<RTSpan<V>> getSpans(@NonNull Spannable str, @NonNull Selection selection, SpanCollectMode mode) {
         List<RTSpan<V>> result = new ArrayList<RTSpan<V>>();
 
         /*
@@ -52,7 +55,7 @@ class CharacterSpanCollector<V> extends SpanCollector<V> {
         return result;
     }
 
-    private boolean isAttached(Spannable str, Selection selection, Object span, SpanCollectMode mode) {
+    private boolean isAttached(@NonNull Spannable str, @NonNull Selection selection, Object span, SpanCollectMode mode) {
         int spanStart = str.getSpanStart(span);
         int spanEnd = str.getSpanEnd(span);
         int selStart = selection.start();

@@ -12,7 +12,6 @@
     tools:context=".MainActivity">
 
     <com.example.Evermind.EverNestedScrollView
-        android:id="@+id/nestedScroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/Transparent"
@@ -31,7 +30,6 @@
             android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/card_note_creator"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -62,7 +60,6 @@
                         android:orientation="vertical">
 
                         <EditText
-                            android:id="@+id/TitleTextBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:autofillHints=""
@@ -77,7 +74,6 @@
                             android:textSize="25sp" />
 
                         <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/TextAndDrawRecyclerView"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@color/Transparent"
@@ -85,7 +81,6 @@
                             android:nestedScrollingEnabled="true" />
 
                         <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/ImagesRecycler"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:animationCache="true"
@@ -96,7 +91,6 @@
                     </LinearLayout>
 
                     <com.example.Evermind.EverDraw
-                        android:id="@+id/EverDraw"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@color/Transparent"

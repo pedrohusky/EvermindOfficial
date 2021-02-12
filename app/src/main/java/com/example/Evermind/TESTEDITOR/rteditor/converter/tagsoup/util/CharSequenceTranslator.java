@@ -17,6 +17,9 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -52,7 +55,8 @@ public abstract class CharSequenceTranslator {
      * @param input CharSequence to be translated
      * @return String output of translation
      */
-    public final String translate(final CharSequence input) {
+    @Nullable
+    public final String translate(@Nullable final CharSequence input) {
         if (input == null) {
             return null;
         }
@@ -60,7 +64,7 @@ public abstract class CharSequenceTranslator {
             final StringWriter writer = new StringWriter(input.length() * 2);
             translate(input, writer);
             return writer.toString();
-        } catch (final IOException ioe) {
+        } catch (@NonNull final IOException ioe) {
             // this should never ever happen while writing to a StringWriter
             throw new RuntimeException(ioe);
         }
@@ -74,7 +78,7 @@ public abstract class CharSequenceTranslator {
      * @param out   Writer to translate the text to
      * @throws IOException if and only if the Writer produces an IOException
      */
-    public final void translate(final CharSequence input, final Writer out) throws IOException {
+    public final void translate(@Nullable final CharSequence input, @Nullable final Writer out) throws IOException {
         if (out == null) {
             throw new IllegalArgumentException("The Writer must not be null");
         }
@@ -106,7 +110,8 @@ public abstract class CharSequenceTranslator {
      * @param translators CharSequenceTranslator array of translators to merge with this one
      * @return CharSequenceTranslator merging this translator with the others
      */
-    public final com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.CharSequenceTranslator with(final com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.CharSequenceTranslator... translators) {
+    @NonNull
+    public final com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.CharSequenceTranslator with(@NonNull final com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.CharSequenceTranslator... translators) {
         final com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.CharSequenceTranslator[] newArray = new com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.CharSequenceTranslator[translators.length + 1];
         newArray[0] = this;
         System.arraycopy(translators, 0, newArray, 1, translators.length);
@@ -120,6 +125,7 @@ public abstract class CharSequenceTranslator {
      * @param codepoint The codepoint to convert.
      * @return An upper case hexadecimal <code>String</code>
      */
+    @NonNull
     public static String hex(final int codepoint) {
         return Integer.toHexString(codepoint).toUpperCase(Locale.ENGLISH);
     }

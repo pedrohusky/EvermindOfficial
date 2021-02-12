@@ -1,10 +1,14 @@
 package com.example.Evermind.EverAudioVisualizerHandlers;
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.view.ContextThemeWrapper;
 
 import androidx.annotation.ArrayRes;
 import androidx.annotation.ColorInt;
@@ -14,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 
 /**
@@ -23,8 +28,11 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
 
     private static final int EGL_VERSION = 2;
     public EverGLRenderer renderer;
+    @Nullable
     private EverDbmHandler<?> dbmHandler;
-    private Configuration configuration;
+    @NonNull
+    private final Configuration configuration;
+    @Nullable
     private CalmDownListener innerCalmDownListener;
     public EverGLAudioVisualizationView.Builder builder;
 
@@ -36,7 +44,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
         init();
     }
 
-    public EverGLAudioVisualizationView(Context context, AttributeSet attrs) {
+    public EverGLAudioVisualizationView(@NonNull Context context, AttributeSet attrs) {
         super(context, attrs);
         configuration = new EverGLAudioVisualizationView.Configuration(context, attrs, isInEditMode());
         renderer = new EverGLRenderer(getContext(), configuration);
@@ -132,7 +140,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
         float[] backgroundColor;
         float[][] layerColors;
 
-        public Configuration(Context context, AttributeSet attrs, boolean isInEditMode) {
+        public Configuration(@NonNull Context context, AttributeSet attrs, boolean isInEditMode) {
             TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.GLAudioVisualizationView);
             int[] colors;
             int bgColor;
@@ -158,10 +166,21 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
                 if (isInEditMode) {
                     colors = new int[layersCount];
                 } else {
+
                     TypedArray colorsArray = array.getResources().obtainTypedArray(arrayId);
-                    colors = new int[colorsArray.length()];
+                 //   colors = new int[colorsArray.length()];
+                 //   for (int i = 0; i < colorsArray.length(); i++) {
+                 //       colors[i] = colorsArray.getColor(i, Color.TRANSPARENT);
+                 //   }
+                    colors = new int[4];
                     for (int i = 0; i < colorsArray.length(); i++) {
-                        colors[i] = colorsArray.getColor(i, Color.TRANSPARENT);
+                        if (((MainActivity) unwrap(context)).getActualNote() != null) {
+                            colors[i] = Integer.parseInt(((MainActivity)unwrap(context)).getActualNote().getNoteColor());
+                        } else {
+                            colors[i] = bgColor;
+                        }
+
+
                     }
                     colorsArray.recycle();
                 }
@@ -178,6 +197,13 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
             }
             backgroundColor = EverAudioUtils.convertColor(bgColor);
             bubbleSize /= context.getResources().getDisplayMetrics().widthPixels;
+        }
+        private static Activity unwrap(Context context) {
+            while (!(context instanceof Activity) && context instanceof ContextWrapper) {
+                context = ((ContextWrapper) context).getBaseContext();
+            }
+
+            return (Activity) context;
         }
 
         private Configuration(@NonNull EverGLAudioVisualizationView.Builder builder) {
@@ -206,6 +232,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
     public static class ColorsBuilder<T extends EverGLAudioVisualizationView.ColorsBuilder> {
         private float[] backgroundColor;
         private float[][] layerColors;
+        @NonNull
         private final Context context;
 
         public ColorsBuilder(@NonNull Context context) {
@@ -225,7 +252,8 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param backgroundColor background color
          */
-        public T setBackgroundColor(@ColorInt int backgroundColor) {
+        @NonNull
+        public T setBackgroundColor(int backgroundColor) {
             this.backgroundColor = EverAudioUtils.convertColor(backgroundColor);
             return getThis();
         }
@@ -235,7 +263,8 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param arrayId array resource
          */
-        public T setLayerColors(@ArrayRes int arrayId) {
+        @NonNull
+        public T setLayerColors(int arrayId) {
             TypedArray colorsArray = context.getResources().obtainTypedArray(arrayId);
             int[] colors = new int[colorsArray.length()];
             for (int i = 0; i < colorsArray.length(); i++) {
@@ -250,7 +279,8 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param colors array of colors
          */
-        public T setLayerColors(int[] colors) {
+        @NonNull
+        public T setLayerColors(@NonNull int[] colors) {
             layerColors = new float[colors.length][];
             for (int i = 0; i < colors.length; i++) {
                 layerColors[i] = EverAudioUtils.convertColor(colors[i]);
@@ -263,10 +293,12 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param backgroundColor color resource
          */
-        public T setBackgroundColorRes(@ColorRes int backgroundColor) {
+        @NonNull
+        public T setBackgroundColorRes(int backgroundColor) {
             return setBackgroundColor(ContextCompat.getColor(context, backgroundColor));
         }
 
+        @NonNull
         protected T getThis() {
             //noinspection unchecked
             return (T) this;
@@ -275,7 +307,8 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
 
     public static class Builder extends EverGLAudioVisualizationView.ColorsBuilder<EverGLAudioVisualizationView.Builder> {
 
-        private Context context;
+        @NonNull
+        private final Context context;
         private int wavesCount;
         private int layersCount;
         private float bubbleSize;
@@ -290,6 +323,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
             this.context = context;
         }
 
+        @NonNull
         @Override
         protected EverGLAudioVisualizationView.Builder getThis() {
             return this;
@@ -300,6 +334,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param wavesCount waves count
          */
+        @NonNull
         public EverGLAudioVisualizationView.Builder setWavesCount(int wavesCount) {
             this.wavesCount = wavesCount;
             return this;
@@ -310,11 +345,13 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param layersCount layers count
          */
+        @NonNull
         public EverGLAudioVisualizationView.Builder setLayersCount(int layersCount) {
             this.layersCount = layersCount;
             return this;
         }
 
+        @NonNull
         public EverGLAudioVisualizationView.Builder setIsTop(boolean isTop) {
             this.isTop = isTop;
             return this;
@@ -325,6 +362,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param bubbleSize bubbles size in pixels
          */
+        @NonNull
         public EverGLAudioVisualizationView.Builder setBubblesSize(float bubbleSize) {
             this.bubbleSize = bubbleSize;
             return this;
@@ -344,6 +382,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param waveHeight wave height in pixels
          */
+        @NonNull
         public EverGLAudioVisualizationView.Builder setWavesHeight(float waveHeight) {
             this.waveHeight = waveHeight;
             return this;
@@ -354,7 +393,8 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param waveHeight dimension resource
          */
-        public EverGLAudioVisualizationView.Builder setWavesHeight(@DimenRes int waveHeight) {
+        @NonNull
+        public EverGLAudioVisualizationView.Builder setWavesHeight(int waveHeight) {
             return setWavesHeight((float) context.getResources().getDimensionPixelSize(waveHeight));
         }
 
@@ -363,6 +403,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param footerHeight footer height in pixels
          */
+        @NonNull
         public EverGLAudioVisualizationView.Builder setWavesFooterHeight(float footerHeight) {
             this.footerHeight = footerHeight;
             return this;
@@ -373,7 +414,8 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param footerHeight dimension resource
          */
-        public EverGLAudioVisualizationView.Builder setWavesFooterHeight(@DimenRes int footerHeight) {
+        @NonNull
+        public EverGLAudioVisualizationView.Builder setWavesFooterHeight(int footerHeight) {
             return setWavesFooterHeight((float) context.getResources().getDimensionPixelSize(footerHeight));
         }
 
@@ -382,6 +424,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param randomizeBubbleSize true if size of bubbles should be randomized, false if size of bubbles must be the same
          */
+        @NonNull
         public EverGLAudioVisualizationView.Builder setBubblesRandomizeSize(boolean randomizeBubbleSize) {
             this.randomizeBubbleSize = randomizeBubbleSize;
             return this;
@@ -392,11 +435,13 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param bubblesPerLayer number of bubbles per layer
          */
+        @NonNull
         public EverGLAudioVisualizationView.Builder setBubblesPerLayer(int bubblesPerLayer) {
             this.bubblesPerLayer = bubblesPerLayer;
             return this;
         }
 
+        @NonNull
         public EverGLAudioVisualizationView build() {
             return new EverGLAudioVisualizationView(this);
         }
@@ -407,6 +452,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
      */
     public static class RendererBuilder {
 
+        @NonNull
         private final EverGLAudioVisualizationView.Builder builder;
         private GLSurfaceView glSurfaceView;
         private EverDbmHandler handler;
@@ -425,6 +471,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param handler instance of dBm handler
          */
+        @NonNull
         public EverGLAudioVisualizationView.RendererBuilder handler(EverDbmHandler handler) {
             this.handler = handler;
             return this;
@@ -435,6 +482,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          *
          * @param glSurfaceView instance of OpenGL surface view
          */
+        @NonNull
         public EverGLAudioVisualizationView.RendererBuilder glSurfaceView(@NonNull GLSurfaceView glSurfaceView) {
             this.glSurfaceView = glSurfaceView;
             this.glSurfaceView.setZOrderOnTop(builder.isTop);
@@ -447,6 +495,7 @@ public class EverGLAudioVisualizationView extends GLSurfaceView implements EverA
          * @return new Audio Visualization Renderer
          */
         //TODO FINISH THIS
+        @NonNull
         public EverGLAudioVisualizationView.AudioVisualizationRenderer build() {
             final EverGLRenderer renderer = new EverGLRenderer(builder.context, new EverGLAudioVisualizationView.Configuration(builder));
             final EverInnerAudioVisualization audioVisualization = new EverInnerAudioVisualization() {

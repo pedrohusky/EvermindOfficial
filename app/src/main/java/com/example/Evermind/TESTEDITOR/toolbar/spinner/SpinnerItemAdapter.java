@@ -27,6 +27,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.R;
 
 import java.util.List;
@@ -52,13 +55,14 @@ public class SpinnerItemAdapter<T extends SpinnerItem> extends BaseAdapter imple
     private ViewGroup mParent;
     private String mSpinnerTitle;
 
+    @NonNull
     private final Handler mHandler;
 
     final private SparseArray<View> mViewCache = new SparseArray<>();
 
     private final int mSelectedBackgroundId;
 
-    public SpinnerItemAdapter(Context context, SpinnerItems<T> spinnerItems, int spinnerId, int spinnerItemId) {
+    public SpinnerItemAdapter(@NonNull Context context, @NonNull SpinnerItems<T> spinnerItems, int spinnerId, int spinnerItemId) {
         mSelectedItem = spinnerItems.getSelectedItem();
         mItems = spinnerItems.getItems();
         mInflater = LayoutInflater.from(context);
@@ -120,19 +124,19 @@ public class SpinnerItemAdapter<T extends SpinnerItem> extends BaseAdapter imple
         });
     }
 
-    private void bindView(int position, View spinnerItemView, SpinnerItem spinnerItem) {
+    private void bindView(int position, @NonNull View spinnerItemView, @NonNull SpinnerItem spinnerItem) {
         // configure spinner name
-        TextView nameView = spinnerItemView.findViewById(R.id.spinner_name);
-        spinnerItem.formatNameView(nameView);
+      //  TextView nameView = spinnerItemView.findViewById(R.id.spinner_name);
+      //  spinnerItem.formatNameView(nameView);
 
         // configure spinner color
-        View colorView = spinnerItemView.findViewById(R.id.spinner_color);
-        spinnerItem.formatColorView(colorView);
+     //   View colorView = spinnerItemView.findViewById(R.id.spinner_color);
+      //  spinnerItem.formatColorView(colorView);
 
         // set background for selected item
-        View textContainer = spinnerItemView.findViewById(R.id.chip_pacemaker);
-        textContainer = textContainer == null ? nameView : textContainer;
-        textContainer.setBackgroundResource(position == mSelectedItem ? mSelectedBackgroundId : android.R.color.transparent);
+     //   View textContainer = spinnerItemView.findViewById(R.id.chip_pacemaker);
+     //   textContainer = textContainer == null ? nameView : textContainer;
+     //   textContainer.setBackgroundResource(position == mSelectedItem ? mSelectedBackgroundId : android.R.color.transparent);
     }
 
     /**
@@ -159,7 +163,7 @@ public class SpinnerItemAdapter<T extends SpinnerItem> extends BaseAdapter imple
         }
     }
 
-    private void updateSpinnerTitle(TextView titleView) {
+    private void updateSpinnerTitle(@Nullable TextView titleView) {
         if (titleView != null) {
             titleView.setText(mSpinnerTitle);
             titleView.setVisibility((mSpinnerTitle == null) ? View.GONE : View.VISIBLE);

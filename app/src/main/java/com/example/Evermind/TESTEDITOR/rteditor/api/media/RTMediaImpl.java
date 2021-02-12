@@ -20,6 +20,8 @@ import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.io.FilenameUtils;
 
@@ -97,7 +99,7 @@ public abstract class RTMediaImpl implements RTMedia {
         mFilePath = filePath;
     }
 
-    protected void removeFile(String path) {
+    protected void removeFile(@Nullable String path) {
         if (path != null) {
             File file = new File(path);
             file.delete();

@@ -7,6 +7,9 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Base64;
+
+import androidx.annotation.NonNull;
+
 import java.io.ByteArrayOutputStream;
 
 /**
@@ -31,7 +34,7 @@ public final class EvermindEditorUtils {
         throw new InstantiationException("This class is not for instantiation");
     }
 
-    public static String toBase64(Bitmap bitmap) {
+    public static String toBase64(@NonNull Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] bytes = baos.toByteArray();
@@ -57,7 +60,7 @@ public final class EvermindEditorUtils {
         return bitmap;
     }
 
-    public static Bitmap decodeResource(Context context, int resId) {
+    public static Bitmap decodeResource(@NonNull Context context, int resId) {
         return BitmapFactory.decodeResource(context.getResources(), resId);
     }
 

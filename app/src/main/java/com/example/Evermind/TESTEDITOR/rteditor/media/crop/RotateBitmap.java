@@ -19,9 +19,13 @@ package com.example.Evermind.TESTEDITOR.rteditor.media.crop;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public class RotateBitmap {
 
     public static final String TAG = "RotateBitmap";
+    @Nullable
     private Bitmap mBitmap;
     private int mRotation;
 
@@ -47,6 +51,7 @@ public class RotateBitmap {
         return mRotation;
     }
 
+    @Nullable
     public Bitmap getBitmap() {
 
         return mBitmap;
@@ -57,6 +62,7 @@ public class RotateBitmap {
         mBitmap = bitmap;
     }
 
+    @NonNull
     public Matrix getRotateMatrix() {
         // By default this is an identity matrix.
         Matrix matrix = new Matrix();

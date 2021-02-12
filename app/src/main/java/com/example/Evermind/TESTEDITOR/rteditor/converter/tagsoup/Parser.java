@@ -18,6 +18,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
@@ -49,13 +52,21 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
 
     // XMLReader implementation
 
+    @NonNull
     private ContentHandler theContentHandler = this;
+    @NonNull
     private LexicalHandler theLexicalHandler = this;
+    @NonNull
     private DTDHandler theDTDHandler = this;
+    @NonNull
     private ErrorHandler theErrorHandler = this;
+    @NonNull
     private EntityResolver theEntityResolver = this;
+    @Nullable
     private Schema theSchema;
+    @Nullable
     private Scanner theScanner;
+    @Nullable
     private AutoDetector theAutoDetector;
 
     // Default values for feature flags
@@ -306,7 +317,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     }
 
     @Override
-    public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
+    public void setFeature(@NonNull String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
         Boolean b = theFeatures.get(name);
         if (b == null) {
             throw new SAXNotRecognizedException("Unknown feature " + name);
@@ -336,8 +347,9 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
             CDATAElements = value;
     }
 
+    @Nullable
     @Override
-    public Object getProperty(String name) throws SAXNotRecognizedException,
+    public Object getProperty(@NonNull String name) throws SAXNotRecognizedException,
             SAXNotSupportedException {
         if (name.equals(lexicalHandlerProperty)) {
             return theLexicalHandler == this ? null : theLexicalHandler;
@@ -353,7 +365,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     }
 
     @Override
-    public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
+    public void setProperty(@NonNull String name, @Nullable Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
         if (name.equals(lexicalHandlerProperty)) {
             if (value == null) {
                 theLexicalHandler = this;
@@ -386,40 +398,44 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     }
 
     @Override
-    public void setEntityResolver(EntityResolver resolver) {
+    public void setEntityResolver(@Nullable EntityResolver resolver) {
         theEntityResolver = (resolver == null) ? this : resolver;
     }
 
+    @Nullable
     @Override
     public EntityResolver getEntityResolver() {
         return (theEntityResolver == this) ? null : theEntityResolver;
     }
 
     @Override
-    public void setDTDHandler(DTDHandler handler) {
+    public void setDTDHandler(@Nullable DTDHandler handler) {
         theDTDHandler = (handler == null) ? this : handler;
     }
 
+    @Nullable
     @Override
     public DTDHandler getDTDHandler() {
         return (theDTDHandler == this) ? null : theDTDHandler;
     }
 
     @Override
-    public void setContentHandler(ContentHandler handler) {
+    public void setContentHandler(@Nullable ContentHandler handler) {
         theContentHandler = (handler == null) ? this : handler;
     }
 
+    @Nullable
     @Override
     public ContentHandler getContentHandler() {
         return (theContentHandler == this) ? null : theContentHandler;
     }
 
     @Override
-    public void setErrorHandler(ErrorHandler handler) {
+    public void setErrorHandler(@Nullable ErrorHandler handler) {
         theErrorHandler = (handler == null) ? this : handler;
     }
 
+    @Nullable
     @Override
     public ErrorHandler getErrorHandler() {
         return (theErrorHandler == this) ? null : theErrorHandler;
@@ -431,7 +447,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     }
 
     @Override
-    public synchronized void parse(InputSource input) throws IOException, SAXException {
+    public synchronized void parse(@NonNull InputSource input) throws IOException, SAXException {
         setup();
 
         Reader r = getReader(input);
@@ -453,6 +469,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
         if (theScanner == null) theScanner = new HTMLScanner();
         if (theAutoDetector == null) {
             theAutoDetector = new AutoDetector() {
+                @NonNull
                 public Reader autoDetectingReader(InputStream i) {
                     return new InputStreamReader(i);
                 }
@@ -471,7 +488,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
 
     // Return a Reader based on the contents of an InputSource
     // Buffer both the InputStream and the Reader
-    private Reader getReader(InputSource s) throws SAXException, IOException {
+    private Reader getReader(@NonNull InputSource s) throws SAXException, IOException {
         Reader r = s.getCharacterStream();
         InputStream i = s.getByteStream();
         String encoding = s.getEncoding();
@@ -507,15 +524,24 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
 
     // ScanHandler implementation
 
+    @Nullable
     private Element theNewElement = null;
+    @Nullable
     private String theAttributeName = null;
     private boolean theDoctypeIsPresent = false;
+    @Nullable
     private String theDoctypePublicId = null;
+    @Nullable
     private String theDoctypeSystemId = null;
+    @Nullable
     private String theDoctypeName = null;
+    @Nullable
     private String thePITarget = null;
+    @Nullable
     private Element theStack = null;
+    @Nullable
     private Element theSaved = null;
+    @Nullable
     private Element thePCDATA = null;
     private int theEntity = 0; // needs to support chars past U+FFFF
 
@@ -549,7 +575,8 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     // Expand entity references in attribute values selectively.
     // Currently we expand a reference iff it is properly terminated
     // with a semicolon.
-    private String expandEntities(String src) {
+    @NonNull
+    private String expandEntities(@NonNull String src) {
         int refStart = -1;
         int len = src.length();
         char[] dst = new char[len];
@@ -710,7 +737,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
 
     // Push restartables on the stack if possible
     // e is the next element to be started, if we know what it is
-    private void restart(Element e) throws SAXException {
+    private void restart(@Nullable Element e) throws SAXException {
         while (theSaved != null && theStack.canContain(theSaved) && (e == null || theSaved.canContain(e))) {
             Element next = theSaved.next();
             push(theSaved);
@@ -760,7 +787,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     // Push element onto stack
     private boolean virginStack = true;
 
-    private void push(Element e) throws SAXException {
+    private void push(@NonNull Element e) throws SAXException {
         String name = e.name();
         String localName = e.localName();
         String namespace = e.namespace();
@@ -800,7 +827,8 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     }
 
     // Get the prefix from a QName
-    private String prefixOf(String name) {
+    @NonNull
+    private String prefixOf(@NonNull String name) {
         int i = name.indexOf(':');
         String prefix = "";
         if (i != -1)
@@ -809,7 +837,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     }
 
     // Return true if we have a foreign name
-    private boolean foreign(String prefix, String namespace) {
+    private boolean foreign(@NonNull String prefix, @NonNull String namespace) {
         // " for foreignness -- ");
         boolean foreign = !(prefix.equals("") || namespace.equals("") || namespace.equals(theSchema.getURI()));
         return foreign;
@@ -869,7 +897,8 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     }
 
     // If the String is quoted, trim the quotes.
-    private static String trimquotes(String in) {
+    @Nullable
+    private static String trimquotes(@Nullable String in) {
         if (in == null)
             return in;
         int length = in.length();
@@ -885,6 +914,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
 
     // Split the supplied String into words or phrases seperated by spaces.
     // Recognises quotes around a phrase and doesn't split it.
+    @NonNull
     private static String[] split(String val) throws IllegalArgumentException {
         val = val.trim();
         if (val.length() == 0) {
@@ -926,7 +956,8 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     // Replace junk in publicids with spaces
     private static final String legal = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-'()+,./:=?;!*#@$_%";
 
-    private String cleanPublicid(String src) {
+    @Nullable
+    private String cleanPublicid(@Nullable String src) {
         if (src == null)
             return null;
         int len = src.length();
@@ -1045,7 +1076,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
 
     // Rectify the stack, pushing and popping as needed
     // so that the argument can be safely pushed
-    private void rectify(Element e) throws SAXException {
+    private void rectify(@NonNull Element e) throws SAXException {
         Element sp;
         while (true) {
             for (sp = theStack; sp != null; sp = sp.next()) {
@@ -1088,6 +1119,7 @@ public class Parser extends DefaultHandler implements ScanHandler, XMLReader, Le
     // Return the argument as a valid XML name
     // This no longer lowercases the result: we depend on Schema to
     // canonicalize case.
+    @NonNull
     private String makeName(char[] buff, int offset, int length) {
         StringBuffer dst = new StringBuffer(length + 2);
         boolean seenColon = false;

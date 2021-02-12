@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <ConstraintSet android:id="@+id/start">
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+    </ConstraintSet>
+    <Transition
+        motion:constraintSetStart="@+id/start"
+        motion:constraintSetEnd="@+id/end" >
+        <OnSwipe motion:touchAnchorId="@+id/linearLayout2"
+            motion:dragDirection="dragUp"
+            motion:maxVelocity="200"
+            motion:onTouchUp="autoComplete"/>
+        <KeyFrameSet >
+
+            <KeyAttribute
+                motion:motionTarget="@+id/linearLayout2"
+                motion:framePosition="0"
+                android:translationY="0dp" />
+            <KeyAttribute
+                motion:motionTarget="@+id/linearLayout2"
+                motion:framePosition="100"
+                android:translationY="400dp" />
+        </KeyFrameSet>
+    </Transition>
+</MotionScene>

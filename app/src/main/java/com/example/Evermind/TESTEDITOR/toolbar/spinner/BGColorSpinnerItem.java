@@ -19,6 +19,8 @@ package com.example.Evermind.TESTEDITOR.toolbar.spinner;
 import android.graphics.Color;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 /**
  * The spinner item for the background color.
  */
@@ -38,7 +40,7 @@ public class BGColorSpinnerItem extends ColorSpinnerItem {
     }
 
     @Override
-    void formatNameView(TextView view) {
+    void formatNameView(@NonNull TextView view) {
         super.formatNameView(view);
 
         if (isEmpty()) {

@@ -2,8 +2,10 @@ package com.example.Evermind.TESTEDITOR.rteditor.spans;
 
 import android.text.Spanned;
 
+import androidx.annotation.NonNull;
+
 abstract class BaseListItemSpan {
-    float determineTextSize(Spanned spanned, int start, int end, float defaultTextSize) {
+    float determineTextSize(@NonNull Spanned spanned, int start, int end, float defaultTextSize) {
         // If the text size is different from default use that to determine the indicator size
         // That is determined by finding the first visible character within the list item span
         // and checking its size
@@ -20,7 +22,7 @@ abstract class BaseListItemSpan {
         return defaultTextSize;
     }
 
-    private int firstVisibleCharIndex(Spanned spanned, int start, int end) {
+    private int firstVisibleCharIndex(@NonNull Spanned spanned, int start, int end) {
         while (start < end) {
             if (isVisibleChar(spanned.charAt(start))) {
                 return start;

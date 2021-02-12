@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.Build;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.view.View;
@@ -29,6 +30,10 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
@@ -48,6 +53,9 @@ import com.example.Evermind.TESTEDITOR.toolbar.spinner.SpinnerItem;
 import com.example.Evermind.TESTEDITOR.toolbar.spinner.SpinnerItemAdapter;
 import com.example.Evermind.TESTEDITOR.toolbar.spinner.SpinnerItems;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.lang.ref.WeakReference;
 import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -71,9 +79,12 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     private static final AtomicInteger sIdCounter = new AtomicInteger(0);
     private int mId;
 
+    @Nullable
     private RTToolbarListener mListener;
 
     private ViewGroup mToolbarContainer;
+
+    private int size = 25;
 
     /*
      * The buttons
@@ -93,6 +104,7 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
      */
 
     private Context context;
+    private final WeakReference<MainActivity> mainActivity;
 
     //  private ColorPickerListener mColorPickerListener;
 
@@ -101,32 +113,54 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     public HorizontalRTToolbar(Context context) {
         super(context);
         this.context = context;
+        mainActivity = new WeakReference<>(((MainActivity)context));
+        init();
     }
 
     public HorizontalRTToolbar(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mainActivity = new WeakReference<>(((MainActivity)context));
     }
 
     public HorizontalRTToolbar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mainActivity = new WeakReference<>(((MainActivity)context));
     }
 
-    public void init(boolean format) {
-        MainActivity a = ((MainActivity) context);
-        RTEditText editor = a.getNoteCreator().getActiveEditor();
+    public void init() {
+    //    RTEditText editor = a.getNoteCreator().getActiveEditor();
 
-       if (format) {
-           mBold = initImageButton(a.getEverViewManagement().getBold());
-           mItalic = initImageButton(a.getEverViewManagement().getItalic());
-           mUnderline = initImageButton(a.getEverViewManagement().getUnderline());
-           mStrikethrough = initImageButton(a.getEverViewManagement().getStrikeThrough());
-       } else {
-           mAlignLeft = initImageButton(a.getEverViewManagement().getAlignLeft());
-           mAlignCenter = initImageButton(a.getEverViewManagement().getAlignCenter());
-           mAlignRight = initImageButton(a.getEverViewManagement().getAlignRight());
-           mBullet = initImageButton(a.getEverViewManagement().getBullets());
-           mNumber = initImageButton(a.getEverViewManagement().getNumbers());
-       }
+
+           mBold = initImageButton(mainActivity.get().getButtonsBinding().toolbarBold);
+           mItalic = initImageButton(mainActivity.get().getButtonsBinding().toolbarItalic);
+           mUnderline = initImageButton(mainActivity.get().getButtonsBinding().toolbarUnderline);
+           mStrikethrough = initImageButton(mainActivity.get().getButtonsBinding().toolbarStrikethrough);
+
+           mAlignLeft = initImageButton(mainActivity.get().getButtonsBinding().toolbarAlignLeft);
+           mAlignCenter = initImageButton(mainActivity.get().getButtonsBinding().toolbarAlignCenter);
+           mAlignRight = initImageButton(mainActivity.get().getButtonsBinding().toolbarAlignRight);
+           mBullet = initImageButton(mainActivity.get().getButtonsBinding().toolbarBullet);
+           mNumber = initImageButton(mainActivity.get().getButtonsBinding().toolbarNumber);
+           initImageButton(mainActivity.get().getButtonsBinding().upDraw);
+        initImageButton(mainActivity.get().getButtonsBinding().downDraw);
+        initImageButton(mainActivity.get().getButtonsBinding().ChangeColor1);
+        initImageButton(mainActivity.get().getButtonsBinding().DecreaseSize1);
+        initImageButton(mainActivity.get().getButtonsBinding().IncreaseSize1);
+        initImageButton(mainActivity.get().getButtonsBinding().Delete);
+      //  initImageButton(mainActivity.get().getButtonsBinding().toolbarUndo);
+        initImageButton(mainActivity.get().getButtonsBinding().toolbarRedo);
+        initImageButton(mainActivity.get().getButtonsBinding().play);
+        initImageButton(mainActivity.get().getButtonsBinding().saveAudio);
+        initImageButton(mainActivity.get().getButtonsBinding().imageButton2);
+        initImageButton(mainActivity.get().getButtonsBinding().imageButton4);
+        initImageButton(mainActivity.get().getButtonsBinding().imageButton5);
+        initImageButton(mainActivity.get().getButtonsBinding().Files);
+        initImageButton(mainActivity.get().getButtonsBinding().Gallery);
+        initImageButton(mainActivity.get().getButtonsBinding().DrawChangeColor);
+        initImageButton(mainActivity.get().getButtonsBinding().DrawChangeSize);
+        initImageButton(mainActivity.get().getButtonsBinding().HighlightText1);
+        initImageButton(mainActivity.get().getButtonsBinding().changeNotecolorButton);
+        initImageButton(mainActivity.get().getButtonsBinding().toolbarUndo);
    //     mSuperscript = initImageButton(R.id.toolbar_superscript);
     //    mSubscript = initImageButton(R.id.toolbar_subscript);
 
@@ -142,7 +176,7 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
         }
       //  SetColorPickerListenerEvent.setListener(mPickerId, mColorPickerListener);
 
-        a.getmRTManager().onSelectionChanged(editor, editor.getSelectionStart(), editor.getSelectionEnd());
+      //  a.getmRTManager().onSelectionChanged(editor, editor.getSelectionStart(), editor.getSelectionEnd());
     }
 
     @Override
@@ -153,8 +187,10 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
 
     }
 
-    private RTToolbarImageButton initImageButton(RTToolbarImageButton icon) {
+    @Nullable
+    private RTToolbarImageButton initImageButton(@Nullable RTToolbarImageButton icon) {
         if (icon != null) {
+            icon.initButton();
             icon.setOnClickListener(this);
         }
         return icon;
@@ -176,6 +212,7 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
         mToolbarContainer = toolbarContainer;
     }
 
+    @NonNull
     @Override
     public ViewGroup getToolbarContainer() {
         return mToolbarContainer == null ? this : mToolbarContainer;
@@ -320,7 +357,7 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
     // ****************************************** Item Selected Methods *******************************************
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         if (mListener != null) {
 
             int id = v.getId();
@@ -374,46 +411,108 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
                 }
             }
 
-            else if (id == R.id.toolbar_number) {
-                mNumber.setChecked(!mNumber.isChecked());
-                boolean isChecked = mNumber.isChecked();
-                mListener.onEffectSelected(Effects.NUMBER, isChecked);
-                if (isChecked && mBullet != null) {
-                    mBullet.setChecked(false);    // bullets will be removed by the BulletEffect.applyToSelection
+            else if (id == R.id.IncreaseSize1) {
+                if (size < 76) {
+
+                    size++;
+                    mainActivity.get().getNoteCreator().getActiveEditor().applyEffect(Effects.FONTSIZE, size);
+                    // noteCreator.activeEditor.setFontSize(size);
                 }
             }
 
-            else if (id == R.id.toolbar_inc_indent) {
-                mListener.onEffectSelected(Effects.INDENTATION, Helper.getLeadingMarging());
+            else if (id == R.id.DecreaseSize1) {
+                if (size > 10) {
+
+                    size--;
+                    mainActivity.get().getNoteCreator().getActiveEditor().applyEffect(Effects.FONTSIZE, size);
+                    // noteCreator.getActiveEditor().setFontSize(size);
+                }
             }
 
-            else if (id == R.id.toolbar_dec_indent) {
-                mListener.onEffectSelected(Effects.INDENTATION, -Helper.getLeadingMarging());
+            else if (id == R.id.ChangeColor1) {
+                mainActivity.get().getEverBallsHelper().initEverBallsForeground();
             }
 
-            else if (id == R.id.toolbar_link) {
-                mListener.onCreateLink();
+            else if (id == R.id.HighlightText1) {
+                mainActivity.get().getEverBallsHelper().initEverBallsHighlight();
             }
 
-            else if (id == R.id.toolbar_image) {
-                mListener.onPickImage();
-            }
-
-            else if (id == R.id.toolbar_image_capture) {
-                mListener.onCaptureImage();
-            }
-
-            else if (id == R.id.toolbar_clear) {
-                mListener.onClearFormatting();
+            else if (id == R.id.DrawChangeColor) {
+                mainActivity.get().getEverBallsHelper().initEverBallsDraw();
             }
 
             else if (id == R.id.toolbar_undo) {
-                mListener.onUndo();
+                mainActivity.get().getEverViewManagement().animateObject(v, "rotation", -360, 250);
+                if ( mainActivity.get().getEverViewManagement().isDrawing()) {
+                    mainActivity.get().getNoteCreator().getEverDraw().undo();
+                } else {
+                    mainActivity.get().getEverThemeHelper().enterDarkMode();
+                    mainActivity.get().getmRTManager().onUndo();
+                }
             }
 
             else if (id == R.id.toolbar_redo) {
-                mListener.onRedo();
+                mainActivity.get().getEverViewManagement().animateObject(v, "rotation", 360, 250);
+                if ( mainActivity.get().getEverViewManagement().isDrawing()) {
+                    mainActivity.get().getNoteCreator().getEverDraw().redo();
+                } else {
+                    mainActivity.get().getmRTManager().onRedo();
+                }
             }
+
+            else if (id == R.id.imageButton5) {
+                mainActivity.get().getEverBallsHelper().initEverBallsPaintType();
+            }
+
+            else if (id == R.id.changeNotecolorButton) {
+                Toast.makeText(mainActivity.get(), v.toString(), Toast.LENGTH_SHORT).show();
+                mainActivity.get().getEverBallsHelper().initEverBallsNoteColor();
+            }
+
+            else if (id == R.id.imageButton4) {
+                mainActivity.get().getNoteCreator().getEverDraw().setColor(Color.WHITE);
+            }
+
+            else if (id == R.id.Delete) {
+                if (view.getTag().equals("Save")) {
+                    if (everViewManagement.isDrawing()) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            noteCreator.SaveBitmapFromDraw();
+                        }
+                    } else {
+                        onBackPressed();
+                    }
+                }
+                if (view.getTag().equals("GridLayout")) {
+                    changeLayout(view);
+                }
+            }
+
+           // else if (id == R.id.toolbar_inc_indent) {
+            //    mListener.onEffectSelected(Effects.INDENTATION, Helper.getLeadingMarging());
+           // }
+
+           // else if (id == R.id.toolbar_dec_indent) {
+           //     mListener.onEffectSelected(Effects.INDENTATION, -Helper.getLeadingMarging());
+           // }
+
+           // else if (id == R.id.toolbar_link) {
+          //      mListener.onCreateLink();
+          //  }
+
+          //  else if (id == R.id.toolbar_image) {
+          //      mListener.onPickImage();
+           // }
+
+          //  else if (id == R.id.toolbar_image_capture) {
+          //      mListener.onCaptureImage();
+          //  }
+
+           // else if (id == R.id.toolbar_clear) {
+         //       mListener.onClearFormatting();
+          //  }
+
+           
         }
     }
 

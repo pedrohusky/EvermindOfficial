@@ -7,30 +7,26 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Handler;
-import android.os.Looper;
+import android.content.res.ColorStateList;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
@@ -40,112 +36,68 @@ import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.toolbar.HorizontalRTToolbar;
 import com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton;
-import com.thekhaeng.pushdownanim.PushDownAnim;
+import com.example.Evermind.databinding.HomeScreenButtonsBinding;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.skydoves.colorpickerview.ColorPickerView;
+import com.skydoves.colorpickerview.listeners.ColorListener;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import cafe.adriel.androidaudiorecorder.Util;
 import me.ibrahimsn.lib.SmoothBottomBar;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
-public class EverViewManagement {
+public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
+    @NonNull
     private final Context context;
-    private final ImageButton Undo;
-    private final ImageButton Redo;
-    private final ImageButton Delete;
-    private final ImageButton Save;
-    private final ImageButton changeNoteColorButton;
-    private final CardView size_visualizer;
-    private final ImageView ImageSizeView;
+    @NonNull
     private final WeakReference<MainActivity> mainActivity;
-    private final RelativeLayout relativeLayout;
-    private final HorizontalRTToolbar editorToolbar;
-    private final SmoothBottomBar note_bottom_bar;
-    private SeekBar seekBarDrawSize;
-    private RTToolbarImageButton Bold;
-    private RTToolbarImageButton Italic;
-    private RTToolbarImageButton Underline;
-    private RTToolbarImageButton StrikeThrough;
-    private RTToolbarImageButton Bullets;
-    private RTToolbarImageButton Numbers;
-    private RTToolbarImageButton AlignLeft;
-    private RTToolbarImageButton AlignCenter;
-    private RTToolbarImageButton AlignRight;
-    private ImageButton DrawChangeColor;
-    private ImageButton DrawChangeSize;
-    private CardView ImporterOptions;
-    private CardView ParagraphOptions;
-    private CardView FormatOptions;
-    private CardView SelectOptions;
-    private CardView AudioOptions;
-    private CardView DrawOptions;
+    private final HomeScreenButtonsBinding buttonsBinding;
     private int audioDecoySize = 0;
     private boolean bottomBarUp = false;
-    private boolean formatOptions = false;
-    private boolean paragraphOptions = false;
-    private boolean importerOptions = false;
-    private boolean drawOptions = false;
     private boolean drawsize = false;
-    private boolean bold = false;
-    private boolean italic = false;
-    private boolean underline = false;
-    private boolean striketrough = false;
-    private boolean numbers = false;
-    private boolean bullets = false;
-    private View oldView;
-    private ImageButton stopView;
-    private ImageButton saveView;
-    private ImageButton playView;
-    private TextView timerView;
     private String lastSearch;
-    private boolean audioOpen = false;
+    private String lastOpenedTab = "";
+    private boolean isDrawing = false;
     private boolean DrawVisualizerIsShowing = false;
-    private boolean drawing = false;
+    private HorizontalRTToolbar toolbar;
+    private View drawConstraint = null;
+    private View formatConstraint = null;
+    private BottomSheetBehavior drawBottomSheet;
+    private BottomSheetBehavior formatBottomSheet;
+    private boolean drawStub = false;
+    private boolean formatStub = false;
     private ValueAnimator heightAnimator;
-    private ValueAnimator widthAnimator;
-    public EverViewManagement(Context context) {
+    public EverViewManagement(@NonNull Context context) {
         this.context = context;
         mainActivity = new WeakReference<>(((MainActivity) context));
-        relativeLayout = mainActivity.get().findViewById(R.id.relativeLayout_Buttons);
-        editorToolbar = new HorizontalRTToolbar(context);
-        mainActivity.get().getmRTManager().registerToolbar(null, editorToolbar);
-        note_bottom_bar = mainActivity.get().findViewById(R.id.bottom_bar);
-        note_bottom_bar.setOnItemReselected(integer -> {
+        buttonsBinding = mainActivity.get().getButtonsBinding();
+        toolbar = new HorizontalRTToolbar(context);
+        mainActivity.get().holdViewsToDarken(buttonsBinding.toolbar);
+        mainActivity.get().holdViewsToDarken(buttonsBinding.bottomBar);
+        mainActivity.get().getmRTManager().registerToolbar(null, toolbar);
+        EverInterfaceHelper.getInstance().setDarkModeListeners(this);
+        buttonsBinding.bottomBar.setOnItemReselected(integer -> {
             switch (integer) {
                 case 0:
-                    if (formatOptions) {
-                        CloseOrOpenFormatOptions(true);
-                        formatOptions = false;
-                    } else {
-                        CloseOrOpenFormatOptions(false);
-                        formatOptions = true;
-                    }
+                    switchBottomBars("format");
                     break;
 
                 case 1:
-                    if (paragraphOptions) {
-                        CloseOrOpenParagraphOptions(true);
-                        paragraphOptions = false;
-                    } else {
-                        CloseOrOpenParagraphOptions(false);
-                        paragraphOptions = true;
-                    }
+                    switchBottomBars("paragraph");
                     break;
 
                 case 2:
-                    if (importerOptions) {
-                        CloseOrOpenImporterOptions(true);
-                        importerOptions = false;
-                    } else {
-                        CloseOrOpenImporterOptions(false);
-                        importerOptions = true;
-                    }
+                    switchBottomBars("import");
                     break;
 
                 case 3:
-                    if (audioOpen) {
+                    if (mainActivity.get().getAudioHelper().isRecording()) {
+                        mainActivity.get().getAudioHelper().stop(true);
+                    } else if (mainActivity.get().getAudioHelper().hasRecordStarted()) {
                         mainActivity.get().getAudioHelper().stop(true);
                     } else {
                         mainActivity.get().recordAudio();
@@ -153,14 +105,7 @@ public class EverViewManagement {
                     break;
 
                 case 4:
-                    if (drawOptions) {
-                        mainActivity.get().AddDraw(true);
-                    } else {
-                        InputMethodManager keyboard1 = (InputMethodManager) mainActivity.get().getSystemService(INPUT_METHOD_SERVICE);
-                        keyboard1.hideSoftInputFromWindow(mainActivity.get().getNoteCreator().getCardNoteCreator().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> mainActivity.get().AddDraw(false), 250);
-                    }
+                    switchBottomBars("newDraw");
                     break;
 
                 case 5:
@@ -169,36 +114,18 @@ public class EverViewManagement {
             }
             return null;
         });
-        note_bottom_bar.setOnItemSelected(integer -> {
+        buttonsBinding.bottomBar.setOnItemSelected(integer -> {
             switch (integer) {
                 case 0:
-                    if (formatOptions) {
-                        CloseOrOpenFormatOptions(true);
-                        formatOptions = false;
-                    } else {
-                        CloseOrOpenFormatOptions(false);
-                        formatOptions = true;
-                    }
+                    switchBottomBars("format");
                     break;
 
                 case 1:
-                    if (paragraphOptions) {
-                        CloseOrOpenParagraphOptions(true);
-                        paragraphOptions = false;
-                    } else {
-                        CloseOrOpenParagraphOptions(false);
-                        paragraphOptions = true;
-                    }
+                    switchBottomBars("paragraph");
                     break;
 
                 case 2:
-                    if (importerOptions) {
-                        CloseOrOpenImporterOptions(true);
-                        importerOptions = false;
-                    } else {
-                        CloseOrOpenImporterOptions(false);
-                        importerOptions = true;
-                    }
+                    switchBottomBars("import");
                     break;
 
                 case 3:
@@ -215,14 +142,7 @@ public class EverViewManagement {
                     break;
 
                 case 4:
-                    if (drawOptions) {
-                        mainActivity.get().AddDraw(true);
-                    } else {
-                        InputMethodManager keyboard1 = (InputMethodManager) mainActivity.get().getSystemService(INPUT_METHOD_SERVICE);
-                        keyboard1.hideSoftInputFromWindow(mainActivity.get().getNoteCreator().getCardNoteCreator().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> mainActivity.get().AddDraw(false), 250);
-                    }
+                    switchBottomBars("newDraw");
                     break;
 
                 case 5:
@@ -232,206 +152,136 @@ public class EverViewManagement {
             return null;
         });
 
-        size_visualizer = mainActivity.get().findViewById(R.id.draw_sizeVisualizerCardView);
-        ImageSizeView = mainActivity.get().findViewById(R.id.draw_size_visualizer);
+        formatBottomSheet = BottomSheetBehavior.from(buttonsBinding.formatBottomSheet);
+        drawBottomSheet = BottomSheetBehavior.from(buttonsBinding.drawBottomSheet);
+        drawBottomSheet.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+              //  if (!drawStub) {
+                    inflateLayoutByName("draw");
+              //  }
+            }
 
-        Undo = mainActivity.get().findViewById(R.id.toolbar_undo);
-        Redo = mainActivity.get().findViewById(R.id.toolbar_redo);
-        Delete = mainActivity.get().findViewById(R.id.Delete);
-        Save = mainActivity.get().findViewById(R.id.Save);
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
+        formatBottomSheet.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+              //  if (!formatStub) {
+                    inflateLayoutByName("format");
+              //  }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
+        drawBottomSheet.setPeekHeight(250);
+        formatBottomSheet.setPeekHeight(250);
+
         //scrollView1 = findViewById(R.id.scroll_draw);
-        changeNoteColorButton = mainActivity.get().findViewById(R.id.changeNotecolorButton);
         List<View> views = new ArrayList<>();
-        views.add(Undo);
-        views.add(Redo);
-        views.add(Save);
-        views.add(Delete);
-        views.add(changeNoteColorButton);
+        views.add(buttonsBinding.toolbarUndo);
+        views.add(buttonsBinding.toolbarRedo);
+        views.add(buttonsBinding.Delete);
+        views.add(buttonsBinding.toolbarBold);
+        views.add(buttonsBinding.toolbarItalic);
+        views.add(buttonsBinding.toolbarUnderline);
+        views.add(buttonsBinding.toolbarStrikethrough);
+        views.add(buttonsBinding.HighlightText1);
+        views.add(buttonsBinding.ChangeColor1);
+        views.add(buttonsBinding.IncreaseSize1);
+        views.add(buttonsBinding.DecreaseSize1);
+        views.add(buttonsBinding.selectChangeColor);
+        views.add(buttonsBinding.Delete);
+        views.add(buttonsBinding.toolbarBullet);
+        views.add(buttonsBinding.toolbarNumber);
+        views.add(buttonsBinding.toolbarAlignLeft);
+        views.add(buttonsBinding.toolbarAlignCenter);
+        views.add(buttonsBinding.toolbarAlignRight);
+        views.add(buttonsBinding.GooglePhotos);
+        views.add(buttonsBinding.Files);
+        views.add(buttonsBinding.Gallery);
+
+
 
 
         mainActivity.get().applyPushDownToViews(views, 0.7f);
-    }
 
-    public ImageButton getUndo() {
-        return Undo;
-    }
-
-    public ImageButton getRedo() {
-        return Redo;
-    }
-
-    public ImageButton getDelete() {
-        return Delete;
-    }
-
-    public ImageButton getSave() {
-        return Save;
-    }
-
-    public SmoothBottomBar getBottomBar() {
-        return note_bottom_bar;
-    }
-
-    public ImageButton getStopView() {
-        return stopView;
-    }
-
-    public ImageButton getSaveView() {
-        return saveView;
-    }
-
-    public ImageButton getPlayView() {
-        return playView;
-    }
-
-    public boolean isBold() {
-        return bold;
-    }
-
-    public boolean isItalic() {
-        return italic;
-    }
-
-    public boolean isUnderline() {
-        return underline;
-    }
-
-    public boolean isStriketrough() {
-        return striketrough;
-    }
-
-    public void setStriketrough(boolean striketrough) {
-        this.striketrough = striketrough;
-    }
-
-    public boolean isNumbers() {
-        return numbers;
-    }
-
-    public boolean isBullets() {
-        return bullets;
+        //toolbar.init();
     }
 
     public boolean isDrawing() {
-        return drawing;
+        return isDrawing;
     }
 
-    public void setDrawing(boolean drawing) {
-        this.drawing = drawing;
+    public ImageButton getUndo() {
+        return buttonsBinding.toolbarUndo;
     }
 
-    public void ShowDrawSizeVisualizer() {
-        if (!DrawVisualizerIsShowing) {
-            size_visualizer.setVisibility(View.VISIBLE);
-            size_visualizer.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_in_formatter));
-            ImageSizeView.setVisibility(View.VISIBLE);
-            DrawVisualizerIsShowing = true;
-        }
+    public ImageButton getRedo() {
+        return buttonsBinding.toolbarRedo;
     }
 
-    public void ModifyDrawSizeVisualizer(int value) {
+    public ImageButton getDelete() {
+        return buttonsBinding.Delete;
+    }
 
-        ImageSizeView.setScaleX(value / 85F);
-        ImageSizeView.setScaleY(value / 85F);
 
+    public SmoothBottomBar getBottomBar() {
+        return buttonsBinding.bottomBar;
+    }
+
+    public ImageButton getStopView() {
+        return buttonsBinding.stop;
+    }
+
+    public ImageButton getSaveView() {
+        return buttonsBinding.saveAudio;
+    }
+
+    public ImageButton getPlayView() {
+        return buttonsBinding.play;
     }
 
     public void CloseOrOpenToolbarUndoRedo(boolean UndoRedo) {
         if (UndoRedo) {
-            changeNoteColorButton.setVisibility(View.GONE);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                Undo.setVisibility(View.VISIBLE);
-                Redo.setVisibility(View.VISIBLE);
-            }, 250);
+            buttonsBinding.changeNotecolorButton.setVisibility(View.GONE);
+           // mainActivity.get().getHandler().postDelayed(() -> {
+                buttonsBinding.toolbarUndo.setVisibility(View.VISIBLE);
+                buttonsBinding.toolbarRedo.setVisibility(View.VISIBLE);
+       //     }, 250);
         } else {
-            Undo.setVisibility(View.GONE);
-            Redo.setVisibility(View.GONE);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            buttonsBinding.toolbarUndo.setVisibility(View.GONE);
+            buttonsBinding.toolbarRedo.setVisibility(View.GONE);
+        //    mainActivity.get().getHandler().postDelayed(() -> {
                 if (!mainActivity.get().isAtHome()) {
-                    changeNoteColorButton.setVisibility(View.VISIBLE);
+                    buttonsBinding.changeNotecolorButton.setVisibility(View.VISIBLE);
                 } else {
-                    changeNoteColorButton.setVisibility(View.GONE);
+                    buttonsBinding.changeNotecolorButton.setVisibility(View.GONE);
                 }
-            }, 250);
-        }
-    }
-
-    public void CloseOrOpenAudioOptions(boolean close) {
-
-        if (close) {
-            animateHeightChange(oldView.findViewById(R.id.imageAudioDecoy), 350, audioDecoySize);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                animateHeightChange(AudioOptions, 500, 0);
-                //     animateWidthChange(AudioOptions, 500, 0);
-                EverInterfaceHelper.getInstance().changeState(true);
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    relativeLayout.removeView(AudioOptions);
-                }, 650);
-            }, 350);
-            audioOpen = false;
-        } else {
-
-            if (paragraphOptions) {
-                CloseOrOpenParagraphOptions(true);
-                paragraphOptions = false;
-            }
-            if (importerOptions) {
-                CloseOrOpenImporterOptions(true);
-                importerOptions = false;
-            }
-            if (formatOptions) {
-                CloseOrOpenFormatOptions(true);
-                formatOptions = false;
-            }
-            if (drawOptions) {
-                CloseOrOpenDrawOptions(true);
-                drawOptions = false;
-            }
-            oldView = View.inflate(context, R.layout.audio_options_viewbuttons, null);
-            AudioOptions = ((CardView) oldView);
-            relativeLayout.addView(oldView);
-            ViewGroup.LayoutParams layoutParams = AudioOptions.getLayoutParams();
-            layoutParams.height = 0;
-            layoutParams.width = relativeLayout.getWidth();
-            AudioOptions.setLayoutParams(layoutParams);
-            oldView.findViewById(R.id.imageAudioDecoy).setBackgroundColor(Integer.parseInt(mainActivity.get().getActualNote().getNoteColor()));
-
-            EverInterfaceHelper.getInstance().changeState(false);
-            //  new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            animateHeightChange(AudioOptions, 500, 350);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                ImageView imageView = oldView.findViewById(R.id.imageAudioDecoy);
-                if (imageView != null)
-                audioDecoySize = imageView.getHeight();
-                animateHeightChange(imageView, 350, 0);
-            }, 600);
-            //  }, 500);
-
-
-            audioOpen = true;
-
-            timerView = AudioOptions.findViewById(R.id.audio_time);
-            playView = AudioOptions.findViewById(R.id.play);
-            stopView = AudioOptions.findViewById(R.id.stop);
-            saveView = AudioOptions.findViewById(R.id.saveAudio);
-
-
-            timerView.setTranslationX(relativeLayout.getWidth() / 2.65f);
+         //   }, 250);
         }
     }
 
     public void switchToolbars(boolean show, boolean bottomToolbar, boolean showUndoRedo) {
-
         if (show) {
             if (bottomToolbar) {
                 if (!bottomBarUp) {
-                    animateHeightChange(note_bottom_bar, 600, 150);
-                    //   note_bottom_bar.setVisibility(View.VISIBLE);
+                    animateHeightChange(buttonsBinding.bottomBar, 600, 150, null);
+
+                    animateHeightChange(buttonsBinding.decoySpace, 500, 150, null);
+                    //   buttonsBinding.bottomBar.setVisibility(View.VISIBLE);
                     bottomBarUp = true;
                 }
             } else {
-                //  note_bottom_bar.setVisibility(View.GONE);
-                animateHeightChange(note_bottom_bar, 600, 0);
+                //  buttonsBinding.bottomBar.setVisibility(View.GONE);
+                animateHeightChange(buttonsBinding.bottomBar, 600, 0, null);
+                animateHeightChange(buttonsBinding.decoySpace, 500, 0, null);
 
                 bottomBarUp = false;
             }
@@ -439,31 +289,55 @@ public class EverViewManagement {
             CloseOrOpenToolbarUndoRedo(showUndoRedo);
 
         } else {
-            // note_bottom_bar.setVisibility(View.GONE);
-            animateHeightChange(note_bottom_bar, 600, 0);
+            // buttonsBinding.bottomBar.setVisibility(View.GONE);
+            animateHeightChange(buttonsBinding.bottomBar, 600, 0, null);
+            animateHeightChange(buttonsBinding.decoySpace, 500, 0, null);
             CloseOrOpenToolbarUndoRedo(false);
             bottomBarUp = false;
         }
     }
 
-    public void animateHeightChange(View view, int duration, int amount) {
+    public void animateHeightChange(@NonNull View view, int duration, int amount, @Nullable Runnable action) {
         //   new Handler(Looper.getMainLooper()).post(() -> {
-         heightAnimator = ValueAnimator.ofInt(view.getMeasuredHeight(), amount);
+        heightAnimator = ValueAnimator.ofInt(view.getMeasuredHeight(), amount);
         heightAnimator.addUpdateListener(valueAnimator -> {
             int val = (Integer) valueAnimator.getAnimatedValue();
-                ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-                layoutParams.height = val;
-                view.setLayoutParams(layoutParams);
+            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+            layoutParams.height = val;
+            view.setLayoutParams(layoutParams);
         });
         heightAnimator.setDuration(duration);
         heightAnimator.setInterpolator(new LinearOutSlowInInterpolator());
         heightAnimator.start();
+        if (action != null) {
+            heightAnimator.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    action.run();
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    heightAnimator.end();
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+        }
         //   });
     }
 
-    public void animateWidthChange(View view, int duration, int amount) {
+    public void animateWidthChange(@NonNull View view, int duration, int amount) {
         //    new Handler(Looper.getMainLooper()).post(() -> {
-        widthAnimator = ValueAnimator.ofInt(view.getMeasuredWidth(), amount);
+        ValueAnimator widthAnimator = ValueAnimator.ofInt(view.getMeasuredWidth(), amount);
         widthAnimator.addUpdateListener(valueAnimator -> {
             int val = (Integer) valueAnimator.getAnimatedValue();
             ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
@@ -476,332 +350,7 @@ public class EverViewManagement {
         //   });
     }
 
-    public void CloseOrOpenDrawSize(boolean CloseOpenedDrawSize) {
 
-        if (CloseOpenedDrawSize) {
-
-            DrawChangeColor.setVisibility(View.VISIBLE);
-            DrawChangeSize.setVisibility(View.VISIBLE);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                // ChangeColor.setVisibility(View.GONE);
-
-                seekBarDrawSize.setVisibility(View.GONE);
-
-            }, 100);
-
-        } else {
-
-            DrawChangeColor.setVisibility(View.GONE);
-            DrawChangeSize.setVisibility(View.VISIBLE);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> seekBarDrawSize.setVisibility(View.VISIBLE), 100);
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    public void CloseOrOpenDrawOptions(boolean Close) {
-
-        if (Close) {
-            // animateObject(DrawOptions, "translationY", DCY, 350);
-            CloseOrOpenDrawSize(Close);
-            animateHeightChange(DrawOptions, 500, 0);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                relativeLayout.removeView(DrawOptions);
-            }, 500);
-            drawing = false;
-            drawOptions = false;
-        } else {
-
-            if (paragraphOptions) {
-                CloseOrOpenParagraphOptions(true);
-                paragraphOptions = false;
-            }
-            if (importerOptions) {
-                CloseOrOpenImporterOptions(true);
-                importerOptions = false;
-            }
-            if (formatOptions) {
-                CloseOrOpenFormatOptions(true);
-                formatOptions = false;
-            }
-            if (audioOpen) {
-                CloseOrOpenAudioOptions(true);
-                audioOpen = false;
-            }
-            //  animateObject(DrawOptions, "translationY", DOY-50, 350);
-
-            if (oldView != null) {
-                relativeLayout.removeView(oldView);
-            }
-            oldView = View.inflate(context, R.layout.draw_options_viewbuttons, null);
-            DrawOptions = ((CardView) oldView);
-            relativeLayout.addView(DrawOptions);
-            ViewGroup.LayoutParams layoutParams = DrawOptions.getLayoutParams();
-            layoutParams.height = 0;
-            layoutParams.width = relativeLayout.getWidth();
-            DrawOptions.setLayoutParams(layoutParams);
-            animateHeightChange(DrawOptions, 500, 150);
-            drawing = true;
-            drawOptions = true;
-
-            DrawChangeColor = DrawOptions.findViewById(R.id.DrawChangeColor);
-            DrawChangeSize = DrawOptions.findViewById(R.id.DrawChangeSize);
-            PushDownAnim.setPushDownAnimTo(DrawChangeColor).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(DrawChangeSize).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(DrawOptions).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            seekBarDrawSize = DrawOptions.findViewById(R.id.draw_size_seekbar);
-            seekBarDrawSize.setOnTouchListener((v, event) -> {
-                int action = event.getAction();
-                switch (action) {
-                    case MotionEvent.ACTION_DOWN:
-                        // Disallow ScrollView to intercept touch events.
-                        v.getParent().requestDisallowInterceptTouchEvent(true);
-                        break;
-
-                    case MotionEvent.ACTION_UP:
-                        // Allow ScrollView to intercept touch events.
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-
-                            DrawVisualizerIsShowing = false;
-
-                            Animation fadeout = AnimationUtils.loadAnimation(context, R.anim.fade_out_formatter);
-
-                            size_visualizer.startAnimation(fadeout);
-
-
-                        }, 450);
-                        v.getParent().requestDisallowInterceptTouchEvent(false);
-                        break;
-                }
-
-                // Handle Seekbar touch events.
-                v.onTouchEvent(event);
-                return true;
-            });
-            seekBarDrawSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                    mainActivity.get().getNoteCreator().getEverDraw().setStrokeWidth((float) (i * 1.1));
-
-                    if (!mainActivity.get().getEverViewManagement().DrawVisualizerIsShowing) {
-                        mainActivity.get().getEverViewManagement().ShowDrawSizeVisualizer();
-                    }
-                    mainActivity.get().getEverViewManagement().ModifyDrawSizeVisualizer(i);
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                }
-            });
-        }
-    }
-
-    public void CloseOrOpenFormatOptions(boolean Close) {
-
-        if (Close) {
-            // animateObject(FormatOptions, "translationY", DCY, 350);
-            animateHeightChange(FormatOptions, 500, 0);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                relativeLayout.removeView(FormatOptions);
-            }, 500);
-            formatOptions = false;
-
-        } else {
-
-            if (paragraphOptions) {
-                CloseOrOpenParagraphOptions(true);
-                paragraphOptions = false;
-            }
-            if (importerOptions) {
-                CloseOrOpenImporterOptions(true);
-                importerOptions = false;
-            }
-            if (drawOptions) {
-                CloseOrOpenDrawOptions(true);
-                drawOptions = false;
-            }
-            if (audioOpen) {
-                CloseOrOpenAudioOptions(true);
-                audioOpen = false;
-            }
-            //  animateObject(FormatOptions, "translationY", DOY, 350);
-
-            oldView = View.inflate(context, R.layout.format_options_viewbuttons, null);
-            FormatOptions = ((CardView) oldView);
-            relativeLayout.addView(FormatOptions);
-            ViewGroup.LayoutParams layoutParams = FormatOptions.getLayoutParams();
-            layoutParams.height = 0;
-            layoutParams.width = relativeLayout.getWidth();
-            FormatOptions.setLayoutParams(layoutParams);
-            animateHeightChange(FormatOptions, 500, 150);
-            ImageButton increaseSize = FormatOptions.findViewById(R.id.IncreaseSize1);
-            ImageButton decreaseSize = FormatOptions.findViewById(R.id.DecreaseSize1);
-
-            FormatOptions = FormatOptions.findViewById(R.id.format_selectors);
-            Bold = FormatOptions.findViewById(R.id.toolbar_bold);
-            Italic = FormatOptions.findViewById(R.id.toolbar_italic);
-            Underline = FormatOptions.findViewById(R.id.toolbar_underline);
-            StrikeThrough = FormatOptions.findViewById(R.id.toolbar_strikethrough);
-            ImageButton highlight = FormatOptions.findViewById(R.id.HighlightText1);
-            ImageButton changeColor = FormatOptions.findViewById(R.id.ChangeColor1);
-
-
-            PushDownAnim.setPushDownAnimTo(Bold).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(Italic).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(Underline).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(StrikeThrough).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(highlight).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(changeColor).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(increaseSize).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(decreaseSize).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-
-            editorToolbar.init(true);
-            formatOptions = true;
-        }
-    }
-
-    public void CloseOrOpenSelectionOptions(boolean Close) {
-        if (Close) {
-            animateHeightChange(SelectOptions, 500, 0);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                relativeLayout.removeView(SelectOptions);
-            }, 500);
-        } else {
-
-            if (oldView != null) {
-                relativeLayout.removeView(oldView);
-            }
-
-            oldView = LayoutInflater.from(context).inflate(R.layout.select_options_viewbuttons, null, false);
-            SelectOptions = ((CardView) oldView);
-            relativeLayout.addView(SelectOptions);
-            ViewGroup.LayoutParams layoutParams = SelectOptions.getLayoutParams();
-            layoutParams.height = 0;
-            layoutParams.width = relativeLayout.getWidth();
-            SelectOptions.setLayoutParams(layoutParams);
-            mainActivity.get().getEverNoteManagement().setNotesSelected(false);
-            animateHeightChange(SelectOptions, 500, 150);
-
-            ImageButton selectionChangeColor = SelectOptions.findViewById(R.id.selectChangeColor);
-            ImageButton selectionDelete = SelectOptions.findViewById(R.id.selectDelete);
-
-            PushDownAnim.setPushDownAnimTo(selectionChangeColor).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(selectionDelete).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-        }
-    }
-
-    public void CloseOrOpenParagraphOptions(boolean Close) {
-        if (Close) {
-            //  animateObject(ParagraphOptions, "translationY", DCY, 350);
-            animateHeightChange(ParagraphOptions, 500, 0);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                relativeLayout.removeView(ParagraphOptions);
-            }, 500);
-            paragraphOptions = false;
-        } else {
-
-            if (importerOptions) {
-                CloseOrOpenImporterOptions(true);
-                importerOptions = false;
-            }
-            if (formatOptions) {
-                CloseOrOpenFormatOptions(true);
-                formatOptions = false;
-            }
-            if (drawOptions) {
-                CloseOrOpenDrawOptions(true);
-                drawOptions = false;
-            }
-            if (audioOpen) {
-                CloseOrOpenAudioOptions(true);
-                audioOpen = false;
-            }
-
-            oldView = View.inflate(context, R.layout.paragraph_options_viewbuttons, null);
-            ParagraphOptions = ((CardView) oldView);
-            relativeLayout.addView(ParagraphOptions);
-            ViewGroup.LayoutParams layoutParams = ParagraphOptions.getLayoutParams();
-            layoutParams.height = 0;
-            layoutParams.width = relativeLayout.getWidth();
-            ParagraphOptions.setLayoutParams(layoutParams);
-            //  animateObject(ParagraphOptions, "translationY", DOY, 350);
-            animateHeightChange(ParagraphOptions, 500, 150);
-
-            Bullets = ParagraphOptions.findViewById(R.id.toolbar_bullet);
-            Numbers = ParagraphOptions.findViewById(R.id.toolbar_number);
-            AlignLeft = ParagraphOptions.findViewById(R.id.toolbar_align_left);
-            AlignCenter = ParagraphOptions.findViewById(R.id.toolbar_align_center);
-            AlignRight = ParagraphOptions.findViewById(R.id.toolbar_align_right);
-
-
-            PushDownAnim.setPushDownAnimTo(Bullets).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(Numbers).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(AlignLeft).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(AlignCenter).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(AlignRight).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-
-            editorToolbar.init(false);
-
-            paragraphOptions = true;
-        }
-    }
-
-    public void CloseOrOpenImporterOptions(boolean Close) {
-
-        if (Close) {
-            //  animateObject(ImporterOptions, "translationY", DCY+50, 350);
-            animateHeightChange(ImporterOptions, 500, 0);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                relativeLayout.removeView(ImporterOptions);
-            }, 500);
-            importerOptions = false;
-        } else {
-
-            if (paragraphOptions) {
-                CloseOrOpenParagraphOptions(true);
-                paragraphOptions = false;
-            }
-            if (formatOptions) {
-                CloseOrOpenFormatOptions(true);
-                formatOptions = false;
-            }
-            if (drawOptions) {
-                CloseOrOpenDrawOptions(true);
-                drawOptions = false;
-            }
-            if (audioOpen) {
-                CloseOrOpenAudioOptions(true);
-                audioOpen = false;
-            }
-            // animateObject(ImporterOptions, "translationY", DOY, 350);
-            oldView = View.inflate(context, R.layout.imports_options_viewbuttons, null);
-            ImporterOptions = ((CardView) oldView);
-            relativeLayout.addView(ImporterOptions);
-            ViewGroup.LayoutParams layoutParams = ImporterOptions.getLayoutParams();
-            layoutParams.height = 0;
-            layoutParams.width = relativeLayout.getWidth();
-            ImporterOptions.setLayoutParams(layoutParams);
-            animateHeightChange(ImporterOptions, 500, 150);
-
-            ImageButton googlePhotos = ImporterOptions.findViewById(R.id.GooglePhotos);
-            ImageButton files = ImporterOptions.findViewById(R.id.Files);
-            ImageButton gallery = ImporterOptions.findViewById(R.id.Gallery);
-
-
-            PushDownAnim.setPushDownAnimTo(googlePhotos).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(files).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-            PushDownAnim.setPushDownAnimTo(gallery).setScale(PushDownAnim.MODE_SCALE, 0.7f);
-
-            importerOptions = true;
-        }
-    }
 
     public void CloseAllButtons() {
 
@@ -810,37 +359,13 @@ public class EverViewManagement {
         InputMethodManager keyboard = (InputMethodManager) mainActivity.get().getSystemService(INPUT_METHOD_SERVICE);
         keyboard.hideSoftInputFromWindow(mainActivity.get().getToolbar().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-        if (paragraphOptions) {
-            CloseOrOpenParagraphOptions(true);
-            paragraphOptions = false;
-        }
-        if (importerOptions) {
-            CloseOrOpenImporterOptions(true);
-            importerOptions = false;
-        }
-        if (formatOptions) {
-            CloseOrOpenFormatOptions(true);
-            formatOptions = false;
-        }
-        if (drawOptions) {
-            CloseOrOpenDrawOptions(true);
-            drawOptions = false;
-        }
-
-        if (audioOpen) {
-            CloseOrOpenAudioOptions(true);
-            audioOpen = false;
-        }
+        switchBottomBars(lastOpenedTab);
 
 
-        if (seekBarDrawSize != null) {
-            if (seekBarDrawSize.getVisibility() == View.VISIBLE) {
-                CloseOrOpenDrawSize(true);
-            }
-        }
+
     }
 
-    public void animateObject(View view, String effect, int amount, int duration) {
+    public void animateObject(@NonNull View view, String effect, int amount, int duration) {
         ObjectAnimator transAnimation2 = ObjectAnimator.ofFloat(view, effect, view.getTranslationY(), amount);
         transAnimation2.setDuration(duration);//set duration
         transAnimation2.setInterpolator(new LinearOutSlowInInterpolator());
@@ -852,7 +377,7 @@ public class EverViewManagement {
                 .addTransition(new ChangeBounds()));
     }
 
-    public void pushDownOnTouch(View view, MotionEvent event, float pushScale, int duration) {
+    public void pushDownOnTouch(@NonNull View view, @NonNull MotionEvent event, float pushScale, int duration) {
         int i = event.getAction();
         if (i == MotionEvent.ACTION_DOWN) {
             makeDecisionAnimScale(view,
@@ -868,12 +393,12 @@ public class EverViewManagement {
         }
     }
 
-    public void makeDecisionAnimScale(final View view, float pushScale, long duration, TimeInterpolator interpolator) {
+    public void makeDecisionAnimScale(@NonNull final View view, float pushScale, long duration, TimeInterpolator interpolator) {
 
         animScale(view, pushScale, duration, interpolator);
     }
 
-    public void animScale(final View view, float scale, long duration, TimeInterpolator interpolator) {
+    public void animScale(@NonNull final View view, float scale, long duration, TimeInterpolator interpolator) {
         AnimatorSet scaleAnimSet = new AnimatorSet();
         view.animate().cancel();
         if (scaleAnimSet != null) {
@@ -913,39 +438,31 @@ public class EverViewManagement {
         if (showmain) {
             if (mainActivity.get().getEverNoteManagement() != null) {
                 if (mainActivity.get().getEverNoteManagement().isSearching()) {
-                    mainActivity.get().getTitleBox().setVisibility(View.VISIBLE);
+                    //     mainActivity.get().getTitleBox().setVisibility(View.VISIBLE);
                     mainActivity.get().getTitleBox().removeTextChangedListener(mainActivity.get().getTitleWatcher());
-                   // mainActivity.get().getTitleBox().setText("");
+                    // mainActivity.get().getTitleBox().setText("");
                     mainActivity.get().getTitleBox().setText(lastSearch);
                     mainActivity.get().getTitleBox().addTextChangedListener(mainActivity.get().getSearchWatcher());
-                    Save.setVisibility(View.INVISIBLE);
-                    Delete.setVisibility(View.INVISIBLE);
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        Save.setImageResource(R.drawable.ic_baseline_search_24);
-                        Delete.setImageResource(R.drawable.ic_baseline_library_books_24);
-                        Save.setVisibility(View.VISIBLE);
-                        Delete.setVisibility(View.VISIBLE);
+                    buttonsBinding.Delete.setVisibility(View.INVISIBLE);
+                    buttonsBinding.Delete.postDelayed(() -> {
+                        buttonsBinding.Delete.setImageResource(R.drawable.ic_baseline_library_books_24);
+                        buttonsBinding.Delete.setVisibility(View.VISIBLE);
                     }, 150);
 
-                    Save.setTag("Search");
-                    Delete.setTag("GridLayout");
+                    buttonsBinding.Delete.setTag("GridLayout");
                 } else {
-                    mainActivity.get().getTitleBox().setVisibility(View.VISIBLE);
+                    //   mainActivity.get().getTitleBox().setVisibility(View.VISIBLE);
                     mainActivity.get().getTitleBox().removeTextChangedListener(mainActivity.get().getTitleWatcher());
                     mainActivity.get().getTitleBox().setText("EVERMEMO");
                     mainActivity.get().getTitleBox().setFocusable(false);
                     mainActivity.get().getTitleBox().setFocusableInTouchMode(false);
-                    Save.setVisibility(View.INVISIBLE);
-                    Delete.setVisibility(View.INVISIBLE);
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        Save.setImageResource(R.drawable.ic_baseline_search_24);
-                        Delete.setImageResource(R.drawable.ic_baseline_library_books_24);
-                        Save.setVisibility(View.VISIBLE);
-                        Delete.setVisibility(View.VISIBLE);
+                    buttonsBinding.Delete.setVisibility(View.INVISIBLE);
+                    buttonsBinding.Delete.postDelayed(() -> {
+                        buttonsBinding.Delete.setImageResource(R.drawable.ic_baseline_library_books_24);
+                        buttonsBinding.Delete.setVisibility(View.VISIBLE);
                     }, 150);
 
-                    Save.setTag("Search");
-                    Delete.setTag("GridLayout");
+                    buttonsBinding.Delete.setTag("GridLayout");
                 }
             }
 
@@ -968,23 +485,22 @@ public class EverViewManagement {
                 }
 
                 @Override
-                public void afterTextChanged(Editable s) {
+                public void afterTextChanged(@NonNull Editable s) {
                     mainActivity.get().getActualNote().setTitle(s.toString());
                 }
             });
-            Save.setVisibility(View.INVISIBLE);
-            Delete.setVisibility(View.INVISIBLE);
+            buttonsBinding.Delete.setVisibility(View.INVISIBLE);
             mainActivity.get().getTitleBox().removeTextChangedListener(mainActivity.get().getSearchWatcher());
             lastSearch = mainActivity.get().getTitleBox().getText().toString();
-         //   mainActivity.get().getTitleBox().setText(" ");
-            mainActivity.get().getTitleBox().setText(mainActivity.get().getActualNote().getTitle());
+            //   mainActivity.get().getTitleBox().setText(" ");
+            if (mainActivity.get().getActualNote() != null) {
+                mainActivity.get().getTitleBox().setText(mainActivity.get().getActualNote().getTitle());
+            }
             mainActivity.get().getTitleBox().setHint("Create a title");
 
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                Save.setImageResource(R.drawable.ic_baseline_check_24);
-                Delete.setImageResource(R.drawable.clear);
-                Save.setVisibility(View.VISIBLE);
-                Delete.setVisibility(View.VISIBLE);
+            buttonsBinding.Delete.postDelayed(() -> {
+                buttonsBinding.Delete.setImageResource(R.drawable.ic_baseline_check_24);
+                buttonsBinding.Delete.setVisibility(View.VISIBLE);
                 mainActivity.get().getTitleBox().addTextChangedListener(mainActivity.get().getTitleWatcher());
                 mainActivity.get().getTitleBox().setOnFocusChangeListener((v, hasFocus) -> {
                     if (hasFocus) {
@@ -994,106 +510,402 @@ public class EverViewManagement {
                 mainActivity.get().getTitleBox().setFocusable(true);
                 mainActivity.get().getTitleBox().setFocusableInTouchMode(true);
             }, 150);
-            Save.setTag("Save");
-            Delete.setTag("Delete");
+
+            buttonsBinding.Delete.setTag("Save");
             // findViewById(R.id.note_Creator_ToolbarLayout).setVisibility(View.VISIBLE);
 
         }
     }
 
-    public void drawChangeSizeClick() {
-        if (drawsize) {
-            CloseOrOpenDrawSize(true);
-            drawsize = false;
-        } else {
-            CloseOrOpenDrawSize(false);
-            drawsize = true;
-        }
-    }
-
     public void clearBooleans() {
         DrawVisualizerIsShowing = false;
-        drawing = false;
         bottomBarUp = false;
-        formatOptions = false;
-        paragraphOptions = false;
-        importerOptions = false;
-        drawOptions = false;
         drawsize = false;
-        bold = false;
-        italic = false;
-        underline = false;
-        striketrough = false;
-        numbers = false;
-        bullets = false;
-        audioOpen = false;
+        lastOpenedTab = "";
     }
 
     public RTToolbarImageButton getBold() {
-        return Bold;
-    }
-
-    public void setBold(boolean bold) {
-        this.bold = bold;
+        return buttonsBinding.toolbarBold;
     }
 
     public RTToolbarImageButton getItalic() {
-        return Italic;
-    }
-
-    public void setItalic(boolean italic) {
-        this.italic = italic;
+        return buttonsBinding.toolbarItalic;
     }
 
     public RTToolbarImageButton getUnderline() {
-        return Underline;
-    }
-
-    public void setUnderline(boolean underline) {
-        this.underline = underline;
+        return buttonsBinding.toolbarUnderline;
     }
 
     public RTToolbarImageButton getStrikeThrough() {
-        return StrikeThrough;
+        return buttonsBinding.toolbarStrikethrough;
     }
 
     public RTToolbarImageButton getBullets() {
-        return Bullets;
-    }
-
-    public void setBullets(boolean bullets) {
-        this.bullets = bullets;
+        return buttonsBinding.toolbarBullet;
     }
 
     public RTToolbarImageButton getNumbers() {
-        return Numbers;
-    }
-
-    public void setNumbers(boolean numbers) {
-        this.numbers = numbers;
+        return buttonsBinding.toolbarNumber;
     }
 
     public RTToolbarImageButton getAlignLeft() {
-        return AlignLeft;
+        return buttonsBinding.toolbarAlignLeft;
     }
 
     public RTToolbarImageButton getAlignCenter() {
-        return AlignCenter;
+        return buttonsBinding.toolbarAlignCenter;
     }
 
     public RTToolbarImageButton getAlignRight() {
-        return AlignRight;
-    }
-
-    public void setDrawOptions(boolean drawOptions) {
-        this.drawOptions = drawOptions;
+        return buttonsBinding.toolbarAlignRight;
     }
 
     public CardView getAudioOptions() {
-        return AudioOptions;
+        return buttonsBinding.cardAudioOptions;
     }
 
     public TextView getTimerView() {
-        return timerView;
+        return buttonsBinding.audioTime;
+    }
+
+    public void switchBottomBars(String name) {
+
+        int delay = 0;
+
+        if (!lastOpenedTab.equals("")) {
+            delay = 250;
+        }
+
+        switch (lastOpenedTab) {
+            case "format":
+                animateHeightChange(buttonsBinding.formatCoordinator, 250, 0, new Runnable() {
+                    @Override
+                    public void run() {
+                        buttonsBinding.formatCoordinator.setVisibility(View.GONE);
+                    }
+                });
+                animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                break;
+            case "paragraph":
+                animateHeightChange(buttonsBinding.cardParagraphOptions, 250, 0,null);
+                animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                break;
+
+            case "import":
+                animateHeightChange(buttonsBinding.cardImportOptions, 250, 0,null);
+                animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                break;
+
+            case "audio":
+                //    mainActivity.get().getAudioHelper().stop(true);
+                animateHeightChange(buttonsBinding.imageAudioDecoy, 150, audioDecoySize, null);
+                buttonsBinding.cardAudioOptions.postDelayed(() -> {
+                    animateHeightChange(buttonsBinding.cardAudioOptions, 100, 0, null);
+                    animateHeightChange(buttonsBinding.decoySpace, 100, buttonsBinding.bottomBar.getHeight(), null);
+                }, 150);
+              //  EverInterfaceHelper.getInstance().changeState(true);
+                break;
+
+            case "draw":
+                if (mainActivity.get().getNoteCreator().isNewDraw()) {
+                    mainActivity.get().getNoteCreator().removeEverLinkedContentAtPosition(mainActivity.get().getActualNote().getEverLinkedContents(false).size()-2);
+                }
+                isDrawing = false;
+                animateHeightChange(buttonsBinding.drawCoordinator, 250, 0, new Runnable() {
+                    @Override
+                    public void run() {
+                        buttonsBinding.drawCoordinator.setVisibility(View.GONE);
+                    }
+                });
+                animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                break;
+
+            case "select":
+                animateHeightChange(buttonsBinding.cardSelectors, 250, 0,null);
+                animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                break;
+        }
+
+        getBottomBar().getHandler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!name.equals(lastOpenedTab)) {
+                    switch (name) {
+                        case "format":
+                            buttonsBinding.formatCoordinator.setVisibility(View.VISIBLE);
+                            buttonsBinding.formatSelectors.setVisibility(View.VISIBLE);
+                            if (formatConstraint != null) {
+                                formatConstraint.setVisibility(View.VISIBLE);
+                            }
+                            //    inflateLayoutByName("format");
+                            animateHeightChange(buttonsBinding.formatCoordinator, 750, 550, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 500, 300, null);
+                            lastOpenedTab = name;
+                            break;
+                        case "paragraph":
+                            buttonsBinding.cardParagraphOptions.setVisibility(View.VISIBLE);
+                            animateHeightChange(buttonsBinding.cardParagraphOptions, 250, 200, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 250, 300, null);
+                            lastOpenedTab = name;
+                            break;
+
+                        case "import":
+                            buttonsBinding.cardImportOptions.setVisibility(View.VISIBLE);
+                            animateHeightChange(buttonsBinding.cardImportOptions, 250, 200, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 250, 300, null);
+                            lastOpenedTab = name;
+                            break;
+
+                        case "audio":
+                            buttonsBinding.imageAudioDecoy.setBackgroundColor(Integer.parseInt(mainActivity.get().getActualNote().getNoteColor()));
+                            buttonsBinding.cardAudioOptions.setVisibility(View.VISIBLE);
+                            //   EverInterfaceHelper.getInstance().changeState(false);
+                            animateHeightChange(buttonsBinding.cardAudioOptions, 250, 450, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 250, 600, null);
+                            mainActivity.get().getUIHandler().postDelayed(() -> {
+                                audioDecoySize = buttonsBinding.imageAudioDecoy.getHeight();
+                                animateHeightChange(buttonsBinding.imageAudioDecoy, 350, 0, null);
+                            }, 300);
+                            lastOpenedTab = name;
+                            break;
+
+                        case "newDraw":
+
+                            if (!isDrawing) {
+                                buttonsBinding.cardDrawOptions.setVisibility(View.VISIBLE);
+                                buttonsBinding.drawCoordinator.setVisibility(View.VISIBLE);
+                                if (drawConstraint != null) {
+                                    drawConstraint.setVisibility(View.VISIBLE);
+                                }
+                                InputMethodManager keyboard1 = (InputMethodManager) mainActivity.get().getSystemService(INPUT_METHOD_SERVICE);
+                                keyboard1.hideSoftInputFromWindow(mainActivity.get().getNoteCreator().getCardNoteCreator().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                                if (mainActivity.get().getNoteCreator().getActiveEditor() != null) {
+                                    mainActivity.get().getNoteCreator().getActiveEditor().clearFocus();
+                                }
+                                mainActivity.get().getActualNote().addEverLinkedMap("", mainActivity.get(), true);
+                                mainActivity.get().getNoteCreator().setNewDraw(true);
+                                isDrawing = true;
+                                // inflateLayoutByName("draw");
+                                animateHeightChange(buttonsBinding.decoySpace, 750, 300, null);
+                                animateHeightChange(buttonsBinding.drawCoordinator, 750, 1000, null);
+                                lastOpenedTab = "draw";
+                            }
+                            break;
+
+                        case "draw":
+
+                            buttonsBinding.cardDrawOptions.setVisibility(View.VISIBLE);
+                            buttonsBinding.drawCoordinator.setVisibility(View.VISIBLE);
+                            if (drawConstraint != null) {
+                                drawConstraint.setVisibility(View.VISIBLE);
+                            }
+                            InputMethodManager keyboard2 = (InputMethodManager) mainActivity.get().getSystemService(INPUT_METHOD_SERVICE);
+                            keyboard2.hideSoftInputFromWindow(mainActivity.get().getNoteCreator().getCardNoteCreator().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                            if (mainActivity.get().getNoteCreator().getActiveEditor() != null) {
+                                mainActivity.get().getNoteCreator().getActiveEditor().clearFocus();
+                            }
+                            isDrawing = true;
+
+                            //  inflateLayoutByName("draw");
+                            animateHeightChange(buttonsBinding.decoySpace, 750, 300, null);
+                            animateHeightChange(buttonsBinding.drawCoordinator, 750, 1000, null);
+
+                            lastOpenedTab = name;
+                            break;
+
+                        case "select":
+                            buttonsBinding.cardSelectors.setVisibility(View.VISIBLE);
+                            mainActivity.get().getEverNoteManagement().setNotesSelected(false);
+                            animateHeightChange(buttonsBinding.cardSelectors, 250, 200, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 250, 150, null);
+                            lastOpenedTab = name;
+                            break;
+                    }
+                } else {
+                    switch (name) {
+                        case "format":
+                            animateHeightChange(buttonsBinding.formatCoordinator, 250, 0, new Runnable() {
+                                @Override
+                                public void run() {
+                                    buttonsBinding.formatCoordinator.setVisibility(View.GONE);
+                                }
+                            });
+                            animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                            break;
+                        case "paragraph":
+                            animateHeightChange(buttonsBinding.cardParagraphOptions, 250, 0, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                            break;
+
+                        case "import":
+                            animateHeightChange(buttonsBinding.cardImportOptions, 250, 0, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                            break;
+
+                        case "audio":
+                            //    mainActivity.get().getAudioHelper().stop(true);
+                            animateHeightChange(buttonsBinding.imageAudioDecoy, 175, audioDecoySize, null);
+                            mainActivity.get().getUIHandler().postDelayed(() -> {
+                                animateHeightChange(buttonsBinding.cardAudioOptions, 250, 0, null);
+                                animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                            }, 175);
+                            //   EverInterfaceHelper.getInstance().changeState(true);
+                            break;
+
+                        case "draw":
+                            if (mainActivity.get().getNoteCreator().isNewDraw()) {
+                                mainActivity.get().getNoteCreator().removeEverLinkedContentAtPosition(mainActivity.get().getActualNote().getEverLinkedContents(false).size()-2);
+                            }
+                            isDrawing = false;
+                            animateHeightChange(buttonsBinding.drawCoordinator, 250, 0, new Runnable() {
+                                @Override
+                                public void run() {
+                                    buttonsBinding.drawCoordinator.setVisibility(View.GONE);
+                                }
+                            });
+                            animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                            break;
+
+                        case "newDraw":
+                            if (mainActivity.get().getNoteCreator().isNewDraw()) {
+                                mainActivity.get().getNoteCreator().removeEverLinkedContentAtPosition(mainActivity.get().getActualNote().getEverLinkedContents(false).size()-2);
+                            }
+                            isDrawing = false;
+                            animateHeightChange(buttonsBinding.drawCoordinator, 250, 0, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                            break;
+
+                        case "select":
+                            animateHeightChange(buttonsBinding.cardSelectors, 250, 0, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
+                            break;
+                    }
+                    lastOpenedTab = "";
+                }
+            }
+        }, delay);
+
+
+    }
+
+
+    private void inflateLayoutByName(String name) {
+        switch (name) {
+            case "format" :
+                if (!formatStub) {
+                   formatConstraint = buttonsBinding.viewStub2.inflate();
+                    formatStub = true;
+                } else {
+                    if (formatConstraint.getVisibility() != View.VISIBLE) {
+                        formatConstraint.setVisibility(View.VISIBLE);
+                    }
+                    if (drawConstraint != null)
+                        if (drawConstraint.getVisibility() != View.GONE) {
+                            drawConstraint.setVisibility(View.GONE);
+                        }
+                }
+                break;
+            case "draw" :
+                if (!drawStub) {
+                    drawConstraint = buttonsBinding.viewStub.inflate();
+                    drawStub = true;
+                    SeekBar   drawSizeSeekbar = ((SeekBar) drawConstraint.findViewById(R.id.draw_size_seeekbar));
+                    ColorPickerView  colorPickerView = ((ColorPickerView) drawConstraint.findViewById(R.id.colorPickerView));
+                    ImageView circleVisualizer = ((ImageView) drawConstraint.findViewById(R.id.circleVisualizer));
+                    drawSizeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                        @Override
+                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                            if (seekBar.getHandler() != null) {
+                                seekBar.getHandler().postDelayed(() -> {
+                                    float f = (float) progress / 100;
+                                    circleVisualizer.setScaleX(f);
+                                    circleVisualizer.setScaleY(f);
+                                    mainActivity.get().getNoteCreator().getEverDraw().setStrokeWidth(progress*0.8f);
+                                }, 10);
+                            } else {
+                                float f = (float) progress / 100;
+                                circleVisualizer.setScaleX(f);
+                                circleVisualizer.setScaleY(f);
+                            }
+                        }
+
+                        @Override
+                        public void onStartTrackingTouch(SeekBar seekBar) {
+
+                        }
+
+                        @Override
+                        public void onStopTrackingTouch(SeekBar seekBar) {
+
+                        }
+                    });
+
+                    drawSizeSeekbar.setProgress(50);
+                    colorPickerView.setColorListener(new ColorListener() {
+                        @Override
+                        public void onColorSelected(int color, boolean fromUser) {
+                            if (fromUser) {
+                                drawBottomSheet.setDraggable(false);
+                                mainActivity.get().getNoteCreator().getEverDraw().setColor(color);
+                                circleVisualizer.getHandler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        drawBottomSheet.setDraggable(true);
+                                        mainActivity.get().getEverThemeHelper().tintViewAccent(circleVisualizer, color, 150);
+                                    }
+                                }, 150);
+                            }
+                        }
+                    });
+                } else {
+                    if (drawConstraint.getVisibility() != View.VISIBLE) {
+                        drawConstraint.setVisibility(View.VISIBLE);
+                    }
+                    if (formatConstraint != null)
+                        if (formatConstraint.getVisibility() != View.GONE) {
+                            formatConstraint.setVisibility(View.GONE);
+                        }
+                }
+                break;
+        }
+
+
+        buttonsBinding.upDraw.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                System.out.println(-1);
+                ((MainActivity) context).getNoteCreator().gettextRecyclerCreator().smoothScrollBy(0, -200, new LinearOutSlowInInterpolator());
+                return false;
+            }
+        });
+
+        buttonsBinding.downDraw.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                System.out.println(-1);
+                ((MainActivity) context).getNoteCreator().gettextRecyclerCreator().smoothScrollBy(0, 200, new LinearOutSlowInInterpolator());
+                return false;
+            }
+        });
+
+
+    }
+
+
+    @Override
+    public void enterDarkMode(int color) {
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.bottomBar, color, 500);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.toolbar, mainActivity.get().getColor(R.color.NightBlack), 600);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.frameSizeDecoy, Util.getDarkerColor(mainActivity.get().getColor(R.color.NightBlack)), 500);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardSelectors, mainActivity.get().getColor(R.color.NightBlack), 500);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardAudioOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardImportOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardParagraphOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardFormatMoreOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawMoreOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.formatSelectors, mainActivity.get().getColor(R.color.NightBlack), 500);
+        buttonsBinding.HighlightText1.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getColor(R.color.NightBlack)));
+        buttonsBinding.searchBox.setTextColor(mainActivity.get().getColor(R.color.NightBlack));
     }
 }

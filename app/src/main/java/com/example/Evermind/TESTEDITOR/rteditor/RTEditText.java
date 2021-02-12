@@ -34,6 +34,8 @@ import android.util.Log;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
 
@@ -80,6 +82,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
 
     // for performance reasons we compute a new layout only if the text has changed
     private boolean mLayoutChanged;
+    @Nullable
     private RTLayout mRTLayout;    // don't call this mLayout because TextView has a mLayout too (no shadowing as both are private but still...)
 
     // while onSaveInstanceState() is running, don't modify any spans
@@ -94,8 +97,10 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
     // this indicates whether text is selected or not -> ignore window focus changes (by spinners)
     private boolean mTextSelected;
 
+    @Nullable
     private RTEditTextListener mListener;
 
+    @Nullable
     private RTMediaFactory<RTImage, RTAudio, RTVideo> mMediaFactory;
 
     private final Map<Integer, Stack<RTOperationManager.Operation>> mUndoStacks = new HashMap<>();
@@ -136,17 +141,17 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
 
     // ****************************************** Lifecycle Methods *******************************************
 
-    public RTEditText(Context context) {
+    public RTEditText(@NonNull Context context) {
         super(context);
         init();
     }
 
-    public RTEditText(Context context, AttributeSet attrs) {
+    public RTEditText(@NonNull Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public RTEditText(Context context, AttributeSet attrs, int defStyle) {
+    public RTEditText(@NonNull Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
@@ -217,6 +222,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
     /**
      * Return all paragraphs as as array of selection objects
      */
+    @NonNull
     public ArrayList<Paragraph> getParagraphs() {
         return getRTLayout().getParagraphs();
     }
@@ -225,6 +231,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
      * Find the start and end of the paragraph(s) encompassing the current selection.
      * A paragraph spans from one \n (exclusive) to the next one (inclusive)
      */
+    @NonNull
     public Selection getParagraphsInSelection() {
         RTLayout layout = getRTLayout();
 
@@ -236,6 +243,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
         return new Selection(layout.getLineStart(firstLine), layout.getLineEnd(lastLine));
     }
 
+    @Nullable
     private RTLayout getRTLayout() {
         synchronized (this) {
             if (mRTLayout == null || mLayoutChanged) {
@@ -250,6 +258,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
      * This method returns the Selection which makes sure that selection start is <= selection end.
      * Note: getSelectionStart()/getSelectionEnd() refer to the order in which text was selected.
      */
+    @NonNull
     Selection getSelection() {
         int selStart = getSelectionStart();
         int selEnd = getSelectionEnd();
@@ -259,6 +268,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
     /**
      * @return the selected text (needed when creating links)
      */
+    @Nullable
     String getSelectedText() {
         Spannable text = getText();
         Selection sel = getSelection();
@@ -268,6 +278,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
         return null;
     }
 
+    @NonNull
     public Spannable cloneSpannable() {
         CharSequence text = super.getText();
         return new ClonedSpannableString(text != null ? text : "");
@@ -342,7 +353,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
      * during setText and will receive the out-dated Layout which doesn't allow
      * us to apply styles and such.
      */
-    public void setText(RTText rtText) {
+    public void setText(@NonNull RTText rtText) {
        // new Handler(Looper.getMainLooper()).post(() -> {
             assertRegistration();
             if (rtText.getFormat() instanceof RTFormat.Html) {
@@ -385,6 +396,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
      * @param format The RTFormat the text should be converted to.
      * @throws UnsupportedOperationException if the target format isn't supported.
      */
+    @NonNull
     public String getText(RTFormat format) {
         return getRichText(format).getText().toString();
     }
@@ -436,7 +448,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
 
     @Override
     /* TextWatcher */
-    public synchronized void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    public synchronized void beforeTextChanged(@NonNull CharSequence s, int start, int count, int after) {
         //TODO MAKE A FUNCTION TO NOT WORK IN SPANS WHEN REMOVING THEM
         // we use a String to get a static copy of the CharSequence (the CharSequence changes when the text changes...)
         String oldText = mOldText == null ? "" : mOldText;
@@ -459,7 +471,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
 
     @Override
     /* TextWatcher */
-    public synchronized void afterTextChanged(Editable s) {
+    public synchronized void afterTextChanged(@NonNull Editable s) {
         if (mIsBulletSpanSelected || mIsNumberSpanSelected) {
             boolean mBackSpace = mPreviousTextLength >= s.length();
             if (!mBackSpace && s.toString().endsWith("\n")) {
@@ -482,7 +494,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
 
     @Override
     /* SpanWatcher */
-    public void onSpanAdded(Spannable text, Object what, int start, int end) {
+    public void onSpanAdded(@NonNull Spannable text, Object what, int start, int end) {
         mTextChanged = true;
         // we need to keep track of ordered list spans
         if (what instanceof BulletSpan) {
@@ -558,7 +570,9 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
         void onRichContent(Uri contentUri, ClipDescription description);
     }
 
+    @Nullable
     private OnRichContentListener onRichContentListener = null;
+    @Nullable
     private String[] mimeTypes = {};
     private static final String TAG = "RichContentEditText";
     /**
@@ -584,7 +598,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
      *
      * @param mimeTypes a string array of mime types
      */
-    public void setContentMimeTypes(String[] mimeTypes) {
+    public void setContentMimeTypes(@Nullable String[] mimeTypes) {
         if (mimeTypes != null) this.mimeTypes = mimeTypes;
     }
 
@@ -606,12 +620,14 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
     /**
      * @return the currently allowed mime types
      */
+    @Nullable
     public String[] getContentMimeTypes() {
         return mimeTypes;
     }
 
+    @NonNull
     @Override
-    public InputConnection onCreateInputConnection(EditorInfo editorInfo) {
+    public InputConnection onCreateInputConnection(@NonNull EditorInfo editorInfo) {
         final InputConnection ic = super.onCreateInputConnection(editorInfo);
         EditorInfoCompat.setContentMimeTypes(editorInfo, getContentMimeTypes());
         return InputConnectionCompat.createWrapper(ic, editorInfo,
@@ -695,7 +711,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
      * You get the Effect object via the static data members (e.g., RTEditText.BOLD).
      * The value for most effects is a Boolean, indicating whether to add or remove the effect.
      */
-    public <V extends Object, C extends RTSpan<V>> void applyEffect(Effect<V, C> effect, V value) {
+    public <V extends Object, C extends RTSpan<V>> void applyEffect(@NonNull Effect<V, C> effect, V value) {
         if (mUseRTFormatting && !mIsSelectionChanging && !mIsSaving) {
             Spannable oldSpannable = mIgnoreTextChanges ? null : cloneSpannable();
 

@@ -2,6 +2,9 @@
 <resources>
     <color name="Transparent">#00FFFFFF</color>
     <color name="Black">#000000</color>
+    <color name="NightBlack">#323233</color>
+    <color name="NightLessBlack">#484849</color>
+    <color name="NightAccent">#30308C</color>
     <color name="White">#FFFFFF</color>
     <color name="Grey">#888888</color>
     <color name="Magenta">#EDF52E66</color>

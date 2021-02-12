@@ -3,6 +3,8 @@ package com.example.Evermind.EverAudioVisualizerHandlers;
 
 import android.opengl.GLES20;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -25,8 +27,11 @@ class EverGLBubble extends EverGLShape {
      */
     private static final int POINTS_PER_CIRCLE = 40;
     private static final float TOP_Y = 1f;
+    @NonNull
     private final FloatBuffer vertexBuffer;
+    @NonNull
     private final ShortBuffer shortBuffer;
+    @NonNull
     private final Random random;
     private float fromY;
     private float size;
@@ -36,7 +41,7 @@ class EverGLBubble extends EverGLShape {
     private float startX;
     private float angle;
 
-    public EverGLBubble(float[] color, float startX, float fromY, float toY, float size, Random random) {
+    public EverGLBubble(float[] color, float startX, float fromY, float toY, float size, @NonNull Random random) {
         super(color);
         this.random = random;
         update(startX, fromY, toY, size);

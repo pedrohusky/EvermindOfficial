@@ -26,6 +26,9 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatImageView {
 
     @SuppressWarnings("unused")
@@ -38,6 +41,7 @@ abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatIma
     //
     // This matrix is recomputed when we go from the thumbnail image to
     // the full size image.
+    @NonNull
     protected Matrix mBaseMatrix = new Matrix();
 
     // This is the supplementary transformation which reflects what
@@ -45,6 +49,7 @@ abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatIma
     //
     // This matrix remains the same when we go from the thumbnail image
     // to the full size image.
+    @NonNull
     protected Matrix mSuppMatrix = new Matrix();
 
     // This is the final matrix which is computed as the concatentation
@@ -55,6 +60,7 @@ abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatIma
     private final float[] mMatrixValues = new float[9];
 
     // The current bitmap being displayed.
+    @Nullable
     final protected RotateBitmap mBitmapDisplayed = new RotateBitmap(null);
 
     int mThisWidth = -1, mThisHeight = -1;
@@ -112,6 +118,7 @@ abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatIma
         return super.onKeyDown(keyCode, event);
     }
 
+    @NonNull
     protected Handler mHandler = new Handler();
 
     @Override
@@ -139,6 +146,7 @@ abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatIma
         setImageBitmapResetBase(null, true);
     }
 
+    @Nullable
     private Runnable mOnLayoutRunnable = null;
 
     // This function changes bitmap, reset base matrix according to the size
@@ -147,7 +155,7 @@ abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatIma
         setImageRotateBitmapResetBase(new RotateBitmap(bitmap), resetSupp);
     }
 
-    public void setImageRotateBitmapResetBase(final RotateBitmap bitmap, final boolean resetSupp) {
+    public void setImageRotateBitmapResetBase(@NonNull final RotateBitmap bitmap, final boolean resetSupp) {
 
         final int viewWidth = getWidth();
 
@@ -224,12 +232,12 @@ abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatIma
         setImageMatrix(getImageViewMatrix());
     }
 
-    public ImageViewTouchBase(Context context) {
+    public ImageViewTouchBase(@NonNull Context context) {
         super(context);
         init();
     }
 
-    public ImageViewTouchBase(Context context, AttributeSet attrs) {
+    public ImageViewTouchBase(@NonNull Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -238,13 +246,13 @@ abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatIma
         setScaleType(ScaleType.MATRIX);
     }
 
-    protected float getValue(Matrix matrix, int whichValue) {
+    protected float getValue(@NonNull Matrix matrix, int whichValue) {
         matrix.getValues(mMatrixValues);
         return mMatrixValues[whichValue];
     }
 
     // Get the scale factor out of the matrix.
-    protected float getScale(Matrix matrix) {
+    protected float getScale(@NonNull Matrix matrix) {
         return getValue(matrix, Matrix.MSCALE_X);
     }
 
@@ -253,7 +261,7 @@ abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatIma
     }
 
     // Setup the base matrix so that the image is centered and scaled properly.
-    private void getProperBaseMatrix(RotateBitmap bitmap, Matrix matrix) {
+    private void getProperBaseMatrix(@NonNull RotateBitmap bitmap, @NonNull Matrix matrix) {
         float viewWidth = getWidth();
         float viewHeight = getHeight();
 
@@ -274,6 +282,7 @@ abstract class ImageViewTouchBase extends androidx.appcompat.widget.AppCompatIma
     }
 
     // Combine the base matrix and the supp matrix to make the final matrix.
+    @NonNull
     protected Matrix getImageViewMatrix() {
         // The final matrix is computed as the concatentation of the base matrix
         // and the supplementary matrix.

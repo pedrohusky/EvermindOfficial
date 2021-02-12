@@ -24,6 +24,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
@@ -107,7 +109,7 @@ class VideoChooserManager extends com.example.Evermind.TESTEDITOR.rteditor.media
 
     @SuppressWarnings("incomplete-switch")
     @Override
-    void processMedia(MediaAction mediaAction, Intent data) {
+    void processMedia(@NonNull MediaAction mediaAction, Intent data) {
         switch (mediaAction) {
             case PICK_VIDEO:
                 processPickedVideo(data);

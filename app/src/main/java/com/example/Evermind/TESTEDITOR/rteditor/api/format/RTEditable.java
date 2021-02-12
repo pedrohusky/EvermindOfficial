@@ -19,6 +19,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.api.format;
 import android.text.Editable;
 import android.view.inputmethod.BaseInputConnection;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
@@ -38,9 +40,10 @@ import com.example.Evermind.TESTEDITOR.rteditor.effects.Effects;
  */
 public final class RTEditable extends RTSpanned {
 
+    @NonNull
     private final RTEditText mEditor;
 
-    public RTEditable(RTEditText editor) {
+    public RTEditable(@NonNull RTEditText editor) {
         super(editor.getText());
         mEditor = editor;
     }

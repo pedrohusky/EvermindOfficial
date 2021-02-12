@@ -21,6 +21,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
@@ -47,8 +50,10 @@ public class MediaChooserActivity extends MonitoredActivity implements
     public static final String EXTRA_MEDIA_FACTORY = PREFIX + "EXTRA_MEDIA_FACTORY";
 
     private RTMediaFactory<RTImage, RTAudio, RTVideo> mMediaFactory;
+    @Nullable
     private MediaAction mMediaAction;
 
+    @Nullable
     transient private MediaChooserManager mMediaChooserMgr;
 
     private RTMedia mSelectedMedia;
@@ -58,7 +63,7 @@ public class MediaChooserActivity extends MonitoredActivity implements
     // ****************************************** Lifecycle Methods *******************************************
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Bundle extras = getIntent().getExtras();
@@ -106,7 +111,7 @@ public class MediaChooserActivity extends MonitoredActivity implements
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mSelectedMedia != null) {
             outState.putSerializable("mSelectedMedia", mSelectedMedia);
@@ -130,7 +135,7 @@ public class MediaChooserActivity extends MonitoredActivity implements
     // ****************************************** Listener Methods *******************************************
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
 
@@ -154,7 +159,7 @@ public class MediaChooserActivity extends MonitoredActivity implements
 
     @Override
     /* ImageChooserListener */
-    public void onImageChosen(final RTImage image) {
+    public void onImageChosen(@NonNull final RTImage image) {
         mSelectedMedia = image;
 
         runOnUiThread(new Runnable() {

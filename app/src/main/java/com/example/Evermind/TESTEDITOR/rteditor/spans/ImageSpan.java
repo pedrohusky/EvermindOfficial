@@ -17,6 +17,8 @@
 package com.example.Evermind.TESTEDITOR.rteditor.spans;
 
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
 
 /**
@@ -24,10 +26,11 @@ import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
  */
 public class ImageSpan extends MediaSpan {
 
-    public ImageSpan(RTImage image, boolean isSaved) {
+    public ImageSpan(@NonNull RTImage image, boolean isSaved) {
         super(image, isSaved);
     }
 
+    @NonNull
     public RTImage getImage() {
         return (RTImage) mMedia;
     }

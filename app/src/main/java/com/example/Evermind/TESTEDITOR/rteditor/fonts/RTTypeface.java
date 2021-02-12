@@ -18,6 +18,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.fonts;
 
 import android.graphics.Typeface;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.Locale;
 
 /**
@@ -25,10 +28,12 @@ import java.util.Locale;
  */
 public class RTTypeface implements Comparable<com.example.Evermind.TESTEDITOR.rteditor.fonts.RTTypeface> {
 
+    @Nullable
     protected String mName;
+    @Nullable
     private Typeface mTypeface;
 
-    public RTTypeface(String fontName, Typeface typeface) {
+    public RTTypeface(@Nullable String fontName, @Nullable Typeface typeface) {
         if (fontName == null) {
             throw new IllegalArgumentException("fontName mustn't be null");
         }
@@ -47,10 +52,12 @@ public class RTTypeface implements Comparable<com.example.Evermind.TESTEDITOR.rt
         mName = fontName;
     }
 
+    @Nullable
     public String getName() {
         return mName;
     }
 
+    @Nullable
     public Typeface getTypeface() {
         return mTypeface;
     }
@@ -65,7 +72,7 @@ public class RTTypeface implements Comparable<com.example.Evermind.TESTEDITOR.rt
     }
 
     @Override
-    public int compareTo(com.example.Evermind.TESTEDITOR.rteditor.fonts.RTTypeface another) {
+    public int compareTo(@NonNull com.example.Evermind.TESTEDITOR.rteditor.fonts.RTTypeface another) {
         Locale locale = Locale.getDefault();
         String name1 = mName.toLowerCase(locale);
         String name2 = another.getName().toLowerCase(locale);

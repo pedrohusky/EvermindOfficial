@@ -6,6 +6,7 @@ import android.media.audiofx.Visualizer;
 import android.speech.SpeechRecognizer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,11 +19,15 @@ public abstract class EverDbmHandler<TData> {
 
     private static final long UPDATE_INTERVAL = 16;
     private int layersCount;
+    @Nullable
     private EverInnerAudioVisualization audioVisualization;
+    @Nullable
     private float[] dBmArray;
+    @Nullable
     private float[] ampsArray;
     private float[] emptyArray;
     private boolean released;
+    @Nullable
     private Timer timer;
 
     void setUp(@NonNull EverInnerAudioVisualization audioVisualization, int layersCount) {
@@ -143,6 +148,7 @@ public abstract class EverDbmHandler<TData> {
          * @return new visualizer dBm handler
          * @see Visualizer
          */
+        @NonNull
         public static EverVisualizerDbmHandler newVisualizerHandler(@NonNull Context context, int audioSessionId) {
             return new EverVisualizerDbmHandler(context, audioSessionId);
         }
@@ -157,6 +163,7 @@ public abstract class EverDbmHandler<TData> {
          * @see EverVisualizerDbmHandler#setInnerOnPreparedListener(MediaPlayer.OnPreparedListener)
          * @see EverVisualizerDbmHandler#setInnerOnCompletionListener(MediaPlayer.OnCompletionListener)
          */
+        @NonNull
         public static EverVisualizerDbmHandler newVisualizerHandler(@NonNull Context context, @NonNull MediaPlayer mediaPlayer) {
             return new EverVisualizerDbmHandler(context, mediaPlayer);
         }
@@ -167,6 +174,7 @@ public abstract class EverDbmHandler<TData> {
          * @return new speech recognizer dBm handler
          * @see SpeechRecognizer
          */
+        @NonNull
         public static EverSpeechRecognizerDbmHandler newSpeechRecognizerHandler(@NonNull Context context) {
             return new EverSpeechRecognizerDbmHandler(context);
         }
@@ -179,6 +187,7 @@ public abstract class EverDbmHandler<TData> {
          * @return new speech recognizer dBm handler
          * @see SpeechRecognizer
          */
+        @NonNull
         public static EverSpeechRecognizerDbmHandler newSpeechRecognizerDbmHandler(@NonNull Context context, float minRmsDbValue, float maxRmsDbValue) {
             return new EverSpeechRecognizerDbmHandler(context, minRmsDbValue, maxRmsDbValue);
         }

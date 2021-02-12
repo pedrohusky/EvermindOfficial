@@ -4,16 +4,19 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
+
 import static android.content.Context.MODE_PRIVATE;
 
 public class EverPreferences {
 
+    @NonNull
     private final Context context;
     private final SharedPreferences prefs;
     private final SharedPreferences.Editor editor;
 
     @SuppressLint("CommitPrefEdits")
-    public EverPreferences(Context context) {
+    public EverPreferences(@NonNull Context context) {
         this.context = context;
         prefs = context.getSharedPreferences("DeleteNoteID", MODE_PRIVATE);
         editor = prefs.edit();

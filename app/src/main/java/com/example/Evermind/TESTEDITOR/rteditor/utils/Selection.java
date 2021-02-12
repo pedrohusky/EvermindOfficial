@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.utils;
 
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 /**
@@ -44,7 +46,7 @@ public class Selection implements Serializable {
         }
     }
 
-    public Selection(EditText editor) {
+    public Selection(@NonNull EditText editor) {
         this(editor.getSelectionStart(), editor.getSelectionEnd());
     }
 
@@ -60,12 +62,14 @@ public class Selection implements Serializable {
         return mStart == mEnd;
     }
 
+    @NonNull
     public Selection offset(int offsetLeft, int offsetRight) {
         mStart = Math.max(0, mStart - offsetLeft);
         mEnd = mEnd + offsetRight;
         return this;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "[" + mStart + ", " + mEnd + "]";

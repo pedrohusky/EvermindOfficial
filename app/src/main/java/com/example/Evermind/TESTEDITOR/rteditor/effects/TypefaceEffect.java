@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.effects;
 
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.fonts.RTTypeface;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.TypefaceSpan;
@@ -28,8 +30,9 @@ public class TypefaceEffect extends CharacterEffect<RTTypeface, TypefaceSpan> {
     /**
      * @return If the value is Null then return Null -> remove all TypefaceSpan.
      */
+    @Nullable
     @Override
-    protected RTSpan<RTTypeface> newSpan(RTTypeface value) {
+    protected RTSpan<RTTypeface> newSpan(@Nullable RTTypeface value) {
         return value == null ? null : new TypefaceSpan(value);
     }
 

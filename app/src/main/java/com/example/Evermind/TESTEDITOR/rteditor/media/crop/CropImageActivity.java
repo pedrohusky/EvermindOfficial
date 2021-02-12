@@ -37,6 +37,9 @@ import android.view.MenuItem;
 import android.view.Surface;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.rteditor.media.MediaUtils;
 import com.example.Evermind.TESTEDITOR.rteditor.media.MonitoredActivity;
@@ -70,6 +73,7 @@ public class CropImageActivity extends MonitoredActivity {
 
     // These are various options can be specified in the intent.
     private final Bitmap.CompressFormat mOutputFormat = Bitmap.CompressFormat.JPEG;
+    @Nullable
     private Uri mSaveUri = null;
     private final boolean mDoFaceDetection = false;
     private boolean mCircleCrop = false;
@@ -80,6 +84,7 @@ public class CropImageActivity extends MonitoredActivity {
     private int mOutputY;
     private boolean mScale;
     private CropImageView mImageView;
+    @Nullable
     private Bitmap mBitmap;
     private String mImageSource;
     private String mImageDest;
@@ -154,44 +159,45 @@ public class CropImageActivity extends MonitoredActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.rte_crop_image, menu);
+      //  getMenuInflater().inflate(R.menu.rte_crop_image, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.save) {
+      //  if (itemId == R.id.save) {
             try {
                 onSave();
             } catch (Exception e) {
                 Log.e(getClass().getSimpleName(), e.getMessage(), e);
                 finish();
             }
-            return true;
-        } else if (itemId == R.id.cancel) {
+        //    return true;
+      //  } else if (itemId == R.id.cancel) {
             setResult(RESULT_CANCELED);
             finish();
-            return true;
-        } else if (itemId == R.id.rotate_left) {
+          //  return true;
+      //  } else if (itemId == R.id.rotate_left) {
             mBitmap = rotateImage(mBitmap, -90);
             RotateBitmap rotateBitmap = new RotateBitmap(mBitmap);
             mImageView.setImageRotateBitmapResetBase(rotateBitmap, true);
             mRunFaceDetection.run();
-            return true;
-        } else if (itemId == R.id.rotate_right) {
+      //      return true;
+      //  } else if (itemId == R.id.rotate_right) {
             mBitmap = rotateImage(mBitmap, 90);
-            RotateBitmap rotateBitmap = new RotateBitmap(mBitmap);
-            mImageView.setImageRotateBitmapResetBase(rotateBitmap, true);
+            RotateBitmap rotateBitmaps = new RotateBitmap(mBitmap);
+            mImageView.setImageRotateBitmapResetBase(rotateBitmaps, true);
             mRunFaceDetection.run();
-            return true;
-        }
+         //   return true;
+      //  }
         return super.onOptionsItemSelected(item);
     }
 
     // ****************************************** Private Methods *******************************************
 
-    private Bitmap getBitmap(String path) {
+    @Nullable
+    private Bitmap getBitmap(@NonNull String path) {
         Uri uri = MediaUtils.createFileUri(path);
         InputStream in = null;
         try {
@@ -377,7 +383,7 @@ public class CropImageActivity extends MonitoredActivity {
         }
     }
 
-    private void saveOutput(Bitmap croppedImage) {
+    private void saveOutput(@NonNull Bitmap croppedImage) {
         if (mSaveUri != null) {
             OutputStream out = null;
             try {
@@ -424,6 +430,7 @@ public class CropImageActivity extends MonitoredActivity {
         }
     }
 
+    @NonNull
     Runnable mRunFaceDetection = new Runnable() {
         float mScale = 1F;
         Matrix mImageMatrix;
@@ -431,7 +438,7 @@ public class CropImageActivity extends MonitoredActivity {
         int mNumFaces;
 
         // For each face, we create a HightlightView for it.
-        private void handleFace(FaceDetector.Face f) {
+        private void handleFace(@NonNull FaceDetector.Face f) {
 
             PointF midPoint = new PointF();
 
@@ -518,6 +525,7 @@ public class CropImageActivity extends MonitoredActivity {
         }
 
         // Scale the image down for faster face detection.
+        @Nullable
         private Bitmap prepareBitmap() {
 
             if (mBitmap == null) {
@@ -584,7 +592,7 @@ public class CropImageActivity extends MonitoredActivity {
      * returning a sample size that generates a smaller bitmap, unless
      * minSideLength = IImage.UNCONSTRAINED.
      */
-    private Bitmap transform(Matrix scaler, Bitmap source, int targetWidth,
+    private Bitmap transform(@NonNull Matrix scaler, @NonNull Bitmap source, int targetWidth,
                              int targetHeight, boolean scaleUp) {
 
         int deltaX = source.getWidth() - targetWidth;
@@ -657,7 +665,7 @@ public class CropImageActivity extends MonitoredActivity {
     }
 
     // Thong added for rotate
-    private Bitmap rotateImage(Bitmap src, float degree) {
+    private Bitmap rotateImage(@NonNull Bitmap src, float degree) {
         // create new matrix
         Matrix matrix = new Matrix();
         // setup rotation degree
@@ -667,7 +675,7 @@ public class CropImageActivity extends MonitoredActivity {
         return bmp;
     }
 
-    private int getOrientationInDegree(Activity activity) {
+    private int getOrientationInDegree(@NonNull Activity activity) {
         int rotation = activity.getWindowManager().getDefaultDisplay()
                 .getRotation();
         int degrees = 0;

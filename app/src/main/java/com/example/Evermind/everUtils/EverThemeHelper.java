@@ -3,13 +3,18 @@ package com.example.Evermind.everUtils;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.view.WindowInsetsController;
+import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
 import com.example.Evermind.EverAudioVisualizerHandlers.EverInterfaceHelper;
@@ -18,43 +23,117 @@ import com.example.Evermind.MainActivity;
 import com.example.Evermind.R;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+
+import cafe.adriel.androidaudiorecorder.Util;
 
 import static android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS;
 
 public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListener {
 
+    @NonNull
     private final WeakReference<MainActivity> mainActivity;
     public int defaultTheme;
     public int accentTheme;
     public int actualColor;
     public int pendingColor;
     public boolean pendingColorChange = false;
+    private final List<View> viewList = new ArrayList<>();
 
-    public EverThemeHelper(Context context) {
-        mainActivity = new WeakReference<>(((MainActivity)context));
-        defaultTheme = getColor(R.color.White);
-        accentTheme = getColor(R.color.Grey);
-      //  EverInterfaceHelper.getInstance().setColorListener(this);
+    public boolean isDarkMode() {
+        return isDarkMode;
     }
 
-    public void tintSystemBars(int color, int duration) {
+    private boolean isDarkMode = false;
+    public EverThemeHelper(Context context) {
+        mainActivity = new WeakReference<>(((MainActivity) context));
+        defaultTheme = getColor(R.color.White);
+        accentTheme = getColor(R.color.Grey);
+        //  EverInterfaceHelper.getInstance().setColorListener(this);
+    }
+
+    public void tintSystemBarsAccent(int color, int duration) {
+
+        // Initial colors of each system bar.
+        final int statusBarColor = mainActivity.get().getEverMainWindow().getStatusBarColor();
+
+
+        if (mainActivity.get().getEverThemeHelper().isDarkMode) {
+        } else {
+            setLightStatusBar();
+        }
+
+        final int toColor = color;
+
+        new Handler(Looper.getMainLooper()).post(() -> {
+            ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
+            anim.addUpdateListener(animation -> {
+                // Use animation position to blend colors.
+                float position = animation.getAnimatedFraction();
+
+                // Apply blended color to the status bar.
+                int blended = blendColors(statusBarColor, toColor, position);
+
+                if (mainActivity.get().getEverThemeHelper().isDarkMode) {
+                    int blendedD = blendColors(statusBarColor, mainActivity.get().getColor(R.color.NightBlack), position);
+                    mainActivity.get().getEverMainWindow().setStatusBarColor(blendedD);
+                    mainActivity.get().getButtonsBinding().frameSizeDecoy.setBackgroundColor(blendedD);
+
+                } else {
+                    mainActivity.get().getEverMainWindow().setStatusBarColor(blended);
+                    mainActivity.get().getButtonsBinding().frameSizeDecoy.setBackgroundColor(blended);
+                }
+
+
+                // Apply blended color to the ActionBar.
+                //   blended = blendColors(toolbarColor, toolbarToColor, position);
+                //  ColorDrawable background = new ColorDrawable(blended);
+                //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
+                if (mainActivity.get().getEverViewManagement().getAudioOptions() != null) {
+                    mainActivity.get().getEverViewManagement().getAudioOptions().findViewById(R.id.imageAudioDecoy).setBackgroundColor(blended);
+                }
+
+
+                mainActivity.get().getEverViewManagement().getBottomBar().setBarIndicatorColor(blended);
+
+                if (mainActivity.get().getEverViewManagement().isDrawing()) {
+                    pendingColorChange = true;
+                    pendingColor = color;
+                } else {
+                    //   System.out.println(cardColor);
+                    if (!mainActivity.get().isAtHome()) {
+                        //   mainActivity.get().findViewById(R.id.nestedScroll).setBackgroundColor(blended);
+                        if (!mainActivity.get().getEverThemeHelper().isDarkMode) {
+                            mainActivity.get().getNoteCreator().getBinding().toColorLinearLayoutNoteCreator.setBackgroundTintList(ColorStateList.valueOf(blended));
+                        }
+                    }
+                }
+            });
+            anim.setInterpolator(new LinearOutSlowInInterpolator());
+            anim.setDuration(duration).start();
+            actualColor = color;
+        });
+    }
+
+    public void changeToNight(int color, int duration) {
 
         setDarkStatusBar();
 
         // Initial colors of each system bar.
         final int statusBarColor = mainActivity.get().getEverMainWindow().getStatusBarColor();
         final int buttonsColor = actualColor;
-       // final int cardFromColor = mainActivity.get().findViewById(R.id.toColorLinearLayoutNoteCreator).getSolidColor();
+        // final int cardFromColor = mainActivity.get().findViewById(R.id.toColorLinearLayoutNoteCreator).getSolidColor();
         // final int toolbarColor = everMainWindow.getStatusBarColor();
 
         // Desired final colors of each bar.
         final int buttonToColor;
         if (color == defaultTheme) {
-            buttonToColor = R.color.Black;
+            buttonToColor = mainActivity.get().getColor(R.color.White);
         } else {
-            buttonToColor = color;
+            buttonToColor = Util.getDarkerColor(color);
         }
-        final int toColor = color;
+        final int toColor = mainActivity.get().getColor(R.color.NightBlack);
         //  final int toolbarToColor = color;
         new Handler(Looper.getMainLooper()).post(() -> {
             ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
@@ -64,7 +143,7 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
 
                 // Apply blended color to the status bar.
                 int blended = blendColors(statusBarColor, toColor, position);
-              ///  int cardColor = blendColors(cardFromColor, toColor, position);
+                ///  int cardColor = blendColors(cardFromColor, toColor, position);
                 int buttonsfinalColor = blendColors(buttonsColor, buttonToColor, position);
 
                 mainActivity.get().getEverMainWindow().setStatusBarColor(blended);
@@ -74,7 +153,6 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
                 //   blended = blendColors(toolbarColor, toolbarToColor, position);
                 //  ColorDrawable background = new ColorDrawable(blended);
                 //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
-                mainActivity.get().getEverViewManagement().getSave().setImageTintList(ColorStateList.valueOf(buttonsfinalColor));
                 mainActivity.get().getEverViewManagement().getDelete().setImageTintList(ColorStateList.valueOf(buttonsfinalColor));
                 mainActivity.get().getEverViewManagement().getUndo().setImageTintList(ColorStateList.valueOf(buttonsfinalColor));
                 mainActivity.get().getEverViewManagement().getRedo().setImageTintList(ColorStateList.valueOf(buttonsfinalColor));
@@ -83,16 +161,90 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
                     mainActivity.get().getEverViewManagement().getAudioOptions().findViewById(R.id.imageAudioDecoy).setBackgroundColor(blended);
                 }
 
-                mainActivity.get().getEverViewManagement().getBottomBar().setBarIndicatorColor(blended);
+                mainActivity.get().getButtonsBinding().frameSizeDecoy.setBackgroundColor(Util.getDarkerColor(blended));
+
+                mainActivity.get().getEverViewManagement().getBottomBar().setBarIndicatorColor(buttonsfinalColor);
 
                 if (mainActivity.get().getEverViewManagement().isDrawing()) {
                     pendingColorChange = true;
                     pendingColor = color;
                 } else {
-                 //   System.out.println(cardColor);
+                    //   System.out.println(cardColor);
                     if (!mainActivity.get().isAtHome()) {
-                     //   mainActivity.get().findViewById(R.id.nestedScroll).setBackgroundColor(blended);
-                        mainActivity.get().getNoteCreator().getBinding().toColorLinearLayoutNoteCreator.setBackgroundTintList(ColorStateList.valueOf(blended));
+                        //   mainActivity.get().findViewById(R.id.nestedScroll).setBackgroundColor(blended);
+                        mainActivity.get().getNoteCreator().binding.cardNoteCreator.setCardBackgroundColor(blended);
+                        mainActivity.get().getButtonsBinding().toolbar.setBackgroundColor(Util.getDarkerColor(blended));
+                        mainActivity.get().getButtonsBinding().bottomBar.setBarBackgroundColor(blended);
+                        mainActivity.get().getNoteCreator().getBinding().toColorLinearLayoutNoteCreator.setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(buttonsfinalColor)));
+                    }
+                }
+            });
+            anim.setInterpolator(new LinearOutSlowInInterpolator());
+            anim.setDuration(duration).start();
+            actualColor = color;
+        });
+    }
+    public void changeToDay(int color, int duration) {
+
+        setLightStatusBar();
+
+
+        // Initial colors of each system bar.
+        final int statusBarColor = mainActivity.get().getEverMainWindow().getStatusBarColor();
+        final int buttonsColor = actualColor;
+        // final int cardFromColor = mainActivity.get().findViewById(R.id.toColorLinearLayoutNoteCreator).getSolidColor();
+        // final int toolbarColor = everMainWindow.getStatusBarColor();
+
+        // Desired final colors of each bar.
+        final int buttonToColor;
+        if (color == defaultTheme) {
+            buttonToColor = mainActivity.get().getColor(R.color.Black);
+        } else {
+            buttonToColor = color;
+        }
+        final int toColor = defaultTheme;
+        //  final int toolbarToColor = color;
+        new Handler(Looper.getMainLooper()).post(() -> {
+            ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
+            anim.addUpdateListener(animation -> {
+                // Use animation position to blend colors.
+                float position = animation.getAnimatedFraction();
+
+                // Apply blended color to the status bar.
+                int blended = blendColors(statusBarColor, toColor, position);
+                ///  int cardColor = blendColors(cardFromColor, toColor, position);
+                int buttonsfinalColor = blendColors(buttonsColor, buttonToColor, position);
+
+                mainActivity.get().getEverMainWindow().setStatusBarColor(blended);
+
+
+                // Apply blended color to the ActionBar.
+                //   blended = blendColors(toolbarColor, toolbarToColor, position);
+                //  ColorDrawable background = new ColorDrawable(blended);
+                //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
+                mainActivity.get().getEverViewManagement().getDelete().setImageTintList(ColorStateList.valueOf(buttonsfinalColor));
+                mainActivity.get().getEverViewManagement().getUndo().setImageTintList(ColorStateList.valueOf(buttonsfinalColor));
+                mainActivity.get().getEverViewManagement().getRedo().setImageTintList(ColorStateList.valueOf(buttonsfinalColor));
+
+                if (mainActivity.get().getEverViewManagement().getAudioOptions() != null) {
+                    mainActivity.get().getEverViewManagement().getAudioOptions().findViewById(R.id.imageAudioDecoy).setBackgroundColor(blended);
+                }
+
+                mainActivity.get().getButtonsBinding().frameSizeDecoy.setBackgroundColor(buttonsfinalColor);
+
+                mainActivity.get().getEverViewManagement().getBottomBar().setBarIndicatorColor(buttonsfinalColor);
+
+                if (mainActivity.get().getEverViewManagement().isDrawing()) {
+                    pendingColorChange = true;
+                    pendingColor = color;
+                } else {
+                    //   System.out.println(cardColor);
+                    if (!mainActivity.get().isAtHome()) {
+                        //   mainActivity.get().findViewById(R.id.nestedScroll).setBackgroundColor(blended);
+                        mainActivity.get().getNoteCreator().binding.cardNoteCreator.setCardBackgroundColor(blended);
+                        mainActivity.get().getButtonsBinding().toolbar.setBackgroundColor(blended);
+                        mainActivity.get().getButtonsBinding().bottomBar.setBarBackgroundColor(blended);
+                        mainActivity.get().getNoteCreator().getBinding().toColorLinearLayoutNoteCreator.setBackgroundTintList(ColorStateList.valueOf(buttonsfinalColor));
                     }
                 }
             });
@@ -112,65 +264,153 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
         return Color.rgb((int) r, (int) g, (int) b);
     }
 
-    public void tintView(View view, int color, int duration) {
+    public void tintViewAccent(@NonNull View view, int color, int duration) {
         int finalDuration = duration;
         if (duration == 0) {
             finalDuration = 500;
         }
 
-         int statusColor = -1;
-        if (view.getTag().equals("audioImageDecoy")) {
-            statusColor = view.getSolidColor();
-        } else if (!view.getTag().equals("wave")){
-             statusColor = view.getBackgroundTintList().getDefaultColor();
+        if (view.getTag() == null) {
+            view.setTag("");
         }
-        final int statusBarColor = statusColor;
 
-        int metaColor = -1;
-        if (mainActivity.get().getEverBallsHelper() != null) {
-            metaColor = mainActivity.get().getEverBallsHelper().getMainButtonColor();
+
+        switch (view.getTag().toString()) {
+            case "imageDecoy" :
+                int imageFromColor;
+                imageFromColor = view.getSolidColor();
+                final int finalImageFromColor = imageFromColor;
+                ValueAnimator iA = ValueAnimator.ofFloat(0, 1);
+                iA.addUpdateListener(animation -> {
+                    float p = (float) animation.getAnimatedValue();
+                    int c = blendColors(finalImageFromColor, color, p);
+                    view.setBackgroundColor(c);
+
+                });
+                iA.setInterpolator(new LinearOutSlowInInterpolator());
+                iA.setDuration(finalDuration).start();
+                break;
+
+            case "wave" :
+                EverWave wave = ((EverWave)view);
+                int waveSeekColor;
+                waveSeekColor = wave.getWaveProgressColor();
+                final int waveFromColor = waveSeekColor;
+                ValueAnimator wA = ValueAnimator.ofFloat(0, 1);
+                wA.addUpdateListener(animation -> {
+                    float p = (float) animation.getAnimatedValue();
+                    int c = blendColors(waveFromColor, color, p);
+                    wave.setWaveProgressColor(c);
+                });
+                wA.setInterpolator(new LinearOutSlowInInterpolator());
+                wA.setDuration(finalDuration).start();
+                break;
+
+            case "card" :
+                CardView cardView = ((CardView)view);
+                int cardBkgColor;
+                cardBkgColor = cardView.getCardBackgroundColor().getDefaultColor();
+                final int finalCardBkgColor = cardBkgColor;
+                ValueAnimator cA = ValueAnimator.ofFloat(0, 1);
+                cA.addUpdateListener(animation -> {
+                    float p = (float) animation.getAnimatedValue();
+                    int c = blendColors(finalCardBkgColor, color, p);
+                    cardView.setCardBackgroundColor(c);
+                });
+                cA.setInterpolator(new LinearOutSlowInInterpolator());
+                cA.setDuration(finalDuration).start();
+                break;
+
+            case "imageView" :
+                ImageView img = ((ImageView)view);
+                int imageViewFromColor;
+                imageViewFromColor = img.getImageTintList().getDefaultColor();
+                final int finalImageViewFromColor  = imageViewFromColor;
+                ValueAnimator imgA = ValueAnimator.ofFloat(0, 1);
+                imgA.addUpdateListener(animation -> {
+                    float p = (float) animation.getAnimatedValue();
+                    int c = blendColors(finalImageViewFromColor, color, p);
+                    img.setImageTintList(ColorStateList.valueOf(c));
+                });
+                imgA.setInterpolator(new LinearOutSlowInInterpolator());
+                imgA.setDuration(finalDuration).start();
+                break;
+
+            case "bottomBar" :
+                if (isDarkMode) {
+                    int bottomFromColor;
+                    bottomFromColor =  mainActivity.get().getEverViewManagement().getBottomBar().getBarBackgroundColor();
+                    final int finalBottomFromColor = bottomFromColor;
+                    ValueAnimator bA = ValueAnimator.ofFloat(0, 1);
+                    bA.addUpdateListener(animation -> {
+                        float p = (float) animation.getAnimatedValue();
+                        int c = blendColors(finalBottomFromColor, mainActivity.get().getColor(R.color.NightBlack), p);
+                        mainActivity.get().getEverViewManagement().getBottomBar().setBarBackgroundColor(c);
+                    });
+                    bA.setInterpolator(new LinearOutSlowInInterpolator());
+                    bA.setDuration(finalDuration).start();
+                    int bottomAccentFromColor;
+                    bottomAccentFromColor =  mainActivity.get().getEverViewManagement().getBottomBar().getBarIndicatorColor();
+                    final int finalBottomAccentFromColor = bottomAccentFromColor;
+                    ValueAnimator bAc = ValueAnimator.ofFloat(0, 1);
+                    bAc.addUpdateListener(animation -> {
+                        float p = (float) animation.getAnimatedValue();
+                        int c = blendColors(finalBottomAccentFromColor, color, p);
+                        mainActivity.get().getEverViewManagement().getBottomBar().setBarIndicatorColor(Util.getDarkerColor(c));
+                    });
+                    bAc.setInterpolator(new LinearOutSlowInInterpolator());
+                    bAc.setDuration(finalDuration).start();
+                } else {
+                    int bottomFromColor;
+                    bottomFromColor =  mainActivity.get().getEverViewManagement().getBottomBar().getBarIndicatorColor();
+                    final int finalBottomFromColor = bottomFromColor;
+                    ValueAnimator bA = ValueAnimator.ofFloat(0, 1);
+                    bA.addUpdateListener(animation -> {
+                        float p = (float) animation.getAnimatedValue();
+                        int c = blendColors(finalBottomFromColor, color, p);
+                        mainActivity.get().getEverViewManagement().getBottomBar().setBarIndicatorColor(c);
+                    });
+                    bA.setInterpolator(new LinearOutSlowInInterpolator());
+                    bA.setDuration(finalDuration).start();
+                }
+
+                break;
+
+            case "toolbar":
+                int toolbarDefaultFromColor;
+                toolbarDefaultFromColor = mainActivity.get().getButtonsBinding().toolbar.getBackgroundTintList().getDefaultColor();
+                final int finalToolbarDefaultFromColor = toolbarDefaultFromColor;
+                ValueAnimator tA = ValueAnimator.ofFloat(0, 1);
+                tA.addUpdateListener(animation -> {
+                    float p = (float) animation.getAnimatedValue();
+                    int c = blendColors(finalToolbarDefaultFromColor, color, p);
+                    mainActivity.get().getButtonsBinding().toolbar.setBackgroundTintList(ColorStateList.valueOf(c));
+                });
+                tA.setInterpolator(new LinearOutSlowInInterpolator());
+                tA.setDuration(finalDuration).start();
+                break;
+
+            case "":
+                int defaultFromColor;
+                if (view.getBackgroundTintList() != null) {
+                    defaultFromColor = view.getBackgroundTintList().getDefaultColor();
+                } else {
+                    defaultFromColor = -1;
+                }
+                final int finalDefaultFromColor = defaultFromColor;
+                ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
+                anim.addUpdateListener(animation -> {
+                    float p = (float) animation.getAnimatedValue();
+                    int c = blendColors(finalDefaultFromColor, color, p);
+                    view.setBackgroundTintList(ColorStateList.valueOf(c));
+                });
+                anim.setInterpolator(new LinearOutSlowInInterpolator());
+                anim.setDuration(finalDuration).start();
+                break;
+
+
         }
-        final int metacolor = metaColor;
 
-        int waveSeekColor = -1;
-        if (view.getTag().equals("wave")) {
-            waveSeekColor = ((EverWave)view).getWaveProgressColor();
-        }
-        final int waveColor = waveSeekColor;
-        //  final int toolbarToColor = color;
-
-        final int toColor = color;
-
-        ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
-        anim.addUpdateListener(animation -> {
-
-            float position = animation.getAnimatedFraction();
-
-            int blended = blendColors(statusBarColor, toColor, position);
-            int blended1 = blendColors(metacolor, toColor, position);
-            int blend2 = blendColors(waveColor , toColor, position);
-
-            if (mainActivity.get().getEverViewManagement() != null) {
-
-                if (view == mainActivity.get().getEverViewManagement().getBottomBar()) {
-                    mainActivity.get().getEverViewManagement().getBottomBar().setBarIndicatorColor(blended);
-                }
-                else if (view == mainActivity.get().getEverBallsHelper().metaColors) {
-                    mainActivity.get().getEverBallsHelper().setMainButtonColor(blended1);
-                }
-                else if (view.getTag().equals("audioImageDecoy")) {
-                    view.setBackgroundColor(blended);
-                }
-                else if (view.getTag().equals("wave")) {
-                    ((EverWave)view).setWaveProgressColor(blend2);
-                }
-                else {
-                    view.setBackgroundTintList(ColorStateList.valueOf(blended));
-                }
-            }
-        });
-        anim.setInterpolator(new LinearOutSlowInInterpolator());
-        anim.setDuration(finalDuration).start();
     }
 
     private void setLightStatusBar() {
@@ -194,16 +434,37 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
 
     public void clearOnBack() {
 
-        tintSystemBars(getColor(R.color.White), 500);
+        if (!isDarkMode) {
+            tintSystemBarsAccent(getColor(R.color.White), 500);
+            new Handler(Looper.getMainLooper()).postDelayed(this::setLightStatusBar, 250);
+        }
 
         //EverInterfaceHelper.getInstance().removeColorListener(this);
 
-        new Handler(Looper.getMainLooper()).postDelayed(this::setLightStatusBar, 250);
     }
 
 
     @Override
-    public void changeColor(int color) {
-        tintSystemBars(color, 1000);
+    public void changeAccentColor(int color) {
+        tintSystemBarsAccent(color, 1000);
+    }
+
+    public void enterDarkMode() {
+        if (!isDarkMode) {
+            isDarkMode = true;
+            setDarkStatusBar();
+            defaultTheme = mainActivity.get().getColor(R.color.NightBlack);
+            tintSystemBarsAccent(Util.getDarkerColor(actualColor), 500);
+            EverInterfaceHelper.getInstance().enterDarkMode(actualColor);
+         //   mainActivity.get().darkenViews();
+          //  changeToNight(actualColor, 650);
+        } else {
+            isDarkMode = false;
+            setLightStatusBar();
+
+          //  mainActivity.get().lightenViews();
+            defaultTheme = mainActivity.get().getColor(R.color.White);
+        //    changeToDay(actualColor, 650);
+        }
     }
 }

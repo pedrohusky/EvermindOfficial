@@ -19,6 +19,9 @@ package com.example.Evermind.TESTEDITOR.rteditor;
 import android.annotation.SuppressLint;
 import android.text.Spannable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -75,25 +78,26 @@ class RTOperationManager {
             mTimestamp = System.currentTimeMillis();
         }
 
-        boolean canMerge(Operation other) {
+        boolean canMerge(@NonNull Operation other) {
             return Math.abs(mTimestamp - other.mTimestamp) < TIME_BETWEEN_OPERATIONS;
         }
 
-        Operation merge(Operation previousOp) {
+        @NonNull
+        Operation merge(@NonNull Operation previousOp) {
             mBefore = previousOp.mBefore;
             mSelStartBefore = previousOp.mSelStartBefore;
             mSelEndBefore = previousOp.mSelEndBefore;
             return this;
         }
 
-        void undo(RTEditText editor) {
+        void undo(@NonNull RTEditText editor) {
             editor.ignoreTextChanges();
             editor.setText(mBefore);
             editor.setSelection(mSelStartBefore, mSelEndBefore);
             editor.registerTextChanges();
         }
 
-        void redo(RTEditText editor) {
+        void redo(@NonNull RTEditText editor) {
             editor.ignoreTextChanges();
             editor.setText(mAfter);
             editor.setSelection(mSelStartAfter, mSelEndAfter);
@@ -115,7 +119,7 @@ class RTOperationManager {
      * @param editor The rich text editor the operation was performed on
      * @param op     The Operation that was performed
      */
-    synchronized void executed(RTEditText editor, Operation op) {
+    synchronized void executed(RTEditText editor, @NonNull Operation op) {
         Stack<Operation> undoStack = getUndoStack(editor);
         Stack<Operation> redoStack = getRedoStack(editor);
 
@@ -135,7 +139,7 @@ class RTOperationManager {
      *
      * @param editor Undo the last operation for this rich text editor
      */
-    synchronized void undo(RTEditText editor) {
+    synchronized void undo(@NonNull RTEditText editor) {
         Stack<Operation> undoStack = getUndoStack(editor);
         if (!undoStack.empty()) {
             Stack<Operation> redoStack = getRedoStack(editor);
@@ -155,7 +159,7 @@ class RTOperationManager {
      *
      * @param editor Re-do an operation for this rich text editor
      */
-    synchronized void redo(RTEditText editor) {
+    synchronized void redo(@NonNull RTEditText editor) {
         Stack<Operation> redoStack = getRedoStack(editor);
         if (!redoStack.empty()) {
             Stack<Operation> undoStack = getUndoStack(editor);
@@ -184,22 +188,25 @@ class RTOperationManager {
 
     // ****************************************** Private Methods *******************************************
 
-    private void push(Operation op, Stack<Operation> stack, RTEditText editor) {
+    private void push(Operation op, @NonNull Stack<Operation> stack, RTEditText editor) {
         if (stack.size() >= MAX_NR_OF_OPERATIONS) {
             stack.remove(0);
         }
         stack.push(op);
     }
 
+    @NonNull
     private Stack<Operation> getUndoStack(RTEditText editor) {
         return getStack(mUndoStacks, editor);
     }
 
+    @NonNull
     private Stack<Operation> getRedoStack(RTEditText editor) {
         return getStack(mRedoStacks, editor);
     }
 
-    private Stack<Operation> getStack(Map<RTEditText, Stack<Operation>> stacks, RTEditText editor) {
+    @Nullable
+    private Stack<Operation> getStack(@NonNull Map<RTEditText, Stack<Operation>> stacks, RTEditText editor) {
         Stack<Operation> stack = stacks.get(editor);
         if (stack == null) {
             stack = new Stack<>();

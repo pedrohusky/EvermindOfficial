@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.effects;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.fonts.RTTypeface;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.AbsoluteSizeSpan;
@@ -118,7 +120,7 @@ public class Effects {
         cleanupParagraphs(editor, Effects.NUMBER, exclude);
     }
 
-    private static void cleanupParagraphs(RTEditText editor, ParagraphEffect effect, Effect...exclude) {
+    private static void cleanupParagraphs(RTEditText editor, @NonNull ParagraphEffect effect, @NonNull Effect...exclude) {
         for (Effect e : exclude) {
             if (effect == e) {
                 return;

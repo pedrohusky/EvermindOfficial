@@ -21,6 +21,9 @@ import android.text.Spanned;
 import android.text.style.CharacterStyle;
 import android.text.style.ParagraphStyle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.lang.reflect.Array;
 
 /**
@@ -46,7 +49,7 @@ public class ClonedSpannableString extends SpannableString {
         this((CharSequence) source);
     }
 
-    public ClonedSpannableString(CharSequence source) {
+    public ClonedSpannableString(@NonNull CharSequence source) {
         super(source.toString());    // the toString is important to prevent the super class from copying the spans
         init(source, 0, source.length());
     }
@@ -158,8 +161,9 @@ public class ClonedSpannableString extends SpannableString {
         return 0;
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
-    public <T> T[] getSpans(int queryStart, int queryEnd, Class<T> kind) {
+    public <T> T[] getSpans(int queryStart, int queryEnd, @Nullable Class<T> kind) {
         int count = 0;
 
         int spanCount = mSpanCount;
@@ -240,7 +244,7 @@ public class ClonedSpannableString extends SpannableString {
     }
 
     @SuppressWarnings("rawtypes")
-    public int nextSpanTransition(int start, int limit, Class kind) {
+    public int nextSpanTransition(int start, int limit, @Nullable Class kind) {
         int count = mSpanCount;
         Object[] spans = mSpans;
         int[] data = mSpanData;

@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 
 import android.text.Spannable;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Selection;
@@ -49,7 +51,7 @@ abstract public class Effect<V, C extends RTSpan<V>> {
      *
      * @return True if the effect exists in the current selection, False otherwise.
      */
-    final public boolean existsInSelection(RTEditText editor) {
+    final public boolean existsInSelection(@NonNull RTEditText editor) {
         Selection selection = getSelection(editor);
         List<RTSpan<V>> spans = getSpans(editor.getText(), selection, SpanCollectMode.SPAN_FLAGS);
 
@@ -61,7 +63,8 @@ abstract public class Effect<V, C extends RTSpan<V>> {
      *
      * @return The returned list, must NEVER be null.
      */
-    final public List<V> valuesInSelection(RTEditText editor) {
+    @NonNull
+    final public List<V> valuesInSelection(@NonNull RTEditText editor) {
         List<V> result = new ArrayList<V>();
 
         Selection selection = getSelection(editor);
@@ -77,7 +80,7 @@ abstract public class Effect<V, C extends RTSpan<V>> {
      * Remove all effects of this type from the currently selected text of the active RTEditText.
      * If the selection is empty (cursor), formatting for the whole text is removed.
      */
-    final public void clearFormattingInSelection(RTEditText editor) {
+    final public void clearFormattingInSelection(@NonNull RTEditText editor) {
         Spannable text = editor.getText();
 
         // if no selection --> select the whole text
@@ -116,6 +119,7 @@ abstract public class Effect<V, C extends RTSpan<V>> {
     /**
      * @return a new SpanCollector for this effect
      */
+    @NonNull
     abstract protected SpanCollector<V> newSpanCollector(Class<? extends RTSpan<V>> spanClazz);
 
     /**

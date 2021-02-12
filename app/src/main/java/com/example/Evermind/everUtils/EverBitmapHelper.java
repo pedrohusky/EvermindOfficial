@@ -4,37 +4,28 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.example.Evermind.MainActivity;
-import com.example.Evermind.Note_Model;
-import com.example.Evermind.recycler_models.EverLinkedMap;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
-import mva2.adapter.ListSection;
-
 public class EverBitmapHelper {
 
+    @NonNull
     private final WeakReference<MainActivity> mainActivity;
 
     public EverBitmapHelper(Context context) {
@@ -57,13 +48,13 @@ public class EverBitmapHelper {
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void TransformBitmapToFile(Bitmap bitmap) {
+    public void TransformBitmapToFile(@NonNull Bitmap bitmap) {
         File file = CreateBitmap(bitmap, "EverDraw"+ System.currentTimeMillis(), ".jpg");
         mainActivity.get().getActualNote().addEverLinkedMap(file.toString(), mainActivity.get(), true);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void UpdateBitmapToFile(Bitmap bitmap, String savedBitmapPath) {
+    public void UpdateBitmapToFile(@NonNull Bitmap bitmap, @NonNull String savedBitmapPath) {
 
         File toDelete = new File(savedBitmapPath);
         if (toDelete.exists()) {
@@ -78,10 +69,12 @@ public class EverBitmapHelper {
 
         List<String> drawPath = mainActivity.get().getActualNote().getDraws();
 
+        String withXY = UpdateFile(bitmap, finalPath).toString() + "<>" + bitmap.getHeight() + "<>" + bitmap.getWidth();
+
         int i = 0;
         for (String path : drawPath) {
             if (path.equals(savedBitmapPath)) {
-                drawPath.set(i, UpdateFile(bitmap, finalPath).toString());
+                drawPath.set(i, withXY);
             }
             i++;
         }
@@ -89,7 +82,7 @@ public class EverBitmapHelper {
         mainActivity.get().getActualNote().setDraws(drawPath);
       //  mainActivity.get().everNoteManagement.updateNote(actualNote.get().getActualPosition(), actualNote.get());
         int drawPosition = mainActivity.get().getNoteCreator().drawPosition;
-        mainActivity.get().getNoteCreator().updateDraw(drawPosition, mainActivity.get().getActualNote().getDraws().get(drawPosition));
+        mainActivity.get().getNoteCreator().updateDrawAtPosition(drawPosition, mainActivity.get().getActualNote().getDraws().get(drawPosition));
 
     }
 
@@ -107,7 +100,8 @@ public class EverBitmapHelper {
        }
     }
 
-    public File CreateBitmap(Bitmap bitmap, String fileName, String fileType) {
+    @NonNull
+    public File CreateBitmap(@NonNull Bitmap bitmap, String fileName, String fileType) {
 
         File directory = mainActivity.get().getDir("imageDir", Context.MODE_PRIVATE);
 
@@ -122,7 +116,7 @@ public class EverBitmapHelper {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            Objects.requireNonNull(bitmap).compress(Bitmap.CompressFormat.JPEG, 100, Objects.requireNonNull(fos));
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, Objects.requireNonNull(fos));
             try {
                 Objects.requireNonNull(fos).flush();
                 return file;
@@ -134,7 +128,8 @@ public class EverBitmapHelper {
         return file;
     }
 
-    public File UpdateFile(Bitmap bitmap, String path) {
+    @NonNull
+    public File UpdateFile(@NonNull Bitmap bitmap, String path) {
         File file = new File(path + System.currentTimeMillis() + ".jpg");
 
         Log.d("path", file.toString());

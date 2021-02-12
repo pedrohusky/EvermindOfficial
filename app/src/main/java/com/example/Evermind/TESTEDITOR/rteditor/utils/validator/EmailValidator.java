@@ -17,6 +17,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.utils.validator;
  * limitations under the License.
  */
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,6 +73,7 @@ public class EmailValidator implements Serializable {
      *
      * @return singleton instance of this validator.
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.utils.validator.EmailValidator getInstance() {
         return EMAIL_VALIDATOR;
     }
@@ -81,6 +85,7 @@ public class EmailValidator implements Serializable {
      * @param allowLocal Should local addresses be considered valid?
      * @return singleton instance of this validator
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.utils.validator.EmailValidator getInstance(boolean allowLocal) {
         if (allowLocal) {
             return EMAIL_VALIDATOR_WITH_LOCAL;
@@ -105,7 +110,7 @@ public class EmailValidator implements Serializable {
      *              value is considered invalid.
      * @return true if the email address is valid.
      */
-    public boolean isValid(String email) {
+    public boolean isValid(@Nullable String email) {
         if (email == null) {
             return false;
         }
@@ -133,7 +138,7 @@ public class EmailValidator implements Serializable {
      * @param domain being validated, may be in IDN format
      * @return true if the email address's domain is valid.
      */
-    protected boolean isValidDomain(String domain) {
+    protected boolean isValidDomain(@NonNull String domain) {
         // see if domain is an IP address in brackets
         Matcher ipDomainMatcher = IP_DOMAIN_PATTERN.matcher(domain);
 
@@ -155,7 +160,7 @@ public class EmailValidator implements Serializable {
      * @param user being validated
      * @return true if the user name is valid.
      */
-    protected boolean isValidUser(String user) {
+    protected boolean isValidUser(@NonNull String user) {
         return USER_PATTERN.matcher(user).matches();
     }
 

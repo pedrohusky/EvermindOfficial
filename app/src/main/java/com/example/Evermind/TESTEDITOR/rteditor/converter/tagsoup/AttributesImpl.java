@@ -31,6 +31,9 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.xml.sax.Attributes;
 
 /**
@@ -94,7 +97,7 @@ public class AttributesImpl implements Attributes {
      *
      * @param atts The existing Attributes object.
      */
-    public AttributesImpl(Attributes atts) {
+    public AttributesImpl(@NonNull Attributes atts) {
         setAttributes(atts);
     }
 
@@ -120,6 +123,7 @@ public class AttributesImpl implements Attributes {
      * if the index is out of range.
      * @see Attributes#getURI
      */
+    @Nullable
     public String getURI(int index) {
         if (index >= 0 && index < length) {
             return data[index * 5];
@@ -136,6 +140,7 @@ public class AttributesImpl implements Attributes {
      * available, or null if the index if out of range.
      * @see Attributes#getLocalName
      */
+    @Nullable
     public String getLocalName(int index) {
         if (index >= 0 && index < length) {
             return data[index * 5 + 1];
@@ -152,6 +157,7 @@ public class AttributesImpl implements Attributes {
      * available, or null if the index is out of bounds.
      * @see Attributes#getQName
      */
+    @Nullable
     public String getQName(int index) {
         if (index >= 0 && index < length) {
             return data[index * 5 + 2];
@@ -168,6 +174,7 @@ public class AttributesImpl implements Attributes {
      * the index is out of bounds.
      * @see Attributes#getType(int)
      */
+    @Nullable
     public String getType(int index) {
         if (index >= 0 && index < length) {
             return data[index * 5 + 3];
@@ -183,6 +190,7 @@ public class AttributesImpl implements Attributes {
      * @return The attribute's value or null if the index is out of bounds.
      * @see Attributes#getValue(int)
      */
+    @Nullable
     public String getValue(int index) {
         if (index >= 0 && index < length) {
             return data[index * 5 + 4];
@@ -242,6 +250,7 @@ public class AttributesImpl implements Attributes {
      * @return The attribute's type, or null if there is no matching attribute.
      * @see Attributes#getType(String, String)
      */
+    @Nullable
     public String getType(String uri, String localName) {
         int max = length * 5;
         for (int i = 0; i < max; i += 5) {
@@ -259,6 +268,7 @@ public class AttributesImpl implements Attributes {
      * @return The attribute's type, or null if there is no matching attribute.
      * @see Attributes#getType(String)
      */
+    @Nullable
     public String getType(String qName) {
         int max = length * 5;
         for (int i = 0; i < max; i += 5) {
@@ -278,6 +288,7 @@ public class AttributesImpl implements Attributes {
      * @return The attribute's value, or null if there is no matching attribute.
      * @see Attributes#getValue(String, String)
      */
+    @Nullable
     public String getValue(String uri, String localName) {
         int max = length * 5;
         for (int i = 0; i < max; i += 5) {
@@ -295,6 +306,7 @@ public class AttributesImpl implements Attributes {
      * @return The attribute's value, or null if there is no matching attribute.
      * @see Attributes#getValue(String)
      */
+    @Nullable
     public String getValue(String qName) {
         int max = length * 5;
         for (int i = 0; i < max; i += 5) {
@@ -335,7 +347,7 @@ public class AttributesImpl implements Attributes {
      *
      * @param atts The attributes to copy.
      */
-    public void setAttributes(Attributes atts) {
+    public void setAttributes(@NonNull Attributes atts) {
         clear();
         length = atts.getLength();
         if (length > 0) {
@@ -566,6 +578,7 @@ public class AttributesImpl implements Attributes {
     // //////////////////////////////////////////////////////////////////
 
     int length;
+    @Nullable
     String[] data;
 
 }

@@ -7,16 +7,23 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public class SoftInputAssist {
+    @Nullable
     private View rootView;
+    @Nullable
     private ViewGroup contentContainer;
+    @Nullable
     private ViewTreeObserver viewTreeObserver;
     private final ViewTreeObserver.OnGlobalLayoutListener listener = () -> possiblyResizeChildOfContent();
     private final Rect contentAreaOfWindowBounds = new Rect();
+    @NonNull
     private final FrameLayout.LayoutParams rootViewLayout;
     private int usableHeightPrevious = 0;
 
-    public SoftInputAssist(Activity activity) {
+    public SoftInputAssist(@NonNull Activity activity) {
         contentContainer = activity.findViewById(android.R.id.content);
         rootView = contentContainer.getChildAt(0);
         rootViewLayout = (FrameLayout.LayoutParams) rootView.getLayoutParams();

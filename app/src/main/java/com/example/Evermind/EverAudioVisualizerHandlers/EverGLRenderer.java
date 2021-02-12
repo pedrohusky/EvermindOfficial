@@ -5,6 +5,7 @@ import android.opengl.GLES20;
 
 import androidx.annotation.NonNull;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -22,6 +23,7 @@ class EverGLRenderer implements EverGLAudioVisualizationView.AudioVisualizationR
     private EverGLWaveLayer[] layers;
     private long startTime;
     private final float height;
+    @NonNull
     private final Random random;
     private float ratioY = 1;
     private EverInnerAudioVisualization.CalmDownListener calmDownListener;
@@ -34,6 +36,7 @@ class EverGLRenderer implements EverGLAudioVisualizationView.AudioVisualizationR
         height = context.getResources().getDisplayMetrics().heightPixels;
     }
 
+    @NonNull
     public EverGLRenderer calmDownListener(EverInnerAudioVisualization.CalmDownListener calmDownListener) {
         this.calmDownListener = calmDownListener;
         return this;

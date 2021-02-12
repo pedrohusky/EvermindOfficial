@@ -13,6 +13,9 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * The internal representation of an actual element (not an element type). An
  * Element has an element type, attributes, and a successor Element for use in
@@ -23,8 +26,11 @@ package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
  */
 public class Element {
 
+    @NonNull
     private final ElementType theType; // type of element
+    @NonNull
     private final AttributesImpl theAtts; // attributes of element
+    @Nullable
     private com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.Element theNext; // successor of element
     private boolean preclosed; // this element has been preclosed
 
@@ -35,7 +41,7 @@ public class Element {
      * @param defaultAttributes True if default attributes are wanted
      */
 
-    public Element(ElementType type, boolean defaultAttributes) {
+    public Element(@NonNull ElementType type, boolean defaultAttributes) {
         theType = type;
         if (defaultAttributes)
             theAtts = new AttributesImpl(type.atts());
@@ -51,6 +57,7 @@ public class Element {
      * @return The element type.
      */
 
+    @NonNull
     public ElementType type() {
         return theType;
     }
@@ -62,6 +69,7 @@ public class Element {
      * @return The attributes
      * @see AttributesImpl
      */
+    @NonNull
     public AttributesImpl atts() {
         return theAtts;
     }
@@ -72,6 +80,7 @@ public class Element {
      * @return The next element
      */
 
+    @Nullable
     public com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.Element next() {
         return theNext;
     }
@@ -164,7 +173,7 @@ public class Element {
      * @param other The other element
      */
 
-    public boolean canContain(com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.Element other) {
+    public boolean canContain(@NonNull com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.Element other) {
         return theType.canContain(other.theType);
     }
 
@@ -176,7 +185,7 @@ public class Element {
      * @param value The attribute value
      */
 
-    public void setAttribute(String name, String type, String value) {
+    public void setAttribute(@NonNull String name, String type, String value) {
         theType.setAttribute(theAtts, name, type, value);
     }
 

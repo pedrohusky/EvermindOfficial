@@ -19,6 +19,9 @@ package com.example.Evermind.TESTEDITOR.rteditor;
 import android.text.Layout;
 import android.view.ViewGroup;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.fonts.RTTypeface;
 
 /**
@@ -47,6 +50,7 @@ public interface RTToolbar {
      * (unique per layout).
      * It can be implemented e.g. by using a static counter.
      */
+
     int getId();
 
     /**
@@ -61,6 +65,7 @@ public interface RTToolbar {
     /**
      * @return The ViewGroup that contains this RTToolbar.
      */
+    @NonNull
     ViewGroup getToolbarContainer();
 
     void setBold(boolean enabled);

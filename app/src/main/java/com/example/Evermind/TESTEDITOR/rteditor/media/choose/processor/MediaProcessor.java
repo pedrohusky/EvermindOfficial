@@ -21,6 +21,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTApi;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
@@ -72,6 +74,7 @@ public abstract class MediaProcessor implements Runnable {
 
     protected abstract void processMedia() throws Exception;
 
+    @Nullable
     protected InputStream getInputStream() throws Exception {
         InputStream in = null;
         if (mOriginalFile.startsWith("http")) {
@@ -100,6 +103,7 @@ public abstract class MediaProcessor implements Runnable {
         return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     }
 
+    @Nullable
     private InputStream copyFileToDir(String sourceFile) {
         InputStream in = null;
         try {
@@ -112,6 +116,7 @@ public abstract class MediaProcessor implements Runnable {
         return in;
     }
 
+    @Nullable
     private InputStream downloadFile(String sourceFile) {
         InputStream in = null;
         try {
@@ -131,6 +136,7 @@ public abstract class MediaProcessor implements Runnable {
         return in;
     }
 
+    @Nullable
     private InputStream processContentProviderMedia(String sourceFile) {
         ContentResolver resolver = RTApi.getApplicationContext().getContentResolver();
         Uri uri = Uri.parse(sourceFile);

@@ -25,6 +25,9 @@ import android.content.Intent;
 import android.util.AndroidRuntimeException;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+
 import java.lang.ref.SoftReference;
 
 /**
@@ -36,6 +39,7 @@ import java.lang.ref.SoftReference;
  */
 public class RTProxyImpl implements RTProxy {
 
+    @NonNull
     final private SoftReference<Activity> mActivity;
 
     public RTProxyImpl(Activity activity) {
@@ -74,7 +78,7 @@ public class RTProxyImpl implements RTProxy {
 
     @Override
     /* @inheritDoc */
-    public void openDialogFragment(String fragmentTag, DialogFragment fragment) {
+    public void openDialogFragment(String fragmentTag, @NonNull DialogFragment fragment) {
         Activity activity = getActivity();
         if (activity != null) {
             FragmentManager fragmentMgr = activity.getFragmentManager();

@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.Evermind.R;
 
@@ -15,10 +16,13 @@ import com.example.Evermind.R;
 class EverVisualizerWrapper {
 
     private static final long WAIT_UNTIL_HACK = 500;
+    @Nullable
     private Visualizer visualizer;
+    @Nullable
     private MediaPlayer mediaPlayer;
-    private Visualizer.OnDataCaptureListener captureListener;
-    private int captureRate;
+    @NonNull
+    private final Visualizer.OnDataCaptureListener captureListener;
+    private final int captureRate;
     private long lastZeroArrayTimestamp;
 
     public EverVisualizerWrapper(@NonNull Context context, int audioSessionId, @NonNull final EverVisualizerWrapper.OnFftDataCaptureListener onFftDataCaptureListener) {
@@ -34,7 +38,7 @@ class EverVisualizerWrapper {
             }
 
             @Override
-            public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
+            public void onFftDataCapture(Visualizer visualizer, @NonNull byte[] fft, int samplingRate) {
                 boolean allZero = EverAudioUtils.allElementsAreZero(fft);
                 if (lastZeroArrayTimestamp  == 0) {
                     if (allZero) {

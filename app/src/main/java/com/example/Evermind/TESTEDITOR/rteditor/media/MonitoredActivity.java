@@ -21,6 +21,8 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.Evermind.R;
@@ -184,7 +186,9 @@ public class MonitoredActivity extends AppCompatActivity {
     private class Job<T> extends LifeCycleAdapter implements ForegroundJob<T> {
 
         private final ProgressDialog mDialog;
+        @Nullable
         private final Runnable mRunnable;
+        @Nullable
         private final ForegroundJob<T> mJob;
 
         private final Runnable mCleanupRunner = new Runnable() {

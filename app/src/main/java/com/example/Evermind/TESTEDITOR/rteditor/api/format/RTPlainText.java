@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.api.format;
 
 import android.text.SpannedString;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
@@ -33,6 +35,7 @@ public final class RTPlainText extends RTText {
         super(RTFormat.PLAIN_TEXT, text);
     }
 
+    @NonNull
     @Override
     public String getText() {
         CharSequence text = super.getText();

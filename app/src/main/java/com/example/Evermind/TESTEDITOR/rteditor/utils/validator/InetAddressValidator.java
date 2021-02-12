@@ -17,6 +17,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.utils.validator;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +55,7 @@ public class InetAddressValidator implements Serializable {
      * Returns the singleton instance of this validator.
      * @return the singleton instance of this validator
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.utils.validator.InetAddressValidator getInstance() {
         return VALIDATOR;
     }
@@ -62,7 +65,7 @@ public class InetAddressValidator implements Serializable {
      * @param inetAddress the string to validate
      * @return true if the string validates as an IP address
      */
-    public boolean isValid(String inetAddress) {
+    public boolean isValid(@NonNull String inetAddress) {
         return isValidInet4Address(inetAddress) || isValidInet6Address(inetAddress);
     }
 
@@ -114,7 +117,7 @@ public class InetAddressValidator implements Serializable {
      * 
      * @since 1.4.1
      */
-    public boolean isValidInet6Address(String inet6Address) {
+    public boolean isValidInet6Address(@NonNull String inet6Address) {
         boolean containsCompressedZeroes = inet6Address.indexOf("::") > -1; // contains is Java 1.5
         if (containsCompressedZeroes && (inet6Address.indexOf("::") != inet6Address.lastIndexOf("::"))) {
             return false;

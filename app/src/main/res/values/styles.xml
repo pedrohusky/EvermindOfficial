@@ -1,6 +1,6 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/White</item>
         <item name="colorAccent">@color/SkyBlue</item>
@@ -10,7 +10,7 @@
     </style>
 
 
-    <style name="AppTheme.NoActionBar">
+    <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/White</item>
@@ -20,7 +20,32 @@
         <item name="android:windowExitAnimation">@android:anim/linear_interpolator</item>
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="EverDayTheme" parent="Theme.MaterialComponents.Light" >
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/White</item>
+        <item name="colorAccent">@color/SkyBlue</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowEnterAnimation">@android:anim/linear_interpolator</item>
+        <item name="android:windowExitAnimation">@android:anim/linear_interpolator</item>
+
+
+    </style>
+    <style name="CardDayTheme" parent="Widget.MaterialComponents.CardView" >
+        <item name="cardBackgroundColor">@color/White</item>
+    </style>
+    <style name="EverNightTheme" parent="Theme.MaterialComponents.Light" >
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/NightBlack</item>
+        <item name="colorAccent">@color/NightAccent</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowEnterAnimation">@android:anim/linear_interpolator</item>
+        <item name="android:windowExitAnimation">@android:anim/linear_interpolator</item>
+
+    </style>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
 
 </resources>

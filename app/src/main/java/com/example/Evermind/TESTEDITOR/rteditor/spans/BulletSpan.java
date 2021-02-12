@@ -24,6 +24,9 @@ import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.LeadingMarginSpan;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Implementation for a bullet point LeadingMarginSpan
  * <p>
@@ -35,6 +38,7 @@ import android.text.style.LeadingMarginSpan;
  */
 public class BulletSpan extends BaseListItemSpan implements LeadingMarginSpan, RTSpan<Boolean>, RTParagraphSpan<Boolean> {
 
+    @Nullable
     private static Path sBulletPath = null;
 
     private final int mGapWidth;
@@ -59,7 +63,7 @@ public class BulletSpan extends BaseListItemSpan implements LeadingMarginSpan, R
     }
 
     @Override
-    public void drawLeadingMargin(Canvas c, Paint p, int x, int dir, int top, int baseline, int bottom,
+    public void drawLeadingMargin(@NonNull Canvas c, @NonNull Paint p, int x, int dir, int top, int baseline, int bottom,
                                   CharSequence text, int start, int end, boolean first, Layout l) {
         Spanned spanned = (Spanned) text;
         if (!mIgnoreSpan && spanned.getSpanStart(this) == start) {
@@ -76,7 +80,7 @@ public class BulletSpan extends BaseListItemSpan implements LeadingMarginSpan, R
         }
     }
 
-    private void draw(Canvas c, Paint p, int x, int dir, int top, int bottom, int size) {
+    private void draw(@NonNull Canvas c, Paint p, int x, int dir, int top, int bottom, int size) {
         sBulletPath.reset();
         sBulletPath.addCircle(0.0f, 0.0f, size, Direction.CW);
 
@@ -91,6 +95,7 @@ public class BulletSpan extends BaseListItemSpan implements LeadingMarginSpan, R
         return Boolean.TRUE;
     }
 
+    @NonNull
     @Override
     public com.example.Evermind.TESTEDITOR.rteditor.spans.BulletSpan createClone() {
         return new com.example.Evermind.TESTEDITOR.rteditor.spans.BulletSpan(mGapWidth, mIgnoreSpan);

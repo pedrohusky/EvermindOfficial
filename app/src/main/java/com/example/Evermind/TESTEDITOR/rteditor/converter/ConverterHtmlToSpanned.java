@@ -24,6 +24,9 @@ import android.text.TextUtils;
 import android.text.style.QuoteSpan;
 import android.text.style.RelativeSizeSpan;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTHtml;
@@ -111,7 +114,8 @@ public class ConverterHtmlToSpanned implements ContentHandler {
         private static final HTMLSchema SCHEMA = new HTMLSchema();
     }
 
-    public RTSpanned convert(RTHtml<? extends RTImage, ? extends RTAudio, ? extends RTVideo> input,
+    @NonNull
+    public RTSpanned convert(@NonNull RTHtml<? extends RTImage, ? extends RTAudio, ? extends RTVideo> input,
                              RTMediaFactory<? extends RTImage, ? extends RTAudio, ? extends RTVideo> mediaFactory) {
         mSource = input.getText();
         mMediaFactory = mediaFactory;
@@ -185,12 +189,12 @@ public class ConverterHtmlToSpanned implements ContentHandler {
     }
 
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    public void startElement(String uri, @NonNull String localName, String qName, @NonNull Attributes attributes) throws SAXException {
         handleStartTag(localName, attributes);
     }
 
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
+    public void endElement(String uri, @NonNull String localName, String qName) throws SAXException {
         handleEndTag(localName);
     }
 
@@ -247,7 +251,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
 
     // ****************************************** Handle Tags *******************************************
 
-    private void handleStartTag(String tag, Attributes attributes) {
+    private void handleStartTag(@NonNull String tag, @NonNull Attributes attributes) {
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely omit the line breaks when we handle the close tag.
@@ -312,7 +316,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
         }
     }
 
-    private void handleEndTag(String tag) {
+    private void handleEndTag(@NonNull String tag) {
         if (tag.equalsIgnoreCase("br")) {
             handleBr();
         } else if (tag.equalsIgnoreCase("p")) {
@@ -370,7 +374,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
         }
     }
 
-    private void startDiv(Attributes attributes) {
+    private void startDiv(@NonNull Attributes attributes) {
         String sAlign = attributes.getValue("align");
         int len = mResult.length();
         mResult.setSpan(new Div(sAlign), len, len, Spanned.SPAN_MARK_MARK);
@@ -403,7 +407,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
     /**
      * Handles OL and UL start tags
      */
-    private void startList(boolean isOrderedList, Attributes attributes) {
+    private void startList(boolean isOrderedList, @NonNull Attributes attributes) {
         boolean isIndentation = isIndentation(attributes);
 
         ParagraphType newType = isIndentation && isOrderedList ? ParagraphType.INDENTATION_OL :
@@ -461,7 +465,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
     /**
      * Handles LI tags
      */
-    private void startList(Attributes attributes) {
+    private void startList(@NonNull Attributes attributes) {
         List listTag = null;
 
         if (!mParagraphStyles.isEmpty()) {
@@ -518,12 +522,12 @@ public class ConverterHtmlToSpanned implements ContentHandler {
         }
     }
 
-    private boolean isIndentation(Attributes attributes) {
+    private boolean isIndentation(@NonNull Attributes attributes) {
         String style = attributes.getValue("style");
         return style != null && style.toLowerCase(Locale.US).contains("list-style-type:none");
     }
 
-    private boolean checkDuplicateSpan(SpannableStringBuilder text, int where, Class<?> kind) {
+    private boolean checkDuplicateSpan(@NonNull SpannableStringBuilder text, int where, Class<?> kind) {
         Object[] spans = text.getSpans(where, where, kind);
         if (spans != null && spans.length > 0) {
             for (int i = 0; i < spans.length; i++) {
@@ -535,7 +539,8 @@ public class ConverterHtmlToSpanned implements ContentHandler {
         return false;
     }
 
-    private Object getLast(Spanned text, Class<?> kind) {
+    @Nullable
+    private Object getLast(@NonNull Spanned text, Class<?> kind) {
         /*
          * This knows that the last returned object from getSpans()
          * will be the most recently added.
@@ -559,6 +564,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
         mResult.append("\n");
     }
 
+    @Nullable
     private Object getLast(Class<? extends Object> kind) {
         /*
          * This knows that the last returned object from getSpans()
@@ -586,7 +592,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
         }
     }
 
-    private void startImg(Attributes attributes) {
+    private void startImg(@NonNull Attributes attributes) {
         int len = mResult.length();
         String src = attributes.getValue("", "src");
        // RTImage image = mMediaFactory.createImage(src);
@@ -596,11 +602,13 @@ public class ConverterHtmlToSpanned implements ContentHandler {
                 return src;
             }
 
+            @NonNull
             @Override
             public String getFileName() {
                 return new File(src).getName();
             }
 
+            @NonNull
             @Override
             public String getFileExtension() {
                 return src.substring(0, src.length()-4);
@@ -663,7 +671,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
     private static final Pattern FONT_SIZE = Pattern.compile("\\d+");
     private static final Pattern FONT_COLOR = Pattern.compile("#[a-f0-9]+");
 
-    private void startFont(Attributes attributes) {
+    private void startFont(@NonNull Attributes attributes) {
         int size = Integer.MIN_VALUE;
         String fgColor = null;
         String bgColor = null;
@@ -761,7 +769,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
         }
     }
 
-    private void startAHref(Attributes attributes) {
+    private void startAHref(@NonNull Attributes attributes) {
         String href = attributes.getValue("", "href");
         int len = mResult.length();
         mResult.setSpan(new Href(href), len, len, Spanned.SPAN_MARK_MARK);
@@ -816,7 +824,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
             mSpan = span;
         }
 
-        void swapIn(SpannableStringBuilder builder) {
+        void swapIn(@NonNull SpannableStringBuilder builder) {
             int start = builder.getSpanStart(this);
             int end = builder.getSpanEnd(this);
             builder.removeSpan(this);
@@ -827,9 +835,10 @@ public class ConverterHtmlToSpanned implements ContentHandler {
     }
 
     private static class Div {
+        @Nullable
         String mAlign = "left";
 
-        Div(String align) {
+        Div(@Nullable String align) {
             if (align != null) mAlign = align;
         }
     }
@@ -873,21 +882,25 @@ public class ConverterHtmlToSpanned implements ContentHandler {
         String mBGColor;
         String mFontFace;
 
+        @NonNull
         Font setSize(int size) {
             mSize = size;
             return this;
         }
 
+        @NonNull
         Font setFGColor(String color) {
             mFGColor = color;
             return this;
         }
 
+        @NonNull
         Font setBGColor(String color) {
             mBGColor = color;
             return this;
         }
         
+        @NonNull
         private Font setFontFace(String fontFace) {
             mFontFace = fontFace;
             return this;
@@ -956,7 +969,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
      * @return A color value, or {@code -1} if the color string could not be interpreted.
      */
     @SuppressLint("DefaultLocale")
-    private static int getHtmlColor(String color) {
+    private static int getHtmlColor(@NonNull String color) {
         Integer i = COLORS.get(color.toLowerCase());
         if (i != null) {
             return i;
@@ -969,7 +982,7 @@ public class ConverterHtmlToSpanned implements ContentHandler {
         }
     }
 
-    private static final int convertValueToInt(CharSequence charSeq, int defaultValue) {
+    private static final int convertValueToInt(@Nullable CharSequence charSeq, int defaultValue) {
         if (null == charSeq)
             return defaultValue;
 

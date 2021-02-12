@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 
 import android.text.Spannable;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.BulletSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
@@ -41,7 +43,7 @@ public class BulletEffect extends ParagraphEffect<Boolean, BulletSpan> {
     private final ParagraphSpanProcessor<Boolean> mSpans2Process = new ParagraphSpanProcessor();
 
     @Override
-    public synchronized void applyToSelection(RTEditText editor, Selection selectedParagraphs, Boolean enable) {
+    public synchronized void applyToSelection(@NonNull RTEditText editor, Selection selectedParagraphs, Boolean enable) {
         final Spannable str = editor.getText();
 
         mSpans2Process.clear();

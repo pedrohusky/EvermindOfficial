@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.converter;
 
 import android.text.style.ParagraphStyle;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.spans.IndentationSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Helper;
 
@@ -53,6 +55,7 @@ public class SingleParagraphStyle implements ParagraphStyle {
         return mStyle;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return mType.name() + " - " + mStyle.getClass().getSimpleName();

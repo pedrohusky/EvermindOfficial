@@ -25,6 +25,9 @@ import android.util.AndroidRuntimeException;
 import android.widget.Toast;
 
 import androidx.annotation.AttrRes;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 
 import com.example.Evermind.R;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
@@ -108,7 +111,7 @@ public class RTApi implements RTProxy, RTMediaFactory<RTImage, RTAudio, RTVideo>
      * @param mediaFactory the RTMediaFactory provided by the app.
      */
     @SuppressLint("ResourceType")
-    public RTApi(Context context, RTProxy rtProxy, RTMediaFactory<RTImage, RTAudio, RTVideo> mediaFactory) {
+    public RTApi(@NonNull Context context, RTProxy rtProxy, RTMediaFactory<RTImage, RTAudio, RTVideo> mediaFactory) {
         synchronized (sTheLock) {
             sAppContext = context.getApplicationContext();
         }
@@ -118,7 +121,7 @@ public class RTApi implements RTProxy, RTMediaFactory<RTImage, RTAudio, RTVideo>
         mMediaFactory = mediaFactory;
     }
 
-    private boolean resolveBoolean(Context context, @AttrRes int attr, boolean fallback) {
+    private boolean resolveBoolean(@NonNull Context context, int attr, boolean fallback) {
         TypedArray a = context.getTheme().obtainStyledAttributes(new int[]{attr});
         try {
             return a.getBoolean(0, fallback);

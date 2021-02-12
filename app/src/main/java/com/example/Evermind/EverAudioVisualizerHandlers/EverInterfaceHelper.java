@@ -11,7 +11,11 @@ public class EverInterfaceHelper {
     }
 
     public interface OnChangeColorListener {
-        void changeColor(int color);
+        void changeAccentColor(int color);
+    }
+
+    public interface OnEnterDarkMode {
+        void enterDarkMode(int color);
     }
 
     public interface OnHideListener {
@@ -19,11 +23,17 @@ public class EverInterfaceHelper {
         void show();
     }
 
+    public interface OnCanPerformClickListener {
+        void canPerformClick();
+        void cantPerformClick();
+    }
+
     private static EverInterfaceHelper mInstance;
     private final List<OnOpenAudioStateListener> audioStateListeners = new ArrayList<>();
     private final List<OnChangeColorListener> colorListeners = new ArrayList<>();
+    private final List<OnEnterDarkMode> darkModeListeners = new ArrayList<>();
     private final List<OnHideListener> hideListeners = new ArrayList<>();
-    private EverInterfaceHelper() {}
+    private final List<OnCanPerformClickListener> clickListeners = new ArrayList<>();
 
     public static EverInterfaceHelper getInstance() {
         if(mInstance == null) {
@@ -38,13 +48,25 @@ public class EverInterfaceHelper {
         }
     }
 
+    public void setDarkModeListeners(OnEnterDarkMode listener) {
+        if (!darkModeListeners.contains(listener)) {
+            darkModeListeners.add(listener);
+        }
+    }
+
+    public void setClickListener(OnCanPerformClickListener listener) {
+        if (!clickListeners.contains(listener)) {
+            clickListeners.add(listener);
+        }
+    }
+
     public void setHideListener(OnHideListener listener) {
         if (!hideListeners.contains(listener)) {
             hideListeners.add(listener);
         }
     }
 
-    public void setColorListener(OnChangeColorListener listener) {
+    public void setAccentColorListener(OnChangeColorListener listener) {
         if (!colorListeners.contains(listener)) {
             colorListeners.add(listener);
         }
@@ -52,6 +74,17 @@ public class EverInterfaceHelper {
 
     public void removeColorListener(OnChangeColorListener listener) {
         colorListeners.remove(listener);
+    }
+    public void setCantClick() {
+        for (OnCanPerformClickListener listener: clickListeners) {
+           listener.cantPerformClick();
+        }
+    }
+
+    public void setCanClick() {
+        for (OnCanPerformClickListener listener: clickListeners) {
+            listener.canPerformClick();
+        }
     }
 
     public void changeState(boolean state) {
@@ -64,9 +97,15 @@ public class EverInterfaceHelper {
         }
     }
 
-    public void changeColor(int color) {
+    public void changeAccentColor(int color) {
         for (OnChangeColorListener listener: colorListeners) {
-          listener.changeColor(color);
+          listener.changeAccentColor(color);
+        }
+    }
+
+    public void enterDarkMode(int color) {
+        for (OnEnterDarkMode listener: darkModeListeners) {
+            listener.enterDarkMode(color);
         }
     }
 

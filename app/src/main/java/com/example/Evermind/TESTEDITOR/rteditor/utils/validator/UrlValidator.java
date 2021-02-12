@@ -16,6 +16,9 @@
  */
 package com.example.Evermind.TESTEDITOR.rteditor.utils.validator;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
@@ -165,6 +168,7 @@ public class UrlValidator implements Serializable {
     /**
      * The set of schemes that are allowed to be in a URL.
      */
+    @NonNull
     private final Set allowedSchemes; // Must be lower-case
 
     /**
@@ -187,6 +191,7 @@ public class UrlValidator implements Serializable {
      * Returns the singleton instance of this class with default schemes and options.
      * @return singleton instance with default schemes and options
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.utils.validator.UrlValidator getInstance() {
         return DEFAULT_URL_VALIDATOR;
     }
@@ -253,7 +258,7 @@ public class UrlValidator implements Serializable {
      * <p><code>ALLOW_2_SLASHES + NO_FRAGMENTS</code></p>
      * enables both of those options.
      */
-    public UrlValidator(String[] schemes, RegexValidator authorityValidator, long options) {
+    public UrlValidator(@Nullable String[] schemes, RegexValidator authorityValidator, long options) {
         this.options = options;
 
         if (isOn(ALLOW_ALL_SCHEMES)) {
@@ -281,7 +286,7 @@ public class UrlValidator implements Serializable {
      * value is considered invalid.
      * @return true if the url is valid.
      */
-    public boolean isValid(String value) {
+    public boolean isValid(@Nullable String value) {
         if (value == null) {
             return false;
         }
@@ -327,7 +332,7 @@ public class UrlValidator implements Serializable {
      * invalid.
      * @return true if valid.
      */
-    protected boolean isValidScheme(String scheme) {
+    protected boolean isValidScheme(@Nullable String scheme) {
         if (scheme == null) {
             return false;
         }
@@ -349,7 +354,7 @@ public class UrlValidator implements Serializable {
      * @param authority Authority value to validate, alllows IDN
      * @return true if authority (hostname and port) is valid.
      */
-    protected boolean isValidAuthority(String authority) {
+    protected boolean isValidAuthority(@Nullable String authority) {
         if (authority == null) {
             return false;
         }
@@ -394,7 +399,7 @@ public class UrlValidator implements Serializable {
      * @param path Path value to validate.
      * @return true if path is valid.
      */
-    protected boolean isValidPath(String path) {
+    protected boolean isValidPath(@Nullable String path) {
         if (path == null) {
             return false;
         }
@@ -418,7 +423,7 @@ public class UrlValidator implements Serializable {
      * @param query Query value to validate.
      * @return true if query is valid.
      */
-    protected boolean isValidQuery(String query) {
+    protected boolean isValidQuery(@Nullable String query) {
         if (query == null) {
             return true;
         }
@@ -431,7 +436,7 @@ public class UrlValidator implements Serializable {
      * @param fragment Fragment value to validate.
      * @return true if fragment is valid.
      */
-    protected boolean isValidFragment(String fragment) {
+    protected boolean isValidFragment(@Nullable String fragment) {
         if (fragment == null) {
             return true;
         }
@@ -445,7 +450,7 @@ public class UrlValidator implements Serializable {
      * @param target Target value to count tokens in.
      * @return the number of tokens.
      */
-    protected int countToken(String token, String target) {
+    protected int countToken(@NonNull String token, @NonNull String target) {
         int tokenIndex = 0;
         int count = 0;
         while (tokenIndex != -1) {

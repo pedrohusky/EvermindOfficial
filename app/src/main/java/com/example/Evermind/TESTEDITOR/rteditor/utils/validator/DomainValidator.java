@@ -16,6 +16,9 @@
  */
 package com.example.Evermind.TESTEDITOR.rteditor.utils.validator;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -115,6 +118,7 @@ public class DomainValidator implements Serializable {
      *  will not consider local addresses as valid.
      * @return the singleton instance of this validator
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.utils.validator.DomainValidator getInstance() {
         return DOMAIN_VALIDATOR;
     }
@@ -125,6 +129,7 @@ public class DomainValidator implements Serializable {
      * @param allowLocal Should local addresses be considered valid?
      * @return the singleton instance of this validator
      */
+    @NonNull
     public static com.example.Evermind.TESTEDITOR.rteditor.utils.validator.DomainValidator getInstance(boolean allowLocal) {
        if(allowLocal) {
           return DOMAIN_VALIDATOR_WITH_LOCAL;
@@ -144,7 +149,7 @@ public class DomainValidator implements Serializable {
      * @param domain the parameter to check for domain name syntax
      * @return true if the parameter is a valid domain name
      */
-    public boolean isValid(String domain) {
+    public boolean isValid(@Nullable String domain) {
         if (domain == null) {
             return false;
         }
@@ -165,7 +170,7 @@ public class DomainValidator implements Serializable {
 
     // package protected for unit test access
     // must agree with isValid() above
-    final boolean isValidDomainSyntax(String domain) {
+    final boolean isValidDomainSyntax(@Nullable String domain) {
         if (domain == null) {
             return false;
         }
@@ -247,7 +252,8 @@ public class DomainValidator implements Serializable {
         return Arrays.binarySearch(LOCAL_TLDS, chompLeadingDot(lTld.toLowerCase(Locale.ENGLISH))) >= 0;
     }
 
-    private String chompLeadingDot(String str) {
+    @NonNull
+    private String chompLeadingDot(@NonNull String str) {
         if (str.startsWith(".")) {
             return str.substring(1);
         }
@@ -1085,7 +1091,8 @@ public class DomainValidator implements Serializable {
      * @return converted input, or original input if conversion fails
      */
     // Needed by UrlValidator
-    static String unicodeToASCII(String input) {
+    @Nullable
+    static String unicodeToASCII(@NonNull String input) {
         try {
             return /* java.net.IDN. */ toASCII(input);
         } catch (IllegalArgumentException e) { // input is not valid
@@ -1096,6 +1103,7 @@ public class DomainValidator implements Serializable {
     // ================= Code needed for Java 1.4 and 1.5 compatibility ===============
 
     private static class IDNHolder {
+        @Nullable
         private static Method getMethod() {
             try {
                 Class clazz = Class.forName("java.net.IDN", false, com.example.Evermind.TESTEDITOR.rteditor.utils.validator.DomainValidator.class.getClassLoader());
@@ -1104,6 +1112,7 @@ public class DomainValidator implements Serializable {
               return null;
             }
         }
+        @Nullable
         private static final Method JAVA_NET_IDN_TO_ASCII = getMethod();
     }
 
@@ -1112,7 +1121,8 @@ public class DomainValidator implements Serializable {
      * Allows code to be compiled with Java 1.4 and 1.5 
      * @throws IllegalArgumentException if the input string doesn't conform to RFC 3490 specification
      */
-    private static final String toASCII(String line) throws IllegalArgumentException {
+    @Nullable
+    private static final String toASCII(@NonNull String line) throws IllegalArgumentException {
 //        java.net.IDN.toASCII(line); // Java 1.6+
         // implementation for Java 1.4 and 1.5
         // effectively this is done by IDN.toASCII but we want to skip the entire call
@@ -1124,7 +1134,7 @@ public class DomainValidator implements Serializable {
             return line;
         }
         try {
-            return (String) m.invoke(null, new String[]{line.toLowerCase(Locale.ENGLISH)});
+            return (String) m.invoke(null, (Object) new String[]{line.toLowerCase(Locale.ENGLISH)});
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e); // Should not happen
         } catch (InvocationTargetException e) {
@@ -1140,7 +1150,7 @@ public class DomainValidator implements Serializable {
      * Check if input contains only ASCII
      * Treats null as all ASCII
      */
-    private static boolean isOnlyASCII(String input) {
+    private static boolean isOnlyASCII(@Nullable String input) {
         if (input == null) {
             return true;
         }

@@ -30,6 +30,8 @@ import android.text.style.LeadingMarginSpan;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 /**
  * ArrowKeyMovementMethod does support selection of text but not the clicking of links.
  * LinkMovementMethod does support clicking of links but not the selection of text.
@@ -52,7 +54,7 @@ public class RTEditorMovementMethod extends ArrowKeyMovementMethod {
     }
 
     @Override
-    public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
+    public boolean onTouchEvent(@NonNull TextView widget, @NonNull Spannable buffer, @NonNull MotionEvent event) {
         int action = event.getAction();
 
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
@@ -79,7 +81,7 @@ public class RTEditorMovementMethod extends ArrowKeyMovementMethod {
     }
 
     // TODO finding links doesn't work with right alignment and potentially other formatting options
-    private int getCharIndexAt(TextView textView, MotionEvent event) {
+    private int getCharIndexAt(@NonNull TextView textView, @NonNull MotionEvent event) {
         // get coordinates
         int x = (int) event.getX();
         int y = (int) event.getY();

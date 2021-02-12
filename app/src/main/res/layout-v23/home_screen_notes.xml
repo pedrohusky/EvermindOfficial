@@ -7,6 +7,7 @@
     android:background="#FFFFFF">
 
     <ImageButton
+        android:id="@+id/imageButton"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:background="@color/White"
@@ -16,16 +17,18 @@
         android:onClick="onClick"
         android:scaleType="center"
         android:src="@drawable/note_plus_button_rectangle"
+        android:tag="imageView"
         android:transitionName="card"
         android:visibility="visible" />
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.mlsdev.animatedrv.AnimatedRecyclerView
         android:id="@+id/notesRecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="30dp"
         android:background="@color/White"
-        android:layoutAnimation="@anim/grid_appear_layout_animation"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:backgroundTint="@color/White"
+        app:animationDuration="600"
+        app:layoutAnimation="@anim/layout_animation_random_scale" />
 
 </RelativeLayout>

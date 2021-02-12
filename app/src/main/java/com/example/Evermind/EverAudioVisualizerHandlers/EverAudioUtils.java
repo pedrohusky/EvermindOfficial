@@ -99,7 +99,7 @@ class EverAudioUtils {
         return (float) (p0 * Math.pow(1 - t, 2) + p1 * 2 * t * (1 - t) + p2 * t * t);
     }
 
-    public static float randomize(float value, Random random) {
+    public static float randomize(float value, @NonNull Random random) {
         float perc = between((random.nextInt(100) + 70) / 100, 0.7f, 1.3f);
         return perc * value;
     }
@@ -109,7 +109,7 @@ class EverAudioUtils {
      * @param array some array
      * @return true if all elements are null, false otherwise
      */
-    public static <T> boolean allElementsAreNull(T[] array) {
+    public static <T> boolean allElementsAreNull(@NonNull T[] array) {
         for (T element : array) {
             if (element != null)
                 return false;
@@ -149,7 +149,7 @@ class EverAudioUtils {
      * @param array some array
      * @return true if all elements equal to zero
      */
-    public static boolean allElementsAreZero(byte[] array) {
+    public static boolean allElementsAreZero(@NonNull byte[] array) {
         for (byte b : array) {
             if (b != 0)
                 return false;

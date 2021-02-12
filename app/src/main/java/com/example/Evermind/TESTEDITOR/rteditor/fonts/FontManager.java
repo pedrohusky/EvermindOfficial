@@ -21,6 +21,9 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.utils.io.FilenameUtils;
 
 import java.io.File;
@@ -50,6 +53,7 @@ public class FontManager {
         /**
          * @return The RTTypeface with the specified name or false if no such RTTypeface exists.
          */
+        @Nullable
         RTTypeface get(String fontName) {
             for (RTTypeface typeface : this) {
                 if (typeface.getName().equals(fontName)) {
@@ -70,7 +74,7 @@ public class FontManager {
     /**
      * Use this method to preload fonts asynchronously e.g. when the app starts up.
      */
-    public static void preLoadFonts(final Context context) {
+    public static void preLoadFonts(@NonNull final Context context) {
         new Thread(() -> {
             synchronized (ASSET_FONTS_BY_NAME) {
                 getAssetFonts(context);
@@ -87,7 +91,8 @@ public class FontManager {
      * @return A Map mapping the name of the font to the Typeface.
      * If the name can't be retrieved the file name will be used (e.g. arial.ttf).
      */
-    public static SortedSet<RTTypeface> getFonts(Context context) {
+    @NonNull
+    public static SortedSet<RTTypeface> getFonts(@NonNull Context context) {
         /*
          * Fonts from the assets folder
          */
@@ -142,7 +147,8 @@ public class FontManager {
      * @return A Map mapping name of the font to the file path.
      * If the name can't be retrieved the file name will be used (e.g. arial.ttf).
      */
-    private static Map<String, String> getAssetFonts(Context context) {
+    @NonNull
+    private static Map<String, String> getAssetFonts(@NonNull Context context) {
         synchronized (ASSET_FONTS_BY_NAME) {
             /*
              * Let's do this only once because it's expensive and the result won't change in any case.
@@ -170,13 +176,14 @@ public class FontManager {
         }
     }
 
-    private static Collection<String> listFontFiles(Resources res) {
+    @NonNull
+    private static Collection<String> listFontFiles(@NonNull Resources res) {
         Collection<String> fonts = new ArrayList<String>();
         listFontFiles(res.getAssets(), fonts, "", 0);
         return fonts;
     }
 
-    private static void listFontFiles(AssetManager assets, Collection<String> fonts, String path,
+    private static void listFontFiles(@NonNull AssetManager assets, @NonNull Collection<String> fonts, @NonNull String path,
                                       int level) {
         if (level >= 8) {
             // on certain devices we run into stack overflows because of the recursion
@@ -205,6 +212,7 @@ public class FontManager {
      * @return A Map mapping name of the font to the file path.
      * If the name can't be retrieved the file name will be used (e.g. arial.ttf).
      */
+    @NonNull
     private static Map<String, String> getSystemFonts() {
         synchronized (SYSTEM_FONTS_BY_NAME) {
             for (String fontDir : FONT_DIRS) {
@@ -233,6 +241,7 @@ public class FontManager {
         }
     }
 
+    @NonNull
     private static String getFileName(String path) {
         return FilenameUtils.getBaseName(path).replace(File.pathSeparator, "");
     }

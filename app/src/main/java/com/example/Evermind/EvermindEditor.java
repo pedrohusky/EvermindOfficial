@@ -14,6 +14,12 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.AttrRes;
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -63,21 +69,22 @@ public class EvermindEditor extends WebView {
   private static final String CALLBACK_SCHEME = "re-callback://";
   private static final String STATE_SCHEME = "re-state://";
   private boolean isReady = false;
+  @Nullable
   private String mContents;
   private OnTextChangeListener mTextChangeListener;
   private OnDecorationStateListener mDecorationStateListener;
   private AfterInitialLoadListener mLoadListener;
 
-  public EvermindEditor(Context context) {
+  public EvermindEditor(@NonNull Context context) {
     this(context, null);
   }
 
-  public EvermindEditor(Context context, AttributeSet attrs) {
+  public EvermindEditor(@NonNull Context context, AttributeSet attrs) {
     this(context, attrs, android.R.attr.webViewStyle);
   }
 
   @SuppressLint("SetJavaScriptEnabled")
-  public EvermindEditor(Context context, AttributeSet attrs, int defStyleAttr) {
+  public EvermindEditor(@NonNull Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
 
     setVerticalScrollBarEnabled(false);
@@ -90,6 +97,7 @@ public class EvermindEditor extends WebView {
     applyAttributes(context, attrs);
   }
 
+  @NonNull
   protected EditorWebViewClient createWebviewClient() {
     return new EditorWebViewClient();
   }
@@ -106,14 +114,14 @@ public class EvermindEditor extends WebView {
     mLoadListener = listener;
   }
 
-  private void callback(String text) {
+  private void callback(@NonNull String text) {
     mContents = text.replaceFirst(CALLBACK_SCHEME, "");
     if (mTextChangeListener != null) {
       mTextChangeListener.onTextChange(mContents);
     }
   }
 
-  private void stateCheck(String text) {
+  private void stateCheck(@NonNull String text) {
     String state = text.replaceFirst(STATE_SCHEME, "").toUpperCase(Locale.ENGLISH);
     List<Type> types = new ArrayList<>();
     for (Type type : Type.values()) {
@@ -127,7 +135,7 @@ public class EvermindEditor extends WebView {
     }
   }
 
-  private void applyAttributes(Context context, AttributeSet attrs) {
+  private void applyAttributes(@NonNull Context context, AttributeSet attrs) {
     final int[] attrsArray = new int[] {
         android.R.attr.gravity
     };
@@ -162,7 +170,7 @@ public class EvermindEditor extends WebView {
     ta.recycle();
   }
 
-  public void setHtml(String contents) {
+  public void setHtml(@Nullable String contents) {
     if (contents == null) {
       contents = "";
     }
@@ -174,6 +182,7 @@ public class EvermindEditor extends WebView {
     mContents = contents;
   }
 
+  @Nullable
   public String getHtml() {
     return mContents;
   }
@@ -377,6 +386,7 @@ public class EvermindEditor extends WebView {
     exec("javascript:RE.blurFocus();");
   }
 
+  @NonNull
   private String convertHexColorString(int color) {
     return String.format("#%06X", (0xFFFFFF & color));
   }
@@ -404,7 +414,7 @@ public class EvermindEditor extends WebView {
 
   protected class EditorWebViewClient extends WebViewClient {
     @Override
-    public void onPageFinished(WebView view, String url) {
+    public void onPageFinished(WebView view, @NonNull String url) {
       isReady = url.equalsIgnoreCase(SETUP_HTML);
       if (mLoadListener != null) {
         mLoadListener.onAfterInitialLoad(isReady);

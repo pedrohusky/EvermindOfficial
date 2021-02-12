@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.toolbar.spinner;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 /**
  * An abstract spinner item for the color spinners.
  *
@@ -51,7 +53,7 @@ public abstract class ColorSpinnerItem extends SpinnerItem {
     }
 
     @Override
-    void formatColorView(View view) {
+    void formatColorView(@NonNull View view) {
         super.formatColorView(view);
         view.setBackgroundColor(mIsEmpty ? 0x00000000 : mColor);
     }

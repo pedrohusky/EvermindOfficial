@@ -16,7 +16,7 @@ import java.util.*
 class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
     var mPaths = LinkedHashMap<EverDrawPath, EverDrawPaintOptions>()
 
-    private var ThisView = context
+   // private var ThisView = context
 
     private var mLastPaths = LinkedHashMap<EverDrawPath, EverDrawPaintOptions>()
     private var mUndonePaths = LinkedHashMap<EverDrawPath, EverDrawPaintOptions>()
@@ -32,8 +32,8 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private var mStartY = 0f
     private var mIsSaving = false
     private var mIsStrokeWidthBarEnabled = false
-    private val paths = ArrayList<LinkedHashMap<EverDrawPath, EverDrawPaintOptions>>()
-    private val options = ArrayList<String>()
+ //   private val paths = ArrayList<LinkedHashMap<EverDrawPath, EverDrawPaintOptions>>()
+ //   private val options = ArrayList<String>()
 
     init {
         mPaint.apply {
@@ -98,7 +98,6 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
             invalidate()
         }
     }
-    //TODO TRY TO MAKE A BITMAP FROM THE VIEW!1111111
 
     fun fillColor(color: Int) {
       // TODO(make the fill background when needed)
@@ -127,7 +126,7 @@ class EverDraw(context: Context, attrs: AttributeSet) : View(context, attrs) {
         return bitmap
     }
 
-    fun addPath(path: EverDrawPath, options: EverDrawPaintOptions) {
+    private fun addPath(path: EverDrawPath, options: EverDrawPaintOptions) {
         mPaths[path] = options
     }
 

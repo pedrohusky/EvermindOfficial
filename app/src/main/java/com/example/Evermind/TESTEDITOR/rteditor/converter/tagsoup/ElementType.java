@@ -13,6 +13,9 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * This class represents an element type in the schema. An element type has a
  * name, a content model vector, a member-of vector, a flags vector, default
@@ -23,12 +26,16 @@ package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
 
 public class ElementType {
 
+    @NonNull
     private final String theName; // element type name (Qname)
+    @NonNull
     private final String theNamespace; // element type namespace name
+    @NonNull
     private final String theLocalName; // element type local name
     private int theModel; // bitmap: what the element contains
     private int theMemberOf; // bitmap: what element is contained in
     private int theFlags; // bitmap: element flags
+    @NonNull
     private final AttributesImpl theAtts; // default attributes
     private ElementType theParent; // parent of this element type
     private final Schema theSchema; // schema to which this belongs
@@ -48,7 +55,7 @@ public class ElementType {
      * @param schema   The schema with which this element type will be associated
      */
 
-    public ElementType(String name, int model, int memberOf, int flags,
+    public ElementType(@NonNull String name, int model, int memberOf, int flags,
                        Schema schema) {
         theName = name;
         theModel = model;
@@ -69,7 +76,8 @@ public class ElementType {
      * @param attribute True if name is an attribute name
      * @return The namespace name
      */
-    public String namespace(String name, boolean attribute) {
+    @NonNull
+    public String namespace(@NonNull String name, boolean attribute) {
         int colon = name.indexOf(':');
         if (colon == -1) {
             return attribute ? "" : theSchema.getURI();
@@ -88,7 +96,8 @@ public class ElementType {
      * @param name The Qname
      * @return The local name
      */
-    public String localName(String name) {
+    @NonNull
+    public String localName(@NonNull String name) {
         int colon = name.indexOf(':');
         if (colon == -1) {
             return name;
@@ -103,6 +112,7 @@ public class ElementType {
      * @return The name of the element type
      */
 
+    @NonNull
     public String name() {
         return theName;
     }
@@ -113,6 +123,7 @@ public class ElementType {
      * @return The namespace name of the element type
      */
 
+    @NonNull
     public String namespace() {
         return theNamespace;
     }
@@ -123,6 +134,7 @@ public class ElementType {
      * @return The local name of the element type
      */
 
+    @NonNull
     public String localName() {
         return theLocalName;
     }
@@ -166,6 +178,7 @@ public class ElementType {
      * caller to mutate the attributes.
      */
 
+    @NonNull
     public AttributesImpl atts() {
         return theAtts;
     }
@@ -198,7 +211,7 @@ public class ElementType {
      * @param other The other element type
      */
 
-    public boolean canContain(ElementType other) {
+    public boolean canContain(@NonNull ElementType other) {
         return (theModel & other.theMemberOf) != 0;
     }
 
@@ -212,7 +225,7 @@ public class ElementType {
      * @param value The value of the attribute
      */
 
-    public void setAttribute(AttributesImpl atts, String name, String type,
+    public void setAttribute(@NonNull AttributesImpl atts, @NonNull String name, @Nullable String type,
                              String value) {
         if (name.equals("xmlns") || name.startsWith("xmlns:")) {
             return;
@@ -243,7 +256,8 @@ public class ElementType {
      * @param value The value to normalize
      * @return The normalized value
      */
-    public static String normalize(String value) {
+    @Nullable
+    public static String normalize(@Nullable String value) {
         if (value == null)
             return value;
         value = value.trim();
@@ -274,7 +288,7 @@ public class ElementType {
      * @param value The value of the attribute
      */
 
-    public void setAttribute(String name, String type, String value) {
+    public void setAttribute(@NonNull String name, String type, String value) {
         setAttribute(theAtts, name, type, value);
     }
 

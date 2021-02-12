@@ -17,6 +17,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
 
 import android.text.util.Linkify.MatchFilter;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util.StringEscapeUtils;
 
 import org.xml.sax.Attributes;
@@ -329,24 +332,36 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
     // Internal state.
     // //////////////////////////////////////////////////////////////////
 
+    @NonNull
     private final Hashtable<String, String> prefixTable;
+    @NonNull
     private final Hashtable<String, Boolean> forcedDeclTable;
+    @NonNull
     private final Hashtable<String, String> doneDeclTable;
     private int elementLevel = 0;
+    @Nullable
     private Writer output;
+    @NonNull
     private final NamespaceSupport nsSupport;
     private int prefixCounter = 0;
+    @NonNull
     private final Properties outputProperties;
+    @NonNull
     private String outputEncoding = "";
     private boolean htmlMode = false;
     private boolean forceDTD = false;
     private boolean hasOutputDTD = false;
+    @Nullable
     private String overridePublic = null;
+    @Nullable
     private String overrideSystem = null;
+    @Nullable
     private String version = null;
+    @Nullable
     private String standalone = null;
     private boolean cdataElement = false;
     private final boolean mOmitXHTMLNamespace;
+    @NonNull
     private final Stack<String> mIgnoredTags;
 
     // //////////////////////////////////////////////////////////////////
@@ -436,7 +451,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      * @return The current output writer.
      * @see #flush
      */
-    public void setOutput(Writer writer) {
+    public void setOutput(@Nullable Writer writer) {
         if (writer == null) {
             output = new OutputStreamWriter(System.out);
         } else {
@@ -470,6 +485,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      * @return The preferred prefix, or "" for the default Namespace.
      * @see #setPrefix
      */
+    @Nullable
     public String getPrefix(String uri) {
         return prefixTable.get(uri);
     }
@@ -595,7 +611,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      * @see org.xml.sax.ContentHandler#startElement
      */
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+    public void startElement(@NonNull String uri, @Nullable String localName, @NonNull String qName, @NonNull Attributes atts) throws SAXException {
         writeText4Links();
 
         if (!ignoreElement(uri, localName, qName, atts)) {
@@ -624,7 +640,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
         }
     }
 
-    private boolean ignoreElement(String uri, String localName, String qName, Attributes atts) {
+    private boolean ignoreElement(String uri, String localName, @NonNull String qName, @NonNull Attributes atts) {
         Map<String, String> tagAttrs = mTags2Ignore.get(qName.toLowerCase(Locale.US));
         if (tagAttrs != null) {
             for (String attrKey : tagAttrs.keySet()) {
@@ -641,7 +657,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
         return false;
     }
 
-    private boolean isNullOrEmpty(String string) {
+    private boolean isNullOrEmpty(@Nullable String string) {
         return string == null || string.length() == 0;
     }
 
@@ -661,7 +677,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      * @see org.xml.sax.ContentHandler#endElement
      */
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
+    public void endElement(@NonNull String uri, @NonNull String localName, @NonNull String qName) throws SAXException {
         writeText4Links();
         if (!mIgnoredTags.isEmpty() && mIgnoredTags.peek().equalsIgnoreCase(qName)) {
             mIgnoredTags.pop();
@@ -794,7 +810,8 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      * @param isElement true if this is an element name, false if it is an attribute
      *                  name (which cannot use the default Namespace).
      */
-    private String doPrefix(String uri, String qName, boolean isElement) {
+    @Nullable
+    private String doPrefix(@NonNull String uri, @Nullable String qName, boolean isElement) {
         String defaultNS = nsSupport.getURI("");
         if ("".equals(uri)) {
             if (isElement && defaultNS != null)
@@ -882,7 +899,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      *                              method will throw an IOException wrapped in a
      *                              SAXException.
      */
-    private void writeAttributes(Attributes atts) throws SAXException {
+    private void writeAttributes(@NonNull Attributes atts) throws SAXException {
         int len = atts.getLength();
         for (int i = 0; i < len; i++) {
             write(' ');
@@ -904,7 +921,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
             "nowrap", "readonly", "selected"};
 
     // Return true if the attribute is an HTML boolean from the above list.
-    private boolean booleanAttribute(String localName, String qName,
+    private boolean booleanAttribute(String localName, @NonNull String qName,
                                      String value) {
         String name = localName;
         if (name == null) {
@@ -931,7 +948,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      * @throws org.xml.SAXException If there is an error writing the characters, this method
      *                              will throw an IOException wrapped in a SAXException.
      */
-    private void writeEscUTF16(String s, int start, int length, boolean isAttVal) throws SAXException {
+    private void writeEscUTF16(@NonNull String s, int start, int length, boolean isAttVal) throws SAXException {
         String subString = s.substring(start, start + length);
         write(StringEscapeUtils.escapeHtml4(subString));
     }
@@ -976,7 +993,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
      * @throws SAXException This method will throw an IOException wrapped in a
      *                                  SAXException if there is an error writing the name.
      */
-    private void writeName(String uri, String localName, String qName,
+    private void writeName(@NonNull String uri, @Nullable String localName, @NonNull String qName,
                            boolean isElement) throws SAXException {
         String prefix = doPrefix(uri, qName, isElement);
         if (prefix != null && !"".equals(prefix)) {
@@ -1023,7 +1040,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
     }
 
     @Override
-    public void startDTD(String name, String publicid, String systemid) throws SAXException {
+    public void startDTD(@Nullable String name, String publicid, @Nullable String systemid) throws SAXException {
         if (name == null)
             return; // can't cope
         if (hasOutputDTD)
@@ -1066,7 +1083,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
         return outputProperties.getProperty(key);
     }
 
-    public void setOutputProperty(String key, String value) {
+    public void setOutputProperty(@NonNull String key, @NonNull String value) {
         outputProperties.setProperty(key, value);
         if (key.equals(ENCODING)) {
             outputEncoding = value;
@@ -1092,7 +1109,7 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
     private static final String[] LINK_SCHEMAS = new String[]{"http://", "https://", "rtsp://"};
 
     private static final MatchFilter URL_MATCH_FILTER = new MatchFilter() {
-        public final boolean acceptMatch(CharSequence s, int start, int end) {
+        public final boolean acceptMatch(@NonNull CharSequence s, int start, int end) {
             return start == 0 || s.charAt(start - 1) != '@';
         }
     };
@@ -1145,7 +1162,8 @@ public class HTMLWriter extends XMLFilterImpl implements LexicalHandler {
         }
     }
 
-    private String makeUrl(String url, String[] prefixes, Matcher m) {
+    @NonNull
+    private String makeUrl(@NonNull String url, @NonNull String[] prefixes, Matcher m) {
         boolean hasPrefix = false;
 
         for (int i = 0; i < prefixes.length; i++) {

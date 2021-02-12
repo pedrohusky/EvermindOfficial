@@ -1,5 +1,6 @@
 package com.example.Evermind;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Dao;
 import androidx.room.Database;
@@ -18,7 +19,7 @@ import java.util.List;
 public class EverRoomNoteDatabase {
     private static final String NOTE_TITLE = "Title";
     private static final String NOTE_CONTENT = "Note_content";
-   // private static final String NOTE_ID = "ID";
+    private static final String NOTE_ID = "ID";
     private static final String NOTE_DATE = "Date";
     private static final String NOTE_DRAW = "Background";
     private static final String NOTE_IMAGEURL = "URL";

@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.spans;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTVideo;
 
 /**
@@ -23,10 +25,11 @@ import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTVideo;
  */
 public class VideoSpan extends MediaSpan {
 
-    public VideoSpan(RTVideo video, boolean isSaved) {
+    public VideoSpan(@NonNull RTVideo video, boolean isSaved) {
         super(video, isSaved);
     }
 
+    @NonNull
     public RTVideo getVideo() {
         return (RTVideo) mMedia;
     }

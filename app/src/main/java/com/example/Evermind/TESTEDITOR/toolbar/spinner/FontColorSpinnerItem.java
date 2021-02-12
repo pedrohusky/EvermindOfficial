@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.toolbar.spinner;
 
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 /**
  * The spinner item for the font color.
  */
@@ -34,7 +36,7 @@ public class FontColorSpinnerItem extends ColorSpinnerItem {
     }
 
     @Override
-    void formatNameView(TextView view) {
+    void formatNameView(@NonNull TextView view) {
         super.formatNameView(view);
 
         if (!isCustom()) {

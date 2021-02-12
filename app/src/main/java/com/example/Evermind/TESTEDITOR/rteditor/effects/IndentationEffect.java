@@ -18,6 +18,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 
 import android.text.Spannable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.IndentationSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
@@ -40,7 +43,7 @@ public class IndentationEffect extends ParagraphEffect<Integer, IndentationSpan>
 
     private final ParagraphSpanProcessor<Integer> mSpans2Process = new ParagraphSpanProcessor();
 
-    public void applyToSelection(RTEditText editor, Selection selectedParagraphs, Integer increment) {
+    public void applyToSelection(@NonNull RTEditText editor, Selection selectedParagraphs, @Nullable Integer increment) {
         final Spannable str = editor.getText();
 
         mSpans2Process.clear();

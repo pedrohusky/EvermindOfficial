@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@+id/formatCoordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="7dp"
+    android:translationY="40dp"
+    android:visibility="gone"
+    tools:visibility="visible"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+        <LinearLayout
+            android:id="@+id/formatBottomSheet"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_formatMoreOptions"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="10dp"
+                android:layout_weight="15"
+                android:visibility="visible"
+                app:cardBackgroundColor="@color/White"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="3dp"
+                tools:visibility="visible">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/format_selectors"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:visibility="visible"
+                        app:cardBackgroundColor="@color/White"
+                        app:cardCornerRadius="0dp"
+                        app:cardElevation="0dp"
+                        app:layout_constraintBottom_toTopOf="@id/viewStub2"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_weight="1">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/linearLayout5"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center_horizontal"
+                            android:orientation="horizontal"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toStartOf="@+id/IncreaseSize1"
+                            app:layout_constraintStart_toStartOf="@+id/IncreaseSize1">
+
+                            <ImageButton
+                                android:id="@+id/IncreaseSize1"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:background="@drawable/selected_background"
+                                android:onClick="formatClick"
+                                android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:tag="increaseSize"
+                                android:tint="@color/Black"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/DecreaseSize1"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/text_size_up"
+                                tools:layout_conversion_absoluteHeight="0dp"
+                                tools:layout_conversion_absoluteWidth="0dp" />
+
+                            <ImageButton
+                                android:id="@+id/DecreaseSize1"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:background="@drawable/selected_background"
+                                android:onClick="formatClick"
+                                android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:tag="decreaseSize"
+                                android:tint="@color/Black"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/ChangeColor1"
+                                app:layout_constraintStart_toEndOf="@id/IncreaseSize1"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/text_size_down"
+                                tools:layout_conversion_absoluteHeight="0dp"
+                                tools:layout_conversion_absoluteWidth="0dp" />
+
+                            <ImageButton
+                                android:id="@+id/ChangeColor1"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:background="@drawable/selected_background"
+                                android:onClick="formatClick"
+                                android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:tag="changeColor"
+                                android:tint="@color/Black"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/toolbar_bold"
+                                app:layout_constraintStart_toEndOf="@id/DecreaseSize1"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/color_selector_icon"
+                                tools:layout_conversion_absoluteHeight="0dp"
+                                tools:layout_conversion_absoluteWidth="0dp" />
+
+                            <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                android:id="@+id/toolbar_bold"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:background="@drawable/selected_background"
+                                android:onClick="formatClick"
+                                android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:tag="bold"
+                                android:tint="@color/Black"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/toolbar_italic"
+                                app:layout_constraintStart_toEndOf="@id/ChangeColor1"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/bold_icon"
+                                tools:layout_conversion_absoluteHeight="0dp"
+                                tools:layout_conversion_absoluteWidth="0dp" />
+
+                            <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                android:id="@+id/toolbar_italic"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:background="@drawable/selected_background"
+                                android:backgroundTint="@color/White"
+                                android:onClick="formatClick"
+                                android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:tag="italic"
+                                android:tint="@color/Black"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/toolbar_underline"
+                                app:layout_constraintStart_toEndOf="@id/toolbar_bold"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/italic_icon"
+                                tools:layout_conversion_absoluteHeight="0dp"
+                                tools:layout_conversion_absoluteWidth="0dp" />
+
+                            <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                android:id="@+id/toolbar_underline"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:background="@drawable/selected_background"
+                                android:backgroundTint="@color/White"
+                                android:onClick="formatClick"
+                                android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:tag="underline"
+                                android:tint="@color/Black"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/toolbar_strikethrough"
+                                app:layout_constraintStart_toEndOf="@id/toolbar_italic"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/underline_icon"
+                                tools:layout_conversion_absoluteHeight="0dp"
+                                tools:layout_conversion_absoluteWidth="0dp" />
+
+                            <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                android:id="@+id/toolbar_strikethrough"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:background="@drawable/selected_background"
+                                android:backgroundTint="@color/White"
+                                android:onClick="formatClick"
+                                android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:tag="striketrough"
+                                android:tint="@color/Black"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/HighlightText1"
+                                app:layout_constraintStart_toEndOf="@id/toolbar_underline"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/striketrough_icon"
+                                tools:layout_conversion_absoluteHeight="0dp"
+                                tools:layout_conversion_absoluteWidth="0dp" />
+
+                            <ImageButton
+                                android:id="@+id/HighlightText1"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:background="@drawable/selected_background"
+                                android:backgroundTint="@color/White"
+                                android:onClick="formatClick"
+                                android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:tag="highlight"
+                                android:tint="@color/Black"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/toolbar_strikethrough"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/highlight_text_icon"
+                                tools:layout_conversion_absoluteHeight="0dp"
+                                tools:layout_conversion_absoluteWidth="0dp" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <ViewStub
+                        android:id="@+id/viewStub2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout="@layout/tester4"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/format_selectors" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>

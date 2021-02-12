@@ -2,6 +2,8 @@ package com.example.Evermind.EverAudioVisualizerHandlers;
 
 import android.opengl.GLES20;
 
+import androidx.annotation.NonNull;
+
 /**
  * Abstract shape implementation.
  */
@@ -27,7 +29,7 @@ abstract class EverGLShape {
     /**
      * Shape color.
      */
-    private final float color[];
+    private final float[] color;
 
     /**
      * Program associated with shape.
@@ -52,7 +54,7 @@ abstract class EverGLShape {
         return program;
     }
 
-    public void setColor(float[] color) {
+    public void setColor(@NonNull float[] color) {
         System.arraycopy(color, 0, this.color, 0, this.color.length);
     }
 }

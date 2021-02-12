@@ -19,6 +19,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 import android.text.Spannable;
 import android.text.Spanned;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.LinkSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
@@ -29,13 +32,14 @@ import com.example.Evermind.TESTEDITOR.rteditor.utils.Selection;
  */
 public class LinkEffect extends CharacterEffect<String, LinkSpan> {
 
+    @NonNull
     @Override
     protected RTSpan<String> newSpan(String value) {
         return new LinkSpan(value);
     }
 
     @Override
-    public void applyToSelection(RTEditText editor, String url) {
+    public void applyToSelection(@NonNull RTEditText editor, @Nullable String url) {
         Selection selection = getSelection(editor);
         Spannable str = editor.getText();
 

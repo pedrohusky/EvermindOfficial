@@ -18,6 +18,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 
 import java.lang.reflect.ParameterizedType;
@@ -28,6 +31,7 @@ import java.lang.reflect.Type;
  * ItalicEffect (text is either italic or not)
  */
 abstract class BooleanEffect<C extends RTSpan<Boolean>> extends CharacterEffect<Boolean, C> {
+    @NonNull
     private final Class<? extends RTSpan<Boolean>> mSpanClazz;
 
     protected BooleanEffect() {
@@ -38,6 +42,7 @@ abstract class BooleanEffect<C extends RTSpan<Boolean>> extends CharacterEffect<
     /**
      * @return If the value is Null or False then return Null -> remove all spans.
      */
+    @Nullable
     @Override
     final protected RTSpan<Boolean> newSpan(Boolean value) {
         try {

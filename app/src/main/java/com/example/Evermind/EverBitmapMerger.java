@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 
+import androidx.annotation.NonNull;
+
 public class EverBitmapMerger extends AsyncTask<Void, Void, Bitmap> {
 
     class BitmapMergerTaskException extends  RuntimeException {
@@ -59,6 +61,7 @@ public class EverBitmapMerger extends AsyncTask<Void, Void, Bitmap> {
     private int mAngle = 0;
     private int mTopOffset = 0;
     private int mLeftOffset = 0;
+    @NonNull
     private BitmapMergeOptions mMergeOptions = BitmapMergeOptions.MERGE_AT_CENTER;
     private OnMergeListener mMergeListener;
 
@@ -68,6 +71,7 @@ public class EverBitmapMerger extends AsyncTask<Void, Void, Bitmap> {
      * @param scale - float value from 0.0 to 1.0 represents the scale.
      * @return the related BitmapMergerTask
      */
+    @NonNull
     public EverBitmapMerger setScale(float scale) {
         this.mScale = scale;
         return this;
@@ -78,6 +82,7 @@ public class EverBitmapMerger extends AsyncTask<Void, Void, Bitmap> {
      * @param mBaseBitmap - base bitmap
      * @return the related BitmapMergerTask
      */
+    @NonNull
     public EverBitmapMerger setBaseBitmap(Bitmap mBaseBitmap) {
         this.mBaseBitmap = mBaseBitmap;
         return this;
@@ -88,6 +93,7 @@ public class EverBitmapMerger extends AsyncTask<Void, Void, Bitmap> {
      * @param mMergeBitmap - merging bitmap image.
      * @return the related BitmapMergerTask
      */
+    @NonNull
     public EverBitmapMerger setMergeBitmap(Bitmap mMergeBitmap) {
         this.mMergeBitmap = mMergeBitmap;
         return this;
@@ -101,6 +107,7 @@ public class EverBitmapMerger extends AsyncTask<Void, Void, Bitmap> {
      * @param topOffset pixel offsets from top
      * @return the related BitmapMergerTask
      */
+    @NonNull
     public EverBitmapMerger setOffsets(int leftOffset, int topOffset) {
         this.mTopOffset = topOffset;
         this.mLeftOffset = leftOffset;
@@ -114,6 +121,7 @@ public class EverBitmapMerger extends AsyncTask<Void, Void, Bitmap> {
      * @param angle - angle off from the base line.
      * @return the related BitmapMergerTask
      */
+    @NonNull
     public EverBitmapMerger setAngle(int angle) {
         this.mAngle = angle;
         this.mMergeOptions = BitmapMergeOptions.MERGE_AT_ANGLE_OFF;
@@ -125,6 +133,7 @@ public class EverBitmapMerger extends AsyncTask<Void, Void, Bitmap> {
      * @param listener for merge completeness.
      * @return the related BitmapMergerTask
      */
+    @NonNull
     public EverBitmapMerger setMergeListener(OnMergeListener listener) {
         this.mMergeListener = listener;
         return this;
@@ -199,7 +208,7 @@ public class EverBitmapMerger extends AsyncTask<Void, Void, Bitmap> {
 
     }
 
-    private static Bitmap mergeBitmaps(Bitmap baseBitmap, Bitmap overlayBitmap) {
+    private static Bitmap mergeBitmaps(@NonNull Bitmap baseBitmap, @NonNull Bitmap overlayBitmap) {
 
             if (baseBitmap.getHeight() >= overlayBitmap.getHeight()) {
                 Bitmap bmOverlay = Bitmap.createBitmap(baseBitmap.getWidth(), baseBitmap.getHeight(), baseBitmap.getConfig());

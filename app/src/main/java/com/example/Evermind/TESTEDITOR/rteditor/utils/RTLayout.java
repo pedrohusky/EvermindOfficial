@@ -18,6 +18,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.utils;
 
 import android.text.Spanned;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -41,7 +44,7 @@ public class RTLayout implements Serializable {
     private int mNrOfLines = 0;
     private final ArrayList<Paragraph> mParagraphs = new ArrayList<>();
 
-    public RTLayout(final Spanned spanned) {
+    public RTLayout(@Nullable final Spanned spanned) {
         if (spanned != null) {
             final String s = spanned.toString();
 
@@ -68,6 +71,7 @@ public class RTLayout implements Serializable {
     /**
      * @return all Paragraphs for this layout / spanned text.
      */
+    @NonNull
     public ArrayList<Paragraph> getParagraphs() {
         return mParagraphs;
     }
@@ -101,6 +105,7 @@ public class RTLayout implements Serializable {
                mParagraphs.get(mNrOfLines - 1).end() - 1;
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();

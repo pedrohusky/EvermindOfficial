@@ -19,6 +19,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.api;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudioImpl;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
@@ -47,11 +50,11 @@ public class RTMediaFactoryImpl implements RTMediaFactory<RTImage, RTAudio, RTVi
 
     private final File mStoragePath;
 
-    public RTMediaFactoryImpl(Context context) {
+    public RTMediaFactoryImpl(@NonNull Context context) {
         this(context, true);    // use external storage as default
     }
 
-    public RTMediaFactoryImpl(Context context, boolean externalStorage) {
+    public RTMediaFactoryImpl(@NonNull Context context, boolean externalStorage) {
         mStoragePath = externalStorage ?
                 context.getExternalFilesDir(null) :
                 context.getFilesDir();
@@ -63,7 +66,8 @@ public class RTMediaFactoryImpl implements RTMediaFactory<RTImage, RTAudio, RTVi
      * The media type specific path as provided by RTMediaType is appended to
      * the storage path (e.g. <storage area>/images for image files).
      */
-    protected String getAbsolutePath(RTMediaType mediaType) {
+    @NonNull
+    protected String getAbsolutePath(@NonNull RTMediaType mediaType) {
         File mediaPath = new File(mStoragePath.getAbsolutePath(), mediaType.mediaPath());
         if (!mediaPath.exists()) {
             mediaPath.mkdirs();
@@ -78,31 +82,35 @@ public class RTMediaFactoryImpl implements RTMediaFactory<RTImage, RTAudio, RTVi
      * storage area.
      */
 
+    @Nullable
     @Override
     /* @inheritDoc */
-    public RTImage createImage(RTMediaSource mediaSource) {
+    public RTImage createImage(@NonNull RTMediaSource mediaSource) {
         File targetFile = loadMedia(mediaSource);
         return targetFile == null ? null :
                 new RTImageImpl(targetFile.getAbsolutePath());
     }
 
+    @Nullable
     @Override
     /* @inheritDoc */
-    public RTAudio createAudio(RTMediaSource mediaSource) {
+    public RTAudio createAudio(@NonNull RTMediaSource mediaSource) {
         File targetFile = loadMedia(mediaSource);
         return targetFile == null ? null :
                 new RTAudioImpl(targetFile.getAbsolutePath());
     }
 
+    @Nullable
     @Override
     /* @inheritDoc */
-    public RTVideo createVideo(RTMediaSource mediaSource) {
+    public RTVideo createVideo(@NonNull RTMediaSource mediaSource) {
         File targetFile = loadMedia(mediaSource);
         return targetFile == null ? null :
                 new RTVideoImpl(targetFile.getAbsolutePath());
     }
 
-    private File loadMedia(RTMediaSource mediaSource) {
+    @NonNull
+    private File loadMedia(@NonNull RTMediaSource mediaSource) {
         File targetPath = new File(getAbsolutePath(mediaSource.getMediaType()));
         File targetFile = MediaUtils.createUniqueFile(targetPath,
                 mediaSource.getName(),
@@ -136,18 +144,21 @@ public class RTMediaFactoryImpl implements RTMediaFactory<RTImage, RTAudio, RTVi
      * accessed directly by the rich text editor (via ImageSpan).
      */
 
+    @NonNull
     @Override
     /* @inheritDoc */
     public RTImage createImage(String path) {
         return new RTImageImpl(path);
     }
 
+    @NonNull
     @Override
     /* @inheritDoc */
     public RTAudio createAudio(String path) {
         return new RTAudioImpl(path);
     }
 
+    @NonNull
     @Override
     /* @inheritDoc */
     public RTVideo createVideo(String path) {

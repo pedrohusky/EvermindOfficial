@@ -6,6 +6,8 @@ import android.util.AttributeSet;
 import android.view.WindowInsets;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
+
 public class EveRelativeLayout extends RelativeLayout {
 
     private final int[] mInsets = new int[4];

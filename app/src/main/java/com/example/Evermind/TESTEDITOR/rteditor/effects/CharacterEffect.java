@@ -19,6 +19,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 import android.text.Spannable;
 import android.text.Spanned;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.RTEditText;
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.Selection;
@@ -28,13 +31,15 @@ import com.example.Evermind.TESTEDITOR.rteditor.utils.Selection;
  */
 abstract class CharacterEffect<V, C extends RTSpan<V>> extends Effect<V, C> {
 
+    @NonNull
     @Override
     final protected SpanCollector<V> newSpanCollector(Class<? extends RTSpan<V>> spanClazz) {
         return new CharacterSpanCollector<V>(spanClazz);
     }
 
+    @NonNull
     @Override
-    final protected Selection getSelection(RTEditText editor) {
+    final protected Selection getSelection(@NonNull RTEditText editor) {
         return new Selection(editor);
     }
 
@@ -45,7 +50,7 @@ abstract class CharacterEffect<V, C extends RTSpan<V>> extends Effect<V, C> {
      * @param editor The editor to apply the effect to (current selection)
      * @param value  The value to apply (depends on the Effect)
      */
-    public void applyToSelection(RTEditText editor, V value) {
+    public void applyToSelection(@NonNull RTEditText editor, @Nullable V value) {
         Selection selection = getSelection(editor);
         // SPAN_INCLUSIVE_INCLUSIVE is default for empty spans
         int flags = selection.isEmpty() ? Spanned.SPAN_INCLUSIVE_INCLUSIVE : Spanned.SPAN_EXCLUSIVE_INCLUSIVE;
@@ -95,6 +100,7 @@ abstract class CharacterEffect<V, C extends RTSpan<V>> extends Effect<V, C> {
      * @return the class of the span this effect supports. Can be Null but then the subclass has to
      * override applyToSelection(RTEditText, V)
      */
+    @Nullable
     abstract protected RTSpan<V> newSpan(V value);
 
 }

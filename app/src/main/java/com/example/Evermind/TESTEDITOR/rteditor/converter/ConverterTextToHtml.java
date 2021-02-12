@@ -19,6 +19,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.converter;
 import android.text.TextUtils;
 import android.util.Patterns;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTFormat;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTHtml;
 import com.example.Evermind.TESTEDITOR.rteditor.api.format.RTPlainText;
@@ -41,13 +44,15 @@ public class ConverterTextToHtml {
 
     private static final boolean USE_REPLACE_ALL = false;
 
-    public static RTHtml<RTImage, RTAudio, RTVideo> convert(RTPlainText input) {
+    @NonNull
+    public static RTHtml<RTImage, RTAudio, RTVideo> convert(@NonNull RTPlainText input) {
         String text = input.getText();
         String result = convert(text);
         return new RTHtml<>(RTFormat.HTML, result);
     }
 
-    public static String convert(String text) {
+    @NonNull
+    public static String convert(@Nullable String text) {
         // Escape the entities and add newlines.
         String htmlified = text == null ? "" : TextUtils.htmlEncode(text);
 
@@ -61,7 +66,7 @@ public class ConverterTextToHtml {
         return result;
     }
 
-    private static void linkifyText(final String text, final StringBuffer outputBuffer) {
+    private static void linkifyText(@NonNull final String text, @NonNull final StringBuffer outputBuffer) {
         String prepared = replaceAll(text, BITCOIN_URI_PATTERN, "<a href=\"$0\">$0</a>");
         Matcher m = Patterns.WEB_URL.matcher(prepared);
         while (m.find()) {
@@ -82,7 +87,8 @@ public class ConverterTextToHtml {
     /**
      * A memory optimized algorithm for String.replaceAll
      */
-    private static String replaceAll(String source, String search, String replace) {
+    @NonNull
+    private static String replaceAll(@NonNull String source, @NonNull String search, @NonNull String replace) {
         if (USE_REPLACE_ALL) {
             return source.replaceAll(search, replace);
         } else {

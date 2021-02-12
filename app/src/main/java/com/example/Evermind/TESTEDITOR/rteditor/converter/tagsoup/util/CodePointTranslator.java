@@ -17,6 +17,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -34,7 +36,7 @@ public abstract class CodePointTranslator extends CharSequenceTranslator {
      * {@inheritDoc}
      */
     @Override
-    public final int translate(final CharSequence input, final int index, final Writer out) throws IOException {
+    public final int translate(@NonNull final CharSequence input, final int index, final Writer out) throws IOException {
         final int codepoint = Character.codePointAt(input, index);
         final boolean consumed = translate(codepoint, out);
         return consumed ? 1 : 0;

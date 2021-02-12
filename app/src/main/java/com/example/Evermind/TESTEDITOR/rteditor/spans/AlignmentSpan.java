@@ -20,6 +20,7 @@ import android.os.Parcel;
 import android.text.Layout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,12 +48,14 @@ public class AlignmentSpan extends android.text.style.AlignmentSpan.Standard imp
         mIsRTL = isRTL;
     }
 
+    @Nullable
     @Override
     public Layout.Alignment getValue() {
         Layout.Alignment align = getAlignment();
         return mIsRTL ? sRTLMapping.get(align) : align;
     }
 
+    @Nullable
     @Override
     public com.example.Evermind.TESTEDITOR.rteditor.spans.AlignmentSpan createClone() {
         return new com.example.Evermind.TESTEDITOR.rteditor.spans.AlignmentSpan(getValue(), mIsRTL);

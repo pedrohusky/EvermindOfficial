@@ -24,6 +24,7 @@ public class EverSpeechRecognizerDbmHandler extends DbmHandler<Float> implements
     private final SpeechRecognizer speechRecognizer;
     private final float minRmsDbValue;
     private final float maxRmsDbValue;
+    @Nullable
     private RecognitionListener innerRecognitionListener;
 
     /**
@@ -67,6 +68,7 @@ public class EverSpeechRecognizerDbmHandler extends DbmHandler<Float> implements
      * Set inner recognition listener.
      * @param innerRecognitionListener inner recognition listener
      */
+    @NonNull
     public EverSpeechRecognizerDbmHandler innerRecognitionListener(@Nullable RecognitionListener innerRecognitionListener) {
         this.innerRecognitionListener = innerRecognitionListener;
         return this;
@@ -76,6 +78,7 @@ public class EverSpeechRecognizerDbmHandler extends DbmHandler<Float> implements
      * Get inner recognition listener.
      * @return inner recognition listener
      */
+    @Nullable
     public RecognitionListener innerRecognitionListener() {
         return innerRecognitionListener;
     }

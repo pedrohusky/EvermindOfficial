@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.api.format;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactory;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTAudio;
 import com.example.Evermind.TESTEDITOR.rteditor.api.media.RTImage;
@@ -75,7 +77,7 @@ public abstract class RTText {
      * @return The converted RTText
      * @throws UnsupportedOperationException if this RTText doesn't support the conversion.
      */
-    public RTText convertTo(RTFormat destFormat, RTMediaFactory<RTImage, RTAudio, RTVideo> mediaFactory) {
+    public RTText convertTo(@NonNull RTFormat destFormat, RTMediaFactory<RTImage, RTAudio, RTVideo> mediaFactory) {
         if (destFormat == mRTFormat) {
             return this;
         }

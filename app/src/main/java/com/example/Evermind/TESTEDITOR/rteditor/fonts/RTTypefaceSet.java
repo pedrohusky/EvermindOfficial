@@ -16,6 +16,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.fonts;
 
+import androidx.annotation.Nullable;
+
 import java.util.TreeSet;
 
 /**
@@ -27,6 +29,7 @@ public class RTTypefaceSet extends TreeSet<RTTypeface> {
     /**
      * @return The RTTypeface with the specified name or false if no such RTTypeface exists.
      */
+    @Nullable
     RTTypeface get(String fontName) {
         if (contains(fontName)) {
             for (RTTypeface typeface : this) {

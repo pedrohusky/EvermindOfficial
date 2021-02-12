@@ -18,6 +18,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.fonts;
 
 import android.content.res.AssetManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.utils.io.IOUtils;
 
 import java.io.FileNotFoundException;
@@ -37,6 +40,7 @@ abstract class TTFAnalyzer {
      *
      * @return The file name or null of none could be retrieved.
      */
+    @Nullable
     static String getFontName(String filePath) {
         TTFRandomAccessFile in = null;
         try {
@@ -58,7 +62,8 @@ abstract class TTFAnalyzer {
      *
      * @return The file name or null of none could be retrieved.
      */
-    static String getFontName(AssetManager assets, String filePath) {
+    @Nullable
+    static String getFontName(@NonNull AssetManager assets, String filePath) {
         TTFAssetInputStream in = null;
         try {
             InputStream file = assets.open(filePath, AssetManager.ACCESS_RANDOM);
@@ -74,7 +79,8 @@ abstract class TTFAnalyzer {
         }
     }
 
-    private static String getTTFFontName(TTFInputStream in, String fontFilename) {
+    @Nullable
+    private static String getTTFFontName(@NonNull TTFInputStream in, String fontFilename) {
         try {
             // Read the version first
             int version = readDword(in);
@@ -169,18 +175,18 @@ abstract class TTFAnalyzer {
         }
     }
 
-    private static int readByte(TTFInputStream in) throws IOException {
+    private static int readByte(@NonNull TTFInputStream in) throws IOException {
         return in.read() & 0xFF;
     }
 
-    private static int readWord(TTFInputStream in) throws IOException {
+    private static int readWord(@NonNull TTFInputStream in) throws IOException {
         int b1 = readByte(in);
         int b2 = readByte(in);
 
         return b1 << 8 | b2;
     }
 
-    private static int readDword(TTFInputStream in) throws IOException {
+    private static int readDword(@NonNull TTFInputStream in) throws IOException {
         int b1 = readByte(in);
         int b2 = readByte(in);
         int b3 = readByte(in);
@@ -189,7 +195,7 @@ abstract class TTFAnalyzer {
         return b1 << 24 | b2 << 16 | b3 << 8 | b4;
     }
 
-    private static void read(TTFInputStream in, byte[] array) throws IOException {
+    private static void read(@NonNull TTFInputStream in, @NonNull byte[] array) throws IOException {
         if (in.read(array) != array.length) throw new IOException();
     }
 

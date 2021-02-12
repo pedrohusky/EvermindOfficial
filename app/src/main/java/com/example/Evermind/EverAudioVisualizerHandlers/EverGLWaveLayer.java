@@ -1,5 +1,7 @@
 package com.example.Evermind.EverAudioVisualizerHandlers;
 
+import androidx.annotation.NonNull;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -13,22 +15,29 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class EverGLWaveLayer {
 
+    @NonNull
     private final EverGLAudioVisualizationView.Configuration configuration;
+    @NonNull
     private final EverGLWave[] waves;
+    @NonNull
     private final EverGLRectangle rectangle;
     private final Random random;
     private final float bubbleFromY;
     private final float bubbleToY;
     private float amplitude;
 
+    @NonNull
     private final Set<EverGLBubble> usedBubbles;
+    @NonNull
     private final Queue<EverGLBubble> unusedBubbles;
+    @NonNull
     private final Set<EverGLBubble> producedBubbles;
     private boolean isCalmedDown;
+    @NonNull
     private final EverGLBubble[] allBubbles;
 
 
-    public EverGLWaveLayer(EverGLAudioVisualizationView.Configuration configuration, float[] color, float fromY, float toY, Random random) {
+    public EverGLWaveLayer(@NonNull EverGLAudioVisualizationView.Configuration configuration, @NonNull float[] color, float fromY, float toY, Random random) {
         this.configuration = configuration;
         this.random = random;
         this.waves = new EverGLWave[configuration.wavesCount];
@@ -57,7 +66,8 @@ class EverGLWaveLayer {
      * @param shiftCoef shift coefficient
      * @return generated points for waves
      */
-    private static float[] randomPoints(Random random, int wavesCount, float width, float shiftCoef) {
+    @NonNull
+    private static float[] randomPoints(@NonNull Random random, int wavesCount, float width, float shiftCoef) {
         float shift;
         float[] points = new float[wavesCount + 1];
         for (int i = 0; i < points.length; i++) {
@@ -162,7 +172,8 @@ class EverGLWaveLayer {
      * @param count number of bubbles to generate
      * @return generated bubbles
      */
-    private EverGLBubble[] generateBubbles(float[] color, int count) {
+    @NonNull
+    private EverGLBubble[] generateBubbles(@NonNull float[] color, int count) {
         EverGLBubble[] bubbles = new EverGLBubble[count];
         for (int i=0; i<count; i++) {
             float size = configuration.bubbleSize;
@@ -177,7 +188,7 @@ class EverGLWaveLayer {
         return bubbles;
     }
 
-    public void setColor(float[] color) {
+    public void setColor(@NonNull float[] color) {
         rectangle.setColor(color);
         for (EverGLWave wave : waves) {
             wave.setColor(color);

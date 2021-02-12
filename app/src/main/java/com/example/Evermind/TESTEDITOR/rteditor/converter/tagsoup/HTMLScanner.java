@@ -15,6 +15,9 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
@@ -185,8 +188,10 @@ public class HTMLScanner implements Scanner, Locator {
 
     int theState; // Current state
     int theNextState; // Next state
+    @NonNull
     char[] theOutputBuffer = new char[200]; // Output buffer
     int theSize; // Current buffer size
+    @NonNull
     int[] theWinMap = { // Windows chars map
             0x20AC, 0xFFFD, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021, 0x02C6,
             0x2030, 0x0160, 0x2039, 0x0152, 0xFFFD, 0x017D, 0xFFFD, 0xFFFD,
@@ -195,7 +200,7 @@ public class HTMLScanner implements Scanner, Locator {
 
     // Compensate for bug in PushbackReader that allows
     // pushing back EOF.
-    private void unread(PushbackReader r, int c) throws IOException {
+    private void unread(@NonNull PushbackReader r, int c) throws IOException {
         if (c != -1)
             r.unread(c);
     }
@@ -239,7 +244,7 @@ public class HTMLScanner implements Scanner, Locator {
      * @param r0 Reader that provides characters
      * @param h  ScanHandler that accepts lexical events.
      */
-    public void scan(Reader r0, ScanHandler h) throws IOException, SAXException {
+    public void scan(Reader r0, @NonNull ScanHandler h) throws IOException, SAXException {
         theState = S_PCDATA;
         PushbackReader r;
         if (r0 instanceof PushbackReader) {
@@ -537,12 +542,12 @@ public class HTMLScanner implements Scanner, Locator {
         theNextState = S_CDATA;
     }
 
-    private void save(int ch, ScanHandler h) throws IOException, SAXException {
+    private void save(int ch, @NonNull ScanHandler h) throws IOException, SAXException {
         save(h);
         theOutputBuffer[theSize++] = (char) ch;
     }
 
-    private void save(String s, int ch, ScanHandler h) throws IOException, SAXException {
+    private void save(@Nullable String s, int ch, @NonNull ScanHandler h) throws IOException, SAXException {
         if (s == null) {
             save(ch, h);
         } else {
@@ -553,7 +558,7 @@ public class HTMLScanner implements Scanner, Locator {
         }
     }
 
-    private void save(ScanHandler h) throws IOException, SAXException {
+    private void save(@NonNull ScanHandler h) throws IOException, SAXException {
         if (theSize >= theOutputBuffer.length - 20) {
             if (theState == S_PCDATA || theState == S_CDATA) {
                 // Return a buffer-sized chunk of PCDATA

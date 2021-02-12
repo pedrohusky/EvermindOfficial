@@ -18,6 +18,7 @@ package com.example.Evermind.TESTEDITOR.rteditor.spans;
 
 import android.os.Parcel;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
 /**

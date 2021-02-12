@@ -23,6 +23,9 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTApi;
 import com.example.Evermind.TESTEDITOR.rteditor.utils.io.IOUtils;
 
@@ -81,6 +84,7 @@ public abstract class Helper {
         return Math.round((float) spSize / getDisplayDensity4Fonts());
     }
 
+    @NonNull
     private static DisplayMetrics getDisplayMetrics() {
         Display display = ((WindowManager) RTApi.getApplicationContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics metrics = new DisplayMetrics();
@@ -115,6 +119,7 @@ public abstract class Helper {
      * @param url an url (e.g. http://www.1gravity.com?query=üö)
      * @return The url with an encoded query, e.g. http://www.1gravity.com?query%3D%C3%BC%C3%B6
      */
+    @NonNull
     public static String encodeUrl(String url) {
         Uri uri = Uri.parse(url);
 
@@ -158,7 +163,8 @@ public abstract class Helper {
      * Splits the query parameters into key value pairs.
      * See: http://stackoverflow.com/a/13592567/534471.
      */
-    private static Map<String, List<String>> splitQuery(Uri uri) throws UnsupportedEncodingException {
+    @NonNull
+    private static Map<String, List<String>> splitQuery(@NonNull Uri uri) throws UnsupportedEncodingException {
         final Map<String, List<String>> query_pairs = new LinkedHashMap<>();
         String query = uri.getQuery();
         if (query == null) return query_pairs;
@@ -185,7 +191,7 @@ public abstract class Helper {
      *
      * @return True if the text direction is right-to-left, false otherwise.
      */
-    public static boolean isRTL(CharSequence s, int start, int end) {
+    public static boolean isRTL(@Nullable CharSequence s, int start, int end) {
         if (s == null || s.length() == 0) {
             // empty string --> determine the direction from the default language
             return isRTL(Locale.getDefault());
@@ -208,7 +214,7 @@ public abstract class Helper {
         }
     }
 
-    private static boolean isRTL(Locale locale) {
+    private static boolean isRTL(@NonNull Locale locale) {
         int directionality = Character.getDirectionality(locale.getDisplayName().charAt(0));
         return directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
                 directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC;

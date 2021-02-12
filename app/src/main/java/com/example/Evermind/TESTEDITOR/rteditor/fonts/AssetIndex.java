@@ -19,6 +19,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.fonts;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.example.Evermind.TESTEDITOR.rteditor.utils.io.IOUtils;
 
 import java.io.BufferedReader;
@@ -38,7 +40,8 @@ abstract class AssetIndex {
 
     private static final List<String> mAssetIndex = new ArrayList<String>();
 
-    static List<String> getAssetIndex(Context context) {
+    @NonNull
+    static List<String> getAssetIndex(@NonNull Context context) {
         if (mAssetIndex.isEmpty()) {
             InputStream in = null;
             BufferedReader reader  = null;
@@ -48,7 +51,7 @@ abstract class AssetIndex {
                 for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                     mAssetIndex.add(line);
                 }
-            } catch (final IOException e) {
+            } catch (@NonNull final IOException e) {
                 Log.w(com.example.Evermind.TESTEDITOR.rteditor.fonts.AssetIndex.class.getSimpleName(), "The assets.index file could not be read. If you want to use your own fonts, please copy the fonts to the assets folder and the build code to generate the assets.index file into your build.gradle (for more details consult the readme, chapter fonts)", e);
             } finally {
                 IOUtils.closeQuietly(in);

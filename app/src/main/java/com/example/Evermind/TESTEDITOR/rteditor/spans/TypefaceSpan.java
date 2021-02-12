@@ -23,6 +23,7 @@ import android.os.Parcel;
 import android.text.TextPaint;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.Evermind.TESTEDITOR.rteditor.fonts.RTTypeface;
 
@@ -31,6 +32,7 @@ import com.example.Evermind.TESTEDITOR.rteditor.fonts.RTTypeface;
  */
 public class TypefaceSpan extends android.text.style.TypefaceSpan implements RTSpan<RTTypeface> {
 
+    @Nullable
     private final RTTypeface mTypeface;
 
     public TypefaceSpan(RTTypeface typeface) {
@@ -39,16 +41,16 @@ public class TypefaceSpan extends android.text.style.TypefaceSpan implements RTS
     }
 
     @Override
-    public void updateDrawState(TextPaint paint) {
+    public void updateDrawState(@NonNull TextPaint paint) {
         applyCustomTypeFace(paint, mTypeface.getTypeface());
     }
 
     @Override
-    public void updateMeasureState(TextPaint paint) {
+    public void updateMeasureState(@NonNull TextPaint paint) {
         applyCustomTypeFace(paint, mTypeface.getTypeface());
     }
 
-    private void applyCustomTypeFace(Paint paint, Typeface tf) {
+    private void applyCustomTypeFace(@NonNull Paint paint, @NonNull Typeface tf) {
         Typeface old = paint.getTypeface();
         int oldStyle = old == null ? 0 : old.getStyle();
 
@@ -64,6 +66,7 @@ public class TypefaceSpan extends android.text.style.TypefaceSpan implements RTS
         paint.setTypeface(tf);
     }
 
+    @Nullable
     @Override
     public RTTypeface getValue() {
         return mTypeface;

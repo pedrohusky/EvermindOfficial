@@ -18,6 +18,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.effects;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.Evermind.TESTEDITOR.rteditor.spans.RTSpan;
 
 import java.lang.reflect.Constructor;
@@ -29,6 +32,7 @@ import java.lang.reflect.Type;
  * Base class for all Integer Effect classes like ForegroundColorEffect or AbsoluteSizeEffect.
  */
 abstract class IntegerEffect<C extends RTSpan<Integer>> extends CharacterEffect<Integer, C> {
+    @NonNull
     private final Class<? extends RTSpan<Integer>> mSpanClazz;
 
     protected IntegerEffect() {
@@ -36,8 +40,9 @@ abstract class IntegerEffect<C extends RTSpan<Integer>> extends CharacterEffect<
         mSpanClazz = (Class<? extends RTSpan<Integer>>) types[0];
     }
 
+    @Nullable
     @Override
-    final protected RTSpan<Integer> newSpan(Integer value) {
+    final protected RTSpan<Integer> newSpan(@Nullable Integer value) {
         try {
             if (value != null) {
                 Class[] paramTypes = {int.class};

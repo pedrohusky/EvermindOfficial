@@ -18,6 +18,8 @@ package com.example.Evermind.TESTEDITOR.rteditor.spans;
 
 import android.os.Parcel;
 
+import androidx.annotation.NonNull;
+
 /**
  * Paragraph indentation.
  * <p>
@@ -57,6 +59,7 @@ public class IndentationSpan extends android.text.style.LeadingMarginSpan.Standa
         return mIndentation;
     }
 
+    @NonNull
     @Override
     public com.example.Evermind.TESTEDITOR.rteditor.spans.IndentationSpan createClone() {
         return new com.example.Evermind.TESTEDITOR.rteditor.spans.IndentationSpan(mIndentation, mIgnoreSpan);

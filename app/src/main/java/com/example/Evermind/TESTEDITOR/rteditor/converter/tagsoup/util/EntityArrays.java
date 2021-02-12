@@ -17,6 +17,8 @@
 
 package com.example.Evermind.TESTEDITOR.rteditor.converter.tagsoup.util;
 
+import androidx.annotation.NonNull;
+
 /**
  * Class holding various entity data for HTML and XML - generally for use with
  * the LookupTranslator.
@@ -401,7 +403,8 @@ public class EntityArrays {
      * @param array String[][] to be inverted
      * @return String[][] inverted array
      */
-    public static String[][] invert(final String[][] array) {
+    @NonNull
+    public static String[][] invert(@NonNull final String[][] array) {
         final String[][] newarray = new String[array.length][2];
         for (int i = 0; i < array.length; i++) {
             newarray[i][0] = array[i][1];

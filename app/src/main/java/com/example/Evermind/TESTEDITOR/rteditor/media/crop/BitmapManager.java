@@ -19,6 +19,9 @@ package com.example.Evermind.TESTEDITOR.rteditor.media.crop;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.FileDescriptor;
 import java.util.Iterator;
 import java.util.WeakHashMap;
@@ -45,9 +48,12 @@ public class BitmapManager {
 
     private static class ThreadStatus {
 
+        @NonNull
         public State mState = State.ALLOW;
+        @Nullable
         public BitmapFactory.Options mOptions;
 
+        @NonNull
         @Override
         public String toString() {
 
@@ -77,6 +83,7 @@ public class BitmapManager {
             mWeakCollection.remove(t);
         }
 
+        @NonNull
         public Iterator<Thread> iterator() {
 
             return mWeakCollection.keySet().iterator();
@@ -85,6 +92,7 @@ public class BitmapManager {
 
     private final WeakHashMap<Thread, ThreadStatus> mThreadStatus = new WeakHashMap<Thread, ThreadStatus>();
 
+    @Nullable
     private static com.example.Evermind.TESTEDITOR.rteditor.media.crop.BitmapManager sManager = null;
 
     private BitmapManager() {
@@ -94,6 +102,7 @@ public class BitmapManager {
     /**
      * Get thread status and create one if specified.
      */
+    @Nullable
     private synchronized ThreadStatus getOrCreateThreadStatus(Thread t) {
         ThreadStatus status = mThreadStatus.get(t);
         if (status == null) {
@@ -111,6 +120,7 @@ public class BitmapManager {
         getOrCreateThreadStatus(t).mOptions = options;
     }
 
+    @Nullable
     synchronized BitmapFactory.Options getDecodingOptions(Thread t) {
         ThreadStatus status = mThreadStatus.get(t);
         return status != null ? status.mOptions : null;
@@ -125,13 +135,13 @@ public class BitmapManager {
      * The following two methods are used to allow/cancel a set of threads for
      * bitmap decoding.
      */
-    public synchronized void allowThreadDecoding(ThreadSet threads) {
+    public synchronized void allowThreadDecoding(@NonNull ThreadSet threads) {
         for (Thread t : threads) {
             allowThreadDecoding(t);
         }
     }
 
-    public synchronized void cancelThreadDecoding(ThreadSet threads) {
+    public synchronized void cancelThreadDecoding(@NonNull ThreadSet threads) {
         for (Thread t : threads) {
             cancelThreadDecoding(t);
         }
@@ -166,6 +176,7 @@ public class BitmapManager {
         notifyAll();
     }
 
+    @Nullable
     public static synchronized com.example.Evermind.TESTEDITOR.rteditor.media.crop.BitmapManager instance() {
         if (sManager == null) {
             sManager = new com.example.Evermind.TESTEDITOR.rteditor.media.crop.BitmapManager();
@@ -176,7 +187,8 @@ public class BitmapManager {
     /**
      * The real place to delegate bitmap decoding to BitmapFactory.
      */
-    public Bitmap decodeFileDescriptor(FileDescriptor fd, BitmapFactory.Options options) {
+    @Nullable
+    public Bitmap decodeFileDescriptor(FileDescriptor fd, @NonNull BitmapFactory.Options options) {
         if (options.mCancel) {
             return null;
         }
