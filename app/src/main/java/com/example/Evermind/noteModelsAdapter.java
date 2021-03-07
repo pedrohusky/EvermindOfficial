@@ -133,6 +133,7 @@ public class noteModelsAdapter extends RecyclerView.Adapter<noteModelsAdapter.Vi
         void initNote() {
         //    mainActivity.get().runOnUiThread(() -> {
             if (mainActivity.get().getEverThemeHelper().isDarkMode()) {
+                binding.mainCard.setCardBackgroundColor(mainActivity.get().getColor(R.color.NightLessBlack));
                 binding.DrawAndTextNoteScreenRecycler.setBackgroundColor(mainActivity.get().getColor(R.color.NightLessBlack));
                 binding.imageRecyclerNoteScreen.setBackgroundColor(mainActivity.get().getColor(R.color.NightLessBlack));
                 if (noteModel.getNoteColor().equals("-1")) {

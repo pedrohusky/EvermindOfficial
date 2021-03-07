@@ -60,7 +60,7 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
     private String ORIGINAL_PATH = "";
     private final String restartTimer = "00:00:00";
     private EverGLAudioVisualizationView visualizerView;
-    private List<Float> amplitudes = new ArrayList<>();
+    private final List<Float> amplitudes = new ArrayList<>();
 
     public EverAudioHelper(Context context) {
         mainActivity = new WeakReference<>(((MainActivity) context));
@@ -78,7 +78,9 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
             PushDownAnim.setPushDownAnimTo(saveView).setScale(PushDownAnim.MODE_SCALE, 0.7f);
             //  togglePlaying(v);
             playView.setOnClickListener(this::toggleRecording);
+
             stopView.setOnClickListener(v -> stopRecording());
+
             saveView.setOnClickListener(v -> {
                 stop(true);
 

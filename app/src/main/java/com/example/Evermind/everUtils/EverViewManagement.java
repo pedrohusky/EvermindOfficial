@@ -95,6 +95,9 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                     break;
 
                 case 3:
+                    if (mainActivity.get().getAudioHelper() == null) {
+                        mainActivity.get().setAudioHelper(new EverAudioHelper(mainActivity.get()));
+                    }
                     if (mainActivity.get().getAudioHelper().isRecording()) {
                         mainActivity.get().getAudioHelper().stop(true);
                     } else if (mainActivity.get().getAudioHelper().hasRecordStarted()) {
@@ -135,7 +138,9 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                         ActivityCompat.requestPermissions(mainActivity.get(), new String[]{Manifest.permission.RECORD_AUDIO}, 0);
 
                     } else {
-
+                        if (mainActivity.get().getAudioHelper() == null) {
+                            mainActivity.get().setAudioHelper(new EverAudioHelper(mainActivity.get()));
+                        }
                         mainActivity.get().recordAudio();
 
                     }

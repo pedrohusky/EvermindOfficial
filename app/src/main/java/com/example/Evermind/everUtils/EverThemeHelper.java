@@ -49,7 +49,7 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
     public EverThemeHelper(Context context) {
         mainActivity = new WeakReference<>(((MainActivity) context));
         defaultTheme = getColor(R.color.White);
-        accentTheme = getColor(R.color.Grey);
+        accentTheme = getColor(R.color.Black);
         //  EverInterfaceHelper.getInstance().setColorListener(this);
     }
 
@@ -60,6 +60,7 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
 
 
         if (mainActivity.get().getEverThemeHelper().isDarkMode) {
+            setDarkStatusBar();
         } else {
             setLightStatusBar();
         }
@@ -414,7 +415,7 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
     }
 
     private void setLightStatusBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             WindowInsetsController windowInsetsController = mainActivity.get().getWindow().getDecorView().getWindowInsetsController(); // get current flag
             windowInsetsController.setSystemBarsAppearance(APPEARANCE_LIGHT_STATUS_BARS, APPEARANCE_LIGHT_STATUS_BARS);
             mainActivity.get().getWindow().setStatusBarColor(Color.GRAY); // optional
@@ -422,7 +423,7 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
     }
 
     private void setDarkStatusBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             WindowInsetsController windowInsetsController = mainActivity.get().getWindow().getDecorView().getWindowInsetsController(); // get current flag
             windowInsetsController.setSystemBarsAppearance(0, APPEARANCE_LIGHT_STATUS_BARS);
         }
@@ -434,9 +435,10 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
 
     public void clearOnBack() {
 
-        if (!isDarkMode) {
+        if (isDarkMode) {
+            tintSystemBarsAccent(getColor(R.color.Black), 500);
+        } else {
             tintSystemBarsAccent(getColor(R.color.White), 500);
-            new Handler(Looper.getMainLooper()).postDelayed(this::setLightStatusBar, 250);
         }
 
         //EverInterfaceHelper.getInstance().removeColorListener(this);
@@ -453,7 +455,8 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
         if (!isDarkMode) {
             isDarkMode = true;
             setDarkStatusBar();
-            defaultTheme = mainActivity.get().getColor(R.color.NightBlack);
+            accentTheme = getColor(android.R.color.darker_gray);
+            defaultTheme = getColor(R.color.NightBlack);
             tintSystemBarsAccent(Util.getDarkerColor(actualColor), 500);
             EverInterfaceHelper.getInstance().enterDarkMode(actualColor);
          //   mainActivity.get().darkenViews();
@@ -461,10 +464,10 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
         } else {
             isDarkMode = false;
             setLightStatusBar();
-
-          //  mainActivity.get().lightenViews();
-            defaultTheme = mainActivity.get().getColor(R.color.White);
-        //    changeToDay(actualColor, 650);
+            accentTheme = getColor(R.color.Black);
+            defaultTheme = getColor(R.color.White);
+            tintSystemBarsAccent(actualColor, 500);
+            EverInterfaceHelper.getInstance().enterDarkMode(actualColor);
         }
     }
 }

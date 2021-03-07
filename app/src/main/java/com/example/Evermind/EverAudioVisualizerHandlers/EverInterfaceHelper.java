@@ -123,7 +123,11 @@ public class EverInterfaceHelper {
 
 
     public void clearListeners() {
+        System.out.println(audioStateListeners.size() + " " + clickListeners.size() + " " + colorListeners.size() + " " + darkModeListeners.size() + " " + hideListeners.size());
         audioStateListeners.clear();
-        colorListeners.clear();
+        clickListeners.clear();
+        //colorListeners.clear();
+        //darkModeListeners.clear();
+      //  colorListeners.clear();
     }
 }

@@ -474,17 +474,16 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
             }
 
             else if (id == R.id.Delete) {
-                if (view.getTag().equals("Save")) {
-                    if (everViewManagement.isDrawing()) {
+                if (!mainActivity.get().isAtHome()) {
+                    if (mainActivity.get().getEverViewManagement().isDrawing()) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            noteCreator.SaveBitmapFromDraw();
+                            mainActivity.get().getNoteCreator().SaveBitmapFromDraw();
                         }
                     } else {
-                        onBackPressed();
+                        mainActivity.get().onBackPressed();
                     }
-                }
-                if (view.getTag().equals("GridLayout")) {
-                    changeLayout(view);
+                } else {
+                    mainActivity.get().changeLayout(null);
                 }
             }
 

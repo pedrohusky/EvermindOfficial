@@ -136,17 +136,13 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         buttonsBinding = HomeScreenButtonsBinding.bind(findViewById(R.id.mainConstrainLayout));
-
+        handler = new Handler(Looper.myLooper());
+        handlerUI = new Handler(Looper.getMainLooper());
       //  new Handler(Looper.getMainLooper()).post(() -> {
            // new Thread(() -> {
             //  giphyLibrary = new GiphyLibrary();
 
-        asyncTask(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        }, new Runnable() {
+        asyncTask(null, new Runnable() {
             @Override
             public void run() {
                 everMainWindow.setStatusBarColor(getColor(R.color.White));
@@ -157,8 +153,7 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
-        handler = new Handler(Looper.myLooper());
-        handlerUI = new Handler(Looper.getMainLooper());
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -202,7 +197,7 @@ public class MainActivity extends AppCompatActivity  {
                 NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
                 NavigationUI.setupWithNavController(navigationView, navController);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     WindowInsetsController windowInsetsController = getWindow().getDecorView().getWindowInsetsController(); // get current flag
                     windowInsetsController.setSystemBarsAppearance(APPEARANCE_LIGHT_STATUS_BARS, APPEARANCE_LIGHT_STATUS_BARS);
 
@@ -271,7 +266,7 @@ public class MainActivity extends AppCompatActivity  {
             mRTManager = new RTManager(rtApi, null, this);
             everBitmapHelper = new EverBitmapHelper(this);
             everBallsHelper = new EverBallsHelper(this);
-            audioHelper = new EverAudioHelper(this);
+         //   audioHelper = new EverAudioHelper(this);
             everThemeHelper = new EverThemeHelper(this);
             everViewManagement = new EverViewManagement(this);
             WaveformOptions.init(this);
@@ -311,6 +306,9 @@ public class MainActivity extends AppCompatActivity  {
                 noteCreator.setNoteState(0);
             } else {
                 everThemeHelper.clearOnBack();
+                if (everThemeHelper.isDarkMode()) {
+                    EverInterfaceHelper.getInstance().changeAccentColor(everThemeHelper.accentTheme);
+                }
 
                 EverInterfaceHelper.getInstance().clearListeners();
 
@@ -701,6 +699,10 @@ public class MainActivity extends AppCompatActivity  {
 
     public EverAudioHelper getAudioHelper() {
         return audioHelper;
+    }
+
+    public void setAudioHelper(EverAudioHelper AudioHelper) {
+        audioHelper = AudioHelper;
     }
 
     public Toolbar getToolbar() {
