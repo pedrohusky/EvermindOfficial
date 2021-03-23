@@ -151,7 +151,7 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
         initImageButton(mainActivity.get().getButtonsBinding().toolbarRedo);
         initImageButton(mainActivity.get().getButtonsBinding().play);
         initImageButton(mainActivity.get().getButtonsBinding().saveAudio);
-        initImageButton(mainActivity.get().getButtonsBinding().imageButton2);
+        initImageButton(mainActivity.get().getButtonsBinding().selectNotesButton);
         initImageButton(mainActivity.get().getButtonsBinding().imageButton4);
         initImageButton(mainActivity.get().getButtonsBinding().imageButton5);
         initImageButton(mainActivity.get().getButtonsBinding().Files);
@@ -411,6 +411,15 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
                 }
             }
 
+            else if (id == R.id.toolbar_number) {
+                mNumber.setChecked(!mNumber.isChecked());
+                boolean isChecked = mBullet.isChecked();
+                mListener.onEffectSelected(Effects.NUMBER, mNumber.isChecked());
+                if (isChecked && mBullet != null) {
+                    mBullet.setChecked(false);    // numbers will be removed by the NumberEffect.applyToSelection
+                }
+            }
+
             else if (id == R.id.IncreaseSize1) {
                 if (size < 76) {
 
@@ -471,6 +480,10 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
 
             else if (id == R.id.imageButton4) {
                 mainActivity.get().getNoteCreator().getEverDraw().setColor(Color.WHITE);
+            }
+
+            else if (id == R.id.select_notes_button) {
+                mainActivity.get().selectAllClick(null);
             }
 
             else if (id == R.id.Delete) {

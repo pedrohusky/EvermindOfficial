@@ -24,6 +24,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.GenericTransitionOptions;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.TransitionOptions;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.Evermind.databinding.MainViewNotescreenRecyclerBinding;
 import com.example.Evermind.everUtils.EverImageDiffUtil;
 import com.stfalcon.imageviewer.StfalconImageViewer;
@@ -116,7 +118,7 @@ public class imagesAdapter extends RecyclerView.Adapter<imagesAdapter.ViewHolder
                     params.height = 450;
                     params.width = MATCH_PARENT;
 
-                    Glide.with(viewHolder.myImageView).asBitmap().load(viewHolder.imagePath).centerCrop().into(viewHolder.myImageView);
+                    Glide.with(viewHolder.myImageView).load(viewHolder.imagePath).transition(DrawableTransitionOptions.withCrossFade()).centerCrop().into(viewHolder.myImageView);
 
 
 
@@ -125,7 +127,7 @@ public class imagesAdapter extends RecyclerView.Adapter<imagesAdapter.ViewHolder
             } else {
                 if (viewHolder.imagePath.length() > 1) {
 
-                    Glide.with(viewHolder.myImageView).asBitmap().load(viewHolder.imagePath).centerCrop().into(viewHolder.myImageView);
+                    Glide.with(viewHolder.myImageView).load(viewHolder.imagePath).transition(DrawableTransitionOptions.withCrossFade()).centerCrop().into(viewHolder.myImageView);
 
 
 
@@ -145,7 +147,7 @@ public class imagesAdapter extends RecyclerView.Adapter<imagesAdapter.ViewHolder
 
 
 
-            Glide.with(viewHolder.myImageView).asBitmap().load(viewHolder.imagePath).into(viewHolder.myImageView);
+            Glide.with(viewHolder.myImageView).load(viewHolder.imagePath).transition(DrawableTransitionOptions.withCrossFade()).into(viewHolder.myImageView);
 
 
 

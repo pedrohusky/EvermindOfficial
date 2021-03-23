@@ -82,8 +82,6 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
         recyclerView.setAdapter(adapter);
         try {
             recyclerView.notifyDataSetChanged();
-            ((MainActivity)getContext()).holdViewsToDarken(recyclerView);
-            ((MainActivity)getContext()).holdViewsToDarken(rootView.findViewById(R.id.imageButton));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -128,10 +126,16 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
     }
 
     @Override
-    public void enterDarkMode(int color) {
-        rootView.findViewById(R.id.homeNotesrelative).setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(getContext().getColor(R.color.NightBlack))));
-        recyclerView.setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(getContext().getColor(R.color.NightBlack))));
-        rootView.findViewById(R.id.imageButton).setBackgroundTintList(ColorStateList.valueOf(getContext().getColor(R.color.NightBlack)));
+    public void swichDarkMode(int color, boolean isDarkMode) {
+        if (isDarkMode) {
+            rootView.findViewById(R.id.homeNotesrelative).setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(((MainActivity)rootView.getContext()).getEverThemeHelper().defaultTheme)));
+            recyclerView.setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(((MainActivity)rootView.getContext()).getEverThemeHelper().defaultTheme)));
+        } else {
+            rootView.findViewById(R.id.homeNotesrelative).setBackgroundTintList(ColorStateList.valueOf(((MainActivity)rootView.getContext()).getEverThemeHelper().defaultTheme));
+            recyclerView.setBackgroundTintList(ColorStateList.valueOf(((MainActivity)rootView.getContext()).getEverThemeHelper().defaultTheme));
+        }
+        rootView.findViewById(R.id.imageButton).setBackgroundTintList(ColorStateList.valueOf(((MainActivity)rootView.getContext()).getEverThemeHelper().defaultTheme));
+
     }
 }
 

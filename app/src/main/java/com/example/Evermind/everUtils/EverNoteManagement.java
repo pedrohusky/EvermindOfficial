@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import com.example.Evermind.EverRoomNoteDatabase;
+import com.example.Evermind.FirebaseHelper;
 import com.example.Evermind.MainActivity;
 import com.example.Evermind.Note_Model;
+import com.firebase.ui.auth.AuthUI;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class EverNoteManagement {
@@ -45,11 +49,23 @@ public class EverNoteManagement {
       //  everDataBase = new EverDataBase(context);
         isGrid = mainActivity.get().getPrefs().getBoolean("isGrid", true);
             mainActivity.get().asyncTask(() -> {
-                        everDataBase = Room.databaseBuilder(context, EverRoomNoteDatabase.AppDatabase.class, "notes_Database").build();
-                        notesList = everDataBase.noteManagement().getAll();
+
+                        List<AuthUI.IdpConfig> providers = Arrays.asList(
+                                new AuthUI.IdpConfig.EmailBuilder().build(),
+                                new AuthUI.IdpConfig.AnonymousBuilder().build());
+                        mainActivity.get().startActivityForResult(
+                                AuthUI.getInstance()
+                                        .createSignInIntentBuilder()
+                                        .setAvailableProviders(providers)
+                                        .build(),
+                                23);
+
+
+                      //  everDataBase = Room.databaseBuilder(context, EverRoomNoteDatabase.AppDatabase.class, "notes_Database").build();
+                        //notesList = everDataBase.noteManagement().getAll();
                     },
                     () -> {
-                        mainActivity.get().runOnUiThread(this::populateListNotes);
+                      //  mainActivity.get().runOnUiThread(this::populateListNotes);
             });
 
     }
@@ -57,7 +73,7 @@ public class EverNoteManagement {
     private void populateListNotes() {
         int p = 0;
         for (int i = notesList.size()-1 ; i > -1 ; i--) {
-            noteModelSection.add(new Note_Model(notesList.get(i).noteID, p, notesList.get(i).noteTitle, notesList.get(i).noteContent, notesList.get(i).noteDate, notesList.get(i).noteImage, notesList.get(i).noteDraw, notesList.get(i).noteColor, notesList.get(i).noteRecord));
+         //   noteModelSection.add(new Note_Model(mainActivity.get(),notesList.get(i).noteName, p, notesList.get(i).noteTitle, Calendar.getInstance().getTime().toString(), notesList.get(i).noteColor, notesList.get(i).noteContent, notesList.get(i).noteImage, notesList.get(i).noteDraw, notesList.get(i).noteRecord));
             p++;
         }
 
@@ -83,10 +99,14 @@ public class EverNoteManagement {
             }
         }
 
-        note.everLinkedToString();
-
         mainActivity.get().asyncTask(() -> {
-                    everDataBase.noteManagement().updateNote(transformNoteModelToNoteDatabase(note));
+                    mainActivity.get().getFirebaseHelper().setDocumentCollection("notes", note.getNote_name(), note, new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println("updated sucessfully at " + note.getNote_name());
+                        }
+                    }, null, null);
+                   // everDataBase.noteManagement().updateNote(transformNoteModelToNoteDatabase(note));
         },
                 () -> {
                     new Handler(Looper.myLooper()).postDelayed(() -> swipeChangeColorRefresh = false, 150);
@@ -97,6 +117,7 @@ public class EverNoteManagement {
         for (String path : note.getImages()) {
             File f = new File(path);
             if (f.exists()) {
+                mainActivity.get().getFirebaseHelper().deleteFile(f, 0);
                 if (f.delete()) {
                     System.out.println("Image at = " + f.getPath() + " Deleted.");
                 }
@@ -105,8 +126,19 @@ public class EverNoteManagement {
         for (String path : note.getDraws()) {
             File f = new File(path);
             if (f.exists()) {
+                mainActivity.get().getFirebaseHelper().deleteFile(f, 0);
                 if (f.delete()) {
                     System.out.println("Draw at = " + f.getPath() + " Deleted.");
+                }
+            }
+        }
+
+        for (String path : note.getRecords().keySet()) {
+            File f = new File(path);
+            if (f.exists()) {
+                mainActivity.get().getFirebaseHelper().deleteFile(f, 1);
+                if (f.delete()) {
+                    System.out.println("Record at = " + f.getPath() + " Deleted.");
                 }
             }
         }
@@ -114,7 +146,7 @@ public class EverNoteManagement {
 
     public void removeNote(@NonNull Note_Model note) {
         deleteDrawsAndImagesInsideNote(note);
-        new Thread(() -> everDataBase.noteManagement().delete(transformNoteModelToNoteDatabase(note))).start();
+        new Thread(() -> mainActivity.get().getFirebaseHelper().deleteNote(note)).start();
         new Handler(Looper.getMainLooper()).post(() -> {
             noteModelSection.remove(note.getActualPosition());
             for (int position = 0; position < noteModelSection.size(); position++) {
@@ -127,12 +159,14 @@ public class EverNoteManagement {
     public void addNote(@NonNull Note_Model newNote) {
      //   everDataBase.AddNoteContent(newNote.getId(), newNote.getTitle(), newNote.getContentsAsString(), newNote.getImagesAsString(), newNote.getDrawsAsString(), newNote.getNoteColor(), newNote.getRecordsAsString() );
         noteModelSection.add(0, newNote);
-        noteScreenRecycler.smoothScrollToPosition(0);
+        if (noteModelSection.size() > 1) {
+            noteScreenRecycler.smoothScrollToPosition(0);
+        }
         for (int position = 0; position < noteModelSection.size(); position++) {
             noteModelSection.get(position).setActualPosition(position);
         }
         mainActivity.get().getNoteScreen().get().getAdapter().updateNotesAdapter(noteModelSection);
-        new Thread(() -> everDataBase.noteManagement().insert(transformNoteModelToNoteDatabase(newNote))).start();
+      //  new Thread(() -> everDataBase.noteManagement().insert(transformNoteModelToNoteDatabase(newNote))).start();
     }
 
     public void ChangeNoteColor(int color, @Nullable Note_Model note) {
@@ -166,7 +200,7 @@ public class EverNoteManagement {
                         }
                         selectedItems.clear();
                     }
-                    notesList = everDataBase.noteManagement().getAll();
+//                    notesList = everDataBase.noteManagement().getAll();
                 },
                 () -> {
                     new Handler(Looper.getMainLooper()).postDelayed(() -> pushed = false, 250);
@@ -195,25 +229,34 @@ public class EverNoteManagement {
     }
 
     public void selectAllNotes() {
+
+        System.out.println("Selecting notes function started.");
         if (notesSelected) {
+            System.out.println("Deselecting notes.");
             deselectItems(selectedItems);
             notesSelected = false;
         } else {
+            System.out.println("Sorting lists...");
             if (searchListSection.size() > 0) {
+                System.out.println("Search list selected..");
                 for (Note_Model note : searchListSection) {
                     if (!selectedItems.contains(note)) {
+                        System.out.println("Added selected item to selected array.");
                         selectedItems.add(note);
                     }
                 }
                // selectedItems.addAll(searchListSection.getData());
             } else {
+                System.out.println("Main List selected.");
                 for (Note_Model note : noteModelSection) {
                     if (!selectedItems.contains(note)) {
+                        System.out.println("Added selected item to selected array.");
                         selectedItems.add(note);
                     }
                 }
                // selectedItems.addAll(noteModelSection.getData());
             }
+            System.out.println("Trying to select items.");
             selectItems(selectedItems);
             notesSelected = true;
         }
@@ -222,6 +265,7 @@ public class EverNoteManagement {
     private void selectItems(@NonNull List<Note_Model> notes) {
         mainActivity.get().asyncTask(null, () -> {
             for (int i = 0; i < notes.size(); i++) {
+                System.out.println("Note at p: " + i + "was selected.");
                 notes.get(i).setSelected(true);
                 mainActivity.get().getNoteScreen().get().getAdapter().notifyItemChanged(i);
             }
@@ -337,13 +381,13 @@ public class EverNoteManagement {
     @NonNull
     private EverRoomNoteDatabase.Note transformNoteModelToNoteDatabase(@NonNull Note_Model note) {
         EverRoomNoteDatabase.Note noteDB = new EverRoomNoteDatabase.Note();
-        noteDB.noteID = note.getId();
+      //  noteDB.noteID = Integer.parseInt(note.getNote_name());
         noteDB.noteDate = note.getDate();
         noteDB.noteTitle = note.getTitle();
-        noteDB.noteContent = note.getContentsAsString();
-        noteDB.noteDraw = note.getDrawsAsString();
-        noteDB.noteImage = note.getImagesAsString();
-        noteDB.noteRecord = note.getRecordsAsString();
+     //   noteDB.noteContent = note.getContentsAsString();
+    //    noteDB.noteDraw = note.getDrawsAsString();
+    //    noteDB.noteImage = note.getImagesAsString();
+    //    noteDB.noteRecord = note.getRecordsAsString();
         noteDB.noteColor = note.getNoteColor();
         return noteDB;
     }

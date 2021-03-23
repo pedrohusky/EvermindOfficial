@@ -10,6 +10,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.ChangeBounds;
@@ -76,8 +77,6 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
         mainActivity = new WeakReference<>(((MainActivity) context));
         buttonsBinding = mainActivity.get().getButtonsBinding();
         toolbar = new HorizontalRTToolbar(context);
-        mainActivity.get().holdViewsToDarken(buttonsBinding.toolbar);
-        mainActivity.get().holdViewsToDarken(buttonsBinding.bottomBar);
         mainActivity.get().getmRTManager().registerToolbar(null, toolbar);
         EverInterfaceHelper.getInstance().setDarkModeListeners(this);
         buttonsBinding.bottomBar.setOnItemReselected(integer -> {
@@ -687,7 +686,7 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                                 if (mainActivity.get().getNoteCreator().getActiveEditor() != null) {
                                     mainActivity.get().getNoteCreator().getActiveEditor().clearFocus();
                                 }
-                                mainActivity.get().getActualNote().addEverLinkedMap("", mainActivity.get(), true);
+                                mainActivity.get().getActualNote().addEverLinkedMap("", mainActivity.get(), true, null);
                                 mainActivity.get().getNoteCreator().setNewDraw(true);
                                 isDrawing = true;
                                 // inflateLayoutByName("draw");
@@ -898,19 +897,36 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
 
 
     @Override
-    public void enterDarkMode(int color) {
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.bottomBar, color, 500);
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.toolbar, mainActivity.get().getColor(R.color.NightBlack), 600);
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.frameSizeDecoy, Util.getDarkerColor(mainActivity.get().getColor(R.color.NightBlack)), 500);
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardSelectors, mainActivity.get().getColor(R.color.NightBlack), 500);
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardAudioOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardImportOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardParagraphOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardFormatMoreOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawMoreOptions, mainActivity.get().getColor(R.color.NightBlack), 500);
-        mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.formatSelectors, mainActivity.get().getColor(R.color.NightBlack), 500);
-        buttonsBinding.HighlightText1.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getColor(R.color.NightBlack)));
-        buttonsBinding.searchBox.setTextColor(mainActivity.get().getColor(R.color.NightBlack));
+    public void swichDarkMode(int color, boolean isDarkMode) {
+       if (isDarkMode) {
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.bottomBar, color, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.toolbar, mainActivity.get().getEverThemeHelper().defaultTheme, 600);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.frameSizeDecoy, Util.getDarkerColor(mainActivity.get().getEverThemeHelper().defaultTheme), 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardSelectors, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardAudioOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardImportOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardParagraphOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardFormatMoreOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawMoreOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.formatSelectors, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            buttonsBinding.HighlightText1.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getEverThemeHelper().defaultTheme));
+            buttonsBinding.searchBox.setTextColor(Color.WHITE);
+        } else {
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.bottomBar, color, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.toolbar, mainActivity.get().getEverThemeHelper().defaultTheme, 600);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.frameSizeDecoy, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardSelectors, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardAudioOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardImportOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardParagraphOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardFormatMoreOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawMoreOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.formatSelectors, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            buttonsBinding.HighlightText1.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getEverThemeHelper().defaultTheme));
+            buttonsBinding.searchBox.setTextColor(Color.GRAY);
+        }
+
     }
 }

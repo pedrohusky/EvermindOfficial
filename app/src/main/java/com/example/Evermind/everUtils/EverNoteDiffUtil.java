@@ -4,7 +4,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.example.Evermind.Note_Model;
-import com.example.Evermind.recycler_models.EverLinkedMap;
 
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class EverNoteDiffUtil extends DiffUtil.Callback {
 
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-        return oldNoteList.get(oldItemPosition).getId() == newNoteList.get(newItemPosition).getId();
+        return oldNoteList.get(oldItemPosition).getNote_name() == newNoteList.get(newItemPosition).getNote_name();
     }
 
     @Override

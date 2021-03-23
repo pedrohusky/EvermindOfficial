@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.Evermind.EverAudioVisualizerHandlers.EverInterfaceHelper;
 import com.example.Evermind.databinding.NoteContentWithRecyclerviewVisualizationtestBinding;
 import com.example.Evermind.everUtils.EverNoteDiffUtil;
+import com.example.Evermind.recycler_models.EverLinkedMap;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -65,8 +66,6 @@ public class noteModelsAdapter extends RecyclerView.Adapter<noteModelsAdapter.Vi
 
             EverInterfaceHelper.getInstance().setDarkModeListeners(this);
 
-            mainActivity.get().holdViewsToDarken(binding.imageRecyclerNoteScreen);
-            mainActivity.get().holdViewsToDarken(binding.DrawAndTextNoteScreenRecycler);
             LinearLayoutManager a = new LinearLayoutManager(mainActivity.get());
             a.setItemPrefetchEnabled(true);
             a.setOrientation(RecyclerView.VERTICAL);
@@ -109,7 +108,7 @@ public class noteModelsAdapter extends RecyclerView.Adapter<noteModelsAdapter.Vi
             binding.viewToApplyPushDown.setOnClickListener(v -> {
                 //  if (!isnoteModelSelected()) {
                 if (!mainActivity.get().getEverNoteManagement().isPushed()) {
-                    mainActivity.get().onItemClickFromNoteScreen(binding.DrawAndTextNoteScreenRecycler, binding.mainCard, binding.imageRecyclerNoteScreen, getAdapterPosition(), noteModel);
+                   onItemTouched();
                 }
                 //   }
             });
@@ -117,6 +116,10 @@ public class noteModelsAdapter extends RecyclerView.Adapter<noteModelsAdapter.Vi
                 mainActivity.get().getEverViewManagement().pushDownOnTouch(binding.mainCard, event, 0.95f, 150);
                 return false;
             });
+        }
+
+        public void onItemTouched() {
+            mainActivity.get().onItemClickFromNoteScreen(binding.DrawAndTextNoteScreenRecycler, binding.mainCard, binding.imageRecyclerNoteScreen, getAdapterPosition(), noteModel);
         }
 
         @Override
@@ -131,19 +134,19 @@ public class noteModelsAdapter extends RecyclerView.Adapter<noteModelsAdapter.Vi
 
         @SuppressLint("ClickableViewAccessibility")
         void initNote() {
-        //    mainActivity.get().runOnUiThread(() -> {
+            //    mainActivity.get().runOnUiThread(() -> {
             if (mainActivity.get().getEverThemeHelper().isDarkMode()) {
-                binding.mainCard.setCardBackgroundColor(mainActivity.get().getColor(R.color.NightLessBlack));
-                binding.DrawAndTextNoteScreenRecycler.setBackgroundColor(mainActivity.get().getColor(R.color.NightLessBlack));
-                binding.imageRecyclerNoteScreen.setBackgroundColor(mainActivity.get().getColor(R.color.NightLessBlack));
+                binding.mainCard.setCardBackgroundColor(mainActivity.get().getEverThemeHelper().defaultTheme);
+                binding.DrawAndTextNoteScreenRecycler.setBackgroundColor(mainActivity.get().getEverThemeHelper().defaultTheme);
+                binding.imageRecyclerNoteScreen.setBackgroundColor(mainActivity.get().getEverThemeHelper().defaultTheme);
                 if (noteModel.getNoteColor().equals("-1")) {
-                    binding.mainCard.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getColor(R.color.NightLessBlack)));
-                   }
+                    binding.mainCard.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getEverThemeHelper().defaultTheme));
+                }
             }
-                setTitle();
-                setRecycler();
-                setImages();
-        //    });
+            setTitle();
+            setRecycler();
+            setImages();
+            //    });
 
         }
 
@@ -224,25 +227,20 @@ public class noteModelsAdapter extends RecyclerView.Adapter<noteModelsAdapter.Vi
                         binding.mainCard.setBackgroundTintList(ColorStateList.valueOf(color));
                     }
 
-                    for (int i = 0; i < noteModel.getEverLinkedContents(true).size(); i++) {
-                        if (!noteModel.getEverLinkedContents(true).get(i).getRecord().equals("▓")) {
-                            View view = binding.DrawAndTextNoteScreenRecycler.getChildAt(i);
-                            if (view != null) {
-                                View cardView = view.findViewById(R.id.card_everNoteScreenPlayer);
-                                if (cardView != null) {
-                                    mainActivity.get().getEverThemeHelper().tintViewAccent(cardView, color, 0);
-                                }
-                            }
-                        }
-                    }
+
                 });
             }
         }
 
         @Override
-        public void enterDarkMode(int color) {
-            binding.DrawAndTextNoteScreenRecycler.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getColor(R.color.NightLessBlack)));
-            binding.imageRecyclerNoteScreen.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getColor(R.color.NightLessBlack)));
+        public void swichDarkMode(int color, boolean isDarkMode) {
+            if (noteModel.getNoteColor().equals("-1")) {
+                binding.mainCard.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getEverThemeHelper().defaultTheme));
+            }
+            binding.DrawAndTextNoteScreenRecycler.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getEverThemeHelper().defaultTheme));
+            binding.imageRecyclerNoteScreen.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getEverThemeHelper().defaultTheme));
+
+
 
             noteModelsAdapter.this.notifyItemChanged(getAdapterPosition());
         }
@@ -264,7 +262,8 @@ public class noteModelsAdapter extends RecyclerView.Adapter<noteModelsAdapter.Vi
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         viewHolder.noteModel = noteData.get(position);
-        String transitionIdentifier = viewHolder.noteModel.getId() + "-" + viewHolder.noteModel.getDate();
+        String transitionIdentifier = viewHolder.noteModel.getNote_name() + "-" + viewHolder.noteModel.getDate();
+        System.out.println("Transition identifier = " + transitionIdentifier);
 
         if (viewHolder.binding.mainCard.getTransitionName() == null) {
             ViewCompat.setTransitionName(viewHolder.binding.DrawAndTextNoteScreenRecycler, "textRecycler" + transitionIdentifier);

@@ -60,7 +60,7 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
     private String ORIGINAL_PATH = "";
     private final String restartTimer = "00:00:00";
     private EverGLAudioVisualizationView visualizerView;
-    private final List<Float> amplitudes = new ArrayList<>();
+    private final List<Integer> amplitudes = new ArrayList<>();
 
     public EverAudioHelper(Context context) {
         mainActivity = new WeakReference<>(((MainActivity) context));
@@ -86,7 +86,8 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
 
                     v.postDelayed(() -> {
                         mainActivity.get().runOnUiThread(() -> {
-                        mainActivity.get().getActualNote().addEverLinkedMap(this.filePath + "<AMP>" + amplitudes.toString().replaceAll("[\\[\\](){}]", ""), mainActivity.get(), false);
+                        mainActivity.get().getActualNote().addEverLinkedMap(this.filePath, mainActivity.get(), false, amplitudes);
+                            mainActivity.get().getFirebaseHelper().putFile(new File(this.filePath), 1, 0, null, null);
 
                         });
                     }, 350);
@@ -128,7 +129,7 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
     public void onAudioChunkPulled(@NonNull AudioChunk audioChunk) {
         float amplitude = isRecording ? (float) audioChunk.maxAmplitude() : 0f;
         visualizerHandler.onDataReceived(amplitude);
-        amplitudes.add(amplitude);
+        amplitudes.add(Math.round(amplitude));
     }
 
     @Override

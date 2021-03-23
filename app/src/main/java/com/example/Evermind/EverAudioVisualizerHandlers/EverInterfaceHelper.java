@@ -1,13 +1,19 @@
 package com.example.Evermind.EverAudioVisualizerHandlers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EverInterfaceHelper {
-
+    
     public interface OnOpenAudioStateListener {
         void open();
         void close();
+        void remove();
+    }
+
+    public interface OnDownloadCompleted {
+        void downloadCompleted(File file, int p, String downloadKey);
     }
 
     public interface OnChangeColorListener {
@@ -15,7 +21,7 @@ public class EverInterfaceHelper {
     }
 
     public interface OnEnterDarkMode {
-        void enterDarkMode(int color);
+        void swichDarkMode(int color, boolean isDarkMode);
     }
 
     public interface OnHideListener {
@@ -34,6 +40,7 @@ public class EverInterfaceHelper {
     private final List<OnEnterDarkMode> darkModeListeners = new ArrayList<>();
     private final List<OnHideListener> hideListeners = new ArrayList<>();
     private final List<OnCanPerformClickListener> clickListeners = new ArrayList<>();
+    private final List<OnDownloadCompleted> downloadListeners = new ArrayList<>();
 
     public static EverInterfaceHelper getInstance() {
         if(mInstance == null) {
@@ -45,6 +52,12 @@ public class EverInterfaceHelper {
     public void setListener(OnOpenAudioStateListener listener) {
         if (!audioStateListeners.contains(listener)) {
             audioStateListeners.add(listener);
+        }
+    }
+
+    public void setDownloadListener(OnDownloadCompleted listener) {
+        if (!downloadListeners.contains(listener)) {
+            downloadListeners.add(listener);
         }
     }
 
@@ -103,15 +116,28 @@ public class EverInterfaceHelper {
         }
     }
 
-    public void enterDarkMode(int color) {
+    public void enterDarkMode(int color, boolean isDarkMode) {
         for (OnEnterDarkMode listener: darkModeListeners) {
-            listener.enterDarkMode(color);
+            listener.swichDarkMode(color, isDarkMode);
+        }
+    }
+
+    public void sendDownloadToListeners(File file, int p, String downloadKey) {
+        for (OnDownloadCompleted listener: downloadListeners) {
+            listener.downloadCompleted(file, p, downloadKey);
+        //    downloadListeners.remove(listener);
         }
     }
 
     public void hide() {
         for (OnHideListener listener: hideListeners) {
             listener.hide();
+        }
+    }
+
+    public void remove() {
+        for (OnOpenAudioStateListener listener: audioStateListeners) {
+            listener.remove();
         }
     }
 
@@ -123,11 +149,8 @@ public class EverInterfaceHelper {
 
 
     public void clearListeners() {
-        System.out.println(audioStateListeners.size() + " " + clickListeners.size() + " " + colorListeners.size() + " " + darkModeListeners.size() + " " + hideListeners.size());
-        audioStateListeners.clear();
-        clickListeners.clear();
-        //colorListeners.clear();
-        //darkModeListeners.clear();
-      //  colorListeners.clear();
+      audioStateListeners.clear();
+      clickListeners.clear();
+      //colorListeners.clear();
     }
 }

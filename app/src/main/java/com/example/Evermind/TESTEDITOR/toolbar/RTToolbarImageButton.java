@@ -42,6 +42,7 @@ public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatIma
     private static final int[] CHECKED_STATE_SET = {R.attr.state_checked};
 
     private boolean mChecked;
+    private boolean isDarkMode = false;
 
     public RTToolbarImageButton(@NonNull Context context) {
         this(context, null);
@@ -103,16 +104,25 @@ public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatIma
     @Override
     public void changeAccentColor(int color) {
 
+        int darkColor;
+
+        if (isDarkMode) {
+            darkColor =  getContext().getColor(android.R.color.darker_gray);
+        } else {
+            darkColor =  getContext().getColor(R.color.NightLessBlack);
+        }
+
+
                 if (color != getContext().getColor(R.color.White)) {
                     RTToolbarImageButton.this.setImageTintList(ColorStateList.valueOf(color));
                 } else {
-                    RTToolbarImageButton.this.setImageTintList(ColorStateList.valueOf( getContext().getColor(R.color.NightLessBlack)));
+                    RTToolbarImageButton.this.setImageTintList(ColorStateList.valueOf(darkColor));
                 }
                 if (mChecked) {
                     if (color != getContext().getColor(R.color.White)) {
                         ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(RTToolbarImageButton.this, color, 0);
                     } else {
-                        ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(RTToolbarImageButton.this, getContext().getColor(R.color.NightLessBlack), 0);
+                        ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(RTToolbarImageButton.this, darkColor, 0);
                     }
                     RTToolbarImageButton.this.setImageTintList(ColorStateList.valueOf( getContext().getColor(R.color.White)));
 
@@ -125,16 +135,25 @@ public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatIma
     }
 
     @Override
-    public void enterDarkMode(int color) {
-         if (color != getContext().getColor(R.color.White)) {
-             this.setImageTintList(ColorStateList.valueOf(color));
-         } else {
-             this.setImageTintList(ColorStateList.valueOf( getContext().getColor(R.color.SkyBlueHighlight)));
-         }
+    public void swichDarkMode(int color, boolean isDarkMode) {
+        this.isDarkMode = isDarkMode;
+        int darkColor;
+        if (isDarkMode) {
+         darkColor = getContext().getColor(android.R.color.darker_gray);
+        } else {
+            darkColor = getContext().getColor(R.color.NightLessBlack);
+        }
+
+        if (color != getContext().getColor(R.color.White)) {
+            this.setImageTintList(ColorStateList.valueOf(color));
+        } else {
+            this.setImageTintList(ColorStateList.valueOf(darkColor));
+        }
+
         if (mChecked) {
             if (color == getContext().getColor(R.color.White)) {
                 this.setImageTintList(ColorStateList.valueOf( getContext().getColor(R.color.White)));
-                ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(this, Util.getDarkerColor(getContext().getColor(R.color.SkyBlueHighlight)), 0);
+                ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(this, darkColor, 0);
             } else {
                 this.setImageTintList(ColorStateList.valueOf( color));
                 ((MainActivity)getContext()).getEverThemeHelper().tintViewAccent(this, Util.getDarkerColor(color), 0);

@@ -457,15 +457,15 @@ public class EverBallsHelper {
     
     private RTEditText getActiveEditor() {
         RTEditText newOne = mainActivity.get().getNoteCreator().getActiveEditor();
-        if (newOne == null) {
-            for (int i = 0; i < mainActivity.get().getNoteCreator().gettextRecyclerCreator().getChildCount(); i++) {
-                noteContentsAdapter.ViewHolder holder = ((noteContentsAdapter.ViewHolder) mainActivity.get().getNoteCreator().gettextRecyclerCreator().findViewHolderForAdapterPosition(i));
+      //  if (newOne == null) {
+        //    for (int i = 0; i < mainActivity.get().getNoteCreator().gettextRecyclerCreator().getChildCount(); i++) {
+          //      noteContentsAdapter.ViewHolder holder = ((noteContentsAdapter.ViewHolder) mainActivity.get().getNoteCreator().gettextRecyclerCreator().findViewHolderForAdapterPosition(i));
 
-                if (Objects.requireNonNull(holder).ActiveEditor != null) {
-                    newOne = holder.ActiveEditor;
-                }
-            }
-        }
+             //   if (Objects.requireNonNull(holder).ActiveEditor != null) {
+            //        newOne = holder.ActiveEditor;
+             //   }
+          //  }
+      //  }
         return  newOne;
     }
 }

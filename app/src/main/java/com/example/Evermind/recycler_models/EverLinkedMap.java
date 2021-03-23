@@ -3,7 +3,12 @@ package com.example.Evermind.recycler_models;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 public class EverLinkedMap {
+    @NonNull
     @Override
     public String toString() {
         return "EverLinkedMap{" +
@@ -13,38 +18,64 @@ public class EverLinkedMap {
                 '}';
     }
 
-    private String content;
-    private String drawLocation;
-    private String record;
+    private String  content = "<br>";
+    private String drawLocation = "▓";
+    private String record = "▓";
+    private List<Integer> audioData = new ArrayList<>();
     @Nullable
     private Integer color;
+    private int type;
 
-    public void setRecord(@Nullable String record) {
+    public void setRecord(String record) {
         this.record = record;
     }
 
-    public EverLinkedMap(String contents, String drawLocation, @Nullable String record, @Nullable Integer color) {
+    public EverLinkedMap(String contents, String drawLocation, String record, List<Integer> audioData, Integer color) {
         this.content = contents;
         this.drawLocation = drawLocation;
         this.record = record;
         this.color = color;
+        this.audioData = audioData;
+        setType();
+    }
+
+    public List<Integer> getAudioData() {
+        return audioData;
+    }
+
+    public void setAudioData(List<Integer> audioData) {
+        this.audioData = audioData;
+    }
+
+    private void setType() {
+        if (!content.equals("▓")) {
+            type = 1;
+        }
+        if (!this.drawLocation.equals("▓")) {
+            type = 2;
+        }
+        if (this.record != null && !this.record.equals("▓") && !this.record.equals("null")) {
+            type = 3;
+        }
+    }
+
+    public int getType() {
+        return type;
     }
 
     public EverLinkedMap() {
-        content = "<br>";
-        drawLocation = "▓";
-        record = "▓";
-
+        setType();
     }
+
 
     public EverLinkedMap(boolean empty) {
         content = "▓";
         drawLocation = "▓";
         record = "▓";
+        setType();
 
     }
 
-    @Nullable
     public String getRecord() {
         return record;
     }

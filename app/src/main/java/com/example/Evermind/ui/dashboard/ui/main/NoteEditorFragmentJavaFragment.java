@@ -84,7 +84,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
         setSharedElementEnterTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
 
         binding = FragmentNoteCreatorBinding.inflate(inflater, container, false);
-
+      //  binding.toColorLinearLayoutNoteCreator.setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(getContext().getColor(R.color.White))));
         if (((MainActivity)binding.getRoot().getContext()).getEverThemeHelper().isDarkMode()) {
             binding.toColorLinearLayoutNoteCreator.setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(getContext().getColor(R.color.NightBlack))));
             binding.cardNoteCreator.setBackgroundTintList(ColorStateList.valueOf(getContext().getColor(R.color.NightLessBlack)));
@@ -155,7 +155,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
         }
 
         mainActivity.get().runOnUiThread(() -> setupRecycler(actualNote));
-        mainActivity.get().holdViewsToDarken(binding.textRecyclerCreator);
         binding.textRecyclerCreator.setOnClickListener(v -> {
             int i = 0;
             int p = 0;
@@ -207,7 +206,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
         LinearLayoutManager a = new LinearLayoutManager(mainActivity.get());
         a.setOrientation(RecyclerView.VERTICAL);
         a.setInitialPrefetchItemCount(3);
-           binding.textRecyclerCreator.setHasFixedSize(true);
+        binding.textRecyclerCreator.setHasFixedSize(true);
         binding.textRecyclerCreator.setLayoutManager(a);
         binding.textRecyclerCreator.setItemAnimator(new LandingAnimator(new LinearOutSlowInInterpolator()));
         binding.textRecyclerCreator.setAdapter(noteContentAdapter);
@@ -253,10 +252,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
                 mainActivity.get().getEverBallsHelper().metaColorNoteColor = Integer.parseInt(actualNote.getNoteColor());
             }
         }
-
-
-
-
 
         startPostponeTransition();
     }
@@ -322,7 +317,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
             Toast.makeText(getContext(), "We Are Drawing! And Is Paths empty? " + everDraw.getMPaths().isEmpty(), Toast.LENGTH_SHORT).show();
             if (!everDraw.getMPaths().isEmpty()) {
 
-                mainActivity.get().getEverBitmapHelper().UpdateBitmapToFile(mainActivity.get().getEverBitmapHelper().createBitmapFromView(card, FinalYHeight), savedBitmapPath);
+                mainActivity.get().getEverBitmapHelper().UpdateBitmapToFile(mainActivity.get().getEverBitmapHelper().createBitmapFromView(card, FinalYHeight), drawPosition);
 
                 everDraw.clearCanvas();
 
@@ -386,7 +381,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
         noteContentAdapter.updateEverLinkedMaps(getEverLinkedContents());
         getEverLinkedContents().add(p, e);
         noteContentAdapter.updateEverLinkedMaps(getEverLinkedContents());
-        mainActivity.get().getActualNote().everLinkedToString();
     }
 
     public void removeEverLinkedContentAtPosition(int p) {
@@ -407,7 +401,6 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
             getEverLinkedContents().add(ever);
         }
         noteContentAdapter.updateEverLinkedMaps(getEverLinkedContents());
-        mainActivity.get().getActualNote().everLinkedToString();
     }
 
     public void removeImageAtPosition(int p) {
@@ -433,6 +426,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
         mainActivity.get().getActualNote().setImages(getListImages());
         imagesMultiViewAdapter.updateImages(getListImages());
         System.out.println("After note"+ mainActivity.get().getActualNote().getImages().toString());
+        mainActivity.get().getFirebaseHelper().putFile(new File(path), 2, 0, null, null);
     }
 
     public RTEditText getActiveEditor() {
@@ -446,7 +440,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
 
     @Override
     public void changeAccentColor(int color) {
-        mainActivity.get().getEverThemeHelper().tintSystemBarsAccent(color, 1000);
+        mainActivity.get().getEverThemeHelper().tintSystemBarsAccent(color, 500);
     }
 
     public void removeColorListenerFromCreatorHelper() {
@@ -478,7 +472,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
     }
 
     public List<EverLinkedMap> getEverLinkedContents() {
-        return mainActivity.get().getActualNote().everLinkedContents;
+        return mainActivity.get().getActualNote().getEverLinkedContents(false);
     }
 
     public List<String> getListImages() {
@@ -641,16 +635,8 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
     }
 
     @Override
-    public void enterDarkMode(int color) {
-    //    if (darkMode) {
-        mainActivity.get().getEverThemeHelper().tintViewAccent(binding.toColorLinearLayoutNoteCreator, Util.getDarkerColor(getContext().getColor(R.color.NightBlack)), 500);
-
-            mainActivity.get().getEverThemeHelper().tintViewAccent(binding.cardNoteCreator, getContext().getColor(R.color.NightLessBlack), 500);
-
-       // } else {
-       //     mainActivity.get().getEverThemeHelper().tintViewAccent(binding.toColorLinearLayoutNoteCreator, Util.getDarkerColor(getContext().getColor(R.color.NightBlack)), 500);
-      //      mainActivity.get().getEverThemeHelper().tintViewAccent(binding.cardNoteCreator, getContext().getColor(R.color.NightBlack), 500);
-
-      //  }
+    public void swichDarkMode(int color, boolean isDarkMode) {
+        mainActivity.get().getEverThemeHelper().tintViewAccent(binding.toColorLinearLayoutNoteCreator, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+        mainActivity.get().getEverThemeHelper().tintViewAccent(binding.cardNoteCreator, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
     }
 }

@@ -157,7 +157,7 @@ public class RTEditText extends androidx.appcompat.widget.AppCompatEditText impl
     }
 
     private void init() {
-        this.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE|InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_FILTER);
+        this.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE|InputType.TYPE_TEXT_VARIATION_FILTER);
       //  addTextChangedListener(this);
         // we need this or links won't be clickable
         setMovementMethod(RTEditorMovementMethod.getInstance());

@@ -1,9 +1,9 @@
 package com.example.Evermind;
 
 import android.annotation.SuppressLint;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
+import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,7 +11,6 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.AutoTransition;
-import android.transition.Explode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -39,7 +38,6 @@ import com.example.Evermind.TESTEDITOR.rteditor.RTManager;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTApi;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTMediaFactoryImpl;
 import com.example.Evermind.TESTEDITOR.rteditor.api.RTProxyImpl;
-import com.example.Evermind.TESTEDITOR.rteditor.effects.Effects;
 import com.example.Evermind.databinding.HomeScreenButtonsBinding;
 import com.example.Evermind.everUtils.EverAudioHelper;
 import com.example.Evermind.everUtils.EverBallsHelper;
@@ -51,7 +49,9 @@ import com.example.Evermind.everUtils.EverViewManagement;
 import com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment;
 import com.example.Evermind.ui.note_screen.NotesScreen;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.masoudss.lib.WaveformOptions;
+import com.tapadoo.alerter.Alerter;
 import com.thekhaeng.pushdownanim.PushDownAnim;
 
 import org.jetbrains.annotations.NotNull;
@@ -74,9 +74,11 @@ import jp.wasabeef.blurry.Blurry;
 import static android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS;
 import static com.thekhaeng.pushdownanim.PushDownAnim.MODE_SCALE;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity {
 
 
+    //LISTS
+    private final ArrayList<String> names = new ArrayList<>();
     //VIEWS //FUNCTIONS
     private WeakReference<NotesScreen> noteScreen;
     private NoteEditorFragmentJavaFragment noteCreator;
@@ -92,34 +94,27 @@ public class MainActivity extends AppCompatActivity  {
     private EverAudioHelper audioHelper;
     private EverThemeHelper everThemeHelper;
     private EverViewManagement everViewManagement;
-    //LISTS
-    private final ArrayList<String> names = new ArrayList<>();
+    private FirebaseHelper firebaseHelper;
     //IDK
     private Window everMainWindow;
     private EverPreferences prefs;
+    //BOOLEANS
     // INT's
     private int size = 30;
-    //BOOLEANS
-
     private boolean atHome = true;
     private boolean newNote = false;
     private boolean smoothColorChange = false;
     private TextWatcher TitleWatcher;
     private TextWatcher searchWatcher;
-
     private Note_Model actualNote;
-
-    public HomeScreenButtonsBinding getButtonsBinding() {
-        return buttonsBinding;
-    }
-
     private HomeScreenButtonsBinding buttonsBinding;
 
     private Handler handler;
     private Handler handlerUI;
-    private final List<View> views = new ArrayList<>();
 
-    
+    public HomeScreenButtonsBinding getButtonsBinding() {
+        return buttonsBinding;
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @SuppressLint("CommitPrefEdits")
@@ -138,9 +133,9 @@ public class MainActivity extends AppCompatActivity  {
         buttonsBinding = HomeScreenButtonsBinding.bind(findViewById(R.id.mainConstrainLayout));
         handler = new Handler(Looper.myLooper());
         handlerUI = new Handler(Looper.getMainLooper());
-      //  new Handler(Looper.getMainLooper()).post(() -> {
-           // new Thread(() -> {
-            //  giphyLibrary = new GiphyLibrary();
+        //  new Handler(Looper.getMainLooper()).post(() -> {
+        // new Thread(() -> {
+        //  giphyLibrary = new GiphyLibrary();
 
         asyncTask(null, new Runnable() {
             @Override
@@ -152,108 +147,107 @@ public class MainActivity extends AppCompatActivity  {
         });
 
 
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == 23) {
+          //  IdpResponse response = IdpResponse.fromResultIntent(data);
+            if (resultCode == RESULT_OK) {
+                firebaseHelper = new FirebaseHelper(this, Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()));
+            }
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     public void initializeViews() {
         //new Thread(() -> {
-            // a potentially time consuming task
+        // a potentially time consuming task
 
 
-            toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
 
-            titleBox = findViewById(R.id.searchBox);
-         //   titleBox.setFocusable(false);
-          //  ImageButton fillCanvas = findViewById(R.id.fillCanvas);
-          //  fillCanvas.setOnClickListener(v -> noteCreator.everDraw.get().fillColor(Color.GREEN));
-            //  OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
+        titleBox = findViewById(R.id.searchBox);
+        //   titleBox.setFocusable(false);
+        //  ImageButton fillCanvas = findViewById(R.id.fillCanvas);
+        //  fillCanvas.setOnClickListener(v -> noteCreator.everDraw.get().fillColor(Color.GREEN));
+        //  OverScrollDecoratorHelper.setUpOverScroll(scrollView1);
 
 
         startPostponedEnterTransition();
 
 
+        new Handler(Looper.myLooper()).post(() -> {
+            //MAYBE TO REMOVE ALL OF THIS MINUS THE LAST LINE
+            setSupportActionBar(toolbar);
 
-            new Handler(Looper.myLooper()).post(() -> {
-                //MAYBE TO REMOVE ALL OF THIS MINUS THE LAST LINE
-                setSupportActionBar(toolbar);
-
-                getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
-                //   DrawerLayout drawer = findViewById(R.id.drawer_layout);
-                NavigationView navigationView = findViewById(R.id.nav_view);
+            //   DrawerLayout drawer = findViewById(R.id.drawer_layout);
+            NavigationView navigationView = findViewById(R.id.nav_view);
 
-                // Passing each menu ID as a set of Ids because each
-                // menu should be considered as top level destinations.
+            // Passing each menu ID as a set of Ids because each
+            // menu should be considered as top level destinations.
 
-                mAppBarConfiguration = new AppBarConfiguration.Builder(
-                        R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_note)
-                        //  .setDrawerLayout(drawer)
-                        .build();
+            mAppBarConfiguration = new AppBarConfiguration.Builder(
+                    R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_note)
+                    //  .setDrawerLayout(drawer)
+                    .build();
 
-                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-                NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-                NavigationUI.setupWithNavController(navigationView, navController);
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+            NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+            NavigationUI.setupWithNavController(navigationView, navController);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    WindowInsetsController windowInsetsController = getWindow().getDecorView().getWindowInsetsController(); // get current flag
-                    windowInsetsController.setSystemBarsAppearance(APPEARANCE_LIGHT_STATUS_BARS, APPEARANCE_LIGHT_STATUS_BARS);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                WindowInsetsController windowInsetsController = getWindow().getDecorView().getWindowInsetsController(); // get current flag
+                windowInsetsController.setSystemBarsAppearance(APPEARANCE_LIGHT_STATUS_BARS, APPEARANCE_LIGHT_STATUS_BARS);
 
-                    titleBox.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (atHome) {
-                                if (!everNoteManagement.isSearching()) {
-                                    searchNotes();
-                                } else {
-                                    everNoteManagement.setSearching(false);
-                                }
-                            }
+                titleBox.setOnClickListener(v -> {
+                    if (atHome) {
+                        if (!everNoteManagement.isSearching()) {
+                            searchNotes();
+                        } else {
+                            everNoteManagement.setSearching(false);
                         }
-                    });
-                    titleBox.setFocusable(false);
-                    PushDownAnim.setPushDownAnimTo(titleBox);
+                    }
+                });
+                titleBox.setFocusable(false);
+                PushDownAnim.setPushDownAnimTo(titleBox);
 
-                }
-
-
-
-                    AnimationDrawable animationDrawable = (AnimationDrawable) findViewById(R.id.firstView).getBackground();
-                    animationDrawable.setEnterFadeDuration(2000);
-                    animationDrawable.setExitFadeDuration(500);
-                    animationDrawable.start();
+            }
 
 
+            AnimationDrawable animationDrawable = (AnimationDrawable) findViewById(R.id.firstView).getBackground();
+            animationDrawable.setEnterFadeDuration(2000);
+            animationDrawable.setExitFadeDuration(500);
+            animationDrawable.start();
 
-                    Button startButton = findViewById(R.id.startButton);
 
-                    startButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            everViewManagement.animateHeightChange(v, 350, 1, null);
-                            everViewManagement.animateWidthChange(v, 350, 1);
-                            everViewManagement.animateHeightChange(findViewById(R.id.EvermindBlack), 350, 1, null);
-                            everViewManagement.animateWidthChange(findViewById(R.id.EvermindBlack), 350, 1);
-                            getUIHandler().postDelayed(() -> {
-                                animationDrawable.stop();
-                                ((ConstraintLayout)findViewById(R.id.mainConstrainLayout)).removeView(findViewById(R.id.firstView));
-                                getUIHandler().postDelayed(() -> {
-                                    runOnUiThread(MainActivity.this::startEverNoteManagement);
-                                }, 200);
-                            }, 350);
-                        }
-                    });
+            Button startButton = findViewById(R.id.startButton);
 
+            startButton.setOnClickListener(v -> {
+                everViewManagement.animateHeightChange(v, 350, 1, null);
+                everViewManagement.animateWidthChange(v, 350, 1);
+                everViewManagement.animateHeightChange(findViewById(R.id.EvermindBlack), 350, 1, null);
+                everViewManagement.animateWidthChange(findViewById(R.id.EvermindBlack), 350, 1);
+                getUIHandler().postDelayed(() -> {
+                    animationDrawable.stop();
+                    ((ConstraintLayout) findViewById(R.id.mainConstrainLayout)).removeView(findViewById(R.id.firstView));
+                    getUIHandler().postDelayed(() -> {
+                        runOnUiThread(MainActivity.this::startEverNoteManagement);
+                    }, 200);
+                }, 350);
             });
+
+        });
 
         //  new HorizontalOverScrollBounceEffectDecorator(new StaticOverScrollDecorAdapter(findViewById(R.id.searchBox)));
 
-       // }).start();
+        // }).start();
     }
-
-
 
 
     private void startEverNoteManagement() {
@@ -266,7 +260,7 @@ public class MainActivity extends AppCompatActivity  {
             mRTManager = new RTManager(rtApi, null, this);
             everBitmapHelper = new EverBitmapHelper(this);
             everBallsHelper = new EverBallsHelper(this);
-         //   audioHelper = new EverAudioHelper(this);
+            //   audioHelper = new EverAudioHelper(this);
             everThemeHelper = new EverThemeHelper(this);
             everViewManagement = new EverViewManagement(this);
             WaveformOptions.init(this);
@@ -277,7 +271,7 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     public void applyPushDownToViews(@NonNull List<View> views, float amount) {
-        for (View view: views) {
+        for (View view : views) {
             PushDownAnim.setPushDownAnimTo(view)
                     .setScale(MODE_SCALE,
                             amount);
@@ -296,6 +290,10 @@ public class MainActivity extends AppCompatActivity  {
                 || super.onSupportNavigateUp();
     }
 
+    public FirebaseHelper getFirebaseHelper() {
+        return firebaseHelper;
+    }
+
     @Override
     public void onBackPressed() {
 
@@ -305,28 +303,17 @@ public class MainActivity extends AppCompatActivity  {
             if (noteCreator.getNoteState() == 1) {
                 noteCreator.setNoteState(0);
             } else {
-                everThemeHelper.clearOnBack();
-                if (everThemeHelper.isDarkMode()) {
-                    EverInterfaceHelper.getInstance().changeAccentColor(everThemeHelper.accentTheme);
-                }
 
-                EverInterfaceHelper.getInstance().clearListeners();
-
-                if (noteCreator != null) {
-                    if (noteCreator != null) {
-                        noteCreator.removeColorListenerFromCreatorHelper();
-                    }
-                }
-
-                getUIHandler().postDelayed(() -> {
+             //   getUIHandler().postDelayed(() -> {
 
                     if (!atHome) {
 
-                        if (actualNote.getTitle().equals("") && actualNote.getContentsAsString().equals("<br>┼") && actualNote.getDrawsAsString().equals("▓┼") && actualNote.getImagesAsString().equals("▓┼") && actualNote.getRecordsAsString().equals("▓┼")) {
+                        if (actualNote.getTitle().equals("") && actualNote.getContents().get(0).equals("<br>") && actualNote.getContents().size() == 1 && actualNote.getDraws().size() == 1 && actualNote.getDraws().get(0).equals("▓") && actualNote.getImages().size() == 0 && actualNote.getRecords().size() == 1 && actualNote.getRecords().get(0).equals("▓")) {
                             everNoteManagement.removeNote(actualNote);
+                            System.out.println("Actual note removed. " + actualNote.toString());
                         } else {
-                           // actualNote.everLinkedToString();
-                            everNoteManagement.updateNote(actualNote.getActualPosition(), actualNote, true);
+                            if (actualNote.saveNote())
+                                everNoteManagement.updateNote(actualNote.getActualPosition(), actualNote, true);
                         }
                     }
                     EverInterfaceHelper.getInstance().show();
@@ -336,10 +323,17 @@ public class MainActivity extends AppCompatActivity  {
                     everNoteManagement.setSwipeChangeColorRefresh(false);
                     everViewManagement.CloseAllButtons();
                     everViewManagement.getBottomBar().setItemActiveIndex(0);
-                    //positionToScroll = actualNote.getActualPosition();
                     clearBooleans();
                     super.onBackPressed();
-                }, 15);
+
+                    if (noteCreator != null) {
+                        noteCreator.removeColorListenerFromCreatorHelper();
+                    }
+                    EverInterfaceHelper.getInstance().changeAccentColor(everThemeHelper.defaultTheme);
+                    everThemeHelper.tintSystemBarsAccent(everThemeHelper.defaultTheme, 500);
+                    EverInterfaceHelper.getInstance().clearListeners();
+
+              //  }, 15);
 
             }
         }
@@ -349,35 +343,20 @@ public class MainActivity extends AppCompatActivity  {
 
         if (atHome) {
             clearBooleans();
-            atHome = false;
-
-            if (noteCreator == null) {
-                noteCreator = new NoteEditorFragmentJavaFragment();
-                noteCreator.setEnterTransition(new AutoTransition());
-                noteCreator.setExitTransition(new AutoTransition());
-                noteScreen.get().setExitTransition(new AutoTransition());
-                noteScreen.get().setEnterTransition(new AutoTransition());
-                noteScreen.get().setReenterTransition(new AutoTransition());
-            }
 
             everNoteManagement.incrementID();
             prefs.putInt("lastID", everNoteManagement.getNoteIdIncrement());
-            actualNote = new Note_Model(everNoteManagement.getNoteIdIncrement(), 0, "", "<br>┼", Calendar.getInstance().getTime().toString(), "", "▓┼", "-1", "▓┼");
             everNoteManagement.setSelectedPosition(0);
-            everNoteManagement.addNote(actualNote);
+            firebaseHelper.addNoteToFirebase();
             newNote = true;
             runOnUiThread(() -> getUIHandler().postDelayed(() -> {
-                CardView card = Objects.requireNonNull(everNoteManagement.getNoteScreenRecycler().findContainingViewHolder(everNoteManagement.getNoteScreenRecycler().getChildAt(0))).itemView.findViewById(R.id.mainCard);
+                noteModelsAdapter.ViewHolder holder = (noteModelsAdapter.ViewHolder) everNoteManagement.getNoteScreenRecycler().findContainingViewHolder(everNoteManagement.getNoteScreenRecycler().getChildAt(0));
 
-                FragmentTransaction transaction = noteScreen.get().getParentFragmentManager().beginTransaction();
-                transaction.setReorderingAllowed(true);
-                card.setTransitionName("card" + everNoteManagement.getNoteIdIncrement() + "-" + actualNote.getDate());
-                names.add(card.getTransitionName());
-                transaction.addSharedElement(card, card.getTransitionName());
-                transaction.hide(noteScreen.get());
-                transaction.add(R.id.nav_host_fragment, noteCreator);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                if (holder != null) {
+                    holder.onItemTouched();
+                    atHome = false;
+                    System.out.println("It works..");
+                }
             }, 550));
         }
     }
@@ -391,17 +370,16 @@ public class MainActivity extends AppCompatActivity  {
             atHome = false;
 
 
-
             if (noteCreator == null) {
                 noteCreator = new NoteEditorFragmentJavaFragment();
-                noteCreator.setEnterTransition(new AutoTransition());
-                noteCreator.setExitTransition(new AutoTransition());
-                noteCreator.setReenterTransition(new Explode());
-                noteScreen.get().setExitTransition(new Explode());
-                noteScreen.get().setReenterTransition(new Explode());
+                noteCreator.setEnterTransition(new EverTransition());
+                noteCreator.setExitTransition(new EverTransition());
+                noteCreator.setReenterTransition(new EverTransition());
+                noteScreen.get().setExitTransition(new EverTransition());
+                noteScreen.get().setReenterTransition(new EverTransition());
             }
 
-          //  everNoteManagement.setSelectedID(actualNote.getId());
+            //  everNoteManagement.setSelectedID(actualNote.getId());
             this.actualNote = actualNote;
             names.add(view.getTransitionName());
             names.add(view2.getTransitionName());
@@ -427,7 +405,7 @@ public class MainActivity extends AppCompatActivity  {
     protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (getmRTManager() != null)
-        mRTManager.onSaveInstanceState(outState);
+            mRTManager.onSaveInstanceState(outState);
     }
 
     @Override
@@ -456,7 +434,7 @@ public class MainActivity extends AppCompatActivity  {
                 break;
 
             case "pink":
-              everNoteManagement.ChangeNoteColor(GetColor(R.color.Pink), null);
+                everNoteManagement.ChangeNoteColor(GetColor(R.color.Pink), null);
                 break;
 
             case "orange":
@@ -481,7 +459,7 @@ public class MainActivity extends AppCompatActivity  {
 
     public void swipeItemsListener(@NonNull View view, @NonNull Note_Model noteModel) {
         everNoteManagement.setSelectedPosition(noteModel.getActualPosition());
-       // everNoteManagement.setSelectedID(noteModel.getId());
+        // everNoteManagement.setSelectedID(noteModel.getId());
         smoothColorChange = true;
         switch (view.getTag().toString()) {
             case "changeColor":
@@ -504,7 +482,7 @@ public class MainActivity extends AppCompatActivity  {
                 .setConfirmClickListener(sDialog -> {
                     sDialog
                             .setTitleText("Deleted!")
-                            .setContentText("Your note in position: " + note.getActualPosition() + ", with ID: " + note.getId() + " was deleted.")
+                            .setContentText("Your note in position: " + note.getActualPosition() + ", with ID: " + note.getNote_name() + " was deleted.")
                             .setConfirmText("OK")
                             .setConfirmClickListener(sweetAlertDialog -> sDialog.dismissWithAnimation())
                             .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
@@ -525,12 +503,14 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     public void changeLayout(View view) {
-        if ( everNoteManagement.isGrid()) {
+        if (everNoteManagement.isGrid()) {
             prefs.putBoolean("isGrid", false);
             everNoteManagement.setGrid(false);
+            firebaseHelper.putBooleanSettingsToCloud("Layout Appearence", false);
         } else {
             prefs.putBoolean("isGrid", true);
             everNoteManagement.setGrid(true);
+            firebaseHelper.putBooleanSettingsToCloud("Layout Appearence", true);
         }
         noteScreen.get().setLayoutManager(getEverNoteManagement());
     }
@@ -550,7 +530,7 @@ public class MainActivity extends AppCompatActivity  {
 
                 @Override
                 public void afterTextChanged(@NonNull Editable s) {
-                    titleBox.postDelayed(() -> searchInNotes(s), 250);
+                    titleBox.postDelayed(() -> searchInNotes(s, "content"), 250);
                 }
             };
             everNoteManagement.setSearching(true);
@@ -558,7 +538,7 @@ public class MainActivity extends AppCompatActivity  {
             titleBox.setFocusableInTouchMode(true);
             titleBox.removeTextChangedListener(null);
             titleBox.setText("");
-            titleBox.setHint("Ex: Jooj");
+            titleBox.setHint("Ex: Homework");
             titleBox.setTag("remove");
             everNoteManagement.getSearchListSection().clear();
             titleBox.postDelayed(() -> {
@@ -582,20 +562,43 @@ public class MainActivity extends AppCompatActivity  {
         everNoteManagement.getSearchListSection().clear();
     }
 
-    private void searchInNotes(@NonNull CharSequence what) {
-        everNoteManagement.setSearchListSection(new ArrayList<>());
-        for (Note_Model note : everNoteManagement.getNoteModelSection()) {
-            if (note.getContentsAsString().contains(what)) {
+    private void searchInNotes(@NonNull CharSequence what, String whatToSearchFor) {
 
+        everNoteManagement.setSearchListSection(new ArrayList<>());
+        boolean contains = false;
+        for (Note_Model note : everNoteManagement.getNoteModelSection()) {
+            switch (whatToSearchFor) {
+                case "title":
+                    if (note.getTitle().contains(what))
+                        contains = true;
+                    break;
+
+                case "content":
+                    for (String s: note.getContents()) {
+                        if (s.contains(what)) {
+                            contains = true;
+                            break;
+                        }
+                    }
+                    break;
+
+                case "date":
+                    if (note.getDate().contains(what))
+                        contains = true;
+                    break;
+
+                case "color":
+                    if (note.getNoteColor().contains(what))
+                        contains = true;
+                    break;
+            }
+            if (contains) {
                 everNoteManagement.getSearchListSection().add(note);
                 note.setActualPosition(everNoteManagement.getSearchListSection().indexOf(note));
             }
         }
         noteScreen.get().getAdapter().updateNotesAdapter(everNoteManagement.getSearchListSection());
     }
-
-
-
 
 
     public void recordAudio() {
@@ -714,7 +717,6 @@ public class MainActivity extends AppCompatActivity  {
     }
 
 
-
     public void importerClick(@NonNull View view) {
         noteCreator.importerClick(view);
     }
@@ -723,14 +725,6 @@ public class MainActivity extends AppCompatActivity  {
         everViewManagement.clearBooleans();
         atHome = true;
         newNote = false;
-    }
-
-    public void setNoteScreen(WeakReference<NotesScreen> noteScreen) {
-        this.noteScreen = noteScreen;
-    }
-
-    public void setTitleWatcher(TextWatcher titleWatcher) {
-        TitleWatcher = titleWatcher;
     }
 
     public EverPreferences getPrefs() {
@@ -746,8 +740,12 @@ public class MainActivity extends AppCompatActivity  {
         return names;
     }
 
-      public WeakReference<NotesScreen> getNoteScreen() {
+    public WeakReference<NotesScreen> getNoteScreen() {
         return noteScreen;
+    }
+
+    public void setNoteScreen(WeakReference<NotesScreen> noteScreen) {
+        this.noteScreen = noteScreen;
     }
 
     @NonNull
@@ -755,12 +753,12 @@ public class MainActivity extends AppCompatActivity  {
         return noteCreator.binding.cardNoteCreator;
     }
 
-    public void setNoteCreator(NoteEditorFragmentJavaFragment noteCreator) {
-        this.noteCreator = noteCreator;
-    }
-
     public NoteEditorFragmentJavaFragment getNoteCreator() {
         return noteCreator;
+    }
+
+    public void setNoteCreator(NoteEditorFragmentJavaFragment noteCreator) {
+        this.noteCreator = noteCreator;
     }
 
     public EverAnimatedText getTitleBox() {
@@ -807,16 +805,20 @@ public class MainActivity extends AppCompatActivity  {
         return TitleWatcher;
     }
 
+    public void setTitleWatcher(TextWatcher titleWatcher) {
+        TitleWatcher = titleWatcher;
+    }
+
     public TextWatcher getSearchWatcher() {
         return searchWatcher;
     }
 
-    public void setActualNote(Note_Model actualNote) {
-        this.actualNote = actualNote;
-    }
-
     public Note_Model getActualNote() {
         return actualNote;
+    }
+
+    public void setActualNote(Note_Model actualNote) {
+        this.actualNote = actualNote;
     }
 
     public Handler getUIHandler() {
@@ -838,33 +840,21 @@ public class MainActivity extends AppCompatActivity  {
                 background.run();
                 handler.post(UIThread);
             });
+            executor.shutdown();
         }
 
     }
 
-    public void holdViewsToDarken(View view) {
-        if (!views.contains(view)) {
-            if (view.getTag() == null) {
-                view.setTag("new");
-            }
-            if (view.getBackgroundTintList() == null) {
-                view.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.White)));
-            }
-            views.add(view);
-        }
-    }
-
-    public void darkenViews() {
-        for (View v : views) {
-            if (v != null)
-                everThemeHelper.tintViewAccent(v, getColor(R.color.NightBlack), 450);
-        }
-    }
-    public void lightenViews() {
-        for (View v : views) {
-            if (v != null)
-                everThemeHelper.tintViewAccent(v, getColor(R.color.White), 450);
-        }
+    public void sendAlert(String title, String text, Drawable drawable) {
+        Alerter.create(this)
+                .setSound()
+                .setTitle(title)
+                .setText(text)
+                .setIcon(drawable)
+                .enableIconPulse(true)
+                .enableClickAnimation(true)
+                .setIconColorFilter(0) // Optional - Removes white tint// Optional - default is 38dp
+                .show();
     }
 
 }

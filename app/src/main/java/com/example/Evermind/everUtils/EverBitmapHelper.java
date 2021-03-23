@@ -50,39 +50,49 @@ public class EverBitmapHelper {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void TransformBitmapToFile(@NonNull Bitmap bitmap) {
         File file = CreateBitmap(bitmap, "EverDraw"+ System.currentTimeMillis(), ".jpg");
-        mainActivity.get().getActualNote().addEverLinkedMap(file.toString(), mainActivity.get(), true);
+        mainActivity.get().getActualNote().addEverLinkedMap(file.toString(), mainActivity.get(), true, null);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void UpdateBitmapToFile(@NonNull Bitmap bitmap, @NonNull String savedBitmapPath) {
-
-        File toDelete = new File(savedBitmapPath);
+    public void UpdateBitmapToFile(@NonNull Bitmap bitmap, @NonNull int position) {
+        String path = "";
+        if (mainActivity.get().getActualNote().getDraws().size() > position) {
+            path = mainActivity.get().getActualNote().getDraws().get(position);
+        }
+        File toDelete = new File(path);
         if (toDelete.exists()) {
             if (toDelete.delete()) {
+                mainActivity.get().getFirebaseHelper().deleteFile(toDelete, 0);
                 System.out.println("Old draw deleted when updating.");
              //   mainActivity.get().clearIonCache(toDelete.getPath());
             }
         }
-        String finalPath = mainActivity.get().getDir("imageDir", Context.MODE_PRIVATE).getPath() + "/";
+
+        String fileName = "<>" +
+                bitmap.getHeight() +
+                "<>" +
+                bitmap.getWidth() +
+                "<>" +
+                mainActivity.get().getActualNote().getNote_name() +
+                "_" +
+                mainActivity.get().getActualNote().getDraws().size() +
+                "_" + System.currentTimeMillis();
 
 
 
-        List<String> drawPath = mainActivity.get().getActualNote().getDraws();
+        String finalPath = mainActivity.get().getDir("imageDir", Context.MODE_PRIVATE).getPath() + "/" + fileName;
 
-        String withXY = UpdateFile(bitmap, finalPath).toString() + "<>" + bitmap.getHeight() + "<>" + bitmap.getWidth();
 
-        int i = 0;
-        for (String path : drawPath) {
-            if (path.equals(savedBitmapPath)) {
-                drawPath.set(i, withXY);
-            }
-            i++;
-        }
 
-        mainActivity.get().getActualNote().setDraws(drawPath);
+        File withXY = UpdateFile(bitmap, finalPath);
+
+
+      //  File file = UpdateFile(bitmap, finalPath);
+
+        mainActivity.get().getFirebaseHelper().putFile(withXY, 0, position, null, null);
+        mainActivity.get().getActualNote().getDraws().set(position, withXY.getPath());
+        mainActivity.get().getNoteCreator().updateDrawAtPosition(position, mainActivity.get().getActualNote().getDraws().get(position));
       //  mainActivity.get().everNoteManagement.updateNote(actualNote.get().getActualPosition(), actualNote.get());
-        int drawPosition = mainActivity.get().getNoteCreator().drawPosition;
-        mainActivity.get().getNoteCreator().updateDrawAtPosition(drawPosition, mainActivity.get().getActualNote().getDraws().get(drawPosition));
 
     }
 
@@ -130,7 +140,11 @@ public class EverBitmapHelper {
 
     @NonNull
     public File UpdateFile(@NonNull Bitmap bitmap, String path) {
-        File file = new File(path + System.currentTimeMillis() + ".jpg");
+        String format = "";
+        if (!path.endsWith(".jpg")) {
+            format = ".jpg";
+        }
+        File file = new File(path + format);
 
         Log.d("path", file.toString());
         FileOutputStream fos;

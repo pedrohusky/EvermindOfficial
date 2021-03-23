@@ -14,9 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.target.Target;
 import com.example.Evermind.EverAudioVisualizerHandlers.EverInterfaceHelper;
+import com.example.Evermind.databinding.DrawViewNotescreenRecyclerBinding;
 import com.example.Evermind.databinding.MainViewNotescreenRecyclerBinding;
+import com.example.Evermind.databinding.RecordViewNotescreenRecyclerBinding;
+import com.example.Evermind.databinding.TextViewNotescreenRecyclerBinding;
 import com.example.Evermind.recycler_models.EverLinkedMap;
 import com.masoudss.lib.WaveGravity;
 
@@ -26,7 +30,7 @@ import java.util.List;
 
 import cafe.adriel.androidaudiorecorder.Util;
 
-public class noteContentsNoteScreenAdapter extends RecyclerView.Adapter<noteContentsNoteScreenAdapter.noteScreenViewHolder> {
+public class noteContentsNoteScreenAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final List<EverLinkedMap> noteData = new ArrayList<>();
 
@@ -34,25 +38,65 @@ public class noteContentsNoteScreenAdapter extends RecyclerView.Adapter<noteCont
         this.noteData.addAll(noteData);
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return noteData.get(position).getType();
+    }
+
+
+
     // Create new views (invoked by the layout manager)
     @NonNull
     @Override
-    public noteScreenViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         // Create a new view, which defines the UI of the list item
-        View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.main_view_notescreen_recycler, viewGroup, false);
+        View view = null;
+       switch (viewType) {
 
-        return new noteScreenViewHolder(view);
+           case 1:
+               view = LayoutInflater.from(viewGroup.getContext())
+                       .inflate(R.layout.text_view_notescreen_recycler, viewGroup, false);
+               break;
+           case 2:
+               view = LayoutInflater.from(viewGroup.getContext())
+                       .inflate(R.layout.draw_view_notescreen_recycler, viewGroup, false);
+               break;
+           case 3:
+               view = LayoutInflater.from(viewGroup.getContext())
+                       .inflate(R.layout.record_view_notescreen_recycler, viewGroup, false);
+           break;
+       }
+       if (viewType == 1) {
+           return new noteScreenTextViewHolder(view);
+       } else if (viewType == 2) {
+           return new noteScreenDrawViewHolder(view);
+       } else {
+           return new noteScreenRecordViewHolder(view);
+       }
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
-    public void onBindViewHolder(noteScreenViewHolder viewHolder, final int position) {
-        viewHolder.everLinkedMap = noteData.get(position);
-        viewHolder.setContentHTML();
-        viewHolder.setDrawContent();
-        viewHolder.setWaveSeek();
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
+        switch (getItemViewType(position)) {
+            case 1:
+                noteScreenTextViewHolder textHolder = ((noteScreenTextViewHolder)viewHolder);
+                textHolder.everLinkedMap = noteData.get(position);
+                textHolder.setContentHTML();
+                break;
+            case 2:
+                noteScreenDrawViewHolder drawHolder = ((noteScreenDrawViewHolder)viewHolder);
+                drawHolder.everLinkedMap = noteData.get(position);
+                drawHolder.setDrawContent();
+                break;
+            case 3:
+                noteScreenRecordViewHolder recordHolder = ((noteScreenRecordViewHolder)viewHolder);
+                recordHolder.everLinkedMap = noteData.get(position);
+                recordHolder.setWaveSeek();
+                break;
+        }
+
     }
 
     public void updateList(List<EverLinkedMap> everLinkedMaps) {
@@ -78,34 +122,25 @@ public class noteContentsNoteScreenAdapter extends RecyclerView.Adapter<noteCont
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
      */
-    public static class noteScreenViewHolder extends RecyclerView.ViewHolder implements EverInterfaceHelper.OnEnterDarkMode {
+    public static class noteScreenTextViewHolder extends RecyclerView.ViewHolder implements EverInterfaceHelper.OnEnterDarkMode {
         @NonNull
-        private final MainViewNotescreenRecyclerBinding binding;
+        private final TextViewNotescreenRecyclerBinding binding;
         private String lastTextInEditor = "null";
-        private String lastDrawPath = "null";
-        private int lastColorKnown = -1;
-        private String lastRecordPath = "null";
         private EverLinkedMap everLinkedMap;
 
         @SuppressLint("ClickableViewAccessibility")
-        public noteScreenViewHolder(View view) {
+        public noteScreenTextViewHolder(View view) {
             super(view);
             // Define click listener for the ViewHolder's View
 
-            binding = MainViewNotescreenRecyclerBinding.bind(view);
+            binding = TextViewNotescreenRecyclerBinding.bind(view);
             if (lastTextInEditor.equals("null")) {
                 binding.recyclerEverEditor.setPadding(15, 15, 15, 15);
                 binding.recyclerEverEditor.setTextSize(18);
             }
 
-            if (((MainActivity)view.getContext()).getEverThemeHelper().isDarkMode()) {
+            if (((MainActivity) view.getContext()).getEverThemeHelper().isDarkMode()) {
                 binding.recyclerEverEditor.setTextColor(itemView.getContext().getColor(R.color.White));
-                binding.everWave.setWaveBackgroundColor(itemView.getContext().getColor(R.color.NightBlack));
-                binding.cardEverNoteScreenPlayer.setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(itemView.getContext().getColor(R.color.Grey))));
-            }
-
-            if (lastRecordPath.equals("null")) {
-                binding.everWave.setWaveGravity(WaveGravity.CENTER);
             }
 
             EverInterfaceHelper.getInstance().setDarkModeListeners(this);
@@ -125,55 +160,155 @@ public class noteContentsNoteScreenAdapter extends RecyclerView.Adapter<noteCont
             lastTextInEditor = itemContent;
         }
 
+        @Override
+        public void swichDarkMode(int color, boolean isDarkMode) {
+            binding.recyclerEverEditor.setTextColor(itemView.getContext().getColor(R.color.White));
+        }
+    }
+
+    public static class noteScreenDrawViewHolder extends RecyclerView.ViewHolder implements EverInterfaceHelper.OnDownloadCompleted {
+        @NonNull
+        private final DrawViewNotescreenRecyclerBinding binding;
+        private String lastDrawPath = "null";
+        private EverLinkedMap everLinkedMap;
+        private String downloadKey;
+
+        @SuppressLint("ClickableViewAccessibility")
+        public noteScreenDrawViewHolder(View view) {
+            super(view);
+            // Define click listener for the ViewHolder's View
+
+            binding = DrawViewNotescreenRecyclerBinding.bind(view);
+        }
 
         void setDrawContent() {
             String drawPath = everLinkedMap.getDrawLocation();
 
-            if (!lastDrawPath.equals(drawPath)) {
+         //   if (!lastDrawPath.equals(drawPath)) {
                 String[] split = drawPath.split("<>");
-                File f = new File(split[0]);
-                if (f.exists()) {
+                File f = new File(drawPath);
+                System.out.println("TRying...");
+                if (fileExists(drawPath, 0)) {
                     binding.recyclerImage.setVisibility(View.VISIBLE);
                     int h = (Integer.parseInt(split[1]) / 2);
                     int w = (Integer.parseInt(split[2]) / 2);
-                    Glide.with(binding.recyclerImage).asBitmap().load(f).encodeQuality(25).override(w, h).into(binding.recyclerImage);
+                    Glide.with(binding.recyclerImage).
+                            load(f).
+                            transition(DrawableTransitionOptions.withCrossFade()).
+                            encodeQuality(25).
+                            override(w,h).
+                            into(binding.recyclerImage);
                 } else {
                     binding.recyclerImage.setVisibility(View.GONE);
                 }
-            }
+        //    }
             lastDrawPath = drawPath;
+        }
+        private boolean fileExists(String path, int type) {
+                File tempFile = new File(path);
+                if (!tempFile.exists()) {
+                    EverInterfaceHelper.getInstance().setDownloadListener(this);
+                    downloadKey = tempFile.getName();
+                    switch (type) {
+                        case 0:
+                            ((MainActivity)itemView.getContext()).getFirebaseHelper().getFileFromFirebase(tempFile.getName(), 0, getAdapterPosition());
+                            break;
+                        case 1:
+                            ((MainActivity)itemView.getContext()).getFirebaseHelper().getFileFromFirebase(tempFile.getName(), 1, getAdapterPosition());
+                            break;
+                    }
+                }
+                return tempFile.exists();
+        }
+
+        @Override
+        public void downloadCompleted(File file, int p, String downloadKey) {
+           if (downloadKey.equals(this.downloadKey) || this.downloadKey.isEmpty()) {
+               everLinkedMap.setDrawLocation(file.getPath());
+               setDrawContent();
+           }
+        }
+    }
+
+    public static class noteScreenRecordViewHolder extends RecyclerView.ViewHolder implements EverInterfaceHelper.OnEnterDarkMode, EverInterfaceHelper.OnDownloadCompleted {
+        @NonNull
+        private final RecordViewNotescreenRecyclerBinding binding;
+        private int lastColorKnown = -1;
+        private String downloadKey;
+        private String lastRecordPath = "null";
+        private EverLinkedMap everLinkedMap;
+
+        @SuppressLint("ClickableViewAccessibility")
+        public noteScreenRecordViewHolder(View view) {
+            super(view);
+            // Define click listener for the ViewHolder's View
+
+
+            binding = RecordViewNotescreenRecyclerBinding.bind(view);
+
+            if (((MainActivity)view.getContext()).getEverThemeHelper().isDarkMode()) {
+                binding.everWave.setWaveBackgroundColor(itemView.getContext().getColor(R.color.NightBlack));
+                binding.cardEverNoteScreenPlayer.setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(itemView.getContext().getColor(R.color.Grey))));
+            }
+
+            if (lastRecordPath.equals("null")) {
+                binding.everWave.setWaveGravity(WaveGravity.CENTER);
+            }
+
+            EverInterfaceHelper.getInstance().setDarkModeListeners(this);
         }
 
         void setWaveSeek() {
             String recordPath = everLinkedMap.getRecord();
-            if (!lastRecordPath.equals(recordPath)) {
+           // if (!lastRecordPath.equals(recordPath)) {
 
-                if (!recordPath.equals("▓")) {
-                    String[] s = recordPath.split("<AMP>");
-                    binding.cardEverNoteScreenPlayer.setVisibility(View.VISIBLE);
-                    binding.cardEverNoteScreenPlayer.setBackgroundTintList(ColorStateList.valueOf(everLinkedMap.getColor()));
-                    lastColorKnown = everLinkedMap.getColor();
+                if (!recordPath.equals("▓") && recordPath != null) {
+                    if (fileExists(recordPath, 1)) {
+                        binding.cardEverNoteScreenPlayer.setVisibility(View.VISIBLE);
+                        binding.cardEverNoteScreenPlayer.setBackgroundTintList(ColorStateList.valueOf(everLinkedMap.getColor()));
+                        lastColorKnown = everLinkedMap.getColor();
 
-
-                    List<Integer> amplitude = new ArrayList<>();
-                    for (String f : s[1].split(",")) {
-                        amplitude.add(Math.round(Float.parseFloat(f)));
+                        binding.everWave.setVisibility(View.VISIBLE);
+                        binding.everWave.setSample(everLinkedMap.getAudioData());
+                    } else {
+                        binding.cardEverNoteScreenPlayer.setVisibility(View.GONE);
                     }
-                    binding.everWave.setVisibility(View.VISIBLE);
-                    binding.everWave.setSample(amplitude);
-
                 } else {
                     binding.cardEverNoteScreenPlayer.setVisibility(View.GONE);
                 }
+          //  }
+          //  lastRecordPath = recordPath;
+        }
+
+        private boolean fileExists(String path, int type) {
+            File tempFile = new File(path);
+            if (!tempFile.exists()) {
+                EverInterfaceHelper.getInstance().setDownloadListener(this);
+                downloadKey = tempFile.getName();
+                switch (type) {
+                    case 0:
+                        ((MainActivity)itemView.getContext()).getFirebaseHelper().getFileFromFirebase(tempFile.getName(), 0, getAdapterPosition());
+                        break;
+                    case 1:
+                        ((MainActivity)itemView.getContext()).getFirebaseHelper().getFileFromFirebase(tempFile.getName(), 1, getAdapterPosition());
+                        break;
+                }
             }
-            lastRecordPath = recordPath;
+            return tempFile.exists();
         }
 
         @Override
-        public void enterDarkMode(int color) {
-            binding.recyclerEverEditor.setTextColor(itemView.getContext().getColor(R.color.White));
+        public void swichDarkMode(int color, boolean isDarkMode) {
             binding.everWave.setWaveBackgroundColor(itemView.getContext().getColor(R.color.NightBlack));
             binding.cardEverNoteScreenPlayer.setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(itemView.getContext().getColor(R.color.Grey))));
+        }
+
+        @Override
+        public void downloadCompleted(File file, int p, String downloadKey) {
+            if (downloadKey.equals(this.downloadKey)) {
+                everLinkedMap.setRecord(file.getPath());
+                setWaveSeek();
+            }
         }
     }
 }

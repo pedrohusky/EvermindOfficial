@@ -131,7 +131,8 @@ class EverGLRenderer implements EverGLAudioVisualizationView.AudioVisualizationR
             return;
         float[][] colors = builder.layerColors();
         for (int i = 0; i < layers.length; i++) {
-            layers[i].setColor(colors[i]);
+            if (layers[i] != null)
+                layers[i].setColor(colors[i]);
         }
     }
 }
