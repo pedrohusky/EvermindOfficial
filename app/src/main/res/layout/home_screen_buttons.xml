@@ -32,7 +32,7 @@
             tools:layout_editor_absoluteY="5dp">
 
 
-            <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+            <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                 android:id="@+id/toolbar_undo"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -48,7 +48,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible" />
 
-            <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+            <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                 android:id="@+id/changeNotecolorButton"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -63,7 +63,7 @@
                 app:layout_constraintStart_toEndOf="@id/toolbar_undo"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+            <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                 android:id="@+id/toolbar_redo"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -80,7 +80,7 @@
                 tools:visibility="visible" />
 
 
-            <com.example.Evermind.EverAnimatedText
+            <com.example.evermemo.EverAnimatedText
                 android:id="@+id/searchBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -92,7 +92,7 @@
                 android:tag="search"
                 android:text="EVERMEMO"
                 android:textAlignment="gravity"
-                android:textColor="#737373"
+                android:textColor="@color/NightBlack"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toStartOf="@+id/Delete"
@@ -100,7 +100,7 @@
                 app:layout_constraintStart_toEndOf="@id/toolbar_redo"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+            <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                 android:id="@+id/Delete"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -150,7 +150,7 @@
     </FrameLayout>
 
 
-    <com.example.Evermind.EverCircularColorSelect
+    <com.example.evermemo.EverCircularColorSelect
         android:id="@+id/metaBallMenu"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -255,7 +255,7 @@
                     android:layout_height="match_parent"
                     android:animateLayoutChanges="true">
 
-                    <com.example.Evermind.EverAudioVisualizerHandlers.EverGLAudioVisualizationView
+                    <com.example.evermemo.EverAudioVisualizerHandlers.EverGLAudioVisualizationView
                         android:id="@+id/everGLAudioVisualizationView"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
@@ -285,7 +285,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/play"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -299,7 +299,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/audio_time" />
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/stop"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -313,7 +313,7 @@
                         app:layout_constraintStart_toEndOf="@id/play"
                         app:layout_constraintTop_toBottomOf="@id/audio_time" />
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/saveAudio"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -358,7 +358,7 @@
                     app:layout_constraintEnd_toStartOf="@+id/Gallery"
                     app:layout_constraintStart_toStartOf="@+id/Gallery">
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/Gallery"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -391,7 +391,7 @@
                         tools:layout_conversion_absoluteHeight="0dp"
                         tools:layout_conversion_absoluteWidth="0dp" />
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/Files"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -432,7 +432,7 @@
                     app:layout_constraintEnd_toStartOf="@+id/toolbar_bullet"
                     app:layout_constraintStart_toStartOf="@+id/toolbar_bullet">
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/toolbar_bullet"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -448,7 +448,7 @@
                         tools:layout_conversion_absoluteHeight="0dp"
                         tools:layout_conversion_absoluteWidth="0dp" />
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/toolbar_number"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -476,7 +476,7 @@
                         tools:layout_conversion_absoluteHeight="0dp"
                         tools:layout_conversion_absoluteWidth="0dp" />
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/toolbar_align_right"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -492,7 +492,7 @@
                         tools:layout_conversion_absoluteHeight="0dp"
                         tools:layout_conversion_absoluteWidth="0dp" />
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/toolbar_align_center"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -509,7 +509,7 @@
                         tools:layout_conversion_absoluteHeight="0dp"
                         tools:layout_conversion_absoluteWidth="0dp" />
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/toolbar_align_left"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -553,7 +553,7 @@
                     app:layout_constraintEnd_toStartOf="@+id/imageButton2"
                     app:layout_constraintStart_toStartOf="@+id/imageButton2">
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/select_notes_button"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -569,7 +569,7 @@
                         tools:layout_conversion_absoluteHeight="0dp"
                         tools:layout_conversion_absoluteWidth="0dp" />
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/selectChangeColor"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -585,7 +585,7 @@
                         tools:layout_conversion_absoluteHeight="0dp"
                         tools:layout_conversion_absoluteWidth="0dp" />
 
-                    <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                         android:id="@+id/selectDelete"
                         android:layout_width="0dp"
                         android:layout_height="35dp"
@@ -702,7 +702,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/DrawChangeSize"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -717,7 +717,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/DrawChangeColor"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -733,7 +733,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/imageButton4"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -750,7 +750,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/upDraw"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -767,7 +767,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/downDraw"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -784,7 +784,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/imageButton5"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -880,7 +880,7 @@
                                 app:layout_constraintEnd_toStartOf="@+id/IncreaseSize1"
                                 app:layout_constraintStart_toStartOf="@+id/IncreaseSize1">
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/IncreaseSize1"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -897,7 +897,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/DecreaseSize1"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -914,7 +914,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/ChangeColor1"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -931,7 +931,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/toolbar_bold"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -949,7 +949,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/toolbar_italic"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -967,7 +967,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/toolbar_underline"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -985,7 +985,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/toolbar_strikethrough"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -1003,7 +1003,7 @@
                                     tools:layout_conversion_absoluteHeight="0dp"
                                     tools:layout_conversion_absoluteWidth="0dp" />
 
-                                <com.example.Evermind.TESTEDITOR.toolbar.RTToolbarImageButton
+                                <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
                                     android:id="@+id/HighlightText1"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"

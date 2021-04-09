@@ -25,7 +25,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_weight="2">
 
-        <com.example.Evermind.TESTEDITOR.rteditor.RTTextView
+        <com.example.evermemo.TESTEDITOR.rteditor.RTTextView
             android:id="@+id/circleVisualizer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

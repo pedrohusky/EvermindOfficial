@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="8dp"
-    tools:context="com.example.Evermind.ui.notifications.NotificationsFragment">
+    tools:context="com.example.evermemo.ui.notifications.NotificationsFragment">
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
@@ -30,57 +30,57 @@
                 android:layout_height="wrap_content"
                 android:contentDescription="TODO"
                 android:padding="5dp"
-                app:tint="@color/Black"
-                app:srcCompat="@drawable/circle_colors" />
+                app:srcCompat="@drawable/circle_colors"
+                app:tint="@color/Black" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:tint="@color/White"
-                app:srcCompat="@drawable/circle_colors" />
+                app:srcCompat="@drawable/circle_colors"
+                app:tint="@color/White" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:tint="@color/Magenta"
-                app:srcCompat="@drawable/circle_colors" />
+                app:srcCompat="@drawable/circle_colors"
+                app:tint="@color/Magenta" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:tint="@color/Pink"
-                app:srcCompat="@drawable/circle_colors" />
+                app:srcCompat="@drawable/circle_colors"
+                app:tint="@color/Pink" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:tint="@color/Orange"
-                app:srcCompat="@drawable/circle_colors" />
+                app:srcCompat="@drawable/circle_colors"
+                app:tint="@color/Orange" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:tint="@color/SkyBlue"
-                app:srcCompat="@drawable/circle_colors" />
+                app:srcCompat="@drawable/circle_colors"
+                app:tint="@color/SkyBlue" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:tint="@color/YellowSun"
-                app:srcCompat="@drawable/circle_colors" />
+                app:srcCompat="@drawable/circle_colors"
+                app:tint="@color/YellowSun" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                app:tint="@color/GrassGreen"
-                app:srcCompat="@drawable/circle_colors" />
+                app:srcCompat="@drawable/circle_colors"
+                app:tint="@color/GrassGreen" />
         </GridLayout>
     </androidx.cardview.widget.CardView>
 

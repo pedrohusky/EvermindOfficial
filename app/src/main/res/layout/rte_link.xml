@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2015-2018 Emanuel Moecklin
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,29 +14,28 @@
   limitations under the License.
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/dialog_margin_top_bottom"
     android:paddingLeft="@dimen/dialog_margin_left_right"
+    android:paddingTop="@dimen/dialog_margin_top_bottom"
     android:paddingRight="@dimen/dialog_margin_left_right"
-    android:paddingTop="@dimen/dialog_margin_top_bottom">
+    android:paddingBottom="@dimen/dialog_margin_top_bottom">
 
     <EditText
         android:id="@+id/linkURL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:inputType="textWebEmailAddress"/>
+        android:inputType="textWebEmailAddress" />
 
     <EditText
         android:id="@+id/linkText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:inputType="text"/>
+        android:inputType="text" />
 
 </LinearLayout>

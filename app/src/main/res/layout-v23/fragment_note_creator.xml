@@ -57,7 +57,7 @@
             android:orientation="vertical"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-            <com.example.Evermind.EverExpandArrow
+            <com.example.evermemo.EverExpandArrow
                 android:id="@+id/expandIcon"
                 android:layout_width="match_parent"
                 android:layout_height="25dp" />

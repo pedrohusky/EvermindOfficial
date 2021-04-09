@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="EverWave">
+        <attr format="integer" name="wave_progress"/>
+        <attr format="float" name="wave_max_progress"/>
+        <attr format="dimension" name="wave_width"/>
+        <attr format="dimension" name="wave_gap"/>
+        <attr format="dimension" name="wave_min_height"/>
+        <attr format="dimension" name="wave_corner_radius"/>
+        <attr format="color" name="wave_background_color"/>
+        <attr format="color" name="wave_progress_color"/>
+        <attr format="enum" name="wave_gravity">
+            <enum name="top" value="1"/>
+            <enum name="center" value="2"/>
+            <enum name="bottom" value="3"/>
+        </attr>
+    </declare-styleable>
+</resources>

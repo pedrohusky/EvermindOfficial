@@ -1,101 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/Transparent"
-    android:orientation="vertical"
-    app:layout_minHeight="150dp">
+    android:layout_marginStart="5dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginEnd="5dp"
+    android:layout_marginBottom="8dp"
+    android:backgroundTint="@color/White"
+    android:minHeight="100dp"
+    app:cardCornerRadius="15dp"
+    app:cardElevation="4dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/mainCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/White"
-        android:minHeight="100dp"
-        app:cardCornerRadius="15dp"
-        app:cardElevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/info_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|top"
+            android:background="@color/Transparent"
+            android:backgroundTint="@color/Transparent"
+            android:elevation="5dp"
+            android:gravity="center|top"
+            android:includeFontPadding="false"
+            android:maxLength="20"
+            android:minWidth="185dp"
+            android:padding="3dp"
+            android:singleLine="true"
+            android:textColor="@color/Black"
+            android:textSize="24sp"
+            android:visibility="visible"
+            app:autoSizeMaxTextSize="24dp"
+            app:autoSizeMinTextSize="18dp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toTopOf="@id/DrawAndTextNoteScreenRecycler"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/info_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|top"
-                android:background="@color/Transparent"
-                android:backgroundTint="@color/Transparent"
-                android:elevation="5dp"
-                android:gravity="center|top"
-                android:includeFontPadding="false"
-                android:maxLength="20"
-                android:minWidth="185dp"
-                android:padding="3dp"
-                android:singleLine="true"
-                android:textColor="@color/Black"
-                android:textSize="24sp"
-                android:visibility="visible"
-                app:autoSizeMaxTextSize="24dp"
-                app:autoSizeMinTextSize="18dp"
-                app:autoSizeTextType="uniform"
-                app:layout_constraintBottom_toTopOf="@id/DrawAndTextNoteScreenRecycler"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+        <com.mlsdev.animatedrv.AnimatedRecyclerView
+            android:id="@+id/DrawAndTextNoteScreenRecycler"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/White"
+            android:minHeight="100dp"
+            app:animationDuration="600"
+            app:layoutAnimation="@anim/layout_animation_from_scale"
+            app:layoutManagerOrientation="vertical"
+            app:layoutManagerReverse="false"
+            app:layoutManagerType="linear"
+            app:layout_constraintBottom_toTopOf="@id/imageRecyclerNoteScreen"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/info_title">
 
-            <com.mlsdev.animatedrv.AnimatedRecyclerView
-                android:id="@+id/DrawAndTextNoteScreenRecycler"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:background="@color/White"
-                android:minHeight="100dp"
-                app:animationDuration="600"
-                app:layoutAnimation="@anim/layout_animation_from_scale"
-                app:layoutManagerOrientation="vertical"
-                app:layoutManagerReverse="false"
-                app:layoutManagerType="linear"
-                app:layout_constraintBottom_toTopOf="@id/imageRecyclerNoteScreen"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/info_title">
+        </com.mlsdev.animatedrv.AnimatedRecyclerView>
 
-            </com.mlsdev.animatedrv.AnimatedRecyclerView>
+        <View
+            android:id="@+id/viewToApplyPushDown"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:elevation="2dp"
+            android:minHeight="100dp"
+            app:layout_constraintBottom_toTopOf="@id/imageRecyclerNoteScreen"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <View
-                android:id="@+id/viewToApplyPushDown"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:elevation="2dp"
-                android:minHeight="100dp"
-                app:layout_constraintBottom_toTopOf="@id/imageRecyclerNoteScreen"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/imageRecyclerNoteScreen"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layoutAnimation="@anim/grid_appear_layout_animation"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewToApplyPushDown" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/imageRecyclerNoteScreen"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layoutAnimation="@anim/grid_appear_layout_animation"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/viewToApplyPushDown" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.cardview.widget.CardView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

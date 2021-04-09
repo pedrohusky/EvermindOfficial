@@ -2,48 +2,34 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainNav"
     app:startDestination="@+id/nav_home">
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.Evermind.ui.note_screen.NotesScreen"
+        android:name="com.example.evermemo.ui.note_screen.NotesScreen"
         android:label="@string/menu_home"
-        tools:layout="@layout/home_screen_notes" >
-        <action
-            android:id="@+id/action_nav_home_to_nav_note"
-            app:destination="@id/nav_note"
-            app:enterAnim="@anim/translate_up_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-    </fragment>
+        tools:layout="@layout/home_screen_notes" />
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="com.example.Evermind.ui.gallery.GalleryFragment"
+        android:name="com.example.evermemo.ui.gallery.GalleryFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_gallery" />
 
     <fragment
         android:id="@+id/nav_slideshow"
-        android:name="com.example.Evermind.ui.slideshow.SlideshowFragment"
+        android:name="com.example.evermemo.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
     <fragment
         android:id="@+id/nav_note"
-        android:name="com.example.Evermind.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment"
+        android:name="com.example.evermemo.ui.dashboard.ui.main.NoteEditorFragmentJavaFragment"
         android:label="Note"
         tools:layout="@layout/fragment_note_creator" >
-        <action
-            android:id="@+id/action_nav_note_to_nav_home"
-            app:destination="@id/nav_home"
-            app:enterAnim="@anim/scale_down_notes_reversed"
-            app:exitAnim="@anim/scale_transition_tonote_reversed"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            />
         <argument
             android:name="OpenNoteModel"
-            app:argType="com.example.Evermind.Note_Model" />
+            app:argType="com.example.evermemo.Note_Model" />
     </fragment>
 
 </navigation>

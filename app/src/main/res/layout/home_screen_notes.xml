@@ -19,7 +19,7 @@
         android:transitionName="card"
         android:visibility="visible" />
 
-    <com.example.Evermind.EverRecyclerContentsNoteScreen
+    <com.example.evermemo.EverRecyclerContentsNoteScreen
         android:id="@+id/notesRecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
