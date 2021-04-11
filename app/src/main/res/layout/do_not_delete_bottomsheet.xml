@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/donotuse"
+    android:layout_width="match_parent"
+    android:layout_height="275dp"
+    android:elevation="7dp"
+    android:visibility="visible"
+    tools:visibility="visible">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/drawCoordinator"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:animateLayoutChanges="true"
+        android:translationY="40dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottom_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/drawBottomSheet"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_drawMoreOptions"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:tag="card"
+                android:visibility="visible"
+                app:cardBackgroundColor="@color/White"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="0dp"
+                tools:visibility="visible">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/DrawChangeColor"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selected_background"
+                        android:padding="4dp"
+                        android:scaleType="fitCenter"
+                        android:tint="@color/Black"
+                        app:layout_constraintBottom_toTopOf="@id/colors_recycler"
+                        app:layout_constraintEnd_toStartOf="@id/imageButton4"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_weight="1"
+                        app:srcCompat="@drawable/color_selector_icon"
+                        tools:layout_conversion_absoluteHeight="0dp"
+                        tools:layout_conversion_absoluteWidth="0dp" />
+
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/upDraw"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selected_background"
+                        android:padding="4dp"
+                        android:scaleType="fitCenter"
+                        android:tag="white"
+                        android:tint="@color/Black"
+                        app:layout_constraintBottom_toTopOf="@id/colors_recycler"
+                        app:layout_constraintEnd_toStartOf="@id/downDraw"
+                        app:layout_constraintStart_toEndOf="@id/imageButton4"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_weight="1"
+                        app:srcCompat="@android:drawable/arrow_up_float"
+                        tools:layout_conversion_absoluteHeight="0dp"
+                        tools:layout_conversion_absoluteWidth="0dp" />
+
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/imageButton5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selected_background"
+                        android:padding="4dp"
+                        android:scaleType="fitCenter"
+                        android:tag="white"
+                        android:tint="@color/Black"
+                        app:layout_constraintBottom_toTopOf="@id/colors_recycler"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/downDraw"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_weight="1"
+                        app:srcCompat="@drawable/ic_baseline_format_paint_24"
+                        tools:layout_conversion_absoluteHeight="0dp"
+                        tools:layout_conversion_absoluteWidth="0dp" />
+
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/imageButton4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selected_background"
+                        android:padding="4dp"
+                        android:scaleType="fitCenter"
+                        android:tag="white"
+                        android:tint="@color/Black"
+                        app:layout_constraintBottom_toTopOf="@id/colors_recycler"
+                        app:layout_constraintEnd_toStartOf="@id/upDraw"
+                        app:layout_constraintStart_toEndOf="@id/DrawChangeColor"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_weight="1"
+                        app:srcCompat="@drawable/clear"
+                        tools:layout_conversion_absoluteHeight="0dp"
+                        tools:layout_conversion_absoluteWidth="0dp" />
+
+                    <com.example.evermemo.TESTEDITOR.toolbar.RTToolbarImageButton
+                        android:id="@+id/downDraw"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selected_background"
+                        android:padding="4dp"
+                        android:scaleType="fitCenter"
+                        android:tag="white"
+                        android:tint="@color/Black"
+                        app:layout_constraintBottom_toTopOf="@id/colors_recycler"
+                        app:layout_constraintEnd_toStartOf="@id/imageButton5"
+                        app:layout_constraintStart_toEndOf="@id/upDraw"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_weight="1"
+                        app:srcCompat="@android:drawable/arrow_down_float"
+                        tools:layout_conversion_absoluteHeight="0dp"
+                        tools:layout_conversion_absoluteWidth="0dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/colors_recycler"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginBottom="8dp"
+                        app:layout_constraintBottom_toTopOf="@id/colorPickerView"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/DrawChangeColor"
+                        app:layout_constraintVertical_weight="2" />
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardVisualizer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_margin="5dp"
+                        app:cardCornerRadius="25dp"
+                        app:cardElevation="3dp"
+                        app:layout_constraintBottom_toTopOf="@id/seekCard"
+                        app:layout_constraintEnd_toEndOf="@id/colorPickerView"
+                        app:layout_constraintStart_toStartOf="@id/colorPickerView"
+                        app:layout_constraintTop_toBottomOf="@id/colorPickerView"
+                        app:layout_constraintVertical_weight="1">
+
+                        <ImageView
+                            android:id="@+id/circleVisualizer"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:layout_gravity="center"
+                            android:tag="circleVisualizer"
+                            app:srcCompat="@drawable/circle_colors"
+                            app:tint="@color/Black" />
+                    </androidx.cardview.widget.CardView>
+
+                    <com.skydoves.colorpickerview.ColorPickerView
+                        android:id="@+id/colorPickerView"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="125dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="125dp"
+                        android:layout_marginBottom="8dp"
+                        app:layout_constraintBottom_toTopOf="@id/cardVisualizer"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/colors_recycler"
+                        app:layout_constraintVertical_weight="7" />
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/seekCard"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginBottom="32dp"
+                        app:cardCornerRadius="15dp"
+                        app:cardElevation="5dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/cardVisualizer"
+                        app:layout_constraintVertical_weight="1">
+
+                        <SeekBar
+                            android:id="@+id/draw_size_seeekbar"
+                            android:layout_width="match_parent"
+                            android:layout_height="15dp"
+                            android:layout_margin="5dp"
+                            android:elevation="6dp"
+                            android:max="100"
+                            android:padding="4dp"
+                            android:visibility="visible"
+                            tools:layout_conversion_absoluteHeight="0dp"
+                            tools:layout_conversion_absoluteWidth="0dp" />
+                    </androidx.cardview.widget.CardView>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

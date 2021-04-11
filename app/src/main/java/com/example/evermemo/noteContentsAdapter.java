@@ -85,7 +85,6 @@ public class noteContentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         // Create a new view, which defines the UI of the list item
         View view = null;
-        System.out.println("Viewtype is: " + viewType);
         switch (viewType) {
             case 1:
                 view = LayoutInflater.from(viewGroup.getContext())

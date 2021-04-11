@@ -53,6 +53,7 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
         visualizerHandler = new EverVisualizerHandler();
         visualizerView = mainActivity.get().getButtonsBinding().everGLAudioVisualizationView;
         visualizerView.linkTo(visualizerHandler);
+        visualizerHandler.stop();
         mainActivity.get().getHandler().postDelayed(() -> {
             ImageButton stopView = mainActivity.get().getEverViewManagement().getStopView();
             ImageButton saveView = mainActivity.get().getEverViewManagement().getSaveView();
@@ -104,14 +105,12 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
             ifColor = color;
         }
         //  visualizerView.setBackgroundColor(ifColor);
-        visualizerView.updateColor(new EverGLAudioVisualizationView.ColorsBuilder<>(mainActivity.get()).setBackgroundColor(ifColor).setLayerColors(new int[]{Color.WHITE}));
+        visualizerView.updateColor(new EverGLAudioVisualizationView.ColorsBuilder<>(mainActivity.get()).setBackgroundColor(ifColor).setLayerColors(new int[]{mainActivity.get().getEverThemeHelper().defaultTheme}));
+
         mainActivity.get().getEverViewManagement().switchBottomBars("audio");
-
-
-        visualizerView.onPause();
         visualizerView.postDelayed(() -> {
+            visualizerView.setVisibility(View.VISIBLE);
             visualizerView.onResume();
-
         }, 250);
         // });
 
@@ -206,5 +205,9 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
         visualizerView.onPause();
         stopRecording();
         mainActivity.get().getEverViewManagement().switchBottomBars("audio");
+    }
+
+    public void stopRender() {
+        visualizerHandler.stop();
     }
 }

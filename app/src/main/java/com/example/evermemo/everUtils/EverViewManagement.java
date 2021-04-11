@@ -7,6 +7,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
@@ -59,18 +61,10 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
     private final HomeScreenButtonsBinding buttonsBinding;
     private int audioDecoySize = 0;
     private boolean bottomBarUp = false;
-    private boolean drawsize = false;
     private String lastSearch;
     private String lastOpenedTab = "";
     private boolean isDrawing = false;
-    private boolean DrawVisualizerIsShowing = false;
     private final HorizontalRTToolbar toolbar;
-    private View drawConstraint = null;
-    private View formatConstraint = null;
-    private final BottomSheetBehavior drawBottomSheet;
-    private final BottomSheetBehavior formatBottomSheet;
-    private boolean drawStub = false;
-    private boolean formatStub = false;
     private ValueAnimator heightAnimator;
 
     public EverViewManagement(@NonNull Context context) {
@@ -156,38 +150,6 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
             }
             return null;
         });
-
-        formatBottomSheet = BottomSheetBehavior.from(buttonsBinding.formatBottomSheet);
-        drawBottomSheet = BottomSheetBehavior.from(buttonsBinding.drawBottomSheet);
-        drawBottomSheet.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                //  if (!drawStub) {
-                inflateLayoutByName("draw");
-                //  }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-            }
-        });
-        formatBottomSheet.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                //  if (!formatStub) {
-                inflateLayoutByName("format");
-                //  }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-            }
-        });
-        drawBottomSheet.setPeekHeight(250);
-        formatBottomSheet.setPeekHeight(250);
-
         //scrollView1 = findViewById(R.id.scroll_draw);
         List<View> views = new ArrayList<>();
         views.add(buttonsBinding.toolbarUndo);
@@ -215,7 +177,36 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
 
         mainActivity.get().applyPushDownToViews(views, 0.7f);
 
-        //toolbar.init();
+        SeekBar drawSizeSeekbar = buttonsBinding.cardDrawMoreOptions.findViewById(R.id.draw_size_seeekbar);
+        ColorPickerView colorPickerView = buttonsBinding.cardDrawMoreOptions.findViewById(R.id.colorPickerView);
+        ImageView circleVisualizer = buttonsBinding.cardDrawMoreOptions.findViewById(R.id.circleVisualizer);
+        drawSizeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (seekBar.getHandler() != null) {
+                    seekBar.getHandler().postDelayed(() -> {
+                        float f = (float) progress / 100;
+                        circleVisualizer.setScaleX(f);
+                        circleVisualizer.setScaleY(f);
+                        mainActivity.get().getNoteCreator().getEverDraw().setStrokeWidth(progress * 0.8f);
+                    }, 10);
+                } else {
+                    float f = (float) progress / 100;
+                    circleVisualizer.setScaleX(f);
+                    circleVisualizer.setScaleY(f);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     public boolean isDrawing() {
@@ -519,9 +510,7 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
     }
 
     public void clearBooleans() {
-        DrawVisualizerIsShowing = false;
         bottomBarUp = false;
-        drawsize = false;
         lastOpenedTab = "";
     }
 
@@ -561,7 +550,7 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
         return buttonsBinding.toolbarAlignRight;
     }
 
-    public CardView getAudioOptions() {
+    public ConstraintLayout getAudioOptions() {
         return buttonsBinding.cardAudioOptions;
     }
 
@@ -569,6 +558,7 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
         return buttonsBinding.audioTime;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public void switchBottomBars(String name) {
 
         int delay = 0;
@@ -579,10 +569,10 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
 
         switch (lastOpenedTab) {
             case "format":
-                animateHeightChange(buttonsBinding.formatCoordinator, 250, 0, new Runnable() {
+                animateHeightChange(buttonsBinding.cardFormatMoreOptions, 250, 0, new Runnable() {
                     @Override
                     public void run() {
-                        buttonsBinding.formatCoordinator.setVisibility(View.GONE);
+                        buttonsBinding.cardFormatMoreOptions.setVisibility(View.GONE);
                     }
                 });
                 animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
@@ -598,8 +588,7 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                 break;
 
             case "audio":
-                //    mainActivity.get().getAudioHelper().stop(true);
-                animateHeightChange(buttonsBinding.imageAudioDecoy, 150, audioDecoySize, null);
+                mainActivity.get().getAudioHelper().stopRender();
                 buttonsBinding.cardAudioOptions.postDelayed(() -> {
                     animateHeightChange(buttonsBinding.cardAudioOptions, 100, 0, null);
                     animateHeightChange(buttonsBinding.decoySpace, 100, buttonsBinding.bottomBar.getHeight(), null);
@@ -612,10 +601,10 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                     mainActivity.get().getNoteCreator().removeEverLinkedContentAtPosition(mainActivity.get().getActualNote().getEverLinkedContents(false).size() - 2);
                 }
                 isDrawing = false;
-                animateHeightChange(buttonsBinding.drawCoordinator, 250, 0, new Runnable() {
+                animateHeightChange(buttonsBinding.cardDrawMoreOptions, 250, 0, new Runnable() {
                     @Override
                     public void run() {
-                        buttonsBinding.drawCoordinator.setVisibility(View.GONE);
+                        buttonsBinding.cardDrawMoreOptions.setVisibility(View.GONE);
                     }
                 });
                 animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
@@ -633,51 +622,37 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                 if (!name.equals(lastOpenedTab)) {
                     switch (name) {
                         case "format":
-                            buttonsBinding.formatCoordinator.setVisibility(View.VISIBLE);
-                            buttonsBinding.formatSelectors.setVisibility(View.VISIBLE);
-                            if (formatConstraint != null) {
-                                formatConstraint.setVisibility(View.VISIBLE);
-                            }
-                            //    inflateLayoutByName("format");
-                            animateHeightChange(buttonsBinding.formatCoordinator, 750, 550, null);
+                            buttonsBinding.cardFormatMoreOptions.setVisibility(View.VISIBLE);
+                            animateHeightChange(buttonsBinding.cardFormatMoreOptions, 350, 200,null);
                             animateHeightChange(buttonsBinding.decoySpace, 500, 300, null);
                             lastOpenedTab = name;
                             break;
                         case "paragraph":
                             buttonsBinding.cardParagraphOptions.setVisibility(View.VISIBLE);
-                            animateHeightChange(buttonsBinding.cardParagraphOptions, 250, 200, null);
-                            animateHeightChange(buttonsBinding.decoySpace, 250, 300, null);
+                            animateHeightChange(buttonsBinding.cardParagraphOptions, 350, 200, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 500, 300, null);
                             lastOpenedTab = name;
                             break;
 
                         case "import":
                             buttonsBinding.cardImportOptions.setVisibility(View.VISIBLE);
-                            animateHeightChange(buttonsBinding.cardImportOptions, 250, 200, null);
-                            animateHeightChange(buttonsBinding.decoySpace, 250, 300, null);
+                            animateHeightChange(buttonsBinding.cardImportOptions, 350, 200, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 500, 300, null);
                             lastOpenedTab = name;
                             break;
 
                         case "audio":
-                            buttonsBinding.imageAudioDecoy.setBackgroundColor(Integer.parseInt(mainActivity.get().getActualNote().getNoteColor()));
                             buttonsBinding.cardAudioOptions.setVisibility(View.VISIBLE);
                             //   EverInterfaceHelper.getInstance().changeState(false);
-                            animateHeightChange(buttonsBinding.cardAudioOptions, 250, 450, null);
-                            animateHeightChange(buttonsBinding.decoySpace, 250, 600, null);
-                            mainActivity.get().getUIHandler().postDelayed(() -> {
-                                audioDecoySize = buttonsBinding.imageAudioDecoy.getHeight();
-                                animateHeightChange(buttonsBinding.imageAudioDecoy, 350, 0, null);
-                            }, 300);
+                            animateHeightChange(buttonsBinding.cardAudioOptions, 350, 450, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 500, 600, null);
                             lastOpenedTab = name;
                             break;
 
                         case "newDraw":
 
                             if (!isDrawing) {
-                                buttonsBinding.cardDrawOptions.setVisibility(View.VISIBLE);
-                                buttonsBinding.drawCoordinator.setVisibility(View.VISIBLE);
-                                if (drawConstraint != null) {
-                                    drawConstraint.setVisibility(View.VISIBLE);
-                                }
+                                buttonsBinding.cardDrawMoreOptions.setVisibility(View.VISIBLE);
                                 InputMethodManager keyboard1 = (InputMethodManager) mainActivity.get().getSystemService(INPUT_METHOD_SERVICE);
                                 keyboard1.hideSoftInputFromWindow(mainActivity.get().getNoteCreator().getCardNoteCreator().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                                 if (mainActivity.get().getNoteCreator().getActiveEditor() != null) {
@@ -686,20 +661,15 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                                 mainActivity.get().getActualNote().addEverLinkedMap("edit", mainActivity.get(), true);
                                 mainActivity.get().getNoteCreator().setNewDraw(true);
                                 isDrawing = true;
-                                // inflateLayoutByName("draw");
-                                animateHeightChange(buttonsBinding.decoySpace, 750, 300, null);
-                                animateHeightChange(buttonsBinding.drawCoordinator, 750, 1000, null);
+                                animateHeightChange(buttonsBinding.decoySpace, 500, 300, null);
+                                animateHeightChange(buttonsBinding.cardDrawMoreOptions, 350, 200, null);
                                 lastOpenedTab = "draw";
                             }
                             break;
 
                         case "draw":
 
-                            buttonsBinding.cardDrawOptions.setVisibility(View.VISIBLE);
-                            buttonsBinding.drawCoordinator.setVisibility(View.VISIBLE);
-                            if (drawConstraint != null) {
-                                drawConstraint.setVisibility(View.VISIBLE);
-                            }
+                            buttonsBinding.cardDrawMoreOptions.setVisibility(View.VISIBLE);
                             InputMethodManager keyboard2 = (InputMethodManager) mainActivity.get().getSystemService(INPUT_METHOD_SERVICE);
                             keyboard2.hideSoftInputFromWindow(mainActivity.get().getNoteCreator().getCardNoteCreator().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                             if (mainActivity.get().getNoteCreator().getActiveEditor() != null) {
@@ -708,8 +678,8 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                             isDrawing = true;
 
                             //  inflateLayoutByName("draw");
-                            animateHeightChange(buttonsBinding.decoySpace, 750, 300, null);
-                            animateHeightChange(buttonsBinding.drawCoordinator, 750, 1000, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 500, 300, null);
+                            animateHeightChange(buttonsBinding.cardDrawMoreOptions, 350, 200, null);
 
                             lastOpenedTab = name;
                             break;
@@ -717,18 +687,18 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                         case "select":
                             buttonsBinding.cardSelectors.setVisibility(View.VISIBLE);
                             mainActivity.get().getEverNoteManagement().setNotesSelected(false);
-                            animateHeightChange(buttonsBinding.cardSelectors, 250, 200, null);
-                            animateHeightChange(buttonsBinding.decoySpace, 250, 150, null);
+                            animateHeightChange(buttonsBinding.cardSelectors, 350, 200, null);
+                            animateHeightChange(buttonsBinding.decoySpace, 500, 300, null);
                             lastOpenedTab = name;
                             break;
                     }
                 } else {
                     switch (name) {
                         case "format":
-                            animateHeightChange(buttonsBinding.formatCoordinator, 250, 0, new Runnable() {
+                            animateHeightChange(buttonsBinding.cardFormatMoreOptions, 250, 0, new Runnable() {
                                 @Override
                                 public void run() {
-                                    buttonsBinding.formatCoordinator.setVisibility(View.GONE);
+                                    buttonsBinding.cardFormatMoreOptions.setVisibility(View.GONE);
                                 }
                             });
                             animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
@@ -745,7 +715,7 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
 
                         case "audio":
                             //    mainActivity.get().getAudioHelper().stop(true);
-                            animateHeightChange(buttonsBinding.imageAudioDecoy, 175, audioDecoySize, null);
+                            mainActivity.get().getAudioHelper().stopRender();
                             mainActivity.get().getUIHandler().postDelayed(() -> {
                                 animateHeightChange(buttonsBinding.cardAudioOptions, 250, 0, null);
                                 animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
@@ -758,10 +728,10 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                                 mainActivity.get().getNoteCreator().removeEverLinkedContentAtPosition(mainActivity.get().getActualNote().getEverLinkedContents(false).size() - 2);
                             }
                             isDrawing = false;
-                            animateHeightChange(buttonsBinding.drawCoordinator, 250, 0, new Runnable() {
+                            animateHeightChange(buttonsBinding.cardDrawMoreOptions, 250, 0, new Runnable() {
                                 @Override
                                 public void run() {
-                                    buttonsBinding.drawCoordinator.setVisibility(View.GONE);
+                                    buttonsBinding.cardDrawMoreOptions.setVisibility(View.GONE);
                                 }
                             });
                             animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
@@ -772,7 +742,7 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                                 mainActivity.get().getNoteCreator().removeEverLinkedContentAtPosition(mainActivity.get().getActualNote().getEverLinkedContents(false).size() - 2);
                             }
                             isDrawing = false;
-                            animateHeightChange(buttonsBinding.drawCoordinator, 250, 0, null);
+                            animateHeightChange(buttonsBinding.cardDrawMoreOptions, 250, 0, null);
                             animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
                             break;
 
@@ -787,90 +757,6 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
         }, delay);
 
 
-    }
-
-
-    private void inflateLayoutByName(String name) {
-        switch (name) {
-            case "format":
-                if (!formatStub) {
-                    formatConstraint = buttonsBinding.viewStub2.inflate();
-                    formatStub = true;
-                } else {
-                    if (formatConstraint.getVisibility() != View.VISIBLE) {
-                        formatConstraint.setVisibility(View.VISIBLE);
-                    }
-                    if (drawConstraint != null)
-                        if (drawConstraint.getVisibility() != View.GONE) {
-                            drawConstraint.setVisibility(View.GONE);
-                        }
-                }
-                break;
-            case "draw":
-                if (!drawStub) {
-                    drawConstraint = buttonsBinding.viewStub.inflate();
-                    drawStub = true;
-                    SeekBar drawSizeSeekbar = drawConstraint.findViewById(R.id.draw_size_seeekbar);
-                    ColorPickerView colorPickerView = drawConstraint.findViewById(R.id.colorPickerView);
-                    ImageView circleVisualizer = drawConstraint.findViewById(R.id.circleVisualizer);
-                    drawSizeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                        @Override
-                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                            if (seekBar.getHandler() != null) {
-                                seekBar.getHandler().postDelayed(() -> {
-                                    float f = (float) progress / 100;
-                                    circleVisualizer.setScaleX(f);
-                                    circleVisualizer.setScaleY(f);
-                                    mainActivity.get().getNoteCreator().getEverDraw().setStrokeWidth(progress * 0.8f);
-                                }, 10);
-                            } else {
-                                float f = (float) progress / 100;
-                                circleVisualizer.setScaleX(f);
-                                circleVisualizer.setScaleY(f);
-                            }
-                        }
-
-                        @Override
-                        public void onStartTrackingTouch(SeekBar seekBar) {
-
-                        }
-
-                        @Override
-                        public void onStopTrackingTouch(SeekBar seekBar) {
-
-                        }
-                    });
-
-                    drawSizeSeekbar.setProgress(50);
-                    colorPickerView.setColorListener(new ColorListener() {
-                        @Override
-                        public void onColorSelected(int color, boolean fromUser) {
-                            if (fromUser) {
-                                drawBottomSheet.setDraggable(false);
-                                mainActivity.get().getNoteCreator().getEverDraw().setColor(color);
-                                circleVisualizer.getHandler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        drawBottomSheet.setDraggable(true);
-                                        mainActivity.get().getEverThemeHelper().tintViewAccent(circleVisualizer, color, 150);
-                                    }
-                                }, 150);
-                            }
-                        }
-                    });
-                } else {
-                    if (drawConstraint.getVisibility() != View.VISIBLE) {
-                        drawConstraint.setVisibility(View.VISIBLE);
-                    }
-                    if (formatConstraint != null)
-                        if (formatConstraint.getVisibility() != View.GONE) {
-                            formatConstraint.setVisibility(View.GONE);
-                        }
-                }
-                break;
-        }
-
-
         buttonsBinding.upDraw.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -881,6 +767,7 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
         });
 
         buttonsBinding.downDraw.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 System.out.println(-1);
@@ -899,28 +786,14 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
             mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.bottomBar, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
             mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.toolbar, mainActivity.get().getEverThemeHelper().defaultTheme, 600);
             mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.frameSizeDecoy, Util.getDarkerColor(mainActivity.get().getEverThemeHelper().defaultTheme), 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardSelectors, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardAudioOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardImportOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardParagraphOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardFormatMoreOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawMoreOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.formatSelectors, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.notMoreOptionsLinearLayout, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
             buttonsBinding.HighlightText1.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getEverThemeHelper().defaultTheme));
             buttonsBinding.searchBox.setSearchBarColor(Color.WHITE);
         } else {
             mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.bottomBar, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
             mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.toolbar, mainActivity.get().getEverThemeHelper().defaultTheme, 600);
             mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.frameSizeDecoy, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardSelectors, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardAudioOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardImportOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardParagraphOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardFormatMoreOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.cardDrawMoreOptions, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
-            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.formatSelectors, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
+            mainActivity.get().getEverThemeHelper().tintViewAccent(buttonsBinding.notMoreOptionsLinearLayout, mainActivity.get().getEverThemeHelper().defaultTheme, 500);
             buttonsBinding.HighlightText1.setBackgroundTintList(ColorStateList.valueOf(mainActivity.get().getEverThemeHelper().defaultTheme));
             buttonsBinding.searchBox.setSearchBarColor(mainActivity.get().getColor(R.color.NightBlack));
         }

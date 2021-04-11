@@ -116,12 +116,13 @@ public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatIma
                 setImageTintList(ColorStateList.valueOf(color));
             }
         } else {
-            if (!isDarkMode) {
-                setImageTintList(ColorStateList.valueOf(darkColor));
+            if (color == darkColor) {
+                setImageTintList(ColorStateList.valueOf(getContext().getColor(R.color.White)));
             } else {
-                setImageTintList(ColorStateList.valueOf(Color.WHITE));
+                setImageTintList(ColorStateList.valueOf(darkColor));
             }
         }
+
         if (mChecked) {
             if (color != getContext().getColor(R.color.White)) {
                 ((MainActivity) getContext()).getEverThemeHelper().tintViewAccent(this, color, 250);
@@ -130,12 +131,6 @@ public class RTToolbarImageButton extends androidx.appcompat.widget.AppCompatIma
             }
             setImageTintList(ColorStateList.valueOf(getContext().getColor(R.color.White)));
 
-        } else {
-            if (!isDarkMode) {
-           //     ((MainActivity) getContext()).getEverThemeHelper().tintViewAccent(this, getContext().getColor(R.color.White), 250);
-            } else {
-           ///     ((MainActivity) getContext()).getEverThemeHelper().tintViewAccent(this, ((MainActivity) getContext()).getEverThemeHelper().defaultTheme, 250);
-            }
         }
 
 

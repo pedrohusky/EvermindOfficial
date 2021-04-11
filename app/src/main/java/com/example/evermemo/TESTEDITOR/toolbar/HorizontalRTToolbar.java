@@ -132,7 +132,6 @@ public class HorizontalRTToolbar extends LinearLayout implements RTToolbar, View
         initImageButton(mainActivity.get().getButtonsBinding().Files);
         initImageButton(mainActivity.get().getButtonsBinding().Gallery);
         initImageButton(mainActivity.get().getButtonsBinding().DrawChangeColor);
-        initImageButton(mainActivity.get().getButtonsBinding().DrawChangeSize);
         initImageButton(mainActivity.get().getButtonsBinding().HighlightText1);
         initImageButton(mainActivity.get().getButtonsBinding().changeNotecolorButton);
         initImageButton(mainActivity.get().getButtonsBinding().toolbarUndo);

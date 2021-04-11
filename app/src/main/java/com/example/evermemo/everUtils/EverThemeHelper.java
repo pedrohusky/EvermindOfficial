@@ -74,9 +74,6 @@ public class EverThemeHelper implements EverInterfaceHelper.OnChangeColorListene
             //   blended = blendColors(toolbarColor, toolbarToColor, position);
             //  ColorDrawable background = new ColorDrawable(blended);
             //  Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(background);
-            if (mainActivity.get().getEverViewManagement().getAudioOptions() != null) {
-                mainActivity.get().getEverViewManagement().getAudioOptions().findViewById(R.id.imageAudioDecoy).setBackgroundColor(blended);
-            }
 
 
             mainActivity.get().getEverViewManagement().getBottomBar().setBarIndicatorColor(blended);
