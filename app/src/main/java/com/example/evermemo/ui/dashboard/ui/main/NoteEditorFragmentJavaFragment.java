@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evermemo.EverAudioVisualizerHandlers.EverInterfaceHelper;
+import com.example.evermemo.EverAutoTransition;
 import com.example.evermemo.EverDraw;
 import com.example.evermemo.EverPopup;
 import com.example.evermemo.MainActivity;
@@ -80,7 +81,7 @@ public class NoteEditorFragmentJavaFragment extends Fragment implements EverInte
 
         postponeEnterTransition();
 
-        setSharedElementEnterTransition(TransitionInflater.from(requireActivity()).inflateTransition(R.transition.ever_transition));
+        setSharedElementEnterTransition(new EverAutoTransition());
 
         binding = FragmentNoteCreatorBinding.inflate(inflater, container, false);
         //  binding.toColorLinearLayoutNoteCreator.setBackgroundTintList(ColorStateList.valueOf(Util.getDarkerColor(getContext().getColor(R.color.White))));

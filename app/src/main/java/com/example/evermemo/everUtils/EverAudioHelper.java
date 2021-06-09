@@ -99,18 +99,27 @@ public class EverAudioHelper implements PullTransport.OnAudioChunkPulledListener
         this.channel = channel;
         this.sampleRate = sampleRate;
         int ifColor;
-        if (color == -1) {
+        int bkg;
+        if (mainActivity.get().getEverThemeHelper().isDarkMode()) {
+
+            bkg = mainActivity.get().getColor(R.color.NightLessBlack);
             ifColor = Util.getDarkerColor(color);
         } else {
-            ifColor = color;
+
+            bkg = mainActivity.get().getColor(R.color.White);
+            if (color == -1) {
+                ifColor = Util.getDarkerColor(color);
+            } else {
+                ifColor = color;
+            }
         }
         //  visualizerView.setBackgroundColor(ifColor);
-        visualizerView.updateColor(new EverGLAudioVisualizationView.ColorsBuilder<>(mainActivity.get()).setBackgroundColor(ifColor).setLayerColors(new int[]{mainActivity.get().getEverThemeHelper().defaultTheme}));
+        visualizerView.updateColor(new EverGLAudioVisualizationView.ColorsBuilder<>(mainActivity.get()).setBackgroundColor(bkg).setLayerColors(new int[]{ifColor}));
 
         mainActivity.get().getEverViewManagement().switchBottomBars("audio");
         visualizerView.postDelayed(() -> {
-            visualizerView.setVisibility(View.VISIBLE);
-            visualizerView.onResume();
+            //visualizerView.setVisibility(View.VISIBLE);
+            //visualizerView.onResume();
         }, 250);
         // });
 

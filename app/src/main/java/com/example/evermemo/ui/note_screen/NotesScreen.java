@@ -107,11 +107,11 @@ public class NotesScreen extends Fragment implements AdapterView.OnItemLongClick
 
     public void setLayoutManager(FirebaseHelper firebaseHelper) {
         int count;
-        if (firebaseHelper.getUserSettings().isGrid()) {
-            count = 2;
-        } else {
-            count = 1;
-        }
+            if (firebaseHelper.getUserSettings().isGrid()) {
+                count = 2;
+            } else {
+                count = 1;
+            }
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(count, StaggeredGridLayoutManager.VERTICAL);
         recyclerView = rootView.findViewById(R.id.notesRecycler);
 

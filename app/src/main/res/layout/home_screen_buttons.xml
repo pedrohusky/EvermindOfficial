@@ -801,21 +801,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:animateLayoutChanges="true"
-                android:visibility="gone">
+                android:visibility="invisible">
 
                 <com.example.evermemo.EverAudioVisualizerHandlers.EverGLAudioVisualizationView
                     android:id="@+id/everGLAudioVisualizationView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:visibility="visible"
+                    android:visibility="gone"
                     app:av_backgroundColor="@color/White"
                     app:av_bubblesPerLayer="10"
                     app:av_bubblesRandomizeSizes="true"
                     app:av_bubblesSize="30dp"
                     app:av_layersCount="1"
                     app:av_wavesCount="4"
-                    app:av_wavesFooterHeight="25dp"
-                    app:av_wavesHeight="100dp"
+                    app:av_wavesFooterHeight="1000dp"
+                    app:av_wavesHeight="200dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

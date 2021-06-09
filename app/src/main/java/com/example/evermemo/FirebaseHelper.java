@@ -95,23 +95,28 @@ public class FirebaseHelper {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        if (!Objects.requireNonNull(task.getResult()).getData().containsKey("name")) {
-                            HashMap<String, Object> userData = new HashMap<>();
-                            userData.put("name", user.getDisplayName());
-                            userData.put("last_log_in", Calendar.getInstance().getTime());
-                            userData.put("note_count", 0);
-                            userData.put("isGrid", false);
-                            userData.put("darMode", false);
+                       if (task.getResult().getData() != null) {
+                           if (!Objects.requireNonNull(task.getResult()).getData().containsKey("name")) {
+                               HashMap<String, Object> userData = new HashMap<>();
+                               userData.put("name", user.getDisplayName());
+                               userData.put("last_log_in", Calendar.getInstance().getTime());
+                               userData.put("note_count", 0);
+                               userData.put("isGrid", false);
+                               userData.put("darkMode", false);
 
-                            setDocument("", userData, null, null, null);
-                        } else {
-                            uSettings = task.getResult().toObject(userSettings.class);
-                            if (uSettings != null) {
-                                uSettings.setDate(Calendar.getInstance().getTime().toString());
-                            }
+                               uSettings = task.getResult().toObject(userSettings.class);
+                               setDocument("", userData, null, null, null);
+                           } else {
+                               uSettings = task.getResult().toObject(userSettings.class);
+                               if (uSettings != null) {
+                                   uSettings.setDate(Calendar.getInstance().getTime().toString());
+                               }
+                           }
+                       }
+
+                        if (uSettings == null) {
+                            uSettings = new userSettings();
                         }
-
-
                         getAllNotesFromDatabase();
                     }
                 });

@@ -386,11 +386,11 @@ public class MainActivity extends AppCompatActivity {
 
             if (noteCreator == null) {
                 noteCreator = new NoteEditorFragmentJavaFragment();
-                noteCreator.setEnterTransition(new AutoTransition());
-                noteCreator.setExitTransition(new AutoTransition());
-                noteCreator.setReenterTransition(new AutoTransition());
-                noteScreen.get().setExitTransition(new AutoTransition());
-                noteScreen.get().setReenterTransition(new AutoTransition());
+                noteCreator.setEnterTransition(new EverAutoTransition());
+                noteCreator.setExitTransition(new EverAutoTransition());
+                noteCreator.setReenterTransition(new EverAutoTransition());
+                noteScreen.get().setExitTransition(new EverAutoTransition());
+                noteScreen.get().setReenterTransition(new EverAutoTransition());
             }
 
             //  everNoteManagement.setSelectedID(actualNote.getId());

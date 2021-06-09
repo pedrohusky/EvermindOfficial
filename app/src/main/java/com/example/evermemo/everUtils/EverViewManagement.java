@@ -590,7 +590,12 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
             case "audio":
                 mainActivity.get().getAudioHelper().stopRender();
                 buttonsBinding.cardAudioOptions.postDelayed(() -> {
-                    animateHeightChange(buttonsBinding.cardAudioOptions, 100, 0, null);
+                    animateHeightChange(buttonsBinding.cardAudioOptions, 100, 0, new Runnable() {
+                        @Override
+                        public void run() {
+                            buttonsBinding.everGLAudioVisualizationView.setVisibility(View.GONE);
+                        }
+                    });
                     animateHeightChange(buttonsBinding.decoySpace, 100, buttonsBinding.bottomBar.getHeight(), null);
                 }, 150);
                 //  EverInterfaceHelper.getInstance().changeState(true);
@@ -644,7 +649,12 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                         case "audio":
                             buttonsBinding.cardAudioOptions.setVisibility(View.VISIBLE);
                             //   EverInterfaceHelper.getInstance().changeState(false);
-                            animateHeightChange(buttonsBinding.cardAudioOptions, 350, 450, null);
+                            animateHeightChange(buttonsBinding.cardAudioOptions, 350, 450, new Runnable() {
+                                @Override
+                                public void run() {
+                                    buttonsBinding.everGLAudioVisualizationView.setVisibility(View.VISIBLE);
+                                }
+                            });
                             animateHeightChange(buttonsBinding.decoySpace, 500, 600, null);
                             lastOpenedTab = name;
                             break;
@@ -717,7 +727,12 @@ public class EverViewManagement implements EverInterfaceHelper.OnEnterDarkMode {
                             //    mainActivity.get().getAudioHelper().stop(true);
                             mainActivity.get().getAudioHelper().stopRender();
                             mainActivity.get().getUIHandler().postDelayed(() -> {
-                                animateHeightChange(buttonsBinding.cardAudioOptions, 250, 0, null);
+                                animateHeightChange(buttonsBinding.cardAudioOptions, 250, 0, new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        buttonsBinding.everGLAudioVisualizationView.setVisibility(View.GONE);
+                                    }
+                                });
                                 animateHeightChange(buttonsBinding.decoySpace, 250, buttonsBinding.bottomBar.getHeight(), null);
                             }, 175);
                             //   EverInterfaceHelper.getInstance().changeState(true);
